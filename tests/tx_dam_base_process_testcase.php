@@ -104,14 +104,14 @@ class tx_dam_base_process_testcase extends tx_dam_testlib {
 		$uid = tx_dam::file_isIndexed($filepath);
 		self::assertNoUID ($uid, 'File index found, but shouldn\'t');
 		
-		tx_dam::config_setValue('setup.indexing.auto.disable', false);
+		tx_dam::config_setValue('setup.indexing.auto', true);
 		$indexed = tx_dam::index_autoProcess($filepath, $reindex=false);
 		self::assertTrue (isset($indexed['isIndexed']), 'File not indexed');
 	
 		$uid = $indexed['fields']['uid'];
 	
 		$filepathNew = $filepath.'.doc';
-		$error = tx_dam::process_renameFile($filepath, basename($filepathNew));
+		$error = tx_dam::process_renameFile($filepath, tx_dam::file_basename($filepathNew));
 		if ($error) debug($error);
 		
 		self::assertTrue (is_file($filepathNew), 'File not renamed');
@@ -122,7 +122,7 @@ class tx_dam_base_process_testcase extends tx_dam_testlib {
 		
 
 		$data = tx_dam::meta_getDataByUid($uid);
-		self::assertEquals ($data['file_name'], basename($filepathNew), 'Wrong file name '.$indexed['fields']['file_name'].' != '.basename($filepathNew));
+		self::assertEquals ($data['file_name'], tx_dam::file_basename($filepathNew), 'Wrong file name '.$indexed['fields']['file_name'].' != '.tx_dam::file_basename($filepathNew));
 		
 		
 		$this->removeFixturePathFromFilemount();

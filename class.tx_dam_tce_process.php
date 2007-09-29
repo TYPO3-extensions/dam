@@ -59,7 +59,7 @@ class tx_dam_tce_process {
 	function processCmdmap_preProcess($command, $table, $id, $value, $tce) {
 		global $FILEMOUNTS, $BE_USER, $TYPO3_CONF_VARS;
 
-		if($table == 'tx_dam') {
+		if($table === 'tx_dam') {
 			if ($rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_dam', 'uid='.$id, '', '', 1, 'uid')) {
 				$row = $rows[$id];
 
@@ -106,7 +106,7 @@ class tx_dam_tce_process {
 	 * status TXDAM_status_file_changed will be reset when record was edited
 	 */
 	function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $tce) {
-		if($table == 'tx_dam' AND intval($id)) {
+		if($table === 'tx_dam' AND intval($id)) {
 			if ($rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_dam', 'uid='.intval($id), '', '', 1, 'uid')) {
 				$row = $rows[$id];
 				if ($row['file_status']==TXDAM_status_file_changed) {
@@ -114,7 +114,7 @@ class tx_dam_tce_process {
 				}
 			}
 		}
-// TODO implement DB-Trigger
+// todo: implement DB-Trigger - can't remember what this means
 	}
 }
 

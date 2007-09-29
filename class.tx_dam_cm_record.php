@@ -66,7 +66,7 @@ class tx_dam_cm_record {
 
 				t3lib_div::loadTCA($table);
 
-				$calcPerms = $BE_USER->calcPerms(t3lib_BEfunc::getRecord('pages',($table=='pages'?$backRef->rec['uid']:$backRef->rec['pid'])));
+				$calcPerms = $BE_USER->calcPerms(t3lib_BEfunc::getRecord('pages',($table === 'pages'?$backRef->rec['uid']:$backRef->rec['pid'])));
 				$permsEdit = ($calcPerms & 16);
 				$permsDelete = ($calcPerms & 16);
 
@@ -75,6 +75,13 @@ class tx_dam_cm_record {
 				$item['__table'] = $table;
 
 				$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+				
+				if (is_array($backRef->disabledItems)) {
+					foreach ($backRef->disabledItems as $idName) {
+						$actionCall->removeAction ($idName);
+					}
+				}		
+				
 				$actionCall->setRequest('context', $item);
 				$actionCall->setEnv('returnUrl', t3lib_div::_GP('returnUrl'));
 				$actionCall->setEnv('backPath', $backRef->PH_backPath);
@@ -85,7 +92,6 @@ class tx_dam_cm_record {
 				$actionCall->setEnv('cmLevel', $backRef->cmLevel);
 				$actionCall->initActions(true);
 
-		// TODO set allow deny: $this->showControls 	#$backRef->disabledItems
 
 				$actions = $actionCall->renderActionsContextMenu(true);
 				foreach ($actions as $id => $action) {

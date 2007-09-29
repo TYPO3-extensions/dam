@@ -182,6 +182,108 @@ class tx_dam_db {
 	 }
 
 
+	
+	/**
+	 * Creates language-overlay for records in general (where translation is found in records from the same table)
+	 * In future versions this may support other overlays too (versions, ...)
+	 * 
+	 * $conf = array(
+	 * 		'sys_language_uid' // sys_language uid of the wanted language
+	 * 		'lovl_mode' // Overlay mode. If "hideNonTranslated" then records without translation will not be returned un-translated but false
+	 * )
+	 * 
+	 * In FE mode sys_language_uid and lovl_mode will be get from TSFE automatically
+	 * 
+	 * @param	string		Table name
+	 * @param	array		$row Record to overlay. Must containt uid, pid and $table]['ctrl']['languageField']
+	 * @param	integer		$conf Configuration array that defines the wanted overlay
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default. Special mode 'NONE' do not restrict queries.
+	 * @return	mixed		Returns the input record, possibly overlaid with a translation. But if $OLmode is "hideNonTranslated" then it will return false if no translation is found.
+	 */
+	function getRecordOverlay($table, $row, $conf=array(), $mode=TYPO3_MODE)	{
+		global $TCA;
+	
+	
+		$sys_language_content = intval($conf['sys_language_uid']);
+		$OLmode = $conf['lovl_mode'];
+
+
+		if ($mode ==='FE') {
+			$sys_language_content = $sys_language_content ? $sys_language_content : $GLOBALS['TSFE']->sys_language_content;
+			$OLmode = $OLmode ? $OLmode : $GLOBALS['TSFE']->sys_language_contentOL;
+			
+		} else {
+			if (!$conf) return $row;
+		}
+
+	
+		if ($row['uid']>0 && $row['pid']>0)	{
+			if ($TCA[$table] && ($languageField=$TCA[$table]['ctrl']['languageField']) && ($transOrigPointerField=$TCA[$table]['ctrl']['transOrigPointerField']))	{
+				if (!$TCA[$table]['ctrl']['transOrigPointerTable'])	{
+					
+					t3lib_div::loadTCA($table);
+					
+					$enableFields = tx_dam_db::enableFields($table, 'AND', $mode);
+				
+					
+						// Will try to overlay a record only if the sys_language_content value is larger that zero.
+					if ($sys_language_content>0)	{
+							// Must be default language or [All], otherwise no overlaying:
+						if ($row[$languageField]<=0)	{
+								// Select overlay record:
+							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+								'*',
+								$table,
+								'pid='.intval($row['pid']).
+									' AND '.$languageField.'='.intval($sys_language_content).
+									' AND '.$transOrigPointerField.'='.intval($row['uid']).
+									$enableFields,
+								'',
+								'',
+								'1'
+								);
+							$olrow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+							
+							if ($mode ==='FE') {
+								$GLOBALS['TSFE']->sys_page->versionOL($table,$olrow);
+							}
+
+								// Merge record content by traversing all fields:
+							if (is_array($olrow))	{
+								foreach($row as $fN => $fV)	{
+									if ($fN!='uid' && $fN!='pid' && isset($olrow[$fN]))	{
+										if ($TCA[$table]['columns'][$fN]['l10n_mode']!=='exclude' && ($TCA[$table]['columns'][$fN]['l10n_mode']!=='mergeIfNotBlank' || strcmp(trim($olrow[$fN]),'')))	{
+											$row[$fN] = $olrow[$fN];
+										}
+									}
+								}
+								$row['sys_language_uid'] = $olrow['sys_language_uid'];
+								$row['_BASE_REC_UID'] = $row['uid'];
+								$row['_LOCALIZED_UID'] = $olrow['uid'];
+								
+		
+							} elseif ($OLmode==='hideNonTranslated' && $row[$languageField]==0)	{	// Unset, if non-translated records should be hidden. ONLY done if the source record really is default language and not [All] in which case it is allowed.
+								$row = false;
+							}
+
+							// Otherwise, check if sys_language_content is different from the value of the record - that means a japanese site might try to display french content.
+						} elseif ($sys_language_content!=$row[$languageField])	{
+							$row = false;
+						}
+					} else {
+							// When default language is displayed, we never want to return a record carrying another language!:
+						if ($row[$languageField]>0)	{
+							$row = false;
+						}
+					}
+				}
+			}
+		}
+
+		return $row;
+	}
+	
+
 	/***************************************
 	 *
 	 *	 DAM record write/update
@@ -248,7 +350,7 @@ class tx_dam_db {
 		$tce->process_cmdmap();
 
 
-		if ($id=='NEW') {
+		if ($id === 'NEW') {
 
 			if ($id = $tce->substNEWwithIDs[$id]) {
 
@@ -268,7 +370,7 @@ class tx_dam_db {
 
 			} else {
 				// That shouldn't happen - really
-				#debug($tce->errorLog);
+				debug($tce->errorLog);
 
 				return false;
 			}
@@ -361,7 +463,8 @@ class tx_dam_db {
 			reset($trData->regTableItems_data);
 			$row = current($trData->regTableItems_data);
 
-			// TODO	$row = $processData->renderRecordRaw('tx_dam', $row['uid'], $row['pid'], $row);
+			// Use this?
+			//	$row = $processData->renderRecordRaw('tx_dam', $row['uid'], $row['pid'], $row);
 			// In opposite to renderRecord() this function do not prepare things like fetching TSconfig and others.
 
 		} else {
@@ -963,24 +1066,21 @@ class tx_dam_db {
 	function getPid () {
 		global $TYPO3_CONF_VARS;
 
-// TODO get pid from TS
-
-//
-//  plugin.tx_dam.defaults {
-//  // The pid of the media folder. Needs to be set when multiple media folders exist
-//  pid =
-
-
 		static $pid = 0;
+		
+		if(!$pid AND is_object($GLOBALS['TSFE'])) {
+			// get pid from TS
+			
+			//
+			//  plugin.tx_dam.defaults {
+			//  // The pid of the media folder. Needs to be set when multiple media folders exist
+			//  pid =
+			$pid = intval(tx_dam::config_getValue('plugin.defaults.pid')); # $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_dam.']['defaults.']['pid']);
+		}
 
-		if(!$pid AND is_object($GLOBALS['TYPO3_DB'])) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages', 'doktype=2 and module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').' AND deleted=0');
-			if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$pid = $row['uid'];
-			} else {
-				require_once(PATH_txdam.'lib/class.tx_dam_sysfolder.php');
-				$pid = tx_dam_sysfolder::init();
-			}
+		if(!$pid) {
+			require_once(PATH_txdam.'lib/class.tx_dam_sysfolder.php');
+			$pid = tx_dam_sysfolder::init();
 		}
 		return $pid;
 	}
@@ -1102,7 +1202,7 @@ class tx_dam_db {
 				}
 			}
 		}
-		return implode(',', $fieldList);
+		return implode(', ', $fieldList);
 	}
 
 
@@ -1377,20 +1477,23 @@ class tx_dam_db {
 	 *
 	 * In comparison to t3lib_pageSelect::enableFields() this function don't prepend with ' AND '.
 	 *
-	 * @param	string		The table for which to get the where clause
+	 * @param	string		$table The table for which to get the where clause
+	 * @param	string		$addOperator The table for which to get the where clause
 	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default. Special mode 'NONE' returns nothing, to not restrict queries.
 	 * @return	string		The part of the where clause on the form " AND NOT [fieldname] AND ...". Eg. " AND hidden=0 AND starttime < 123345567"
 	 * @see t3lib_pageSelect::enableFields()
 	 */
-	function enableFields($table, $mode=TYPO3_MODE)	{
-
-		if ($mode == 'NONE') {
+	function enableFields($table, $addOperator='', $mode=TYPO3_MODE)	{
+		$enableFields = '';
+		
+		if ($mode === 'NONE') {
 			return '';
-		} elseif ($mode == 'FE' AND is_object($GLOBALS['TSFE'])) {
-			return preg_replace('#^ AND #', '', $GLOBALS['TSFE']->sys_page->enableFields($table));
+		} elseif ($mode === 'FE' AND is_object($GLOBALS['TSFE'])) {
+			$enableFields = preg_replace('#^ AND #', '', $GLOBALS['TSFE']->sys_page->enableFields($table));
 		} else {
-			return tx_dam_db::deleteClause($table);
+			$enableFields =  tx_dam_db::deleteClause($table);
 		}
+		return ($enableFields AND $addOperator) ? ' '.$addOperator.' '.$enableFields : $enableFields;
 	}
 
 

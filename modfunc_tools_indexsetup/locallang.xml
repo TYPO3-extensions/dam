@@ -4,7 +4,7 @@
         <description></description>
         <type>module</type>
         <csh_table></csh_table>
-        <fileId>EXT:dam_cron/modfunc1/locallang.xml</fileId>
+        <fileId>EXT:dam/modfunc_tools_indexsetup/locallang.xml</fileId>
         <labelContext type="array">
             <label index="tx_dam_tools_indexsetup.title"></label>
             <label index="tx_dam_tools_indexsetup.func_defindex"></label>

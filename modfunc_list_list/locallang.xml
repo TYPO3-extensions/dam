@@ -12,9 +12,11 @@
     <data type="array">
         <languageKey index="default" type="array">
             <label index="tx_dam_list_list.title">List</label>
+            <label index="tx_dam_list_list.onlyDeselected">Show deselected only</label>
         </languageKey>
         <languageKey index="de" type="array">
             <label index="tx_dam_list_list.title">Liste</label>
+            <label index="tx_dam_list_list.onlyDeselected">Nur abgewählte anzeigen</label>
         </languageKey>
     </data>
     <orig_hash type="array">

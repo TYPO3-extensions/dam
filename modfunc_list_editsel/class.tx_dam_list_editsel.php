@@ -71,13 +71,12 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 	function modMenu()    {
 		global $LANG;
 
-// TODO move tx_dam_list_list_ ... to main module
 
 		return array(
 			'tx_dam_list_editsel_onlyDeselected' => '1',
 			'tx_dam_list_list_sortField' => '',
 			'tx_dam_list_list_sortRev' => '',
-			'tx_dam_list_displayFields' => '',
+			'tx_dam_list_list_displayFields' => '',
 		);
 	}
 
@@ -184,8 +183,8 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 			$allFields = tx_dam_db::getFieldListForUser($table);
 
-			$selectedFields = t3lib_div::_GP('tx_dam_list_displayFields');
-			$selectedFields = is_array($selectedFields) ? $selectedFields : explode(',', $this->pObj->MOD_SETTINGS['tx_dam_list_displayFields']);
+			$selectedFields = t3lib_div::_GP('tx_dam_list_list_displayFields');
+			$selectedFields = is_array($selectedFields) ? $selectedFields : explode(',', $this->pObj->MOD_SETTINGS['tx_dam_list_list_displayFields']);
 
 
 				// remove fields that can not be selected
@@ -199,7 +198,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 
 				// store field list
-			$this->pObj->MOD_SETTINGS['tx_dam_list_displayFields'] = implode(',', $selectedFields);
+			$this->pObj->MOD_SETTINGS['tx_dam_list_list_displayFields'] = implode(',', $selectedFields);
 			$GLOBALS['BE_USER']->pushModuleData($this->pObj->MCONF['name'], $this->pObj->MOD_SETTINGS);
 
 
@@ -270,9 +269,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				// Enable/disable display of thumbnails
 			$dblist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_list_list_showThumb'];
 				// Enable/disable display of AlternateBgColors
-			$dblist->showAlternateBgColors = $this->pObj->MOD_SETTINGS['tx_dam_list_list_showAlternateBgColors'];
-
-// TODO $dblist->showAlternateBgColors = $this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
+			$dblist->showAlternateBgColors = $this->pObj->config_checkValueEnabled('alternateBgColors', true);
 
 
 			$dblist->setPointer($this->pObj->selection->pointer);
@@ -281,22 +278,6 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 			$dblist->setParameterName('sortRev', 'SET[tx_dam_list_list_sortRev]');
 
 
-
-
-// TODO ???				// It is set, if the clickmenu-layer is active AND the extended view is not enabled.
-#			$dblist->dontShowClipControlPanels = $CLIENT['FORMSTYLE'] && !$BE_USER->uc['disableCMlayers'];
-
-
-
-
-				// JavaScript
-			$this->pObj->doc->JScodeArray['redirectUrls'] = $this->pObj->doc->redirectUrls(t3lib_div::getIndpEnv('REQUEST_URI'));
-			$this->pObj->doc->JScodeArray['jumpExt'] = '
-				function jumpExt(URL,anchor)	{
-					var anc = anchor?anchor:"";
-					document.location = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
-				}
-				';
 
 
 			#$content.= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="dblistForm">';
@@ -343,13 +324,6 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		}
 
 
-		// TODO ??
-		// Add pseudo "control" fields
-		#		$fields['_PATH_'] = '_PATH_';
-		#		$fields['_LOCALIZATION_'] = '_LOCALIZATION_';
-		#		$fields['_CONTROL_'] = '_CONTROL_';
-		#		$fields['_CLIPBOARD_'] = '_CLIPBOARD_';
-
 			// Create an option for each field:
 		$opt = array();
 		$opt[] = '<option value=""></option>';
@@ -362,7 +336,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 			// Compile the options into a multiple selector box:
 		$lMenu = '
-												<select size="'.t3lib_div::intInRange(count($allFields) + 1, 3, 8).'" multiple="multiple" name="tx_dam_list_displayFields[]">'.implode('', $opt).'
+					<select size="'.t3lib_div::intInRange(count($allFields) + 1, 3, 8).'" multiple="multiple" name="tx_dam_list_list_displayFields[]">'.implode('', $opt).'
 												</select>
 						';
 

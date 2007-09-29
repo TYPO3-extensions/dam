@@ -47,6 +47,7 @@
 
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
+require_once(PATH_txdam.'components/class.tx_dam_dbTriggerMediaTypes.php');
 
 /**
  * Module 'Media>Tools>Categories'
@@ -107,6 +108,38 @@ class tx_dam_tools_categories extends t3lib_extobjbase {
 				$content.= $this->pObj->doc->spacer(10);
 
 				if (t3lib_div::_GP('process')) {
+					
+					$GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_dam_metypes_avail', '');
+					
+					$fileTypes = array();
+					$mediaTypes = array();
+
+					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('DISTINCT tx_dam.media_type, tx_dam.file_type', 'tx_dam', 'tx_dam.pid='.intval($this->pObj->defaultPid));
+					
+					if ($rows) {
+						foreach ($rows as $row) {
+							tx_dam_dbTriggerMediaTypes::insertMetaTrigger($row);
+						}
+					}
+					
+					$content.= '<p>Media types browse tree was rebuild.</p>';
+
+
+				} else {
+
+					$content.= '<p>This function cleans up the media types browse tree and remove non existing types.</p>';
+					$content.= '<input type="submit" name="process" value="Perform Cleanup" />';
+
+				}
+
+			break;
+/*
+			case 'txdamMedia':
+
+				$content.= $this->pObj->doc->section($this->pObj->MOD_MENU['tx_dam_tools_categories.func'][$func], '',0,1);
+				$content.= $this->pObj->doc->spacer(10);
+
+				if (t3lib_div::_GP('process')) {
 					$removedFileTypes = array();
 					$removedMediaTypes = array();
 					$mediaTypes = array();
@@ -145,7 +178,7 @@ class tx_dam_tools_categories extends t3lib_extobjbase {
 				}
 
 			break;
-
+*/
 
 			default:
 				$content.= '';

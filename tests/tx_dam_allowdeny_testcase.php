@@ -175,7 +175,7 @@ class tx_dam_allowdeny_testcase extends tx_dam_testlib {
 						allow.somethingSpecial {
 							user = 999999999,888888888,'.$GLOBALS['BE_USER']->user['uid'].',777777777
 							usergroup = 999999999,888888888
-							forItems = action_example1
+							item = action_example1
 						}
 					}';
 				break;
@@ -188,7 +188,7 @@ class tx_dam_allowdeny_testcase extends tx_dam_testlib {
 						allow.somethingSpecial {
 							usergroup = 999999999,888888888,'.intval($GLOBALS['BE_USER']->user->usergroups).',777777777
 							admin = '.($GLOBALS['BE_USER']->isAdmin() ? 1 : 0).'
-							forItems = action_example1
+							item = action_example1
 						}
 					}';
 				break;
@@ -200,7 +200,7 @@ class tx_dam_allowdeny_testcase extends tx_dam_testlib {
 						deny = 
 						allow.somethingSpecial {
 							usergroup = *
-							forItems = action_example1
+							item = action_example1
 						}
 					}';
 				break;
@@ -246,7 +246,7 @@ class tx_dam_allowdeny_testcase extends tx_dam_testlib {
 						deny = action_example4
 						deny.somethingDenied {
 							from = 192.168.*.*,127.0.0.1,10.0.*.*
-							forItems = *
+							item = *
 						}
 					}';
 				break;

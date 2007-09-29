@@ -150,7 +150,7 @@ class tx_dam_guiFunc {
 		$iconname = tx_dam::convert_mediaType($infoArr['media_type']);
 		$iconfile = 'i/media-'.$iconname.'.png';
 
- 		if (TYPO3_MODE=='FE') {
+ 		if (TYPO3_MODE === 'FE') {
 			$iconfile = PATH_txdam_siteRel.$iconfile;
 		} else {
 			$iconfile = PATH_txdam_rel.$iconfile;
@@ -762,7 +762,7 @@ class tx_dam_guiFunc {
 						$label = 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics';
 					}
 				break;
-// TODO _techinfo
+// todo _techinfo
 //				case '_techinfo':
 //					if ($row['media_type'] == TXDAM_mtype_image AND $row['color_space']) {
 //						$value = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space']);
@@ -863,7 +863,7 @@ class tx_dam_guiFunc {
 
 		if (!($onClick===false)) {
 			$filepath = tx_dam::file_absolutePath($fileInfo);
-			$imgAttributes['onclick'] = !is_null($onClick) ? $onClick : ((TYPO3_MODE=='BE') ? 'top.launchView(\''.$filepath.'\',\'\',\''.$GLOBALS['BACK_PATH'].'\');return false;' : false);
+			$imgAttributes['onclick'] = !is_null($onClick) ? $onClick : ((TYPO3_MODE === 'BE') ? 'top.launchView(\''.$filepath.'\',\'\',\''.$GLOBALS['BACK_PATH'].'\');return false;' : false);
 		}
 
 		if ($makeFileIcon) {
@@ -1075,7 +1075,11 @@ class tx_dam_guiFunc {
 		$attributes = array();
 		$attributeMatches = array();
 		preg_match_all('# ([\w]+)="([^"]*)"#', $attributeString, $attributeMatches);
+
 		if(count($attributeMatches[1])) {
+			foreach($attributeMatches[2] as $name => $value) {
+				$attributeMatches[2][$name] = htmlspecialchars_decode($value);
+			}
 			$attributes = array_combine($attributeMatches[1], $attributeMatches[2]);
 		}
 		return $attributes;
@@ -1104,9 +1108,9 @@ class tx_dam_guiFunc {
 	 * @param string $content
 	 * @param integer $every After n chars a <wbr> will be inserted
 	 * @return string
+	 * @todo this could be done a little more intelligent: when a space is nearby don't insert <wbr>
 	 */
 	function tools_insertWordBreak($content, $every) {
-		// TODO this could be done a little more intelegent: when a space is nearby don't insert <wbr>
 		return chunk_split($content, $every, '<wbr>');
 	}
 

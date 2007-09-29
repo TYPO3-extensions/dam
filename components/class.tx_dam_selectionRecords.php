@@ -132,7 +132,7 @@ class tx_dam_selectionRecords extends tx_dam_selProcBase {
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 
-		if ($queryType=='NOT')	{
+		if ($queryType === 'NOT')	{
 			$query= $this->table.'.uid NOT IN ('.intval($id).')';
 		} else {
 			$query= $this->table.'.uid IN ('.intval($id).')';
@@ -159,7 +159,7 @@ class tx_dam_selectionRecords extends tx_dam_selProcBase {
 
 		$ids = implode(',',array_keys($itemArray));
 
-		if ($queryType=='NOT')	{
+		if ($queryType === 'NOT')	{
 			$query= $this->table.'.uid NOT IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($ids).')';
 		} else {
 			$query= $this->table.'.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($ids).')';

@@ -191,10 +191,8 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 			// Enable/disable display of long titles
 		$this->showfullTitle = false;
 			// Enable/disable display of AlternateBgColors
-		#$this->showAlternateBgColors = true;
-// TODO do not exist: $this->pObj->modTSconfig
-// TODO showAlternateBgColors
-		$this->showAlternateBgColors = $this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
+		$this->showAlternateBgColors = $this->SOBE->config_checkValueEnabled('alternateBgColors', true);
+			
 			// Enable/disable display of unix like permission string
 		$this->showUnixPerms = false;
 			// Display file sizes in bytes or formatted

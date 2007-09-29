@@ -237,7 +237,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
 				// update meta data
 			if ($this->processMetaUpdate) {
-				tx_dam::notify_fileDeleted($theFile, $recyclerPath.'/'.basename($theFile));
+				tx_dam::notify_fileDeleted($theFile, $recyclerPath.'/'.tx_dam::file_basename($theFile));
 			}
 
 			return TRUE;
@@ -267,7 +267,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 						if ($this->checkPathAgainstMounts($theFile))	{	// I choose not to append '/' to $theFile here as this will prevent us from deleting mounts!! (which makes sense to me...)
 							if ($this->actionPerms['deleteFolderRecursively'] && !$this->dont_use_exec_commands)	{
 									// No way to do this under windows
-								$cmd = 'rm -Rf "'.$theFile.'"';
+								$cmd = 'rm -Rf '.escapeshellarg($theFile);
 								exec($cmd);		// This is a quite critical command...
 								clearstatcache();
 								if (!@file_exists($theFile))	{
@@ -324,7 +324,8 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		$theFileSize = $_FILES['upload_'.$id]['size'];
 			// The original filename
 
-		$theName = $this->cleanFileName($_FILES['upload_'.$id]['name']);
+		$theName = tx_dam::file_makeCleanName($_FILES['upload_'.$id]['name']);
+#		$theName = $this->cleanFileName($_FILES['upload_'.$id]['name']);
 
 			// main log entry
 		$this->log['cmd']['upload'][$id] = array(
@@ -446,7 +447,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
 		$extListTxt = $GLOBALS['TYPO3_CONF_VARS']['SYS']['textfile_ext'];
 
-		$newName = tx_dam::file_makeCleanName($cmds['data']);
+		$newName = tx_dam::file_makeCleanName($cmds['data'], true);
 #		$newName = $this->cleanFileName($cmds['data']);
 
 		if (empty($newName))	{ return; }
@@ -622,7 +623,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 								if ($this->PHPFileFunctions)	{
 									rename($theFile, $theDestFile);
 								} else {
-									$cmd = 'mv "'.$theFile.'" "'.$theDestFile.'"';
+									$cmd = 'mv '.escapeshellarg($theFile).' '.escapeshellarg($theDestFile);
 									exec($cmd);
 								}
 								clearstatcache();
@@ -661,7 +662,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 									if ($this->PHPFileFunctions)	{
 										rename($theFile, $theDestFile);
 									} else {
-										$cmd = 'mv "'.$theFile.'" "'.$theDestFile.'"';
+										$cmd = 'mv '.escapeshellarg($theFile).' '.escapeshellarg($theDestFile);
 										$errArr = array();
 										$retVar = 0;
 										exec($cmd,$errArr,$retVar);
@@ -703,7 +704,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		if (!$this->isInit) return FALSE;
 
 
-		$theNewName = tx_dam::file_makeCleanName($cmds['data']);
+		$theNewName = tx_dam::file_makeCleanName($cmds['data'], true);
 #		$theNewName = $this->cleanFileName($cmds['data']);
 
 		if (empty($theNewName))	{ return; }
@@ -838,9 +839,10 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 			$this->log['cmd'][$actionName][$id]['errors'][] = array(
 				'error' => $error,
 				'errDetail' => $details_nr,
-				'msg' => sprintf($details, $data[0],$data[1],$data[2],$data[3],$data[4]), // this should be set localized if available
+				'msg' => vsprintf($details, $data), // this should be set localized if available
 				);
 		}
+		$this->lastError = vsprintf($details, $data);
 	}
 
 

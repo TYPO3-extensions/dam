@@ -171,9 +171,10 @@ class tx_dam_iterator_media extends tx_dam_iterator_db {
 			$this->currentData = $this->media->getMetaInfoArray();
 
 			if ($this->media->isAvailable) {
-				// TODO move to tx_dam_media ?
-				$this->_fetchCurrentOverlayData();
-				// TODO overlay data is not in media object available
+				// TODO use tx_dam_media
+				if (!is_null($this->currentData) AND $this->table AND $this->mode === 'FE') {
+					$this->currentData = tx_dam_db::getRecordOverlay($this->table, $this->currentData, array(), $this->mode);
+				}
 			}
 
 			if ($this->conf['callbackFunc_currentData'] AND is_callable($this->conf['callbackFunc_currentData'])) {

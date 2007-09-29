@@ -303,7 +303,7 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	function addUserTemplateMarkers($marker,$table,$field,$row,&$PA)	{
 		global $BACK_PATH;
 
-		if($PA['fieldConf']['config']['type']=='none' OR $PA['fieldConf']['config']['readOnly']) {
+		if($PA['fieldConf']['config']['type'] === 'none' OR $PA['fieldConf']['config']['readOnly']) {
 			if(in_array($field, $this->tx_dam_fixedFields)) {
 				$marker['SETFIXED']='<img src="'.$BACK_PATH.'gfx/pil2right.gif" width="7" height="12" vspace="2" alt="" />';
 			}
@@ -346,6 +346,16 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	 */
 	function wrapItem ($content) {
 		return str_replace('###FIELD_PALETTE###',$content,$this->palFieldTemplate);
+	}
+
+	/**
+	 * Remove "required" from the TCA array
+	 *
+	 * @return	void
+	 */
+	function removeField($field) {
+		global $TCA;
+		unset($TCA[$this->virtual]['columns'][$field]);
 	}
 
 	/**

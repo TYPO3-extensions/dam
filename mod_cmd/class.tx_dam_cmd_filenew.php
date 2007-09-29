@@ -72,7 +72,7 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 	 * @return	boolean Return true if access is granted
 	 */
 	function accessCheck() {
-		return tx_dam::access_checkAction('newFile');
+		return tx_dam::access_checkFileOperation('newFile');
 	}
 
 

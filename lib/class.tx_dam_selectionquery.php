@@ -80,16 +80,19 @@ class tx_dam_selectionQuery {
 
 	/**
 	 * Selection object
+	 * @var object
 	 */
 	var $sl;
 
 	/**
 	 * Query generator object
+	 * @var object
 	 */
 	var $qg;
 
 	/**
 	 * Pointer object
+	 * @var integer
 	 */
 	var $pointer;
 
@@ -97,10 +100,19 @@ class tx_dam_selectionQuery {
 
 	/**
 	 * Current SQL result
+	 * @var mixed
 	 */
 	var $res = false;
 
 
+
+	/**
+	 * If set the user has access check is extended to other selection trees, not only for file mounts
+	 * @var boolean
+	 */
+	var $additionalAccessLimit = false;
+	
+	
 
 	/**
 	 * Initializes the pointer object
@@ -182,6 +194,10 @@ class tx_dam_selectionQuery {
 	function addSelectionToQuery () {
 		if($this->sl->hasSelection()) {
 			$this->qg->mergeWhere($this->sl->getSelectionWhereClauseArray());
+	
+			if ($this->additionalAccessLimit) {
+				$this->qg->mergeWhere($this->sl->getRestrictAccessWhereClauseArray());
+			}
 		}
 	}
 
@@ -274,7 +290,7 @@ class tx_dam_selectionQuery {
 
 
 			// collect debug information
-		if (tx_dam::config_getValue('setup.debug')) {
+		if (tx_dam::config_getValue('setup.devel')) {
 				if ($this->error OR !$count OR $countTotal==0) {
 					if ($this->error) $this->SOBE->debugContent['queryArr'] = '<h4>ERROR</h4>'.$this->error;
 					$this->SOBE->debugContent['queryArr'] = '<h4>$queryArr</h4>'.t3lib_div::view_array($queryArr);

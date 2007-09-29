@@ -101,6 +101,7 @@
             <label index="reselect">Include in selection</label>
             <label index="remove">Remove</label>
             <label index="defaultSorting">Revert to default sorting</label>
+            <label index="labelSorting">Sorting:</label>
             <label index="revertSelection">Revert to previous selection</label>
             <label index="tx_dam_batchProcess.introduction">Batch Process of the current selection.</label>
             <label index="tx_dam_batchProcess.appendDesc">Check the fields you want to &lt;b&gt;append&lt;/b&gt; data.&lt;br /&gt;Otherwise the input will replace the content.</label>
@@ -161,6 +162,9 @@
             <label index="doForFullList">all listed</label>
             <label index="for">for</label>
             <label index="actionSelect">Command</label>
+            <label index="langCurrentExclusive">exclusive</label>
+            <label index="langCurrentAndDefault">+ default</label>
+            <label index="langCreateTrans">Create translation</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
@@ -196,6 +200,7 @@
             <label index="reselect">In Auswahl einschliessen</label>
             <label index="remove">Entfernen</label>
             <label index="defaultSorting">Sortierung entfernen</label>
+            <label index="labelSorting">Sortierung:</label>
             <label index="revertSelection">Zurück zur letzten Auswahl</label>
             <label index="tx_dam_batchProcess.introduction">Stapelverarbeitung der ausgewählten Medien.</label>
             <label index="tx_dam_batchProcess.appendDesc">Wählen Sei die Felder aus, denen sie Ihre Eingaben &lt;b&gt;anfügen&lt;/b&gt; wollen.&lt;br /&gt;Ansonsten ersetzen Ihre Eingaben die bereits vorhandenen Daten.</label>
@@ -256,6 +261,9 @@
             <label index="doForFullList">gesammte Liste</label>
             <label index="for">für</label>
             <label index="actionSelect">Befehl</label>
+            <label index="langCurrentExclusive">exklusiv</label>
+            <label index="langCurrentAndDefault">+ Standard</label>
+            <label index="langCreateTrans">Übersetzung anlegen</label>
         </languageKey>
     </data>
     <orig_hash type="array">

@@ -70,7 +70,7 @@ class tx_dam_cmd_filerename extends t3lib_extobjbase {
 	 * @return	boolean Return true if access is granted
 	 */
 	function accessCheck() {
-		return tx_dam::access_checkAction('renameFile');
+		return tx_dam::access_checkFileOperation('renameFile');
 	}
 
 

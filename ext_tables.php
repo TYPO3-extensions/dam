@@ -85,7 +85,7 @@ unset($tempColumns);
 
 
 
-if (TYPO3_MODE=='BE')	{
+if (TYPO3_MODE === 'BE')	{
 
 		// this forces the DAM sysfolder to be created if not yet available
 	$temp_damFolder = tx_dam_db::getPid();
@@ -99,7 +99,7 @@ if (TYPO3_MODE=='BE')	{
 	if (!isset($TBE_MODULES['txdamM1']))	{
 		$temp_TBE_MODULES = array();
 		foreach($TBE_MODULES as $key => $val) {
-			if ($key=='file') {
+			if ($key === 'file') {
 				$temp_TBE_MODULES[$key] = $val;
 				$temp_TBE_MODULES['txdamM1'] = $val;
 			} else {
@@ -155,12 +155,12 @@ if (TYPO3_MODE=='BE')	{
 		'LLL:EXT:dam/modfunc_list_thumbs/locallang.xml:tx_dam_list_thumbs.title'
 	);
 
-	t3lib_extMgm::insertModuleFunction(
-		'txdamM1_list',
-		'tx_dam_list_editsel',
-		PATH_txdam.'modfunc_list_editsel/class.tx_dam_list_editsel.php',
-		'LLL:EXT:dam/modfunc_list_editsel/locallang.xml:tx_dam_list_editsel.title'
-	);
+//	t3lib_extMgm::insertModuleFunction(
+//		'txdamM1_list',
+//		'tx_dam_list_editsel',
+//		PATH_txdam.'modfunc_list_editsel/class.tx_dam_list_editsel.php',
+//		'LLL:EXT:dam/modfunc_list_editsel/locallang.xml:tx_dam_list_editsel.title'
+//	);
 
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_list',
@@ -187,6 +187,13 @@ if (TYPO3_MODE=='BE')	{
 		'tx_dam_tools_indexupdate',
 		PATH_txdam.'modfunc_tools_indexupdate/class.tx_dam_tools_indexupdate.php',
 		'LLL:EXT:dam/modfunc_tools_indexupdate/locallang.xml:tx_dam_tools_indexupdate.title'
+	);
+
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_tools',
+		'tx_dam_tools_config',
+		PATH_txdam.'modfunc_tools_config/class.tx_dam_tools_config.php',
+		'LLL:EXT:dam/modfunc_tools_config/locallang.xml:tx_dam_tools_config.title'
 	);
 
 	t3lib_extMgm::insertModuleFunction(
@@ -290,6 +297,7 @@ if (TYPO3_MODE=='BE')	{
 	tx_dam::register_action ('tx_dam_action_deleteFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFile');
 #	tx_dam::register_action ('tx_dam_action_deleteFileQuick', 'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFileQuick');
 
+	tx_dam::register_action ('tx_dam_action_localizeRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_localizeRec');
 	tx_dam::register_action ('tx_dam_action_editRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRec');
 	tx_dam::register_action ('tx_dam_action_editRecPopup',    'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRecPopup');
 	tx_dam::register_action ('tx_dam_action_viewFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_viewFileRec');
@@ -318,7 +326,6 @@ if (TYPO3_MODE=='BE')	{
 
 
 tx_dam::register_mediaTable ('tx_dam');
-#t3lib_extMgm::allowTableOnStandardPages('tx_dam');
 #t3lib_extMgm::addToInsertRecords('tx_dam');
 
 t3lib_extMgm::addLLrefForTCAdescr('tx_dam','EXT:dam/locallang_csh_dam.xml');
@@ -351,7 +358,6 @@ $TCA['tx_dam'] = array(
 		),
 		'dividers2tabs' => '1',
 		'typeicon_column' => 'media_type',
-// TODO move icons to somewhere else?
 		'typeicons' => array(
 			'0' => PATH_txdam_rel.'i/18/mtype_undefined.gif',
 			'1' => PATH_txdam_rel.'i/18/mtype_text.gif',
@@ -384,7 +390,6 @@ $TCA['tx_dam'] = array(
 
 
 tx_dam::register_mediaTable ('tx_dam_cat');
-#t3lib_extMgm::allowTableOnStandardPages('tx_dam_cat');
 
 $TCA['tx_dam_cat'] = array(
 	'ctrl' => array(
@@ -420,7 +425,6 @@ $TCA['tx_dam_cat'] = array(
 
 
 tx_dam::register_mediaTable ('tx_dam_metypes_avail');
-#t3lib_extMgm::allowTableOnStandardPages('tx_dam_metypes_avail');
 
 $TCA['tx_dam_metypes_avail'] = array(
 	'ctrl' => array(
@@ -440,7 +444,6 @@ $TCA['tx_dam_metypes_avail'] = array(
 
 
 tx_dam::register_mediaTable ('tx_dam_selection');
-#t3lib_extMgm::allowTableOnStandardPages('tx_dam_selection');
 
 $TCA['tx_dam_selection'] = array(
 	'ctrl' => array(

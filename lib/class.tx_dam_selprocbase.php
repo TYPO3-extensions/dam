@@ -146,8 +146,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	 */
 	var $ext_IconMode = true;
 
-// TODO context $clickMenuScript
-	var $clickMenuScript='';
+
 
 
 
@@ -176,10 +175,10 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	function wrapTitle($title,$row,$bank=0)	{
 		global $BACK_PATH;
 
-		if ($this->mode=='elbrowser') {
+		if ($this->mode === 'elbrowser') {
 			return $this->eb_wrapTitle($title,$row);
 
-		} elseif ($this->mode=='tceformsSelect') {
+		} elseif ($this->mode === 'tceformsSelect') {
 			return $this->tceformsSelect_wrapTitle($title,$row);
 
 		} elseif($row['uid'] OR ($row['uid'] == '0' AND $this->linkRootCat)) {
@@ -202,7 +201,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 		$control = '';
 
 		if ($this->modeSelIcons
-			AND !($this->mode=='tceformsSelect')
+			AND !($this->mode === 'tceformsSelect')
 			AND ($row['uid'] OR ($row['uid'] == '0' AND $this->linkRootCat))) {
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
 			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/plus.gif', 'width="8" height="11"').' alt="" />';
@@ -230,7 +229,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	 * @access private
 	 */
 	function PM_ATagWrap($icon,$cmd,$bMark='')	{
-		if ($this->mode=='elbrowser') {
+		if ($this->mode === 'elbrowser') {
 			return $this->eb_PM_ATagWrap($icon,$cmd,$bMark);
 		} else {
 			$cmd .= $this->PM_addParam;
@@ -299,10 +298,10 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			// Wrap icon in click-menu link.
 		if (!$this->ext_IconMode)	{
 			#$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($theIcon,$this->table,$this->getId($row),0);
-// TODO dam_catedit
+// todo: dam_catedit
 			if (t3lib_extmgm::isLoaded('dam_catedit')) {
 				require_once(t3lib_extmgm::extPath('dam_catedit').'lib/class.tx_damcatedit_div.php');
-				$theIcon = tx_damcatedit_div::clickMenuWrap($theIcon, $this->table, $this->getId($row), 0, $addParams='', $enDisItems='', '', $this->clickMenuScript);
+				$theIcon = tx_damcatedit_div::clickMenuWrap($theIcon, $this->table, $this->getId($row), false, $addParams='', $enDisItems='', '', $this->clickMenuScript);
 			}
 
 		} elseif (!strcmp($this->ext_IconMode,'titlelink'))	{
@@ -331,7 +330,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			$treeArr = array_merge(array(array('HTML' => $firstHtml,'row' => $rootRec,'bank'=>0)), $treeArr);
 		}
 
-		if($this->mode=='elbrowser') {
+		if($this->mode === 'elbrowser') {
 			return $this->eb_printTree($treeArr);
 
 		} else {
@@ -621,7 +620,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			$c++;
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
 				// Creating blinking arrow, if applicable:
-			if ($cmpItem && $GLOBALS['SOBE']->act=='file' && $cmpItem==$v['row']['uid'])	{
+			if ($cmpItem && $GLOBALS['SOBE']->act === 'file' && $cmpItem==$v['row']['uid'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
 			} else {
@@ -814,7 +813,7 @@ class tx_dam_selProcBase {
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 #		$query= 'tx_dam.tx_damdemo_customcategory';
-#		if($operator=='!=') {
+#		if($operator === '!=') {
 #			$query.= ' NOT';
 #		}
 #		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($id,'tx_dam');

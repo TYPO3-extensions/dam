@@ -99,18 +99,16 @@ class tx_dam_browseTrees {
 		$this->selectionClasses = $selectionClassesArr;
 
 			// configuration - default
-		$configDefault = tx_dam::config_getValue('setup.selections.default');
-		$configDefault = $configDefault['properties'];
+		$default_modeSelIcons = tx_dam::config_checkValueEnabled('setup.selections.default.modeSelIcons', true);
 
 		if (is_array($this->selectionClasses))	{
 			foreach($this->selectionClasses as $classKey => $classRef)	{
 
 					// configuration - class
-				$config = tx_dam::config_getValue('setup.selections.'.$classKey);
-				$config = $config['properties'];
-				if(intval($config['disable'])) {
+				if(!tx_dam::config_checkValueEnabled('setup.selections.'.$classKey, true)) {
 					continue;
 				}
+				$config = tx_dam::config_getValue('setup.selections.'.$classKey, true);
 
 				if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
 					if (!$obj->isPureSelectionClass)	{
@@ -128,8 +126,8 @@ class tx_dam_browseTrees {
 							$this->treeObjArr[$classKey]->treeName = $obj->getTreeName();
 							$this->treeObjArr[$classKey]->domIdPrefix = $obj->domIdPrefix ? $obj->domIdPrefix : $obj->getTreeName();
 							$this->treeObjArr[$classKey]->rootIcon = PATH_txdam_rel.'i/cat2folder.gif';
-							$this->treeObjArr[$classKey]->iconName = basename($obj->getDefaultIcon());
-							$this->treeObjArr[$classKey]->iconPath = dirname($obj->getDefaultIcon()).'/';
+							$this->treeObjArr[$classKey]->iconName = tx_dam::file_basename($obj->getDefaultIcon());
+							$this->treeObjArr[$classKey]->iconPath = tx_dam::file_dirname($obj->getDefaultIcon());
 								// workaround: Only variables can be passed by reference
 							$this->treeObjArr[$classKey]->_data = $obj->getTreeArray();
 							$this->treeObjArr[$classKey]->setDataFromArray($this->treeObjArr[$classKey]->_data);
@@ -139,10 +137,11 @@ class tx_dam_browseTrees {
 						$this->treeObjArr[$classKey]->thisScript = $thisScript;
 						$this->treeObjArr[$classKey]->BE_USER = $BE_USER;
 						$this->treeObjArr[$classKey]->mode = $mode;
-						if(!($config['disableModeSelIcons']=='0') AND ($configDefault['disableModeSelIcons'] OR $config['disableModeSelIcons'])) {
+						$this->treeObjArr[$classKey]->ext_IconMode = '1'; // no context menu on icons
+	
+						if (!$default_modeSelIcons OR !tx_dam::config_isEnabledOption($config, 'modeSelIcons', true)) {
 							$this->treeObjArr[$classKey]->modeSelIcons = false;
 						}
-						$this->treeObjArr[$classKey]->ext_IconMode = '1'; // no context menu on icons
 					}
 
 					if ($this->treeObjArr[$classKey]->supportMounts) {
@@ -171,7 +170,10 @@ class tx_dam_browseTrees {
 		$tree = '';
 
 		if (is_array($this->treeObjArr)) {
-			foreach($this->treeObjArr as $treeName => $treeObj)	{
+			foreach($this->treeObjArr as $classKey => $treeObj)	{
+				if(tx_dam::config_checkValueEnabled('setup.selections.'.$classKey.'.hidden', false)) {
+					continue;
+				}
 				$tree .= $treeObj->getBrowsableTree();
 			}
 		}

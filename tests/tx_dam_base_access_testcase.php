@@ -48,7 +48,7 @@ class tx_dam_base_access_testcase extends tx_dam_testlib {
 		$GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'] = array();
 
 		$filepath = $this->getFixtureFilename();
-		$testpath = dirname($filepath).'/';
+		$testpath = tx_dam::file_dirname($filepath);
 		
 			// path is cached so we need to use a different: 01/
 		$access = tx_dam::access_checkPath ($testpath.'01/');
@@ -90,11 +90,11 @@ class tx_dam_base_access_testcase extends tx_dam_testlib {
 	}
 	
 	/**
-	 * tx_dam::access_checkAction()
+	 * tx_dam::access_checkFileOperation()
 	 */	 
-	public function test_access_checkAction() {
+	public function test_access_checkFileOperation() {
 
-		// TODO access_checkAction
+		// todo: access_checkFileOperation
 	}
 	
 	

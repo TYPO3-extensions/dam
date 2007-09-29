@@ -90,7 +90,7 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 
 		$pArr = explode('|', t3lib_div::_GP('bparams'));
 
-		if ($type=='db' AND $pArr[3]==$this->table) {
+		if ($type === 'db' AND $pArr[3]==$this->table) {
 			$isValid = true;
 
 		}
@@ -304,7 +304,7 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 			$MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array(), $this->MCONF_name, '', 'expandTree');
 		}
 		if($key) {
-			if ($key=='expandTree') {
+			if ($key === 'expandTree') {
 				$expandTree = unserialize($MOD_SETTINGS[$key]);
 				return is_array($expandTree) ? $expandTree : array();
 			} else {
@@ -379,7 +379,7 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 			break;
 			case 'db':
 				$this->allowedTables = $pArr[3];
-				if ($this->allowedTables=='tx_dam') {
+				if ($this->allowedTables === 'tx_dam') {
 					$this->allowedFileTypes = $pArr[4];
 					$this->disallowedFileTypes = $pArr[5];
 				}

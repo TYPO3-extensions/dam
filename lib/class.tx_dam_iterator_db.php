@@ -160,8 +160,9 @@ class tx_dam_iterator_db extends tx_dam_iterator_base {
 	 */
 	function _fetchCurrent() {
 		if ($this->currentData = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res)) {
-			if ($this->mode=='FE') {
-				$this->_fetchCurrentOverlayData();
+			
+			if (!is_null($this->currentData) AND $this->table AND $this->mode === 'FE') {
+				$this->currentData = tx_dam_db::getRecordOverlay($this->table, $this->currentData, array(), $this->mode);
 			}
 
 			if ($this->conf['callbackFunc_currentData'] AND is_callable($this->conf['callbackFunc_currentData'])) {
@@ -172,26 +173,6 @@ class tx_dam_iterator_db extends tx_dam_iterator_base {
 		}
 	}
 
-
-
-
-	/**
-	 * Fetches the current element
-	 *
-	 * @return	void
-	 */
-	function _fetchCurrentOverlayData() {
-		if (!is_null($this->currentData) AND $this->table) {
-
-				// Versioning preview:
-			$GLOBALS['TSFE']->sys_page->versionOL($this->table, $this->currentData);
-
-				// Language Overlay:
-			if (is_array($this->currentData) && $GLOBALS['TSFE']->sys_language_contentOL)	{
-				$this->currentData = $GLOBALS['TSFE']->sys_page->getRecordOverlay($this->table, $this->currentData, $GLOBALS['TSFE']->sys_language_content, $GLOBALS['TSFE']->sys_language_contentOL);
-			}
-		}
-	}
 }
 
 

@@ -266,23 +266,10 @@ var $doAutoMetaUpdate = false;
 	 * @return	void
 	 */
 	function setWantedVariant($conf='auto') {
-		if ($this->mode == 'FE' AND $conf === 'auto') {
+		if ($this->mode === 'FE' AND $conf === 'auto') {
 // TODO variant: language, versioning, ... - setup with mode and use of setup by other methods?
 
 // see tx_dam::meta_getDataVariant()
-
-/*
-
-					// Versioning preview:
-				$GLOBALS['TSFE']->sys_page->versionOL($this->table, $this->currentData);
-
-					// Language Overlay:
-				if (is_array($this->currentData) && $GLOBALS['TSFE']->sys_language_contentOL)	{
-					$this->currentData = $GLOBALS['TSFE']->sys_page->getRecordOverlay($this->table, $this->currentData, $GLOBALS['TSFE']->sys_language_content, $GLOBALS['TSFE']->sys_language_contentOL);
-				}
-
- */
-
 
 		}
 	}
@@ -595,6 +582,15 @@ var $doAutoMetaUpdate = false;
 				return $content;
 				break;
 
+			case '__icon_fileTypeImgTag':
+				$addAttrib = $conf['imgAttributes'];
+				if ($conf['createTitleAttribute'] AND strpos($addAttrib, 'title=')===false) {
+					$addAttrib .= tx_dam_guiFunc::icon_getTitleAttribute($this->getMetaInfoArray());
+				}
+				$content = tx_dam::icon_getFileTypeImgTag($this->getMetaInfoArray(), $conf['imgAttributes']);
+				$hsc = false;
+				break;
+
 			case 'caption':
 				$caption = $this->getMeta('caption');
 				if (!$caption) $caption = $this->getMeta('description');
@@ -608,7 +604,7 @@ var $doAutoMetaUpdate = false;
 				break;
 
 			case 'media_type':
-					$content = tx_dam_guifunc::convert_mediaType($this->getMeta($field));
+				$content = tx_dam_guifunc::convert_mediaType($this->getMeta($field));
 				break;
 
 // TODO set substitution rules externally
@@ -671,6 +667,11 @@ var $doAutoMetaUpdate = false;
 	 * @return	string		File name for download.
 	 */
 	function getDownloadName () {
+		
+		/*
+		 * A secure download framework is in preparation which will be used here
+		 */		
+		
 		$dlName = $this->getMeta('file_dl_name');
 		return $dlName ? $dlName : $this->filename;
 	}
@@ -682,6 +683,11 @@ var $doAutoMetaUpdate = false;
 	 * @return	string		Relative path to file
 	 */
 	function getPathForSite () {
+
+		/*
+		 * A secure download framework is in preparation which will be used here
+		 */		
+		
 		$file_path = tx_dam::file_relativeSitePath ($this->pathAbsolute.$this->filename);
 		return $file_path;
 	}

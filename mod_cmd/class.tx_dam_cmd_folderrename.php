@@ -66,7 +66,7 @@ class tx_dam_cmd_folderrename extends t3lib_extobjbase {
 	 * @return	boolean Return true if access is granted
 	 */
 	function accessCheck() {
-		return tx_dam::access_checkAction('renameFolder');
+		return tx_dam::access_checkFileOperation('renameFolder');
 	}
 
 
@@ -108,7 +108,7 @@ class tx_dam_cmd_folderrename extends t3lib_extobjbase {
 
 			if (is_array($this->pObj->data) AND $this->pObj->data['new_name']) {
 
-				$newFolderName = tx_dam::file_makeCleanName($this->pObj->data['new_name']);
+				$newFolderName = tx_dam::file_makeCleanName($this->pObj->data['new_name'], true);
 				$error = tx_dam::process_renameFolder($this->folder['dir_path_absolute'], $newFolderName);
 
 				if ($error) {

@@ -169,7 +169,7 @@ class tx_dam_treelib_ebtreeview extends t3lib_treeView {
 			$bgColorClass = ($c+1)%2 ? 'bgColor' : 'bgColor-10';
 
 				// Creating blinking arrow, if applicable:
-			if ($GLOBALS['SOBE']->browser->curUrlInfo['act']=='tree' && $GLOBALS['SOBE']->browser->curUrlInfo['treeid']==$v['row']['uid'] && $GLOBALS['SOBE']->browser->curUrlInfo['treeid'])	{
+			if ($GLOBALS['SOBE']->browser->curUrlInfo['act'] === 'tree' && $GLOBALS['SOBE']->browser->curUrlInfo['treeid']==$v['row']['uid'] && $GLOBALS['SOBE']->browser->curUrlInfo['treeid'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
 			} else {

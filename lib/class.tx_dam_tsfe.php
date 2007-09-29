@@ -95,15 +95,15 @@ class tx_dam_tsfe {
 			}
 		}
 
+
+		$uid = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
 		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
-		$damFiles = tx_dam_db::getReferencedFiles($refTable, $this->cObj->data['uid'], $refField);
+		$damFiles = tx_dam_db::getReferencedFiles($refTable, $uid, $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 
 		return implode(',',$files);
 	}
-
-
 
 
 
@@ -116,7 +116,7 @@ class tx_dam_tsfe {
 
 	/**
 	 * Creates an instance of 'language' (sysext/lang/lang.php) in $GLOBALS['LANG'] ...
-	 * ... if TYPO3_MODE=='FE' and the object do not exist
+	 * ... if TYPO3_MODE === 'FE' and the object do not exist
 	 *
 	 * The LANG object will be initialized with the current language used in TSFE.
 	 *
@@ -129,7 +129,7 @@ class tx_dam_tsfe {
 	function initLangObject() {
 		global $TYPO3_CONF_VARS;
 		
-		if (TYPO3_MODE=='FE') {
+		if (TYPO3_MODE === 'FE') {
 			if (!is_object($GLOBALS['LANG']))	{
 				require_once(PATH_site.TYPO3_mainDir.'sysext/lang/lang.php');
 				$GLOBALS['LANG'] = t3lib_div::makeInstance('language');

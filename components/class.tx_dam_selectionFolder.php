@@ -125,10 +125,15 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 		$this->treeName='txdamFolder';
 		$this->domIdPrefix=$this->treeName;
 		$this->MOUNTS = $GLOBALS['FILEMOUNTS'];
-		$this->iconPath = 'gfx/i/';
-		$this->iconName = '_icon_webfolders.gif';
+
+		$this->iconPath = PATH_txdam_rel.'i/';
+		$this->iconName = 'folder_web_ro.gif';
+		$this->rootIcon = PATH_txdam_rel.'i/folder_mount.gif';
 		$this->ext_IconMode = '1'; // no context menu on icons
+
 	}
+
+
 
 
 	/**
@@ -164,7 +169,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 * @access private
 	 */
 	function PM_ATagWrap($icon,$cmd,$bMark='')	{
-		if ($this->mode=='elbrowser') {
+		if ($this->mode === 'elbrowser') {
 			return $this->eb_PM_ATagWrap($icon,$cmd,$bMark);
 		} else {
 			if ($bMark)	{
@@ -191,10 +196,10 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 */
 	function wrapTitle($title,$row,$bank=0)	{
 
-		if ($this->mode=='elbrowser') {
+		if ($this->mode === 'elbrowser') {
 			return $this->eb_wrapTitle($title,$row);
 
-		} elseif ($this->mode=='tceformsSelect') {
+		} elseif ($this->mode === 'tceformsSelect') {
 			return $this->tceformsSelect_wrapTitle($title,$row);
 
 		} else {
@@ -240,7 +245,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 * @return	string		The HTML code for the tree
 	 */
 	function printTree($treeArr='')	{
-		if($this->mode=='elbrowser') {
+		if($this->mode === 'elbrowser') {
 			return $this->eb_printTree($treeArr);
 		} else {
 			$titleLen = intval($this->BE_USER->uc['titleLen']);
@@ -326,7 +331,145 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 		return $this->treeName;
 	}
 
+	/**
+	 * Will create and return the HTML code for a browsable tree of folders.
+	 * Is based on the mounts found in the internal array ->MOUNTS (set in the constructor)
+	 *
+	 * @return	string		HTML code for the browsable tree
+	 */
+	function getBrowsableTree()	{
 
+			// Get stored tree structure AND updating it if needed according to incoming PM GET var.
+		$this->initializePositionSaving();
+
+			// Init done:
+		$titleLen=intval($this->BE_USER->uc['titleLen']);
+		$treeArr=array();
+
+			// Traverse mounts:
+		foreach($this->MOUNTS as $key => $val)	{
+			$md5_uid = md5($val['path']);
+			$specUID=hexdec(substr($md5_uid,0,6));
+			$this->specUIDmap[$specUID]=$val['path'];
+
+				// Set first:
+			$this->bank=$val['nkey'];
+			$isOpen = $this->stored[$val['nkey']][$specUID] || $this->expandFirst;
+			$this->reset();
+
+				// Set PM icon:
+			$cmd=$this->bank.'_'.($isOpen?'0_':'1_').$specUID.'_'.$this->treeName;
+			$icon='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/'.($isOpen?'minus':'plus').'only.gif','width="18" height="16"').' alt="" />';
+			$firstHtml= $this->PM_ATagWrap($icon,$cmd);
+
+			$pathInfo = array(
+				'dir_name' =>  $val['path'],
+				'mount_type' => $val['type'],
+				'mount_path' => $val['path'],
+				'dir_path_absolute' => $val['path'],
+			);
+		
+				// Preparing rootRec for the mount
+			$firstHtml.=$this->wrapIcon(tx_dam::icon_getFileTypeImgTag($pathInfo),$val);
+				$row=array();
+				$row['path']=$val['path'];
+				$row['uid']=$specUID;
+				$row['title']=$val['name'];
+
+				// Add the root of the mount to ->tree
+			$this->tree[]=array('HTML'=>$firstHtml,'row'=>$row,'bank'=>$this->bank);
+
+				// If the mount is expanded, go down:
+			if ($isOpen)	{
+					// Set depth:
+				$depthD='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/blank.gif','width="18" height="16"').' alt="" />';
+				$this->getFolderTree($val['path'],999,$depthD);
+			}
+
+				// Add tree:
+			$treeArr=array_merge($treeArr,$this->tree);
+		}
+		return $this->printTree($treeArr);
+	}
+
+	/**
+	 * Fetches the data for the tree
+	 *
+	 * @param	string		Abs file path
+	 * @param	integer		Max depth (recursivity limit)
+	 * @param	string		HTML-code prefix for recursive calls.
+	 * @return	integer		The count of items on the level
+	 * @see getBrowsableTree()
+	 */
+	function getFolderTree($files_path, $depth=999, $depthData='')	{
+
+			// This generates the directory tree
+		$dirs = t3lib_div::get_dirs($files_path);
+
+		$c=0;
+		if (is_array($dirs))	{
+			$depth=intval($depth);
+			$HTML='';
+			$a=0;
+			$c=count($dirs);
+			sort($dirs);
+
+			foreach($dirs as $key => $val)	{
+				$a++;
+				$this->tree[]=array();		// Reserve space.
+				end($this->tree);
+				$treeKey = key($this->tree);	// Get the key for this space
+				$LN = ($a==$c)?'blank':'line';
+
+				$val = ereg_replace('^\./','',$val);
+				$title = $val;
+				$path = $files_path.$val.'/';
+
+				$md5_uid = md5($path);
+				$specUID=hexdec(substr($md5_uid,0,6));
+				$this->specUIDmap[$specUID]=$path;
+				$row=array();
+				$row['path']=$path;
+				$row['uid']=$specUID;
+				$row['title']=$title;
+
+				if ($depth>1 && $this->expandNext($specUID))	{
+					$nextCount=$this->getFolderTree(
+						$path,
+						$depth-1,
+						$this->makeHTML ? $depthData.'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/'.$LN.'.gif','width="18" height="16"').' alt="" />' : ''
+					);
+					$exp=1;		// Set "did expand" flag
+				} else {
+					$nextCount=$this->getCount($path);
+					$exp=0;		// Clear "did expand" flag
+				}
+
+					// Set HTML-icons, if any:
+				if ($this->makeHTML)	{
+					$HTML=$depthData.$this->PMicon($row,$a,$c,$nextCount,$exp);
+
+					
+					$pathInfo = array(
+						'dir_name' => $val,
+						'dir_path_absolute' => $path,
+						'web_sys' => 'web',
+						'dir_writable' => true,
+					);
+				
+					$HTML.=$this->wrapIcon(tx_dam::icon_getFileTypeImgTag($pathInfo),$row);
+				}
+
+					// Finally, add the row/HTML content to the ->tree array in the reserved key.
+				$this->tree[$treeKey] = Array(
+					'row'=>$row,
+					'HTML'=>$HTML,
+					'bank'=>$this->bank
+				);
+			}
+		}
+		return $c;
+	}
 
 	/********************************
 	 *
@@ -376,7 +519,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 		$query= $damObj->sl->getFieldMapping('tx_dam', 'file_path');
-		if($queryType=='NOT') {
+		if($queryType === 'NOT') {
 			$query.= ' NOT';
 		}
 		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($id), 'tx_dam');
@@ -456,7 +599,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
 
 				// Creating blinking arrow, if applicable:
-			if ($cmpPath && $GLOBALS['SOBE']->act =='file' && $cmpPath==$v['row']['path'])	{
+			if ($cmpPath && $GLOBALS['SOBE']->act === 'file' && $cmpPath==$v['row']['path'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
 			} else {

@@ -861,7 +861,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			unset($previewer);
 			$previewer = NULL;
 		}
-// TODO header code should go into header - really - but how
+// todo: header code should go into header - really - but how
 
 		//
 		// all together now
@@ -976,7 +976,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 
 		$wantedCharset = $TYPO3_CONF_VARS['BE']['forceCharset'] ? $TYPO3_CONF_VARS['BE']['forceCharset'] : 'iso-8859-1';
-		if(!$wantedCharset=='utf-8') {
+		if(!$wantedCharset === 'utf-8') {
 			$csConvObj = t3lib_div::makeInstance('t3lib_cs');
 		}
 
@@ -1220,7 +1220,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			if (!$params['noBrowser'])	{
 				$aOnClick = 'setFormValueOpenBrowser(\''.$modeEB.'\',\''.($fName.'|||'.$allowed.'|'.$userEBParam.'|').'\'); return false;';
 				$icons['R'][] = '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.
-						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert3.gif', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->tceforms->getLL('l_browse_'.($mode=='file'?'file':'db'))).' />'.
+						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert3.gif', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->tceforms->getLL('l_browse_'.($mode === 'file'?'file':'db'))).' />'.
 						'</a>';
 			}
 			if (!$params['dontShowMoveIcons'])	{
@@ -1242,14 +1242,14 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				}
 			}
 			
-// TODO Clipboard
+#TODO Clipboard
 			$clipElements = $this->tceforms->getClipboardElements($allowed, $mode);
 			if (count($clipElements))	{
 				$aOnClick = '';
 	#			$counter = 0;
 				foreach($clipElements as $elValue)	{
-					if ($mode=='file' OR $mode=='folder')	{
-						$itemTitle = 'unescape(\''.rawurlencode(basename($elValue)).'\')';
+					if ($mode === 'file' OR $mode === 'folder')	{
+						$itemTitle = 'unescape(\''.rawurlencode(tx_dam::file_basename($elValue)).'\')';
 					} else {	// 'db' mode assumed
 						list($itemTable, $itemUid) = explode('|', $elValue);
 
@@ -1269,7 +1269,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				}
 				$aOnClick .= 'return false;';
 				$icons['R'][] = '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.
-						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert5.png', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib(sprintf($this->tceforms->getLL('l_clipInsert_'.($mode=='file'?'file':'db')), count($clipElements))).' />'.
+						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert5.png', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib(sprintf($this->tceforms->getLL('l_clipInsert_'.($mode === 'file'?'file':'db')), count($clipElements))).' />'.
 						'</a>';
 			}
 
@@ -1334,11 +1334,10 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		$error = 0;
 
-// 		for future t3 version?
-//
-//		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
-//			return true;
-//		}
+
+		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
+			return true;
+		}
 
 			// is mmforeign loaded?
 		if (!t3lib_extMgm::isLoaded('mmforeign')) {

@@ -25,8 +25,8 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] =
 				'allowed' => 'tx_dam',
 				'prepend_tname' => 1,
 				'MM' => 'tx_dam_mm_ref',
-				'MM_foreign_select' => 1,
-# OLD:				'MM_ident' => 'relation_field_or_other_ident', #### has to be changed in table
+				'MM_foreign_select' => 1, // obsolete in 4.1
+				'MM_opposite_field' => 1,
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
 				'allowed_types' => '',
@@ -40,13 +40,6 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] =
 				'autoSizeMax' => 30,
 		);
 
-$GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_field'] =
-		array (
-			'label' => 'LLL:EXT:cms/locallang_ttc.php:media',
-			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'],
-		);
-
-
 
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] =
 		array (
@@ -59,8 +52,8 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] =
 				'allowed' => 'tx_dam',
 				'prepend_tname' => 1,
 				'MM' => 'tx_dam_mm_ref',
-				'MM_foreign_select' => 1,
-# OLD:				'MM_ident' => 'relation_field_or_other_ident', #### has to be changed in table
+				'MM_foreign_select' => 1, // obsolete in 4.1
+				'MM_opposite_field' => 1,
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
 				'allowed_types' => $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],
@@ -72,6 +65,20 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] =
 				'minitems' => 0,
 				'autoSizeMax' => 30,
 		);
+		
+		
+if (t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
+	unset($GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config']['userProcessClass']);
+	unset($GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config']['userProcessClass']);
+}
+
+
+$GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_field'] =
+		array (
+			'label' => 'LLL:EXT:cms/locallang_ttc.php:media',
+			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'],
+		);
+
 
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_field'] =
 		array (
@@ -137,6 +144,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_field'] =
 			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.category',
 			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config'],
 		);
+
 
 
 /**

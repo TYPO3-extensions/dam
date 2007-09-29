@@ -124,12 +124,12 @@ class tx_dam_allowdeny {
 		}
 
 		$this->mode = TYPO3_MODE;
-		if ($this->mode=='FE') {
+		if ($this->mode === 'FE') {
 			$this->user = & $GLOBALS['TSFE']->fe_user->user['uid'];
 			$this->isAdmin = false;
 			$this->usergroups = $GLOBALS['TSFE']->gr_list;
 			$this->loginUser = $GLOBALS['TSFE']->loginUser;
-		} elseif ($this->mode=='BE') {
+		} elseif ($this->mode === 'BE') {
 			$this->user = & $GLOBALS['BE_USER']->user['uid'];
 			$this->isAdmin = & $GLOBALS['BE_USER']->isAdmin();
 			$this->usergroups = $GLOBALS['BE_USER']->user->usergroups;
@@ -165,7 +165,7 @@ class tx_dam_allowdeny {
 	function isAllowed ($item) {
 
         $allowed = true;
-        if ($this->conf['order'] == 'allow,deny') {
+        if ($this->conf['order'] === 'allow,deny') {
         	$allowed = false;
             if ($this->allowDeny('allow', $item)) {
                 $allowed = true;
@@ -173,14 +173,14 @@ class tx_dam_allowdeny {
             if ($this->allowDeny('deny', $item)) {
                 $allowed = false;
             }
-        } else if ($this->conf['order'] == 'deny,allow') {
+        } else if ($this->conf['order'] === 'deny,allow') {
             if ($this->allowDeny('deny', $item)) {
                 $allowed = false;
             }
             if ($this->allowDeny('allow', $item)) {
                 $allowed = true;
             }
-        } elseif ($this->conf['order'] == 'explicit') {
+        } elseif ($this->conf['order'] === 'explicit') {
             if ($this->allowDeny('allow', $item)
                 && !$this->allowDeny('deny', $item)) {
                 $allowed = true;
@@ -238,10 +238,10 @@ class tx_dam_allowdeny {
 
 	    foreach ($this->rules[$type] as $rule) {
 	    		// check if the rule is for the current item
-			if ($this->_evalCondition('forItems', $rule['forItems'], $item)) {
+			if ($this->_evalCondition('item', $rule['item'], $item)) {
 					// a rule with just not other condition - then it matches
 				if (count($rule)==1) return true;
-				unset($rule['forItems']);
+				unset($rule['item']);
 		    	foreach ($rule as $type => $value) {
 					if ($this->_evalCondition($type, $value, $item)) {
 						return true;
@@ -269,7 +269,7 @@ class tx_dam_allowdeny {
 				if (t3lib_div::inList($matchList, 'all')) 	{return true;}
 				$values = t3lib_div::trimExplode(',',$matchList, true);
 				foreach($values as $test)	{
-					if (preg_match('#^[^0-9.*]+$#'))	{
+					if (preg_match('#^[0-9.*]+$#', $test))	{
 						if (t3lib_div::cmpIP(t3lib_div::getIndpEnv('REMOTE_ADDR'), $matchList))	{return true;}
 					} else {
 						if (t3lib_div::cmpFQDN(t3lib_div::getIndpEnv('REMOTE_ADDR'), $matchList))  {return true;}
@@ -293,12 +293,12 @@ class tx_dam_allowdeny {
 			case 'admin':
 				return (intval($matchList) AND $this->isAdmin);
 			break;
-			case 'forItems':
+			case 'item':
 				if (t3lib_div::inList($matchList, '*')) 	{return true;}
 				if (t3lib_div::inList($matchList, $item)) 	{return true;}
 			break;
 			case 'userFunc':
-// TODO test userFunc
+// todo: test userFunc
 				$values = split('\(|\)',$matchList);
 				$funcName=trim($values[0]);
 				$funcValue = t3lib_div::trimExplode(',',$values[1]);
@@ -336,7 +336,7 @@ class tx_dam_allowdeny {
 		}
 
 		if ($this->conf[$type]) {
-			$rules[]['forItems'] = $this->conf[$type];
+			$rules[]['item'] = $this->conf[$type];
 		}
 
 		return $rules;
@@ -378,7 +378,9 @@ class tx_dam_allowdeny_list {
 			$items = $arg_list[0];
 
 		    for ($i = 1; $i < $numargs; $i++) {
-				$this->obj[] = new tx_dam_allowdeny($items, $arg_list[$i]);
+		    	if (is_array($arg_list[$i])) {
+					$this->obj[] = new tx_dam_allowdeny($items, $arg_list[$i]);
+		    	}
 		    }
 		}
 	}
@@ -398,6 +400,48 @@ class tx_dam_allowdeny_list {
 		}
 		return true;
 	}
+	
+	
+
+	/***************************************
+	 *
+	 *	 Tools
+	 *
+	 ***************************************/
+
+
+	/**
+	 * convert TS setup/config to allowDeny setup when needed
+	 * 
+	 * Example:
+	 *   tx_dam_action_viewFileRec = 0
+	 *   tx_dam_action_editRec = 0
+	 * 
+	 * will be converted to
+	 *   order = allow,deny 
+  	 *   allow = * 
+  	 *   deny = ,tx_dam_action_viewFileRec,tx_dam_action_editRec
+	 *
+	 * @param array $setupAllowDeny TS that includes 'allowDeny.' or just a simple list of keys and values
+	 * @return array
+	 */	
+	function transformSimpleSetup ($setupAllowDeny) {
+		if (is_array($setupAllowDeny['allowDeny.'])) {
+			$setupAllowDenyResult = $setupAllowDeny['allowDeny.'];
+		} elseif (is_array($setupAllowDeny)) {
+			$setupAllowDenyResult = array (
+						'order' => 'allow,deny',
+						'allow' => '*',
+						'deny' => '',
+			);
+			foreach ($setupAllowDeny as $name => $value) {
+				if (!tx_dam_config::isEnabled($value)) {
+					$setupAllowDenyResult['deny'] .= ','.$name;
+				}
+			}
+		}
+		return $setupAllowDenyResult;
+	}	
 }
 
 

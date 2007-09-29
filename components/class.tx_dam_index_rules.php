@@ -179,20 +179,22 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 	 */
 	function processMeta($meta)	{
 
-		$folder = basename(preg_replace('#/$#','',$meta['fields']['file_path']));
+		$folder = tx_dam::path_basename($meta['fields']['file_path']);
 		if ($folder) {
 
 			if($this->setup['fuzzy']) {
+				
 				$folder = str_replace ('_', ' ', $folder);
 				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($folder,'tx_dam');
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', 'tx_dam_cat').' AND deleted=0');
+
 			} else {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title='.$GLOBALS['TYPO3_DB']->fullQuoteStr($folder, 'tx_dam_cat').' AND deleted=0');
 			}
 			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 
 			if ($row['uid']) {
-				$meta['fields']['category'].= ','.$row['uid'].',';
+				$meta['fields']['category'].= ',tx_dam_cat_'.$row['uid'];
 			}
 		}
 		return $meta;

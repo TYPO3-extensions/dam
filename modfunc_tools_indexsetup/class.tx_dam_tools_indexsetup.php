@@ -116,7 +116,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 			$func = 'indexSave';
 		}
 
-		if ($func=='indexSave' AND !($file = t3lib_div::_GP('filename'))) {
+		if ($func === 'indexSave' AND !($file = t3lib_div::_GP('filename'))) {
 			$func = 'indexStart';
 		}
 
@@ -244,7 +244,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 				$content.= $this->pObj->doc->spacer(10);
 				$content.= '<div style="width:100%;text-align:right;">'.$this->pObj->btn_back().'</div>';
 
-				if (t3lib_div::_GP('setuptype')=='folder') {
+				if (t3lib_div::_GP('setuptype') === 'folder') {
 					$path = tx_dam::path_makeAbsolute($this->pObj->path);
 					$filename = $path.'.indexing.setup.xml';
 				} else {

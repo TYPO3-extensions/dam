@@ -3,7 +3,7 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
 
 
-// TODO TCA field: file_status
+// todo TCA field: file_status
 
 
 
@@ -14,7 +14,7 @@ $TCA['tx_dam'] = array(
 	'ctrl' => $TCA['tx_dam']['ctrl'],
 	'interface' => array(
 		'showRecordFieldList' => 'hidden,starttime,endtime,fe_group,media_type,title,file_type',
-// TODO TCA excludeFieldList: clean this list or remove
+// todo TCA excludeFieldList: clean this list or remove
 		'excludeFieldList' => 'active,t3ver_label', // non-standard - will hide fields from field selector box in list module
 	),
 	'feInterface' => $TCA['tx_dam']['feInterface'],
@@ -31,7 +31,7 @@ $TCA['tx_dam'] = array(
 
 
 
-// TODO TCA: remove active field? Has no function yet.
+// todo TCA: remove active field? Has no function yet.
 //		'active' => array(
 //			'exclude' => '1',
 //			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
@@ -800,7 +800,7 @@ $TCA['tx_dam'] = array(
 			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config'],
 		),
 
-// TODO group handling
+// todo group handling
 		'parent_id' => array(
 			'label' => 'parent_id',
 			'exclude' => '1',

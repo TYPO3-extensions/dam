@@ -89,7 +89,7 @@ class tx_dam_image {
 
 		$file_type = is_array($fileInfo) ? $fileInfo['file_type'] : $fileInfo;
 
-		// font rendering is buggy so it's deactivated here   # if ($file_type=='ttf' ||
+		// font rendering is buggy so it's deactivated here   # if ($file_type === 'ttf' ||
 		if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $file_type)) {
 		#if( ($fileInfo['media_type']==TXDAM_mtype_image) OR t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $file_type)) {
 			$thumbnailPossible = true;
@@ -138,6 +138,7 @@ class tx_dam_image {
 	 * @param	string		$size Optional: $size is [w]x[h] of the image preview. 56 is default.
 	 * @param	mixed		$imgAttributes additional attributes for the image tag
 	 * @return	array		Thumbnail image tag, url and attributes with width/height
+	 * @todo calc width/height from cm size or similar when hpixels not available
 	 */
 	function preview($fileInfo, $size='', $imgAttributes='')	{
 
@@ -202,7 +203,6 @@ class tx_dam_image {
 				$thumbSizeX = $sizeX;
 				$thumbSizeY = $sizeY;
 				$size = $thumbSizeX.'x'.$thumbSizeY;
-// TODO calc width/height from cm size or similar
 
 			} else {
 				$thumbSizeX = 0;
@@ -216,7 +216,7 @@ class tx_dam_image {
 
 					// use the original image if it's size fits to the image preview size
 				if ($useOriginalImage)	{
-					if (TYPO3_MODE=='FE') {
+					if (TYPO3_MODE === 'FE') {
 						$url = preg_replace ('#^'.preg_quote(PATH_site).'#', '', $filepath);
 					} else {
 						$url = $GLOBALS['BACK_PATH'].'../'.preg_replace ('#^'.preg_quote(PATH_site).'#', '', $filepath);
@@ -225,12 +225,14 @@ class tx_dam_image {
 					// use thumbs.php script
 				} else {
 
+					$check = basename($filepath).':'.filemtime($filepath).':'.$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'];
 					$url = 'thumbs.php?';
-					$url .= '&dummy='.$GLOBALS['EXEC_TIME'];
 					$url .= '&file='.rawurlencode($filepath);
 					$url .= $size?'&size='.$size:'';
+					$url.= '&md5sum='.t3lib_div::shortMD5($check);
+					$url .= '&dummy='.$GLOBALS['EXEC_TIME'];
 
-			 		if (TYPO3_MODE=='FE') {
+			 		if (TYPO3_MODE === 'FE') {
 						$url = TYPO3_mainDir.$url;
 					} else {
 						$url = $GLOBALS['BACK_PATH'].$url;
@@ -346,7 +348,11 @@ class tx_dam_image {
 		$attributes = array();
 		$attributeMatches = array();
 		preg_match_all('# ([\w]+)="([^"]*)"#', $attributeString, $attributeMatches);
+
 		if(count($attributeMatches[1])) {
+			foreach($attributeMatches[2] as $name => $value) {
+				$attributeMatches[2][$name] = htmlspecialchars_decode($value);
+			}
 			$attributes = array_combine($attributeMatches[1], $attributeMatches[2]);
 		}
 		return $attributes;

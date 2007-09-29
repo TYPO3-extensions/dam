@@ -29,7 +29,7 @@ class tx_dam_show_item {
 	function isValid($type, &$pObj)	{
 		$isValid = false;
 
-		if($type=='file' && is_array($this->meta = tx_dam::meta_getDataForFile($pObj->file, '*'))) {
+		if($type === 'file' && is_array($this->meta = tx_dam::meta_getDataForFile($pObj->file, '*'))) {
 			$isValid = true;
 		}
 		return $isValid;

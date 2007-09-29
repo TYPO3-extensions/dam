@@ -217,7 +217,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 			list ($processAction['actionType'], $processAction['action']) = explode(':', $action, 2);
 
-			if (t3lib_div::_GP($this->paramName['multi_action_target'])=='all') {
+			if (t3lib_div::_GP($this->paramName['multi_action_target']) === 'all') {
 				 $processAction['onItems'] = '_all';
 			} else {
 				 $processAction['onItems'] = implode(',', $this->recs);
@@ -266,7 +266,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 				if ($list->count())	{
 
-					while ($list->valid() AND $list->currentPointer<30) {
+					while ($list->valid() AND $list->currentPointer < $this->pointer->itemsPerPage) {
 
 						$row = $list->current();
 
@@ -325,13 +325,15 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 						$itemColumns[$fCol] = $recTitle.$thumbImg;
 					}
-					elseif ($fCol == 'pid') {
+					elseif ($fCol  === 'pid') {
 						$itemColumns[$fCol] = $item[$fCol];
 					}
-					elseif ($fCol == '_CONTROL_') {
+					elseif ($fCol  === '_CONTROL_') {
 						$itemColumns[$fCol] = $this->getItemControl($item);
 					} else {
-						$itemColumns[$fCol] = t3lib_BEfunc::getProcessedValueExtra($this->table, $fCol, $item[$fCol], 100);
+						$itemColumns[$fCol] = t3lib_BEfunc::getProcessedValueExtra($this->table, $fCol, $item[$fCol], 100, $item['uid']);
+						
+#				$theData[$fCol] = $this->linkUrlMail(htmlspecialchars(t3lib_BEfunc::getProcessedValueExtra($table,$fCol,$row[$fCol],100,$row['uid'])),$row[$fCol]);
 					}
 				}
 
@@ -406,15 +408,15 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 *
 	 * @param	array		$item item array
 	 * @return	string
+	 * @todo abstraction
 	 */
 	function getItemAction ($item) {
 		global $LANG;
 
 		$itemAction = '';
 
-		if ($this->table == 'tx_dam') {
+		if ($this->table  === 'tx_dam') {
 
-// TODO abstraction
 			if($GLOBALS['SOBE']->selection->sl->sel['NOT']['txdamRecords'][$item['uid']]) {
 				$params = 'SLCMD[NOT][txdamRecords]['.$item['uid'].']=0';
 				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_reselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('reselect').'" alt="" />';
@@ -471,7 +473,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		global $TCA;
 
 		$editable = false;
-		$permsEdit = $this->calcPerms & ($this->table == 'pages' ? 2 : 16);
+		$permsEdit = $this->calcPerms & ($this->table  === 'pages' ? 2 : 16);
 		if (
 			$permsEdit AND
 			!$TCA[$this->table]['ctrl']['readOnly'] AND
@@ -499,7 +501,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		if ($this->isEditableColumn($field) AND
 			is_array($this->currentTable['idList'])  AND
 			$this->showControls
-// TODO remove showControls from class - use allow/deny			AND in_array('editRec', $this->showControls)
 			) {
 
 			$editIdList = implode(',', $this->currentTable['idList']);
@@ -522,14 +523,13 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	function getHeaderControl() {
 		global $TCA;
 
-		$permsEdit = $this->calcPerms & ($this->table == 'pages' ? 2 : 16);
+		$permsEdit = $this->calcPerms & ($this->table  === 'pages' ? 2 : 16);
 
 		if (
 				$permsEdit AND
 				!$TCA[$this->table]['ctrl']['readOnly'] AND
 				is_array($this->currentTable['idList']) AND
 				$this->showControls
-// TODO remove showControls from class - use allow/deny			AND in_array('editRec', $this->showControls)
 			) {
 
 			$editIdList = implode(',', $this->currentTable['idList']);
@@ -563,7 +563,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 				t3lib_div::loadTCA($this->table);
 
-				if ($this->table == 'pages') {
+				if ($this->table  === 'pages') {
 						// If the listed table is 'pages' we have to request the permission settings for each page:
 					$localCalcPerms = $GLOBALS['BE_USER']->calcPerms($item);
 					$permsEdit = ($localCalcPerms & 2);
@@ -574,7 +574,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 					$permsDelete = ($this->calcPerms & 16);
 				}
 
-
 				$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
 				$actionCall->setRequest('control', array('__type' => 'record', '__table' => $this->table));
 				$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
@@ -582,6 +581,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 				$actionCall->setEnv('calcPerms', $this->calcPerms);
 				$actionCall->setEnv('permsEdit', $permsEdit);
 				$actionCall->setEnv('permsDelete', $permsDelete);
+				$actionCall->setEnv($this->actionsEnv);
 				$actionCall->initActions(true);
 			}
 
@@ -598,10 +598,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		}
 
 		return $content;
-
-// TODO how to add spacer with actions?
-#		$actions[] = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clear.gif', 'width="12" height="12"').' alt="" />';
-
 	}
 
 
@@ -626,13 +622,14 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		$actionCall->setEnv('calcPerms', $this->calcPerms);
 		$actionCall->setEnv('permsEdit', $permsEdit);
 		$actionCall->setEnv('permsDelete', $permsDelete);
+		$actionCall->setEnv($this->actionsEnv);
 		$actionCall->initActions(true);
 
 		$actions = $actionCall->renderMultiActions();
 		return $actions;
 	}
 
-// TODO Clipboard
+#TODO Clipboard
 
 
 
