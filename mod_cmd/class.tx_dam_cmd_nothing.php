@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,20 +25,14 @@
  * Command module 'no command'
  * Part of the DAM (digital asset management) extension.
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-ModCmd
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
- *
- *
- *   56: class tx_dam_cmd_nothing extends t3lib_extobjbase
- *   64:     function head()
- *   76:     function main()
- *
- * TOTAL FUNCTIONS: 2
- * (This index is automatically created/updated by the script "update-class-index")
+
  *
  */
 
@@ -50,21 +44,22 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 /**
  * "no command" module
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-ModCmd
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 class tx_dam_cmd_nothing extends t3lib_extobjbase {
 
 
 	/**
 	 * Do some init things and set some things in HTML header
-	 *
-	 * @return	void
+	 * 
+	 * @return	void		
 	 */
 	function head() {
-		global $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
+		global $LANG, $SOBE, $BACK_PATH, $TYPO3_CONF_VARS;
 
-		$GLOBALS['SOBE']->pageTitle = $LANG->getLL('tx_dam_cmd_nothing.title');
+		$SOBE->pageTitle = $LANG->getLL('tx_dam_cmd_nothing.title');
 	}
 
 
@@ -74,13 +69,13 @@ class tx_dam_cmd_nothing extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function main()	{
-		global $LANG;
+		global $LANG, $SOBE;
 
 		$content ='';
 
 
 		$content.= $this->pObj->wrongCommandMessage();
-
+		
 		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
 
 
@@ -96,8 +91,8 @@ class tx_dam_cmd_nothing extends t3lib_extobjbase {
 }
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_nothing.php'])    {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_nothing.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modcmd/tx_dam_cmd_nothing.php'])    {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modcmd/tx_dam_cmd_nothing.php']);
 }
 
 

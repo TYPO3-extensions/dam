@@ -1,0 +1,64 @@
+******************
+TODO LIST
+*****************
+
+General:
+- BUG: proper support for file mounts
+- BUG: support for more than one mediabase sysfolder
+- BUG: proper support for BE user rights
+
+- Todo: move all string in locallang.php
+- Todo: implement tx_dam_cat as selection-module
+- Todo: review texts/messages (espacially english)
+- Todo: clean implementation of media types: constants, lib, ...
+
+- Feature: integration into element browser (done but ugly)
+- Feature: add to selection tree last 10 index times, to make it easy to select the last indexed files
+- Feature: auto/silent indexing if new file occurs
+- Feature: info box replacement with values from dam
+- Feature: lightbox module (save and share selections with other users)
+- Feature: using files as references not as copy (Done. See dam_ttcontent. TCE MM needs improvement)
+- Feature: manual (users and dev)
+
+- Option: mediabase sysfolders shouldn't be seen for non admins
+- Option: tx_dam and tx_dam_cat shouldn't be created by hand (new) but deactivate that we get in trouble (access rights)
+
+
+Navframe
+- BUG: plus/minus buttons work now - but not the minus buttons for categories. This is a little complex ...
+       minus buttons for categories seems to be possible with sql sub-selects which are available in mysql 4.1
+- BUG: css for +=- do not work in ie
+- Todo: highlight row do not fully work (folder rows)
+
+Media>Indexing
+- BUG: handle double indexing, deleted files, ....   integration in file module
+- Todo: finish/enhance meta services
+- Feature: better indexing process: only index ~20 files then reload and index the next 20 files. This gives feedback and do not break indexing because of too long index time
+- Feature: reindexing. Means to update certain fields from files because a new index service may be available
+- Feature: proper exim and iptc support (read/write)
+
+Media>List
+- Feature: reimplementation of the list module/class - for reuseability - use in selection module too
+
+
+Media>List>selection
+- Todo: show processed value: 'Text' but not '1'
+- Feature: Enhanced search box (Media>List also?)
+
+
+Media>List>Process
+- BUG: remove 'append' button for fields where no append is possible
+- Todo: append/processing of custom fields are not well supported. Extra info in TCA how to append?
+
+Media>File
+- finish File module
+- Feature: FTP submodule
+
+
+TCEforms
+- Feature: readonly rendering of TCEforms fields is not nice (select,group,...)
+
+T3 general
+- Todo: finish t3lib_modsettings
+- Todo: create new multilevel thumbnail system
+- Todo: file icon system

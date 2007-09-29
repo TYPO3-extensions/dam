@@ -1,0 +1,6 @@
+ext_tables.sql:
+
+search_content text NOT NULL,
+->
+excerpt text NOT NULL,
+

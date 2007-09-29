@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,20 +25,20 @@
  * Module 'Media>List'
  * Part of the DAM (digital asset management) extension.
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Mod
- * @subpackage list
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   74: class tx_dam_mod_list extends tx_dam_SCbase
- *   83:     function init()
- *  103:     function main()
- *  155:     function jumpToUrl(URL)
- *  213:     function printContent()
+ *   74: class tx_dam_mod_list extends tx_dam_SCbase 
+ *   83:     function init()	
+ *  103:     function main()	
+ *  155:     function jumpToUrl(URL)	
+ *  213:     function printContent()	
  *
  * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -59,11 +59,7 @@ require ($BACK_PATH.'template.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 
-require_once(PATH_txdam.'lib/class.tx_dam_selstorage.php');
-require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
-
-
-$LANG->includeLLFile('EXT:dam/mod_list/locallang.xml');
+$LANG->includeLLFile('EXT:dam/mod_list/locallang.php');
 
 
 $BE_USER->modAccess($MCONF,1);
@@ -75,29 +71,39 @@ $BE_USER->modAccess($MCONF,1);
 
 /**
  * Script class for the DAM record list module
- *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Mod
- * @subpackage list
+ * 
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 class tx_dam_mod_list extends tx_dam_SCbase {
 
 
+	/**
+	 * Initializes the backend module
+	 * 
+	 * @return	void		
+	 */
+	function init()	{
+		parent::init();
+
+
+		$this->initDB();	
+	}
+
 
 	/**
 	 * Main function of the module. Write the content to $this->content
-	 *
-	 * @return	void
+	 * 
+	 * @return	void		
 	 */
 	function main()	{
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
 
-			// Init guiRenderList object:
-
-		$this->guiItems = t3lib_div::makeInstance('tx_dam_guiRenderList');
-
-
-			// Initialize the template object
+		
+		//
+		// Initialize the template object
+		//
 
 		$this->doc = t3lib_div::makeInstance('mediumDoc');
 		$this->doc->backPath = $BACK_PATH;
@@ -105,15 +111,26 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 
 
 			// This will return content necessary for the context sensitive clickmenus to work: bodytag events, JavaScript functions and DIV-layers.
-		$CMparts = $this->doc->getContextMenuCode();
+		$CMparts=$this->doc->getContextMenuCode();
 		$this->doc->bodyTagAdditions = $CMparts[1];
 		$this->doc->JScode.= $CMparts[0];
 		$this->doc->postCode.= $CMparts[2];
+			
+#debug($HTTP_GET_VARS, '$HTTP_GET_VARS', __LINE__, __FILE__);
+#debug(t3lib_div::_GET(), '_GET()', __LINE__, __FILE__);
+#debug($HTTP_POST_VARS, '$HTTP_POST_VARS', __LINE__, __FILE__);
+#debug($GLOBALS['SOBE']->MOD_SETTINGS, '$GLOBALS[SOBE]->MOD_SETTINGS', __LINE__, __FILE__);
+#debug($this->SLCMD, 'SLCMD', __LINE__, __FILE__);
+#debug($this->MOD_MENU,'MOD_MENU', __LINE__, __FILE__);
+#debug($this->MOD_MENU['function'],'$this->MOD_MENU[function]', __LINE__, __FILE__);
+#debug($this->MOD_SETTINGS['function'],'$this->MOD_SETTINGS[function]', __LINE__, __FILE__);
 
 
-		// Access check can not be checked in beforehand
-		// The user has access when he has acces to the module and that's nothing to be checked here
-		$access = true;
+		// Access check...
+		// The page will show only if there is a valid page and if this page may be viewed by the user
+#		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+#		$access = is_array($this->pageinfo) ? 1 : 0;
+$access = TRUE;
 
 
 		// **************************
@@ -121,35 +138,33 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		// **************************
 		if ($access)	{
 
-			$this->selection->sl->initSelection_getStored_mergeSubmitted();
-
 
 				// Store settings gui element
 			$this->store = t3lib_div::makeInstance('t3lib_modSettings');
 			$this->store->init('tx_dam_select');
-			$this->store->type = 'perm';
 			$this->store->setStoreList('tx_dam_select');
 			$this->store->processStoreControl();
 
 
-				// Store settings gui element
-			$this->selExport = t3lib_div::makeInstance('tx_dam_selStorage');
-			$this->selExport->init();
-			$this->selExport->processStoreControl();
+			$this->sl->initSelection_getStored_mergeSubmitted();
 
-
-
-
-
+			
+			
 			//
 			// Output page header
 			//
 
-			$this->doc->form='<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->doc->form='<form action="'.t3lib_div::linkThisScript($this->addParams).'" method="POST" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
-			$this->addDocStyles();
-			$this->addDocJavaScript();
-
+				// JavaScript
+			$this->doc->JScodeArray['jumpToUrl'] = '
+				var script_ended = 0;
+				var changed = 0;
+				
+				function jumpToUrl(URL)	{
+					document.location = URL;
+				}
+				';
 
 			$this->doc->postCode.= $this->doc->wrapScriptTags('
 				script_ended = 1;');
@@ -166,31 +181,33 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 			//
 			// Output tabmenu if not a single function was forced
 			//
-
+			
 			if (!$this->forcedFunction AND count($this->MOD_MENU['function'])>1) {
-				$this->content.= $this->doc->section('',     $this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
+#TODO				$this->content.= $this->doc->section('',$this->doc->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
+				$this->content.= $this->doc->section('',$this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
 			}
 
 			//
-			// Call submodule function
+			// Call submodule function  
 			//
-
+			
 			$this->extObjContent();
-
-
+			
+			
 			//
 			// output footer: search box, options, store control, ....
 			//
-
-			#$this->content.= $this->doc->spacer(10);
-			$this->content.= $this->guiItems->getOutput('footer');
-
-
+				
+			$this->content.= $this->doc->spacer(10);
+			$this->content.= $this->guiItems_getOutput('footer');
+		
+							
 			// ShortCut
 			if ($BE_USER->mayMakeShortcut())	{
+#TODO
 				$this->content.= $this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
 			}
-
+			
 			$this->content.= $this->doc->spacer(10);
 
 
@@ -199,17 +216,19 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 			$this->content.= $this->doc->startPage($LANG->getLL('title'));
 			$this->content.= $this->doc->header($LANG->getLL('title'));
 			$this->content.= $this->doc->spacer(5);
-			$this->content.= $this->doc->section('', $LANG->sL('LLL:EXT:lang/locallang_mod_web_perm.xml:A_Denied',1));
+#TODO
 			$this->content.= $this->doc->spacer(10);
 		}
 	}
 
 	/**
 	 * Prints out the module HTML
-	 *
+	 * 
 	 * @return	string		HTML
 	 */
 	function printContent()	{
+		global $SOBE;
+
 		$this->content.= $this->doc->middle();
 		$this->content.= $this->doc->endPage();
 		$this->content = $this->doc->insertStylesAndJS($this->content);
@@ -239,7 +258,7 @@ while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkExtObj();	// Checking for first level external objects
 
 // Repeat Include files! - if any files has been added by second-level extensions
-reset($SOBE->include_once);
+reset($SOBE->include_once);	
 while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkSubExtObj();	// Checking second level external objects
 

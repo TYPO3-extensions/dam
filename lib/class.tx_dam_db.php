@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -24,812 +24,526 @@
 /**
  * Part of the DAM (digital asset management) extension.
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Core
- * @subpackage Lib
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   91: class tx_dam_db
+ *   92: class tx_dam_db 
  *
- *              SECTION: DAM record access
- *  116:     function getDataWhere ($select_fields, $whereClauses=array(), $groupBy='', $orderBy='', $limit='')
+ *              SECTION: tx_dam_db::....
+ *  116:     function checkFileIsIndexed ($fileName,$path,$mtime) 
+ *  151:     function updateRecordStatus($uid,$status,$mtime=0)	
+ *  173:     function insertMetaRecord($meta, $id='NEW', $status=TXDAM_needs_review)	
  *
- *              SECTION: DAM record write/update
- *  176:     function insertUpdateData($meta)
- *  245:     function insertRecordRaw($meta)
- *  267:     function mergeAndUpdateData($rowSource, $replaceData, $appendData, $transformSourceData=true)
+ *              SECTION: references
+ *  252:     function get_mm_fileList($local_table, $local_uid, $select='', $whereClause='', $groupBy='', $orderBy='tx_dam_mm_ref.sorting', $limit=100) 
+ *  297:     function get_mm_refList($tx_dam_uid, $select='', $whereClause='', $groupBy='', $orderBy='tx_dam_mm_ref.tablenames', $limit=100) 
+ *  329:     function exec_SELECT_mm_refList($tx_dam_uid, $select='', $whereClause='', $groupBy='', $orderBy='tx_dam_mm_ref.tablenames', $limit=100) 
+ *  363:     function SELECT_mm_query($select,$local_table,$mm_table,$foreign_table,$whereClause='',$groupBy='',$orderBy='',$limit='')	
  *
- *              SECTION: Update status
- *  395:     function updateStatus($uid, $status, $fileInfo=NULL, $hash=NULL, $deleted=NULL)
+ *              SECTION: categories
+ *  395:     function getCatByName ($title) 
+ *  400:     function addMetaRecordToCat($uidMetaRecord,$uidCatRecord)	
+ *  427:     function getSubRecords ($uidList,$level=1,$fields='*',$table='tx_dam_cat',$where='')	
+ *  459:     function getSubRecordsIdList($uidList,$level=1,$table='tx_dam_cat',$where='')	
  *
- *              SECTION: References
- *  450:     function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClause='', $groupBy='', $orderBy='', $limit=1000)
- *  519:     function getMetaForUploads ($fileList, $uploadsPath='')
- *  559:     function getMediaUsageReferences($uidList, $local_table='', $MM_ident='', $fields='', $whereClause='', $groupBy='', $orderBy='', $limit=1000)
- *  632:     function getMediaUsageUploads($uidList, $tableConf='', $uploadsFolder='uploads/pics/', $orderBy='', $limit=1000)
- *  682:     function trackingUploadsFile($fileInfo, $hash='')
+ *              SECTION: media types
+ *  478:     function updateBrowseTypes($meta)	
  *
  *              SECTION: DAM sysfolder
- *  727:     function getPidList ()
- *  740:     function getPid ()
+ *  550:     function createDAMFolder($pid=0) 
+ *  571:     function getDAMFolders() 
+ *  586:     function getDAMFolderPidList() 
+ *  596:     function initDAMFolders()	
  *
- *              SECTION: Meta field lists and arrays
- *  774:     function setMetaDefaultFields($meta, $force=false)
- *  797:     function getMetaInfoFieldList($prependTableName=TRUE, $addFields=array())
- *
- *              SECTION: General field lists and arrays (TCA)
- *  847:     function compileFieldList($table, $fields, $checkTCA=TRUE, $prependTableName=TRUE)
- *  881:     function cleanupRecordArray($table, $row)
- *  899:     function cleanupFieldList($table, $fields)
- *  921:     function getTCAFieldListArray($table, $mainFieldsOnly=FALSE, $addFields=array())
- *  975:     function getLanguageOverlayFields ($table, $prependTableName='', $reprocess=false)
- *
- *              SECTION: Helper
- * 1028:     function stripLabelFromGroupData($data)
+ *              SECTION: Misc
+ *  638:     function compileFieldList($table, $fields, $checkTCA=TRUE) 
+ *  668:     function cleanupRecordArray($table, $row) 
+ *  685:     function cleanupFieldList($table, $fields) 
+ *  705:     function getTCAFieldListArray($table, $mainFieldsOnly=FALSE)	
  *
  * TOTAL FUNCTIONS: 20
- * (This index is automatically created/updated by the script "update-class-index")
+ * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
+require_once(PATH_t3lib.'class.t3lib_befunc.php');
 
-
-
+// these constants will change!!
+define ('TXDAM_file_unknown', -1);
+# < 0 means: not in DAM
+define ('TXDAM_file_ok', 1);
+define ('TXDAM_file_changed', 2);
+define ('TXDAM_needs_review', 3);
 
 
 /**
  * Misc DAM db functions
- *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Core
- * @subpackage Lib
+ * 
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 class tx_dam_db {
 
 
 
+
 	/***************************************
 	 *
-	 *	 DAM record access
+	 *	 tx_dam_db::....
 	 *
 	 ***************************************/
 
 
 
 	/**
-	 * Fetches the meta data from the index by a given where clause.
-	 * All selected records will be returned which means an array of meta data arrays.
-	 * If the uid field is selected it will be used as index in the returned array.
-	 * Additional WHERE clauses are appended to limit access to non-deleted entries and so on.
-	 *
-	 * @param	string		$fields A list of fields to be fetched. Default is a list of fields generated by tx_dam_db::getMetaInfoFieldList().
-	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields' or 'pidList') or a single one as string.
-	 * @param	string		$groupBy Optional GROUP BY field(s), if none, supply blank string.
-	 * @param	string		$orderBy Optional ORDER BY field(s), if none, supply blank string.
-	 * @param	string		$limit Optional LIMIT value ([begin,]max), if none, supply blank string.
-	 * @return	array		Array of meta data arrays or false
+	 * do a check if a file is already indexed and have an entry in the DAM table
+	 * 
+	 * @param	[type]		$fileName: ...
+	 * @param	[type]		$path: ...
+	 * @param	[type]		$mtime: ...
+	 * @return	integer		status value
+	 * @params string 	file name
+	 * @params string 	file path
+	 * @params integer 	file mtime
 	 */
-	function getDataWhere ($select_fields, $whereClauses=array(), $groupBy='', $orderBy='', $limit='') {
-		$rows = array();
+	function checkFileIsIndexed ($fileName,$path,$mtime) {
+#TODO: pid?
+#TODO check for moved files etc - maybe use a different function for that
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,file_mtime,file_status', 'tx_dam', "file_name='".$GLOBALS['TYPO3_DB']->quoteStr($fileName,'tx_dam')."' AND file_path='".$GLOBALS['TYPO3_DB']->quoteStr($path,'tx_dam')."' AND NOT deleted");
 
-		$select_fields = $select_fields ? $select_fields : tx_dam_db::getMetaInfoFieldList();
+		### look if more than one record fit and do heavier check
 
-		$whereClauses = is_array($whereClauses) ? $whereClauses : array('where' => (preg_replace('^AND ', trim($whereClauses))));
-
-		$where = array();
-		if (!isset($whereClauses['deleted']) AND !isset($whereClauses['enableFields'])) {
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam');
-		}
-		if (!isset($whereClauses['pidList'])) {
-			$where['pidList'] = 'tx_dam.pid IN ('.tx_dam_db::getPidList().')';
-		}
-		$where = array_merge($where, $whereClauses);
-
-		while ($key = array_search('', $where)) {
-			unset ($where[$key]);
-		}
-
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-												$select_fields,
-												'tx_dam',
-												implode(' AND ', $where),
-												$groupBy,
-												$orderBy,
-												$limit
-											);
-		//debug ($GLOBALS['TYPO3_DB']->SELECTquery($select_fields, 'tx_dam', implode(' AND ', $where), $groupBy, $orderBy, $limit), 'getDataWhere');
-
-		if ($res) {
-			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-				if(isset($row['uid'])) {
-					$rows[$row['uid']] = $row;
-				} else {
-					$rows[] = $row;
-				}
-			}
-		}
-
-		return $rows;
-	}
-
-
-
-
-
-	/***************************************
-	 *
-	 *	 DAM record write/update
-	 *
-	 ***************************************/
-
-
-
-	/**
-	 * Insert a meta data array as record. If uid is set in the array an update will be made.
-	 *
-	 * The meta data have to be in TCE format. For normal fields it doesn't matter, but eg. fields with MM relations needs to be in a special format.
-	 * Example:
-	 * Assign the record to two categories with the uid 12 and 15
-	 * $meta['category'] = '12,15';
-	 * Old relations will be deleted, means you have to put them into the list if you want to preserve them.
-	 *
-	 * @param	array		$meta meta record values
-	 * @return	integer		record id
-	 */
-	function insertUpdateData($meta)	{
-		global $TYPO3_CONF_VARS;
-
-		$meta = tx_dam_db::cleanupRecordArray('tx_dam', $meta);
-
-		require_once (PATH_t3lib.'class.t3lib_tcemain.php');
-
-		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
-		$tce->stripslashes_values = 0;
-
-		$data = array();
-		$cmd = array();
-
-		$id = $meta['uid'] ? $meta['uid'] : 'NEW';
-		unset($meta['uid']);
-
-			// record deletion is requested - this is a tcemain command
-		if ($meta['deleted']) {
-			unset($meta['deleted']);
-			$cmd['tx_dam'][$id]['delete']=1;
-		}
-
-			// still data to change?
-		if ($meta) {
-			$meta = tx_dam_db::setMetaDefaultFields ($meta);
-
-			if (is_object($GLOBALS['BE_USER'])) {
-				$TCAdefaultOverride = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
-				if (is_array($TCAdefaultOverride))	{
-					$tce->setDefaultsFromUserTS($TCAdefaultOverride);
-				}
-			}
-
-			$data['tx_dam'][$id] = $meta;
-		}
-
-		$tce->start($data, $cmd, $GLOBALS['BE_USER']);
-
-			// data change - always before a deletion
-		$tce->process_datamap();
-			// delete record when requested
-		$tce->process_cmdmap();
-
-
-		if ($id=='NEW') {
-
-			if ($id = $tce->substNEWwithIDs[$id]) {
-
-					// hook
-				if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses']))	{
-					foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses'] as $classKey => $classRef)	{
-						if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
-							if (method_exists($obj, 'insertMetaTrigger')) {
-								$obj->insertMetaTrigger($meta);
-							}
-						}
-					}
-				}
-
+		$uid=0;
+		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			$uid=$row['uid'];
+			
+			if ($row['file_mtime']==$mtime) {
+				return array(TXDAM_file_ok, $uid);
 			} else {
-				// That shouldn't happen - really
-				debug('Inserting meta record failed. See log for reason!');
-			}
 
-		} else {
+				### check better for same file
 
-					// hook
-			if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses']))	{
-				foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses'] as $classKey => $classRef)	{
-					if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
-						if (method_exists($obj, 'updateMetaTrigger')) {
-							$obj->updateMetaTrigger($meta);
-						}
-					}
+				if ($row['file_status']!=TXDAM_file_changed) {
+					$this->updateRecordStatus($row['uid'],TXDAM_file_changed,$mtime);
 				}
+				return array(TXDAM_file_changed, $uid);
 			}
 		}
-
-		return $id;
+		return array(TXDAM_file_unknown, $uid);
 	}
 
-
 	/**
-	 * Insert a DAM record directly without the usage of TCE.
-	 * Shouldn't be used except you know what you do.
-	 * Following fields will be initialized if not set in the array: pid, crdate, tstamp
-	 *
-	 * @param	array		$meta Meta data record as array
-	 * @return	integer		Record uid
+	 * @param	[type]		$uid: ...
+	 * @param	[type]		$status: ...
+	 * @param	[type]		$mtime: ...
+	 * @return	void		
+	 * @params integer 	uid - record id
+	 * @params integer 	status value
+	 * @params integer 	file mtime
 	 */
-	function insertRecordRaw($meta)	{
-
-		$meta = tx_dam_db::setMetaDefaultFields ($meta);
-		$meta = tx_dam_db::cleanupRecordArray('tx_dam', $meta);
-		$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam', $meta);
-		echo $GLOBALS['TYPO3_DB']->sql_error();
-		$id = $GLOBALS['TYPO3_DB']->sql_insert_id($res);
-
-		return $id;
-	}
-
-
-	/**
-	 * Performes a "merging" of record data and update the DB if needed.
-	 * Data can be appended to existing data or replace it.
-	 *
-	 * @param	array		$rowSource The source record data. Needs uid and pid to be set.
-	 * @param	array		$replaceData Record data that should replace the original.
-	 * @param	array		$appendData Record data that should be appended to original.
-	 * @param	boolean		$transformSourceData If set the source record data will be transformed into TCE format, which is needed to append MM relations.
-	 * @return	array Return an array of processed data
-	 */
-	function mergeAndUpdateData($rowSource, $replaceData, $appendData, $transformSourceData=true) {
-		global $TCA, $TYPO3_CONF_VARS;
-
-		$updated = array();
-
-		if ($transformSourceData) {
-				// is needed to get the record for merging with submitted tceforms data
-			require_once (PATH_t3lib.'class.t3lib_transferdata.php');
-			$trData = t3lib_div::makeInstance('t3lib_transferData');
-			$trData->lockRecords = 0;
-			$trData->disableRTE = 1;
-			$data = $trData->renderRecord('tx_dam', $rowSource['uid'], $rowSource['pid'], $rowSource);
-			reset($trData->regTableItems_data);
-			$row = current($trData->regTableItems_data);
-
-			// TODO	$row = $processData->renderRecordRaw('tx_dam', $row['uid'], $row['pid'], $row);
-			// In opposite to renderRecord() this function do not prepare things like fetching TSconfig and others.
-
-		} else {
-
-			$row = $rowSource;
-		}
-
-
-		$rowUpdate = tx_dam_db::getUpdateData($row, $replaceData, $appendData);
-
-
-		if (count($rowUpdate)) {
-
-				// update data
-			$rowUpdate['uid'] = $rowSource['uid'];
-			$rowUpdate['pid'] = $rowSource['pid'];
-			tx_dam_db::insertUpdateData($rowUpdate);
-
-			$updated['updated'] = $rowUpdate;
-			$updated['processed'] = array_merge($row, $rowUpdate);
-
-		} else {
-
-			$updated['updated'] = false;
-			$updated['processed'] = $row;
-		}
-
-		return $updated;
-	}
-
-
-
-
-	/**
-	 * Performes a "merging" of record data.
-	 * Data can be appended to existing data or replace it.
-	 *
-	 * @param	array		$rowSource The source record data. Needs uid and pid to be set.
-	 * @param	array		$replaceData Record data that should replace the original.
-	 * @param	array		$appendData Record data that should be appended to original.
-	 * @return	array Return an array of processed data which include the changed fields only
-	 */
-	function getUpdateData($row, $replaceData, $appendData) {
-		global $TCA, $TYPO3_CONF_VARS;
-
-
-		$rowUpdate = array();
-
-		if (is_array($replaceData)) {
-			foreach($replaceData as $field => $value) {
-				$rowUpdate[$field] = $value;
-			}
-		}
-
-		if (is_array($appendData)) {
-			t3lib_div::loadTCA('tx_dam');
-			foreach($appendData as $field => $value) {
-
-				$appended = false;
-				if ($appendType = $TCA['tx_dam']['columns'][$field]['config']['appendType']) {
-
-					$appended = true;
-					switch($appendType)	{
-						case 'space':
-							$rowUpdate[$field] = trim($row[$field].' '.$value);
-						break;
-						case 'newline':
-							$rowUpdate[$field] = $row[$field].($row[$field]?"\n":'').$value;
-						break;
-						case 'comma':
-							$rowUpdate[$field] = $row[$field].($row[$field]?', ':'').$value;
-						break;
-						case 'charDef':
-						default:
-							list($type, $appendChar) = explode(':', $appendType);
-							$rowUpdate[$field] = $appendChar.$value;
-						break;
-						default:
-							$appended = false;
-						break;
-					}
-				}
-
-				if (!$appended) {
-
-					switch($TCA['tx_dam']['columns'][$field]['config']['type'])	{
-						case 'input':
-							$rowUpdate[$field] = trim($row[$field].' '.$value);
-						break;
-						case 'text':
-							$rowUpdate[$field] = $row[$field].($row[$field]?"\n":'').$value;
-						break;
-						case 'select':
-						case 'group':
-							$data = tx_dam_db::stripLabelFromGroupData($row[$field]);
-							$rowUpdate[$field] = $data.','.$value;
-						break;
-						case 'none':
-						case 'user':
-						case 'flex':
-						case 'check':
-						case 'radio':
-						default:
-							$rowUpdate[$field] = $value; // replace anyway
-						break;
-					}
-				}
-			}
-		}
-
-		return $rowUpdate;
-	}
-
-
-
-
-
-	/***************************************
-	 *
-	 *	 Update
-	 *
-	 ***************************************/
-
-
-
-	/**
-	 * Updates the status of a meta data record.
-	 *
-	 * @param	integer		$uid uid - record id
-	 * @param	integer		$status status value: TXDAM_status_file_XXX
-	 * @param	integer		$fileInfo File info array
-	 * @param	string		$hash Optional file hash
-	 * @param	integer		$deleted If set the field deleted will be set
-	 * @return	void
-	 */
-	function updateStatus($uid, $status, $fileInfo=NULL, $hash=NULL, $deleted=NULL)	{
+	function updateRecordStatus($uid,$status,$mtime=0)	{
+#TODO define proper status values
+		
 		$values = array();
 		$values['tstamp'] = time();
-		if (isset($deleted)) {
-			$values['deleted'] = $deleted;
-		}
 		$values['file_status'] = $status;
-		if ($fileInfo) {
-			$fileInfo = tx_dam_db::cleanupRecordArray('tx_dam', $fileInfo);
-			$values = array_merge($values, $fileInfo);
-			$values['date_mod'] = $values['file_mtime'];
+		if ($mtime) {
+			$values['file_mtime'] = $mtime;
+			$values['date_mod'] = $mtime;
 		}
-		if ($hash) {
-			$values['file_hash'] = $hash;
-		}
-
 		return $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.intval($uid), $values);
 	}
 
 
 	/**
-	 * Updates the file path of all meta data records that matches/begins with the old path.
-	 *
-	 * @param	string		$oldPath old path
-	 * @param	string		$newPath new path
-	 * @return	void
+	 * @param	[type]		$meta: ...
+	 * @param	[type]		$id: ...
+	 * @param	[type]		$status: ...
+	 * @return	integer		record id
+	 * @params array 	meta record values
+	 * @params integer 	status value
 	 */
-	function updateFilePath($oldPath, $newPath)	{
+	function insertMetaRecord($meta, $id='NEW', $status=TXDAM_needs_review)	{
+		
+		$meta = $this->cleanupRecordArray ('tx_dam', $meta);
+		
+		#TODO set proper status
+		$meta['file_status']=TXDAM_needs_review;
 
-		// TODO use tx_dam_db::insertUpdateData() ?
+		if(1) {
 
-		$oldPath = tx_dam::path_makeRelative($oldPath);
-		$newPath = tx_dam::path_makeRelative($newPath);
+		require_once (PATH_t3lib.'class.t3lib_tcemain.php');
 
-		$where = array();
-		$where['enableFields'] = '';
-		$where['pidList'] = '';
-		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($oldPath, 'tx_dam');
-		$where['file_path'] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
+		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+		$tce->debug=0;
+		$tce->disableRTE=1;
+		$tce->stripslashes_values=0;
 
-		$rows = tx_dam_db::getDataWhere ('DISTINCT file_path', $where);
+		#$TCAdefaultOverride = $BE_USER->getTSConfigProp('TCAdefaults');
+		#if (is_array($TCAdefaultOverride))	{
+		#	$tce->setDefaultsFromUserTS($TCAdefaultOverride);
+		#}
 
-		foreach($rows as $row) {
-			$updatedPath = preg_replace('#^'.preg_quote($oldPath).'#', $newPath, $row['file_path']);
-			$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($row['file_path'], 'tx_dam'), array('file_path'=>$updatedPath));
+		$tce->start(array('tx_dam'=>array($id=>$meta)),array());
+
+		#$tce->process_datamap();
+#debug($meta['category']);
+		$res = $tce->checkValue('tx_dam','category',$meta['category'],$meta['uid'],($id=='NEW'?'new':'update'),$meta['pid'],$meta['pid']);
+		if (isset($res['value']))	{
+			$meta['category']=$res['value'];
 		}
+		if ($id=='NEW') {
+			$tce->insertDB('tx_dam',$meta['uid'],$meta);
+			$id = $tce->substNEWwithIDs[$meta['uid']];
+		} else {
+			$tce->updateDB('tx_dam',$meta['uid'],$meta);
+		}
+		$tce->dbAnalysisStoreExec();
+
+
+#debug($id);
+
+
+		} else {
+		$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam',$meta);
+		echo $GLOBALS['TYPO3_DB']->sql_error();
+		$id = $GLOBALS['TYPO3_DB']->sql_insert_id($res);
+		}
+		
+		return $id;
 	}
 
 
-	/**
-	 * Set all records deleted that matches/begins with the given path.
-	 *
-	 * @param	string		$path path
-	 * @return	void
-	 */
-	function updateFilePathSetDeleted($path)	{
 
-		$path = tx_dam::path_makeRelative($path);
 
-		// this way db trigger will not work
-		// $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($GLOBALS['TYPO3_DB']->escapeStrForLike($path, 'tx_dam').'%', 'tx_dam'), array('deleted'=>'1'));
-
-		$where = array();
-		$where['enableFields'] = '';
-		$where['pidList'] = '';
-		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($path, 'tx_dam');
-		$where['file_path'] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
-
-		$rows = tx_dam_db::getDataWhere ('uid', $where);
-
-		foreach($rows as $row) {
-			$row['deleted'] = '1';
-			tx_dam_db::insertUpdateData($row);
-		}
-	}
+	
+	
 
 
 
 	/***************************************
 	 *
-	 *	 References
+	 *	 references
 	 *
 	 ***************************************/
-
-
-
+	 
+	 
+	
 
 	/**
-	 * Returns the result of q db query by a mm-relation to the tx_dam table which is used to get eg. the references tt_content<>tx_dam
-	 *
-	 *
-	 * @param 	string 		$local_table Eg tx_dam
-	 * @param 	string 		$local_uid Uid list of tx_dam records the references shall be fetched for
-	 * @param	string		$foreign_table Table name to get references for. Eg tt_content
-	 * @param	integer		$foreign_uid The uid of the referenced record
-	 * @param	mixed		$MM_ident Array of field/value pairs that should match in MM table. If it is a string, it will be used as value for the field 'ident'.
-	 * @param	string		$MM_table The mm table to use. Default: tx_dam_mm_ref
-	 * @param	string		$fields The fields to select. Needs to be prepended with table name: tx_dam.uid, tx_dam.title
-	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields') or a single one as string.
-	 * @param	string		$groupBy: ...
-	 * @param	string		$orderBy: ...
-	 * @param	string		$limit: Default: 1000
-	 * @return	mixed		db result pointer
+	 * Make a list of files by a mm-relation to the tx_dam table
+	 * 
+	 * @param	[type]		$local_table: ...
+	 * @param	[type]		$local_uid: ...
+	 * @param	[type]		$select: ...
+	 * @param	[type]		$whereClause: ...
+	 * @param	[type]		$groupBy: ...
+	 * @param	[type]		$orderBy: ...
+	 * @param	[type]		$limit: ...
+	 * @return	[type]		...
 	 */
-	function referencesQuery($local_table, $local_uid, $foreign_table, $foreign_uid, $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
-
-		$whereClauses = is_array($whereClauses) ? $whereClauses : array('where' => (preg_replace('^AND ', trim($whereClauses))));
-
-		$MM_table = $MM_table ? $MM_table : 'tx_dam_mm_ref';
-
-		$where = array();
-		if (!isset($whereClauses['deleted']) AND !isset($whereClauses['enableFields'])) {
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam');
-		}
-		$where = array_merge($where, $whereClauses);
-
-		if ($foreign_table) {
-			$where[] = $MM_table.'.tablenames='.$GLOBALS['TYPO3_DB']->fullQuoteStr($foreign_table, $MM_table);
-		}
-		if ($foreign_uid = $GLOBALS['TYPO3_DB']->cleanIntList($foreign_uid)) {
-			$where[] = $MM_table.'.uid_foreign IN ('.$foreign_uid.')';
-		}
-		if ($local_uid = $GLOBALS['TYPO3_DB']->cleanIntList($local_uid)) {
-			$where[] = $MM_table.'.uid_local IN ('.$local_uid.')';
-		}
-		if ($MM_ident) {
-			if (!is_array($MM_ident)) {
-				$MM_ident = array('ident' => $MM_ident);
-			}
-			foreach ($MM_ident as $field => $value) {
-				$where[] = $MM_table.'.'.$field.'='.$GLOBALS['TYPO3_DB']->fullQuoteStr($value, $MM_table);
-			}
-		}
+	function get_mm_fileList($local_table, $local_uid, $select='', $whereClause='', $groupBy='', $orderBy='', $limit=100, $MM_table='tx_dam_mm_ref') {
+		
+		$select = $select ? $select : 'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.file_type' ;
+//debug(tx_dam_db::SELECT_mm_query(
+//			$select,
+//			$local_table,
+//			'tx_dam_mm_ref',
+//			'tx_dam',
+//			'AND '.$local_table.'.uid IN ('.$local_uid.') '.$whereClause, 
+//			$groupBy, 
+//			$orderBy,
+//			$limit
+//		));
 
 		if(!$orderBy) {
 			$orderBy = $MM_table.'.sorting';
 		}
-
-		while ($key = array_search('', $where)) {
-			unset ($where[$key]);
-		}
-
-		$where = implode(' AND ', $where);
-
-		$select_local_table = strstr($fields.' '.$where, $local_table.'.') ? $local_table :  '';
-		$select_foreign_table = strstr($fields.' '.$where, $foreign_table.'.') ? $foreign_table :  '';
-
-		if ($select_local_table OR $select_foreign_table) {
-			$where = $where ? ' AND '.$where : '';
-		}
-
+					
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			$fields,
-			$select_local_table,
+			$select,
+			$local_table,
 			$MM_table,
-			$select_foreign_table,
-			$where,
-			$groupBy,
+			'tx_dam',
+			'AND '.$local_table.'.uid IN ('.$local_uid.') '.$whereClause,
+			$groupBy, 
 			$orderBy,
 			$limit
 		);
-
-		return $res;
-	}
-
-
-
-
-
-
-	/**
-	 * Make a list of files by a mm-relation to the tx_dam table which is used to get eg. the references tt_content<>tx_dam
-	 *
-	 * 	Returns:
-	 * 	array (
-	 * 		'files' => array(
-	 * 			record-uid => 'fileadmin/example.jpg',
-	 * 		)
-	 * 		'rows' => array(
-	 * 			record-uid => array(meta data array),
-	 * 		)
-	 * 	);
-	 *
-	 * @param	string		$foreign_table Table name to get references for. Eg tt_content
-	 * @param	integer		$foreign_uid The uid of the referenced record
-	 * @param	mixed		$MM_ident Array of field/value pairs that should match in MM table. If it is a string, it will be used as value for the field 'ident'.
-	 * @param	string		$MM_table The mm table to use. Default: tx_dam_mm_ref
-	 * @param	string		$fields The fields to select. Needs to be prepended with table name: tx_dam.uid, tx_dam.title
-	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields') or a single one as string.
-	 * @param	string		$groupBy: ...
-	 * @param	string		$orderBy: ...
-	 * @param	string		$limit: Default: 1000
-	 * @return	array		...
-	 */
-	function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
-
-		$fields = $fields ? $fields : tx_dam_db::getMetaInfoFieldList();
-		$local_table= 'tx_dam';
-
-		$res = tx_dam_db::referencesQuery($local_table, '', $foreign_table, $foreign_uid, $MM_ident, $MM_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
-
 		$files = array();
 		$rows = array();
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$files[$row['uid']] = $row['file_path'].$row['file_name'];
 			$rows[$row['uid']] = $row;
 		}
-
-		return array('files' => $files, 'rows' => $rows);
+		
+		return array('files'=>$files, 'rows'=>$rows);
 	}
-
-
+	
 	/**
-	 * Make a comma list of uid's by a mm-relation to the tx_dam table which is used to get eg. the references tt_content<>tx_dam
-	 *
-	 * @param	string		$foreign_table Table name to get references for. Eg tt_content
-	 * @param	integer		$foreign_uid The uid of the referenced record
-	 * @param	mixed		$MM_ident Array of field/value pairs that should match in MM table. If it is a string, it will be used as value for the field 'ident'.
-	 * @return	string		uid comma list
+	 * Make a list of references to foreign tables (eg. tt_content) by a mm-relation to the tx_dam table
+	 * 
+	 * @param	[type]		$tx_dam_uid: ...
+	 * @param	[type]		$select: ...
+	 * @param	[type]		$whereClause: ...
+	 * @param	[type]		$groupBy: ...
+	 * @param	[type]		$orderBy: ...
+	 * @param	[type]		$limit: ...
+	 * @return	[type]		...
 	 */
-	function getReferencesUidList($foreign_table, $foreign_uid, $MM_ident) {
-		$result = tx_dam_db::getReferencedFiles($foreign_table, $foreign_uid, $MM_ident, '', 'uid');
-		$uidList = implode(',',array_keys($result['rows']));
-		return $uidList;
-	}
-
-
-	/**
-	 * Returns an array of meta data for a list of files from the uploads folder.
-	 * This can be used to get meta data for "uploads" files.
-	 *
-	 * @param mixed $fileList Comma list or array of files
-	 * @param string $uploadsPath Uploads path. If empty each file have to have a path prepended.
-	 * @return void
-	 */
-	function getMetaForUploads ($fileList, $uploadsPath='') {
-		$fileList = is_array($fileList) ? $fileList : explode(',', $fileList);
-
-		$files = array();
-		foreach ($fileList as $filepath) {
-
-			$fileInfo = tx_dam::file_compileInfo($uploadsPath.$filepath);
-
-			if ($fileInfo['__exists']) {
-				$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-								'tx_dam.*',
-								'tx_dam_file_tracking,tx_dam',
-								'tx_dam_file_tracking.file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'], 'tx_dam_file_tracking').
-								' AND tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'], 'tx_dam_file_tracking').
-									' AND tx_dam_file_tracking.file_hash=tx_dam.file_hash'.
-									' AND '.tx_dam_db::deleteClause('tx_dam'),
-								'',
-								'',
-								1
-							);
-				$files[$filepath] = current($row);
-			}
-		}
-		return $files;
-	}
-
-
-	/**
-	 * Returns info about the usage of a media item as reference to a given table.
-	 *
-	 * @param 	string 		$uidList Uid list of tx_dam records the references shall be fetched for
-	 * @param 	string 		$table Eg tt_content
-	 * @param	mixed		$MM_ident Array of field/value pairs that should match in MM table. If it is a string, it will be used as value for the field 'ident'.
-	 * @param	string		$fields The fields to select. Needs to be prepended with table name: tx_dam.uid, tx_dam.title
-	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields') or a single one as string.
-	 * @param	string		$groupBy: ...
-	 * @param	string		$orderBy: ...
-	 * @param	string		$limit: Default: 1000
-	 * @return array
-	 */
-	function getMediaUsageReferences($uidList, $foreign_table='', $MM_ident='', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
-
-		$fields = $fields ? $fields : 'tx_dam_mm_ref.*';
-
-		$local_table= 'tx_dam';
-		$MM_table = 'tx_dam_mm_ref';
-
-		$res = tx_dam_db::referencesQuery($local_table, $uidList, $foreign_table, '', $MM_ident, $MM_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
-
-		$rows = array();
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			$rows[] = $row;
-		}
-
-		return $rows;
-	}
-
-
-	/**
-	 * Fetches for media items the tt_content that use that file as copy in uploads
-	 *
-	 * Returns:
-	 *	$rows[] = array (
-	 *		'tablenames' => 'tt_content',
-	 *		'uid_foreign' => $row['uid'],
-	 *	);
-	 *
-	 * @param 	string 		$uidList Uid list of txam records the references shall be fetched for
-	 * @param 	array 		$tableConf Unused/reserved
-	 * @param 	string 		$uploadsFolder
-	 * @param	string		$orderBy: ...
-	 * @param	string		$limit: Default: 1000
-	 * @return array
-	 */
-	function getMediaUsageUploads($uidList, $tableConf='', $uploadsFolder='uploads/pics/', $orderBy='', $limit=1000) {
-
-		$fields = $fields ? $fields : 'tx_dam_file_tracking.*';
+	function get_mm_refList($tx_dam_uid, $select='', $whereClause='', $groupBy='', $orderBy='', $limit=100, $MM_table='tx_dam_mm_ref') {
 
 		if(!$orderBy) {
-			$orderBy = 'tx_dam_file_tracking.tstamp';
+			$orderBy = $MM_table.'.tablenames';
 		}
-
-		$where = array();
-		$where[] = 'tx_dam.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($uidList).')';
-		$where[] = 'tx_dam_file_tracking.file_hash=tx_dam.file_hash';
-		if($uploadsFolder) {
-			$where[] = 'tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($uploadsFolder,'tx_dam_file_tracking');
-		}
-		$where = implode(' AND ', $where);
-		$rowsUploads = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			$fields,
-			'tx_dam_file_tracking,tx_dam',
-			$where,
-			'',
+				
+		$res = tx_dam_db::exec_SELECT_mm_refList(
+			$tx_dam_uid,
+			$select,
+			$whereClause, 
+			$groupBy, 
 			$orderBy,
-			$limit
+			$limit,
+			$MM_table
 		);
 
 		$rows = array();
-
-		if($rowsUploads) {
-			$whereFilenames = array();
-			foreach ($rowsUploads as $row) {
-				$whereFilenames[] = 'image REGEXP BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr('[^, ]*'.$row['file_name'].'[^, ]*','tt_content');
-			}
-			$where = implode(' OR ', $whereFilenames);
-			$rowsContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,pid,image', 'tt_content', $where.' AND '.tx_dam_db::deleteClause('tt_content'));
-			foreach ($rowsContent as $row) {
-				$rows[] = array (
-					'tablenames' => 'tt_content',
-					'uid_foreign' => $row['uid'],
-				);
-			}
+		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			$rows[$row['uid']] = $row;
 		}
+		
+		return $rows;
+	}
 
+
+
+	/**
+	 * Make a list of references to foreign tables (eg. tt_content) by a mm-relation to the tx_dam table
+	 * 
+	 * @param	[type]		$tx_dam_uid: ...
+	 * @param	[type]		$select: ...
+	 * @param	[type]		$whereClause: ...
+	 * @param	[type]		$groupBy: ...
+	 * @param	[type]		$orderBy: ...
+	 * @param	[type]		$limit: ...
+	 * @return	[type]		...
+	 */
+	function exec_SELECT_mm_refList($tx_dam_uid, $select='', $whereClause='', $groupBy='', $orderBy='', $limit=100, $MM_table='tx_dam_mm_ref') {
+
+		if(!$orderBy) {
+			$orderBy = $MM_table.'.tablenames';
+		}
+									
+		$select = $select ? $select : 'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.file_type, '.$MM_table.'.tablenames' ;
+		$whereClause = ((string)$tx_dam_uid) ? (' AND tx_dam.uid IN ('.$tx_dam_uid.') '.$whereClause) : $whereClause;
+		
+//debug(tx_dam_db::SELECT_mm_query(
+//			$select,
+//			'',
+//			$MM_table,
+//			'tx_dam',
+//			$whereClause, 
+//			$groupBy, 
+//			$orderBy,
+//			$limit
+//		));
+		
+		
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+			$select,
+			'',
+			$MM_table,
+			'tx_dam',
+			$whereClause, 
+			$groupBy, 
+			$orderBy,
+			$limit
+		);
+		
+		return $res;
+	}
+
+########## debug
+
+	
+	function SELECT_mm_query($select,$local_table,$mm_table,$foreign_table,$whereClause='',$groupBy='',$orderBy='',$limit='')	{
+		$mmWhere = $local_table ? $local_table.'.uid='.$mm_table.'.uid_local' : '';
+		$mmWhere.= ($local_table AND $foreign_table) ? ' AND ' : '';
+		$mmWhere.= $foreign_table ? $foreign_table.'.uid='.$mm_table.'.uid_foreign' : '';
+		return $GLOBALS['TYPO3_DB']->SELECTquery(
+					$select,
+					($local_table ? $local_table.',' : '').$mm_table.($foreign_table ? ','.$foreign_table : ''),
+					$mmWhere.' '.$whereClause,		// whereClauseMightContainGroupOrderBy
+					$groupBy,
+					$orderBy,
+					$limit
+				);
+	}	
+	
+#############
+
+
+
+
+
+	/***************************************
+	 *
+	 *	 categories
+	 *
+	 ***************************************/
+	 
+	 
+	 	 
+	/**
+	 * @param	[type]		$title: ...
+	 * @return	[type]		...
+	 */
+	function getCatByName ($title) {
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_dam_cat', 'title="'.$GLOBALS['TYPO3_DB']->quoteStr($title,'tx_dam_cat').'"');
+		return $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+	}
+/*
+	function addMetaRecordToCat($uidMetaRecord,$uidCatRecord)	{
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid_local', 'tx_dam_mm_cat', 'uid_local='.intval($uidMetaRecord).' AND uid_foreign='.intval($uidCatRecord));
+
+		if (0==$GLOBALS['TYPO3_DB']->sql_affected_rows()) {
+			$fields_values = array();
+			$fields_values['uid_local'] = intval($uidMetaRecord);
+			$fields_values['uid_foreign'] = intval($uidCatRecord);
+			$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_mm_cat',$fields_values);
+			echo $GLOBALS['TYPO3_DB']->sql_error();
+			return $GLOBALS['TYPO3_DB']->sql_insert_id();
+		}
+	}
+*/
+
+
+	
+	/**
+	 * Returns an array with rows for subrecords with parent_id=$uid
+	 * 
+	 * @param	integer		UID of record
+	 * @param	string		List of fields to select (default is '*')
+	 * @param	string		Additional WHERE clause, eg. " AND blablabla=0"
+	 * @param	[type]		$table: ...
+	 * @param	[type]		$where: ...
+	 * @return	array		Returns the rows if found, otherwise empty array
+	 */
+	function getSubRecords ($uidList,$level=1,$fields='*',$table='tx_dam_cat',$where='')	{
+		$rows = array();
+		
+		while ($level && $uidList)	{
+			$level--;
+			
+			$newIdList = array();
+			t3lib_div::loadTCA($table);
+			$ctrl = $GLOBALS['TCA'][$table]['ctrl'];
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, $ctrl['treeParentField'].' IN ('.$uidList.') '.$where.' AND NOT '.$table.'.'.$ctrl['delete']);
+			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				$rows[$row['uid']] = $row;
+				$newIdList[] = $row['uid'];
+			}
+			$uidList = implode(',', $newIdList);
+
+		}
+		
+		
 		return $rows;
 	}
 
 
 	/**
-	 * Add an uploads file to the tracking table of the DAM.
-	 * This is needed to make it possible to identify files copied to uploads/
-	 *
+	 * Returns a commalist of sub record ids
+	 * 
+	 * @param	integer		UIDs of record
+	 * @param	string		Additional WHERE clause, eg. " AND blablabla=0"
+	 * @param	[type]		$table: ...
+	 * @param	[type]		$where: ...
+	 * @return	string		Comma-list of record ids
 	 */
-	function trackingUploadsFile($fileInfo, $hash='') {
+	function getSubRecordsIdList($uidList,$level=1,$table='tx_dam_cat',$where='')	{
+		$rows = tx_dam_db::getSubRecords ($uidList,$level,'uid',$table,$where);
+		return implode(',',array_keys($rows));
+	}	
 
-		$fileInfo = is_array($fileInfo) ? $fileInfo : tx_dam::file_compileInfo($fileInfo);
 
-		if ($fileInfo['__exists'] AND t3lib_div::isFirstPartOfStr($fileInfo['file_path'],'uploads/')) {
 
-			$hash = $hash ? $hash : tx_dam::file_calcHash($fileInfo);
+	/***************************************
+	 *
+	 *	 media types
+	 *
+	 ***************************************/
 
-			$where = 'file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'], 'tx_dam_file_tracking').
-					' AND file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'], 'tx_dam_file_tracking');
-			$GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_dam_file_tracking', $where);
 
-			$fields_values = array (
-				'tstamp' => time(),
-				'file_name' => $fileInfo['file_name'],
-				'file_path' => $fileInfo['file_path'],
-				'file_size' => $fileInfo['file_size'],
-				'file_ctime' => max ($fileInfo['file_ctime'], $fileInfo['file_mtime']),
-				'file_hash' => $hash,
-			);
-			$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_file_tracking', $fields_values);
+	/**
+	 * @param	[type]		$meta: ...
+	 * @return	void		
+	 * @params array 	meta data. $meta['media_type'] and $meta['file_type'] have to be set
+	 */
+	function updateBrowseTypes($meta)	{
+		
+		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
+
+		// MEDIA tx_dam_metypes_avail
+		$mediaType = intval($meta['media_type']);
+#debug($mediaType,'$mediaType');
+			// check if media type exists
+		if ($TX_DAM['code2media'][$mediaType]) {
+
+
+				// get the id of the media type record
+			$media_id = false;
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_metypes_avail', 'type='.$mediaType);
+
+			if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				$media_id = $row['uid'];
+			}
+				// no record - then create one
+			if (!$media_id) {
+				$sorting = $TX_DAM['code2sorting'][$mediaType];
+				$sorting = $sorting ? $sorting : 10000;
+##TODO language
+				$fields_values = array();
+				$fields_values['pid'] = 0;
+				$fields_values['parent_id'] = 0;
+				$fields_values['tstamp'] = time();
+				$fields_values['title'] = $GLOBALS['TYPO3_DB']->quoteStr($TX_DAM['code2media'][$mediaType], 'tx_dam_metypes_avail');
+				$fields_values['type'] = $mediaType;
+				$fields_values['sorting'] = $sorting;
+				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_metypes_avail', $fields_values);
+				echo $GLOBALS['TYPO3_DB']->sql_error();
+				$media_id = $GLOBALS['TYPO3_DB']->sql_insert_id();
+			}
+
+				// get file type record
+			$type_id = false;
+			if ($media_id) {
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_metypes_avail', 'title="'.$GLOBALS['TYPO3_DB']->quoteStr($meta['file_type'],'tx_dam_metypes_avail').'" AND parent_id='.$media_id);
+				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+					$type_id = $row['uid'];
+				}
+			}
+				// no record - then create one
+			if (!$type_id) {
+				$fields_values = array();
+				$fields_values['pid'] = 0;
+				$fields_values['parent_id'] = $media_id;
+				$fields_values['tstamp'] = time();
+				$fields_values['title'] = $GLOBALS['TYPO3_DB']->quoteStr($meta['file_type'], 'tx_dam_metypes_avail');
+				$fields_values['type'] = $mediaType;
+				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_metypes_avail', $fields_values);
+				echo $GLOBALS['TYPO3_DB']->sql_error();
+			}
 		}
 	}
-
-
-
-
-
 
 
 
@@ -840,147 +554,131 @@ class tx_dam_db {
 	 ***************************************/
 
 
-
 	/**
-	 * Returns a pid comma list of DAM folders.
-	 * Currently only one folder is supported, but for any direct db read access this list of valid pid's should be used.
-	 *
-	 * @return	string		Comma list of DAM folder pid's.
+	 * Create a DAM folders
+	 * 
+	 * @param	[type]		$pid: ...
+	 * @return	void		
 	 */
-	function getPidList () {
-		return (string)tx_dam_db::getPid();
+	function createDAMFolder($pid=0) {		
+		$fields_values = array();
+		$fields_values['pid'] = $pid;
+		$fields_values['sorting'] = 10111; #TODO
+		$fields_values['perms_user'] = 31;
+		$fields_values['perms_group'] = 31;
+		$fields_values['perms_everybody'] = 31;
+		$fields_values['title'] = 'Media';
+		$fields_values['doktype'] = 2;
+		$fields_values['module'] = 'dam';
+		$fields_values['crdate'] = time();
+		$fields_values['tstamp'] = time();
+		return $GLOBALS['TYPO3_DB']->exec_INSERTquery('pages', $fields_values);
 	}
 
 
 	/**
-	 * Returns a single pid of a DAM folder.
-	 * This pid have to be used for storage of DAM records.
-	 *
-	 * For fetching data getPidList() have to be used.
-	 *
-	 * @return	integer		Current/default DAM folder pid for storage.
+	 * Find the DAM folders
+	 * 
+	 * @return	array		rows of found DAM folders
 	 */
-	function getPid () {
-		global $TYPO3_CONF_VARS;
-
-		static $pid = 0;
-
-		if(!$pid AND is_object($GLOBALS['TYPO3_DB'])) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages', 'doktype=2 and module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').' AND deleted=0');
-			if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$pid = $row['uid'];
-			} else {
-				require_once(PATH_txdam.'lib/class.tx_dam_sysfolder.php');
-				$pid = tx_dam_sysfolder::init();
-			}
+	function getDAMFolders() {
+		$rows=array();
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,pid,title', 'pages', 'doktype=2 and module="dam" '.t3lib_BEfunc::deleteClause('pages'));
+		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			$rows[$row['uid']]=$row;
 		}
-		return $pid;
+		return $rows;
+	}
+	
+	
+	/**
+	 * Returns pidList of DAM Folders
+	 * 
+	 * @return	string		commalist of PIDs
+	 */
+	function getDAMFolderPidList() {
+		return implode(',',array_keys(tx_dam_db::getDAMFolders()));
 	}
 
 
+	/**
+	 * Find the DAM folders or create one.
+	 * 
+	 * @return	array		
+	 */
+	function initDAMFolders()	{
+		// creates a DAM folder on the fly
+		// not really a clean way ...
+		$damFolders = tx_dam_db::getDAMFolders();
+		if (!count($damFolders)) {
+			tx_dam_db::createDAMFolder();
+			$damFolders = tx_dam_db::getDAMFolders();
+			#$df = current($damFolders);
+			#$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', '', array('pid' => $df['uid']));
+			#$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_cat', '', array('pid' => $df['uid']));
+		}
+		$df = current($damFolders);
+		#$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'pid=0', array('pid' => $df['uid']));
+		#$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_cat', 'pid=0', array('pid' => $df['uid']));
+
+		return array ($df['uid'],$df['uid'],implode(',',array_keys($damFolders)));	
+			
+#		return array (
+#			'defaultPid' => $df['uid'],
+#			'defaultFolder' => $df['uid'],
+#			'folderList' => implode(',',array_keys($damFolders))
+#		);
+	}	
 
 
 
 	/*******************************************
 	 *
-	 * Meta field lists and arrays
+	 * Misc
 	 *
-	 *******************************************/
-
-
+	 *******************************************/	
 
 	/**
-	 * Following fields will be initialized if not set in the array: pid, crdate, tstamp
-	 *
-	 * @param	array		$meta Meta data record as array
-	 * @param	boolean		$force If set the field values will be set no matter what.
-	 * @return	array		$meta Meta data record as array
-	 */
-	function setMetaDefaultFields($meta, $force=false)	{
-
-		if($force OR !isset($meta['uid'])) {
-			if($force OR !isset($meta['pid'])) {
-				$meta['pid'] = tx_dam_db::getPid();
-			}
-			if($force OR !isset($meta['crdate'])) {
-				$meta['crdate'] = time();
-			}
-		}
-		if($force OR !isset($meta['tstamp'])) {
-			$meta['tstamp'] = time();
-		}
-
-		return $meta;
-	}
-
-
-	/**
-	 * Generates a list of tx_dam db fields which are needed to get a proper info about the record.
-	 *
-	 * @param	boolean		$prependTableName If set the fields are prepended with table.
-	 * @param	array		$addFields Field list array which should be appended to the list
+	 * Generates a list if tx_dam db fields which are needed to get a proper info about the record
+	 * 
+	 * @param	boolean		If set the fields are prepended with table.
+	 * @param	array		Field list array which should be appended to the list
 	 * @return	string		Comma list of fields with table name prepended
+	 * @see tx_dam_div::getItemFromRecord()
 	 */
-	function getMetaInfoFieldList($prependTableName=TRUE, $addFields=array()) {
-		global $TCA;
+	function getInfoFieldListDAM($prependTableName=TRUE, $addFields=array()) {
 
 		$infoFields = tx_dam_db::getTCAFieldListArray('tx_dam', TRUE, $addFields);
-
-		$infoFieldsTCA = explode(',', $TCA['tx_dam']['ctrl']['txdamInterface']['info_fieldList_add']);
-		foreach($infoFieldsTCA as $field) {
-			if($field=trim($field)) {
-				$infoFields[$field] = $field;
-			}
-		}
-		$infoFields['file_name'] = 'file_name';
-		$infoFields['file_dl_name'] = 'file_dl_name';
-		$infoFields['file_path'] = 'file_path';
-		$infoFields['file_size'] = 'file_size';
-		$infoFields['file_type'] = 'file_type';
-		$infoFields['file_ctime'] = 'file_ctime';
-		$infoFields['file_hash'] = 'file_hash';
-		$infoFields['file_mime_type'] = 'file_mime_type';
-		$infoFields['file_mime_subtype'] = 'file_mime_subtype';
-		$infoFields['media_type'] = 'media_type';
-		$infoFields['file_status'] = 'file_status';
-		$infoFields['index_type'] = 'index_type';
-		$infoFields['index_type'] = 'parent_id';
+		$infoFields['file_name'] = 'file_name';		
+		$infoFields['file_dl_name'] = 'file_dl_name';		
+		$infoFields['file_path'] = 'file_path';		
+		$infoFields['file_size'] = 'file_size';		
+		$infoFields['file_type'] = 'file_type';		
+		$infoFields['file_ctime'] = 'file_ctime';		
 		$infoFields = tx_dam_db::compileFieldList('tx_dam', $infoFields, FALSE, $prependTableName);
-
+		
 		return $infoFields;
 	}
 
-
-
-
-
-	/*******************************************
-	 *
-	 * General field lists and arrays (TCA)
-	 *
-	 *******************************************/
-
-
-
 	/**
 	 * Returns field list with table name prepended
-	 *
-	 * @param	string		$table Table name
-	 * @param	mixed		$fields Field list as array or as string comma list.
-	 * @param	boolean		$check If set (default) the fields are checked if defined in TCA.
-	 * @param	boolean		$prependTableName If set (default) the fields are prepended with table.
+	 * 
+	 * @param	string		Table name
+	 * @param	mixed		Field list as array or comma list as string
+	 * @param	boolean		If set the fields are checked if set in TCA
+	 * @param	boolean		If set the fields are prepended with table.
 	 * @return	string		Comma list of fields with table name prepended
 	 */
 	function compileFieldList($table, $fields, $checkTCA=TRUE, $prependTableName=TRUE) {
 		global $TCA;
-
+		
 		$fieldList = array();
-
+		
 		$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
-
+		
 		if ($checkTCA) {
 			if (is_array($TCA[$table])) {
-				$fields = tx_dam_db::cleanupFieldList($table, $fields);
+				$fields = $this->cleanupFieldList($table, $fields);
 			} else {
 				$table = NULL;
 			}
@@ -994,19 +692,19 @@ class tx_dam_db {
 				}
 			}
 		}
-		return implode(',', $fieldList);
+		return implode(',',$fieldList);
 	}
 
 
 	/**
-	 * Removes fields from a record row array that are not configured in TCA.
-	 *
-	 * @param	string		$table Table name
-	 * @param	array		$row Record row
+	 * Removes fields from a record row array that are not configured in TCA
+	 * 
+	 * @param	string		Table name
+	 * @param	array		Record row
 	 * @return	array		Cleaned row
 	 */
 	function cleanupRecordArray($table, $row) {
-		$allowedFields = tx_dam_db::getTCAFieldListArray($table);
+		$allowedFields = $this->getTCAFieldListArray($table);
 		foreach ($row as $field => $val) {
 			if (!in_array($field, $allowedFields)) {
 				unset($row[$field]);
@@ -1014,19 +712,18 @@ class tx_dam_db {
 		}
 		return $row;
 	}
-
-
+	
 	/**
-	 * Removes fields from a field list that are not configured in TCA.
-	 *
-	 * @param	string		$table Table name
-	 * @param	mixed		$fields Field list as array or as string comma list.
-	 * @return	array		Cleaned field list as array.
+	 * Removes fields from a field list that are not configured in TCA
+	 * 
+	 * @param	string		Table name
+	 * @param	mixed		Field list as array or comma list as string
+	 * @return	array		Cleaned field list as array
 	 */
 	function cleanupFieldList($table, $fields) {
-		$allowedFields = tx_dam_db::getTCAFieldListArray($table);
+		$allowedFields = $this->getTCAFieldListArray($table);
 		$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
-
+		
 		foreach ($fields as $key => $field) {
 			if (!in_array($field, $allowedFields)) {
 				unset($fields[$key]);
@@ -1035,30 +732,29 @@ class tx_dam_db {
 		return $fields;
 	}
 
-
 	/**
-	 * Returns an array of fields for a table which are configured in TCA or ctrl fields.
+	 * Returns an array of fields which are configured in TCA for a table.
 	 * This includes uid, pid, and ctrl fields.
-	 *
-	 * @param	string		$table Table name
-	 * @param	boolean		$mainFieldsOnly If true not all fields from the TCA columns-array will be used but the ones from the ctrl-array.
-	 * @param	array		$addFields Field list array which should be appended to the list no matter if defined in TCA.
+	 * 
+	 * @param	string		Table name
+	 * @param	boolean		If true not all fields from the TCA columns-array will be used but the ones from the ctrl-array
+	 * @param	array		Field list array which should be appended to the list
 	 * @return	array		Field list array
 	 */
 	function getTCAFieldListArray($table, $mainFieldsOnly=FALSE, $addFields=array())	{
 		global $TCA;
 
 		$fieldListArr=array();
-
+		
 		if (!is_array($addFields)) {
-			$addFields = t3lib_div::trimExplode(',', $addFields, 1);
+			$addFields = t3lib_div::trimExplode(';', $addFields, 1);
 		}
 		foreach ($addFields as $field)	{
 			#if ($TCA[$table]['columns'][$field]) {
 				$fieldListArr[$field] = $field;
 			#}
 		}
-
+		
 		if (is_array($TCA[$table]))	{
 			t3lib_div::loadTCA($table);
 			if (!$mainFieldsOnly) {
@@ -1069,7 +765,7 @@ class tx_dam_db {
 			$fieldListArr['uid'] = 'uid';
 			$fieldListArr['pid'] = 'pid';
 
-			$ctrlFields = array('label','label_alt','type','typeicon_column','tstamp','crdate','cruser_id','sortby','delete','fe_cruser_id','fe_crgroup_id','languageField','transOrigPointerField');
+			$ctrlFields = array ('label','label_alt','type','typeicon_column','tstamp','crdate','cruser_id','sortby','delete','fe_cruser_id','fe_crgroup_id');
 			foreach ($ctrlFields as $field)	{
 				if ($TCA[$table]['ctrl'][$field]) {
 					$subFields = t3lib_div::trimExplode(',',$TCA[$table]['ctrl'][$field],1);
@@ -1092,118 +788,32 @@ class tx_dam_db {
 
 
 	/**
-	 * Returns an array of fields that are configured for a table as language overlay fields.
+	 * Takes comma-separated lists and arrays and removes all duplicates
 	 *
-	 * @param	string		$table Table name
-	 * @param	string		$prependTableName If set the fields will be prefixed with the value as table.
-	 * @param	boolean		$reprocess The field list will be cached. If $reprocess is set the cache is flushed and the fields will be detected again.
-	 * @return	array		Field list array
+	 * @param	string		Accept multiple parameters wich can be comma-separated lists of values and arrays.
+	 * @return	string		Returns the list without any duplicates of values, space around values are trimmed
 	 */
-	function getLanguageOverlayFields ($table, $prependTableName='', $reprocess=false) {
-		global $TCA;
+	function uniqueList()	{
+		$listArray = array();
 
-		$fields = array();
-
-		if (is_array($TCA[$table]))	{
-			if (!is_array($TCA[$table]['txdamLgOvlFields']) OR $reprocess) {
-				t3lib_div::loadTCA($table);
-
-				$languageField = $TCA[$table]['ctrl']['languageField'];
-				$transOrigPointerField = $TCA[$table]['ctrl']['transOrigPointerField'];
-
-				$TCA[$table]['txdamLgOvlFields']['uid'] = 'uid';
-				$TCA[$table]['txdamLgOvlFields'][$languageField] = $languageField;
-				$TCA[$table]['txdamLgOvlFields'][$transOrigPointerField] = $transOrigPointerField;
-
-				foreach($TCA[$table]['columns'] as $fN => $fV)	{
-					if ($fV['l10n_mode']!='exclude')	{
-						$TCA[$table]['txdamLgOvlFields'][$fN] = $fN;
-					}
-				}
+		$arg_list = func_get_args();
+		foreach ($arg_list as $in_list)	{
+			
+			if (!is_array($in_list) AND empty($in_list))	{
+				continue;
 			}
 
-			if($prependTableName) {
-				foreach ($TCA[$table]['txdamLgOvlFields'] as $fn) {
-					$fields[$fn] = $prependTableName.'.'.$fn;
-				}
-			} else {
-				$fields = $TCA[$table]['txdamLgOvlFields'];
+			if (!is_array($in_list))	{
+				$in_list = t3lib_div::trimExplode(',',$in_list,true);
+			}
+			if(count($in_list)) {
+				$listArray = array_merge($listArray,$in_list);
 			}
 		}
 
-		return $fields;
+		return implode(',',t3lib_div::uniqueArray($listArray));
 	}
-
-
-
-
-
-
-	/***************************************
-	 *
-	 *	 Helper
-	 *
-	 ***************************************/
-
-
-	/**
-	 * I'm wondering why there's no function like this somewhere else ?????
-	 *
-	 * @param	string		$data group element data from t3lib_transferdata
-	 * @return	string		comma list
-	 */
-	function stripLabelFromGroupData($data) {
-		$itemArray = array();
-		$temp_itemArray = t3lib_div::trimExplode(',',$data,1);
-		foreach($temp_itemArray as $dbRead)	{
-			$recordParts = explode('|',$dbRead);
-			$itemArray[] = $recordParts[0];
-		}
-		return implode (',', $itemArray);
-	}
-
-
-	/**
-	 * Returns a part of a WHERE clause which will filter out records with start/end times or hidden/fe_groups fields set to values that should de-select them according to the current time, preview settings or user login. Definitely a frontend function.
-	 * THIS IS A VERY IMPORTANT FUNCTION: Basically you must add the output from this function for EVERY select query you create for selecting records of tables in your own applications - thus they will always be filtered according to the "enablefields" configured in TCA
-	 * Simply calls t3lib_pageSelect::enableFields() BUT will send the show_hidden flag along! This means this function will work in conjunction with the preview facilities of the frontend engine/Admin Panel.
-	 *
-	 * In comparison to t3lib_pageSelect::enableFields() this function don't prepend with ' AND '.
-	 *
-	 * @param	string		The table for which to get the where clause
-	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default. Special mode 'NONE' returns nothing, to not restrict queries.
-	 * @return	string		The part of the where clause on the form " AND NOT [fieldname] AND ...". Eg. " AND hidden=0 AND starttime < 123345567"
-	 * @see t3lib_pageSelect::enableFields()
-	 */
-	function enableFields($table, $mode=TYPO3_MODE)	{
-
-		if ($mode == 'NONE') {
-			return '';
-		} elseif ($mode == 'FE' AND is_object($GLOBALS['TSFE'])) {
-			return preg_replace('#^ AND #', '', $GLOBALS['TSFE']->sys_page->enableFields($table));
-		} else {
-			return tx_dam_db::deleteClause($table);
-		}
-	}
-
-
-	/**
-	 * Returns the WHERE clause "[tablename].[deleted-field]" if a deleted-field is configured in $TCA for the tablename, $table
-	 * In comparison to t3lib_befunc:deleteClause() this function don't prepend with ' AND '.
-	 *
-	 * @param	string		Table name present in $TCA
-	 * @param	string		Table alias if any
-	 * @return	string		WHERE clause for filtering out deleted records, eg "tablename.deleted=0"
-	 */
-	function deleteClause($table,$tableAlias='')	{
-		global $TCA;
-		if ($TCA[$table]['ctrl']['delete'])	{
-			return ($tableAlias ? $tableAlias : $table).'.'.$TCA[$table]['ctrl']['delete'].'=0';
-		} else {
-			return '';
-		}
-	}
-
+	
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_db.php'])	{
