@@ -518,6 +518,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						}
 
 						$title = t3lib_div::fixed_lgd_cs($this->tceforms->noTitle($row['title']), $this->tceforms->titleLen);
+// TODO use tx_dam_guifunc?
 						$thumb = t3lib_BEfunc::thumbCode(array($field => $row['file_name']), $table, $field, $this->tceforms->backPath, 'thumbs.php', $row['file_path'], 0, ' align="middle"');
 						$thumbDescr = '<div class="nobr">'.$fileIcon.$title.'<br />'.$row['file_name'].'</div>';
 

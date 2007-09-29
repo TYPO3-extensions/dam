@@ -269,7 +269,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 * @return	string		HTML content
 	 */
 	function main()	{
-		global $LANG, $FILEMOUNTS;
+		global $LANG, $FILEMOUNTS, $TYPO3_CONF_VARS;
 
 		$content = '';
 
@@ -749,7 +749,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 * @return	array		Data
 	 */
 	function indexUploadedFiles($fileList)	{
-		global $BACK_PATH, $LANG;
+		global $BACK_PATH, $LANG, $TYPO3_CONF_VARS;
 
 		$files = array();
 
@@ -799,7 +799,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 *
 	 ********************************/
 
-#TODO cleanup and use media objects!!
+// TODO cleanup and use media objects!!
 
 
 //	array of asset items used by some functions to pass meta data

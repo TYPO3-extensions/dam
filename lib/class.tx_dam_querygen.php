@@ -516,7 +516,8 @@ class tx_dam_querygen {
 
 				// If search-fields were defined (and there always are) we create the query:
 			if (count($sfields))	{
-				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$searchString.'%', $table);		// Free-text searching...
+				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($searchString, $table);
+				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', $table);		// Free-text searching...
 				$queryPart = '('.implode($like.' OR ',$sfields).$like.')';
 
 					// Return query:

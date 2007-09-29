@@ -32,6 +32,7 @@ t3lib_div::loadTCA('be_users');
 t3lib_extMgm::addTCAcolumns('be_users',$tempColumns,1);
 t3lib_extMgm::addToAllTCAtypes('be_users','tx_dam_mountpoints','','after:fileoper_perms');
 
+unset($tempColumns);
 
 
 
@@ -63,6 +64,7 @@ if (TYPO3_MODE=='BE')	{
 			unset($temp_TBE_MODULES['file']);
 		}
 		$TBE_MODULES = $temp_TBE_MODULES;
+		unset($temp_TBE_MODULES);
 	}
 
 		// add main module
@@ -149,6 +151,7 @@ if (TYPO3_MODE=='BE')	{
 		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_nothing.title'
 	);
 
+		// file command modules (invisible)
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_cmd',
 		'tx_dam_cmd_filerename',
@@ -174,7 +177,7 @@ if (TYPO3_MODE=='BE')	{
 		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filenew.title'
 	);
 
-
+		// folder command modules (invisible)
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_cmd',
 		'tx_dam_cmd_foldernew',

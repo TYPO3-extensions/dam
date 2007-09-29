@@ -85,7 +85,7 @@ class tx_dam_sysfolder {
 	 */
 	function getAvailable() {
 		$rows=array();
-		if ($damFolders = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,pid,title', 'pages', 'doktype=2 and module="dam" AND deleted=0', '', '', '', 'uid')) {
+		if ($damFolders = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,pid,title', 'pages', 'doktype=2 and module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').' AND deleted=0', '', '', '', 'uid')) {
 			$rows = $damFolders;
 		}
 		return $rows;

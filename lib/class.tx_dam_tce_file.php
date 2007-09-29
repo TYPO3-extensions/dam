@@ -96,6 +96,8 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 	 * @return	void
 	 */
 	function processData()	{
+		global $TYPO3_CONF_VARS;
+
 		if (!$this->isInit) return FALSE;
 
 		$this->log = array(
@@ -267,7 +269,7 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 			// filesize of the uploaded file
 		$theFileSize = $_FILES['upload_'.$id]['size'];
 			// The original filename
-#TODO stripslashes needed ??
+// TODO  stripslashes needed ??
 		$theName = $this->cleanFileName(stripslashes($_FILES['upload_'.$id]['name']));
 // TODO format
 			// main log entry

@@ -107,7 +107,7 @@ class tx_dam_svlist {
 	function serviceTypeList_loaded()	{
 		global $T3_SERVICES, $TYPO3_LOADED_EXT;
 
-		$content='';
+		$content = '';
 		$lines=array();
 		$modType='typeList';
 

@@ -198,6 +198,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		tx_dam::config_init();
 
+#		tx_dam::config_setValue('setup.debug', '1');
+
+
 			// include the default language file
 		$GLOBALS['LANG']->includeLLFile('EXT:dam/lib/locallang.xml');
 
@@ -1238,6 +1241,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		Output
 	 */
 	function getBrowseableFolderList ($path, $folderParam='SET[tx_dam_folder]') {
+		global $TYPO3_CONF_VARS;
 
 		$content = '';
 
@@ -1281,7 +1285,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$content = '';
 		$content.= '<div style="display:block; margin: 1em 0 1em 0;">
-						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;">
+						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;" style="white-space:nowrap;">
 						<img id="'.$id.'_toggle" '.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_right.gif', 'width="11" height="10"').' alt="" />
 						'.$title.'</a></div>';
 

@@ -322,7 +322,6 @@ class tx_dam {
 	/**
 	 * Convert a path to a relative path if possible.
 	 * The result is normally a relative path to PATH_site (but don't have to).
-	 * The result is a relative path to PATH_site.
 	 * It might be possible that back paths '../' will be supported in the future.
 	 *
 	 * @param	string		$path Path to convert

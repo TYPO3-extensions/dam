@@ -102,9 +102,13 @@ class tx_dam_selectionQuery {
 	/**
 	 * Initializes the pointer object
 	 *
+	 * @param 	integer 	$resultPointer The current pointer value - may come from GET var
+	 * @param 	integer 	$resultsPerPage Defines how many items should be displayed per page
 	 * @return void
 	 */
 	function initPointer($resultPointer, $resultsPerPage) {
+		global $TYPO3_CONF_VARS;
+
 		$this->pointer = t3lib_div::makeInstance('tx_dam_listPointer');
 		$this->pointer->init(intval($resultPointer), $resultsPerPage);
 
@@ -172,7 +176,7 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function addLimitToQuery ($limit='', $begin='') {
-		if($limit == '') {
+		if(intval($limit) == 0) {
 			$limit = $this->pointer->itemsPerPage;
 			$begin = $this->pointer->firstItemNum;
 		}
@@ -269,7 +273,8 @@ class tx_dam_selectionQuery {
 		if(!$GLOBALS['BE_USER']->user['admin'] AND count($GLOBALS['FILEMOUNTS'])){
 			$whereArr = array();
 			foreach($GLOBALS['FILEMOUNTS'] as $mount){
-				$whereArr[] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr(tx_dam::path_makeRelative($mount['path']).'%', 'tx_dam');
+					$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($mount['path']), 'tx_dam');
+					$whereArr[] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
 			}
 			$where = implode(' OR ', $whereArr);
 			$where = $where ? '('.$where.')' : '';

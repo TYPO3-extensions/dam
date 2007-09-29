@@ -60,9 +60,9 @@ class tx_dam_tsfe {
 
 	/**********************************************************
 	 *
-	 * Misc functions
+	 * TypoScript functions
 	 *
-	 ************************************************************/
+	 **********************************************************/
 
 
 	/**
@@ -91,7 +91,8 @@ class tx_dam_tsfe {
 			}
 		}
 
-		$damFiles = tx_dam_db::getReferencedFiles('tt_content', $this->cObj->data['uid'], $refField);
+		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
+		$damFiles = tx_dam_db::getReferencedFiles($refTable, $this->cObj->data['uid'], $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 

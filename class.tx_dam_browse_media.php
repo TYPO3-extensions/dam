@@ -75,7 +75,7 @@ require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 
 
-// workaround - shouldn't be needed
+// TODO workaround - shouldn't be needed
 require_once (PATH_t3lib.'class.t3lib_pagetree.php');
 /*
 > > - BE: Verwendet man den Elementbrowser (für welche Aktion auch immer),

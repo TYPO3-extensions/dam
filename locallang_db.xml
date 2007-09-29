@@ -90,7 +90,7 @@
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
-            <label index="tx_dam_item">Media Metadata</label>
+            <label index="tx_dam_item">Media</label>
             <label index="tx_dam_item.div_overview">Overview</label>
             <label index="tx_dam_item.div_metrics">Metrics</label>
             <label index="tx_dam_item.div_copyright">Copyright</label>
@@ -151,6 +151,7 @@
             <label index="media_type.text">Text</label>
             <label index="media_type.image">Image</label>
             <label index="media_type.audio">Audio</label>
+            <label index="media_type.video">Video</label>
             <label index="media_type.dataset">Dataset</label>
             <label index="media_type.interactive">Interactive</label>
             <label index="media_type.software">Software</label>
@@ -227,6 +228,7 @@
             <label index="media_type.text">Text</label>
             <label index="media_type.image">Bild</label>
             <label index="media_type.audio">Audio</label>
+            <label index="media_type.video">Video</label>
             <label index="media_type.dataset">Daten</label>
             <label index="media_type.interactive">Interaktiv</label>
             <label index="media_type.software">Software</label>

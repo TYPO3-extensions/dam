@@ -212,7 +212,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	function getControl($title,$row) {
 		global $BACK_PATH;
 		$control = '';
-	#TODO skinning
+	// TODO skinning
 		if (!t3lib_div::_GP('folderOnly') AND $this->modeSelIcons) {
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
 			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/plus.gif"  width="8" height="11" border="0" alt="" />';

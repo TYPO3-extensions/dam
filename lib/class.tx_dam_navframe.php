@@ -158,7 +158,7 @@ class tx_dam_navframe {
 			TABLE.typo3-browsetree TR TD { white-space: nowrap; vertical-align: middle; }
 			TABLE.typo3-browsetree TR TD IMG { vertical-align: middle; }
 			TABLE.typo3-browsetree TR TD IMG.c-recIcon { margin-right: 1px;}
-			TABLE.typo3-browsetree { margin-bottom: 10px; width: 95%; }
+			TABLE.typo3-browsetree { margin-bottom: 10px; width: 90%; }
 
 			TABLE.typo3-browsetree TR TD.typo3-browsetree-control {
 				padding: 0px;

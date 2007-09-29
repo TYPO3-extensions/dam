@@ -502,6 +502,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'perl'	=> 'application/x-perl',
 		'pm'	=> 'application/x-perl',
 		'pl'	=> 'application/x-perl',
+		'qxd'	=> 'application/x-quark-xpress-3',
 		'rpm'	=> 'application/x-redhat-package-manager',
 		'sh'	=> 'application/x-sh',
 		'shar'	=> 'application/x-shar',

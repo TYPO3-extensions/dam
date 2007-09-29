@@ -138,6 +138,10 @@ class tx_dam_selStorage {
 	var $formName = 'selStoreControl';
 
 
+	/**
+	 * Name of the storage table
+	 */
+	var $table = 'tx_dam_selection';
 
 	var $writeDevLog = 0; 				// write messages into the devlog?
 
@@ -158,8 +162,6 @@ class tx_dam_selStorage {
 	 * @return	void
 	 */
 	function init()	{
-
-$this->table = 'tx_dam_selection';
 			// enable dev logging if set
 		if ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.tx_dam_selStorage.php']['writeDevLog']) $this->writeDevLog = TRUE;
 		if (TYPO3_DLOG) $this->writeDevLog = TRUE;

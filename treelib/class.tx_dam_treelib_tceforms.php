@@ -25,7 +25,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
-
+ *
  * @author	René Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */

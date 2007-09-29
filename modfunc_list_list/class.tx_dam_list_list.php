@@ -355,7 +355,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		}
 
 
-		#TODO??
+		// TODO ??
 		// Add pseudo "control" fields
 		#		$fields['_PATH_'] = '_PATH_';
 		#		$fields['_LOCALIZATION_'] = '_LOCALIZATION_';

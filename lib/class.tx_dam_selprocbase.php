@@ -290,6 +290,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	 * @access private
 	 */
 	function wrapIcon($icon,$row)	{
+		global $TYPO3_CONF_VARS;
 
 			// Add title attribute to input icon tag
 		$theIcon = $this->addTagAttributes($icon,($this->titleAttrib ? $this->titleAttrib.'="'.$this->getTitleAttrib($row).'"' : ''));
@@ -814,7 +815,8 @@ class tx_dam_selProcBase {
 #		if($operator=='!=') {
 #			$query.= ' NOT';
 #		}
-#		$query.= " LIKE BINARY '".$id."'";
+#		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($id,'tx_dam');
+#		$query.= ' LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr,'tx_dam');
 #
 #		return array($queryType,$query);
 	}
