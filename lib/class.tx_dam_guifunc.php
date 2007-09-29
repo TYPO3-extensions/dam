@@ -788,7 +788,6 @@ class tx_dam_guiFunc {
 
 		$thumbData='';
 
-
 		$filepath = (t3lib_div::isAbsPath($theFile)?'':'../').$theFile;
 
 		if ($filepath)	{
@@ -807,8 +806,10 @@ $uploaddir = '';
 				$thumbData = '<img src="'.$backPath.$filepath.'" '.$imgInfo[3].' border="0"'.$title.$attribs.' alt="" />';
 
 			} elseif ($ext=='ttf' || t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],$ext)) {
+				$check = basename($filepath).':'.filemtime(tx_dam::file_absolutePath($theFile)).':'.$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'];
 				$params = '&file='.rawurlencode($filepath);
-				$params.= $size?'&size='.$size:'';
+				$params .= trim($size)?'&size='.trim($size):'';
+				$params.= '&md5sum='.t3lib_div::shortMD5($check);	
 				$url = $thumbScript.'?&dummy='.$GLOBALS['EXEC_TIME'].$params;
 				$thumbData = '<img src="'.$backPath.$url.'" border="0"'.$title.$attribs.' alt="" />';
 

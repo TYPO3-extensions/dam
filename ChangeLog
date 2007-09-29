@@ -1,3 +1,7 @@
+06-12-07 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_guifunc:thumbnail() generate checksum for thumbs.php. Needed for t3 4.0.3
+
 06-11-26 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: 3864#: After replacing an existing file in DAM re-indexing fails.
