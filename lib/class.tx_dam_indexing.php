@@ -556,9 +556,17 @@ class tx_dam_indexing {
 		global $TYPO3_CONF_VARS;
 
 		$setup = false;
-		$basePath = $basePath ? $basePath : ($TYPO3_CONF_VARS['BE']['lockRootPath'] ? $TYPO3_CONF_VARS['BE']['lockRootPath'] : PATH_site);	
-
+		
 		if ($path) {
+			
+			if (!$basePath) {
+				if ($GLOBALS['TYPO3_CONF_VARS']['BE']['lockRootPath'] && t3lib_div::isFirstPartOfStr($path,$GLOBALS['TYPO3_CONF_VARS']['BE']['lockRootPath'])) {
+					$basePath = $TYPO3_CONF_VARS['BE']['lockRootPath'];
+				} else {
+					$basePath = PATH_site;
+				}
+			}
+
 			$setup = $this->findSetupInPath($path, $walkUp, $basePath);
 		}
 
@@ -1147,13 +1155,20 @@ class tx_dam_indexing {
 			}
 
 
-			if ($meta['fields']['meta']['xmp']) {
-				$metaExtractServices = array(TXDAM_mtype_image => 'image:exif');
-			} else {
-				$metaExtractServices = array(TXDAM_mtype_image => 'image:exif, image:iptc');
+			$metaExtractServices = array();
+			$extraServiceTypes = array();
+			
+			if (!isset($meta['fields']['meta']['EXIF']) AND !$meta['exif_done']) {
+				$metaExtractServices[] = 'image:exif';
 			}
-// TODO should be possible to register other services too
-
+			if ((!isset($meta['fields']['meta']['IPTC']) AND !$meta['iptc_done']) AND (!isset($meta['fields']['meta']['XMP']) AND !$meta['xmp_done'])) {
+				$metaExtractServices[] = 'image:iptc';
+			}
+			if ($extraServiceTypes) {
+				$metaExtractServices = array(TXDAM_mtype_image => implode(', ', $extraServiceTypes));
+			}
+			
+// TODO should be possible to register other services too?!
 
 					// read exif, iptc data
 			if ($metaExtractServices[$meta['fields']['media_type']]) {	// 2

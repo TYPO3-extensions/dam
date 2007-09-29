@@ -88,6 +88,7 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 		t3lib_div::loadTCA($existant);
 		$TCA[$virtual] = $TCA[$existant];
 		$this->virtual = $virtual;
+		$TCA[$virtual]['orig_table'] = $existant;
 
 		$this->savedGroupData = $BE_USER->groupData;
 

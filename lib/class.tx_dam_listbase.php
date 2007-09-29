@@ -278,7 +278,7 @@ class tx_dam_listbase {
 	 );
 
 
-#TODO Clipboard
+// todo Clipboard
 
 	/**
 	 * If true click menus are generated on files and folders
@@ -1305,7 +1305,7 @@ class tx_dam_listbase {
 
 
 
-#TODO Clipboard
+// todo Clipboard
 
 
 

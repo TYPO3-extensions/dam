@@ -26,6 +26,7 @@
         <languageKey index="default" type="array">
             <label index="messageCmdDenied">You're not allowed to execute the command '%s'.</label>
             <label index="labelWarning">Warning:</label>
+            <label index="labelCmdProcess">Process</label>
             <label index="labelCmdSave">Save</label>
             <label index="labelCmdSaveClose">Save &amp; Cose</label>
             <label index="tx_dam_cmd_nothing.title">[no command]</label>
@@ -49,7 +50,6 @@
             <label index="tx_dam_cmd_folderdelete.messageRecursiveDenied">The folder is not empty and can't be deleted.</label>
             <label index="tx_dam_cmd_filenew.title">Create text file</label>
             <label index="tx_dam_cmd_filenew.text_content">Text content:</label>
-            <label index="tx_dam_cmd_fileedit.title">Edit file</label>
             <label index="tx_dam_cmd_filecopy.title">Copy file</label>
             <label index="tx_dam_cmd_filecopy.selectTarget">Select a target folder to copy the files to.</label>
             <label index="tx_dam_cmd_filecopy.message">Are you sure to copy the file(s) to '%'?</label>
@@ -62,6 +62,7 @@
         <languageKey index="de" type="array">
             <label index="messageCmdDenied">Sie sind nicht berechtigt das Komando '%s' auszuführen.</label>
             <label index="labelWarning">Warnung:</label>
+            <label index="labelCmdProcess">Anwenden</label>
             <label index="labelCmdSave">Sichern</label>
             <label index="labelCmdSaveClose">Sichern &amp; Schließen</label>
             <label index="labelTargetFolder">Zielverzeichnis:</label>
@@ -82,7 +83,6 @@
             <label index="tx_dam_cmd_folderdelete.messageRecursiveDenied">Das Verzeichnis ist nicht leer und kann nicht gelöscht werden.</label>
             <label index="tx_dam_cmd_filenew.title">Text-Datei anlegen</label>
             <label index="tx_dam_cmd_filenew.text_content">Text-Inhalt:</label>
-            <label index="tx_dam_cmd_fileedit.title">Datei bearbeiten</label>
             <label index="tx_dam_cmd_filecopy.title">Datei kopieren</label>
             <label index="tx_dam_cmd_filecopy.message">Sind Sie sicher das Sie die Datei(en) nach '%s' kopieren wollen?</label>
             <label index="tx_dam_cmd_filecopy.submit">Datei kopieren</label>

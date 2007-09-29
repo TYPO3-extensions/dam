@@ -1,3 +1,38 @@
+2007-04-09 Rene Fritz <r.fritz@colorcube.de>
+
+	* Added: Added editor registering function
+	* Added: Added editor module
+	* Added: Added action to call editor
+	* Added: Added text editor (included from dam_act_edittxt)
+
+2007-04-08 Rene Fritz <r.fritz@colorcube.de>
+
+	* Change: make treeview browseable with simpleforms, merged code with fix from 4549
+	* Change: auto size for treeview field in read only mode
+	* Change: removed overhead from treeview fields (whole tree was rendered to get names for selected items)
+
+2007-04-07 Rene Fritz <r.fritz@colorcube.de>
+
+	* Change: tx_dam_media fetches language overlay automatically now in FE
+	* Fix: 4215: Absolute file mounts & userHomePath not below server-root breaks autoindex in file list
+	* Change: changed keys (exif, iptc, ...) for use in xml with field tx_dam.meta to uppercase
+	* Change: tx_dam_indexing look for exif_done, iptc_done and xmp_done in meta field to decide if image:exif or image:iptc services needs to be called
+
+07-04-04 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: Enabled the "Extra data" sheet for all types in tca
+	* Fix: 5320: beta5 RTE Integration: Links to tx_dam records with same uid as an accessible page results in link to that page
+
+07-03-29 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: removed hardcoded tx_dam::config_setValue('setup.devel', '1'); in tx_dam_scbase
+	* Fix: 5298: typo in class tx_dam_file_list causes php error
+	* Fix: 4549: category selection in flexform - tree does not show up if defined browsable
+	
+07-03-20 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: cleanups and enhancements in tx_dam_media
+
 07-03-13 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: form action had wrong format in some modules

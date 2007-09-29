@@ -192,7 +192,7 @@ class tx_dam_file_list extends t3lib_extobjbase {
 	
 					while ($dirListFiles->valid()) {
 	
-						$item = $list->current();
+						$item = $dirListFiles->current();
 						$uidList[] = tx_dam::file_absolutePath($item);
 	
 						$dirListFiles->next();
@@ -252,7 +252,7 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		$filelist->enableContextMenus = $this->pObj->config_checkValueEnabled('contextMenuOnListItems', true);
 
 
-#TODO Clipboard
+// todo Clipboard
 $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
@@ -388,6 +388,7 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 			$actionCall->setRequest('button', $this->pObj->pathInfo);
 			$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 			$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+			$actionCall->setEnv('defaultEditScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_edit/index.php');
 			$actionCall->setEnv('pathInfo', $this->pObj->pathInfo);
 			$actionCall->initActions();
 			$actions = $actionCall->renderActionsHorizontal();

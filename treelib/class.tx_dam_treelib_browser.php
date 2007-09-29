@@ -90,13 +90,20 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 		$this->table = t3lib_div::_GP('table');
 		$this->field = t3lib_div::_GP('field');
 		$this->uid = t3lib_div::_GP('uid');
+		$this->itemFormElName = t3lib_div::_GP('elname');		
+		$this->flex_config = t3lib_div::_GP('config');
 		$seckey = t3lib_div::_GP('seckey');
 
+
 			// since we are worried about someone forging parameters (XSS security hole) we will check with sent md5 hash:
-		if (!($seckey===t3lib_div::shortMD5($this->table.'|'.$this->field.'|'.$this->uid.'|'.$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']))) {
+		if (!($seckey===t3lib_div::shortMD5($this->table.'|'.$this->field.'|'.$this->uid.'|'.$this->itemFormElName.'|'.$this->flex_config.'|'.$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']))) {
 			die('access denied');
 		}
 
+		if ($this->flex_config) {
+			$this->flex_config = unserialize(base64_decode($this->flex_config));
+		}
+		
 		$this->backPath = $BACK_PATH;
 
 			// Initialize template object
@@ -157,15 +164,30 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 
 			// modifying TCA to force the right rendering - not nice but works
 		t3lib_div::loadTCA($this->table);
-		$TCA[$this->table]['columns'][$this->field]['config']['treeViewBrowseable'] = 'iframeContent';
-		$TCA[$this->table]['columns'][$this->field]['config']['noTableWrapping'] = true;
 
-// for simpleforms but that doesn't
-//		if (!is_array($row) OR !$row['pid']) {
-//			$row = array('pid'=> tx_dam_db::getPid());
-//		}
+		$row['uid'] = $this->uid;	
+		
+		$fakePA = array();
+		
+		if (is_array($this->flex_config)) {
+			$fakePA['fieldConf'] = array(
+				'label' => $form->sL($this->flex_config['label']),
+				'config' => $this->flex_config['config'],			
+				'defaultExtras' => $this->flex_config['defaultExtras']
+			);	
+		} else {
+			$fakePA['fieldConf'] = array(
+				'label' => $form->sL($TCA[$this->table]['columns'][$this->field]['label']),
+				'config' => $TCA[$this->table]['columns'][$this->field]['config']
+			);
+		}
+					
+		$fakePA['fieldConf']['config']['treeViewBrowseable'] = 'iframeContent';
+		$fakePA['fieldConf']['config']['noTableWrapping'] = true;			
+		$fakePA['itemFormElName'] = $this->itemFormElName;
+		$fakePA['itemFormElName_file'] = $this->itemFormElName;
 
-		$this->content.= $form->getSingleField($this->table, $this->field, $row, ' ');
+		$this->content .= $form->getSingleField_SW($this->table,$this->field,$row,$fakePA);	
 	}
 
 

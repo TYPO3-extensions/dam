@@ -22,7 +22,8 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
- * Command
+ * Command module for edit command
+ * This is more or less the same as mod_cmd, but in the future it might include more functions useful for editor modules.
  * Part of the DAM (digital asset management) extension.
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
@@ -33,7 +34,7 @@
  *
  *
  *
- *   93: class tx_dam_cmd extends tx_dam_SCbase
+ *   93: class tx_dam_edit extends tx_dam_SCbase
  *  202:     function init()
  *  289:     function handleExternalFunctionValue($MM_key='function', $MS_value=NULL)
  *  317:     function main()
@@ -71,6 +72,7 @@ require ($BACK_PATH.'template.php');
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 
 $LANG->includeLLFile('EXT:dam/mod_cmd/locallang.xml');
+$LANG->includeLLFile('EXT:dam/mod_edit/locallang.xml');
 
 
 // Module is available to everybody - submodules may deny access
@@ -90,7 +92,7 @@ require_once(PATH_txdam.'lib/class.tx_dam_listfiles.php');
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-ModCmd
  */
-class tx_dam_cmd extends tx_dam_SCbase {
+class tx_dam_edit extends tx_dam_SCbase {
 
 
 	/**
@@ -112,17 +114,6 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 var $file = array();
 
 	/**
-	 * GP parameter: folder
-	 * 'folder' is the parameter that passes the name of the folder (including path) the action should be processed for.
-	 *
-	 * An array of folder can be passed with 'folder' in principle, but currently there's no command supporting that.
-	 * After processing this variable is an array no matter if only one or more items were passed.
-	 *
-	 * @var array
-	 */
-	 var $folder = array();
-
-	/**
 	 * GP parameter: record
 	 * 'record' is the parameter that passes info's about the record the action should be processed for.
 	 * supported formats:
@@ -135,14 +126,6 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 * @var array
 	 */
 	 var $record = array();
-
-	/**
-	 * GP parameter: target
-	 * 'target' is the parameter that defines the target of an command.
-	 *
-	 * The meaning of the value depends on the command. For moving files it defines the target folder.
-	 */
-	 var $target;
 
 
 
@@ -225,13 +208,6 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			$this->file[] = $param;
 		}
 
-			// Initialize folder GPvar
-		if (is_array($param = t3lib_div::_GP('folder'))) {
-			$this->folder = $param;
-		} elseif ($param) {
-			$this->folder[] = $param;
-		}
-
 			// Initialize record GPvar
 		if ($param = t3lib_div::_GP('record')) {
 			if (is_array($param)) {
@@ -275,6 +251,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		$this->TCEfile->init();
 		$this->TCEfile->overwriteExistingFiles(t3lib_div::_GP('overwriteExistingFiles'));
 
+		$this->pageTitle = $GLOBALS['LANG']->getLL('tx_dam_edit.title');
 
 		parent::init();
 	}
@@ -296,22 +273,16 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		if (is_null($MS_value)) {
 			if ($this->CMD) {
 				$MS_value = $this->CMD;
-			} else {
-				$MS_value = 'tx_dam_cmd_nothing';
-			};
+			}
 		}
 
-		$this->extClassConf = $this->getExternalItemConfig($this->MCONF['name'],$MM_key,$MS_value);
-		if (is_array($this->extClassConf) && $this->extClassConf['path'])	{
-			$this->include_once[]=$this->extClassConf['path'];
-		} else {
-			$this->extClassConf = $this->getExternalItemConfig($this->MCONF['name'],$MM_key,'tx_dam_cmd_nothing');
+		if ($MS_value) {
+			$this->extClassConf = $this->getExternalItemConfig($this->MCONF['name'],$MM_key,$MS_value);
 			if (is_array($this->extClassConf) && $this->extClassConf['path'])	{
-				$this->include_once[]=$this->extClassConf['path'];
+				require_once($this->extClassConf['path']);
 			}
 		}
 	}
-
 
 
 
@@ -324,12 +295,200 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
 
 
-		$this->extObjCmdInit();
+		$access = false;
+		
+		$this->errorMessages = array();
+
+		$this->media = NULL;			
+		
+		$editorList = array();
+		
+		$this->actionTarget = $this->actionTarget ? $this->actionTarget : t3lib_div::linkThisScript(array('returnUrl' => $this->returnUrl, 'redirect' => $this->redirect));
+
 
 
 		//
-		// Initialize the template object
+		// get media that should be edited
 		//
+
+
+		if ($this->file) {
+			foreach ($this->file as $key => $filename) {
+				if (!tx_dam::access_checkFile($filename)) {
+					$this->errorMessages['file'][] = tx_dam::file_normalizePath($filename);
+					unset($this->file[$key]);
+				}
+			}
+			if ($this->file) {
+				$this->media = tx_dam::media_getForFile($this->file[0]);
+				if (!$this->media->isAvailable) {
+					$this->errorMessages['file'][] = $this->media->filename;
+					unset($this->media);
+				}
+			}
+
+
+		} elseif ($this->record AND $this->defaultPid) {
+			foreach ($this->record as $table => $uidList) {
+
+				$where = array();
+				$where['enableFields'] = tx_dam_db::deleteClause($table);
+				$where['pidList'] = $table.'.pid IN ('.$this->defaultPid.')';
+				$where['uid'] = $table.'.uid IN ('.implode(',',$uidList).')';
+
+				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid', $table, implode(' AND ', $where), '', '', '', 'uid');
+				if ($rows) {
+					$this->record[$table] = array_keys($rows);
+				} else {
+					$this->errorMessages['record'][$table] = $uidList;
+					unset($this->record[$table]);
+				}
+			}
+			if ($this->record['tx_dam']) {
+					// reduce passed files/records to just one item
+					// it will be done here because later editors might want to get multiple resources (eg. blending images) so we keep the infrastructure
+				reset($this->record['tx_dam']);
+					// just one uid
+				$uid = current($this->record['tx_dam']);
+			
+				$this->media = tx_dam::media_getByUid($uid);
+				if (!$this->media->isAvailable) {
+					$this->errorMessages['file'][] = $this->media->filename;
+					unset($this->media);
+				}
+			}
+		}
+
+
+		$access = ($this->hasExtObjDefined() OR is_object($this->media));
+
+
+
+
+		//
+		// Main
+		//
+
+
+			// a valid file is selected
+		if ($access)	{
+			
+			$success = false;
+			
+				// an editor is not already defined by CMD
+			if (!$this->hasExtObjDefined() AND is_object($this->media)) {
+				if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['editorClasses']))	{
+					foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['editorClasses'] as $idName => $classRessource)	{
+						if (is_object($editorList[$idName] = t3lib_div::getUserObj($classRessource)))      {
+							if (!$editorList[$idName]->isValid($this->media)) {
+								unset($editorList[$idName]);
+							}
+						}
+					}
+				}
+
+				if (!count ($editorList)) {
+						// error message no valid editor found for file
+					$this->errorMessages['error'][] = sprintf($LANG->getLL('messageNoEditorFound', 1),$this->media->filename);
+					
+				} elseif (count ($editorList)==1) {
+
+					// activate extObj
+					$this->errorMessages['error'][] = 'TODO: activate extObj';
+					if (!$this->CMD) {
+						$this->CMD = key($editorList);
+					}
+					$this->handleExternalFunctionValue('function', $this->CMD);
+				}
+				
+				// selection of multiple editors is below
+			}
+			
+			
+			
+				// an editor is selected
+			if ($this->hasExtObjDefined())	{
+				$this->checkExtObj();	// Checking for first level external objects
+				$this->checkSubExtObj();	// Checking second level external objects		
+			}			
+
+
+
+			if (is_object($this->extObj))	{
+			
+			
+				$this->extObjCmdInit();
+		
+		
+				//
+				// Initialize the template object
+				//
+		
+				if (!is_object($this->doc)) {
+					$this->doc = t3lib_div::makeInstance($this->templateClass);
+					$this->doc->backPath = $BACK_PATH;
+					$this->doc->docType = 'xhtml_trans';
+				}
+		
+		
+				//
+				// check access
+				//
+		
+		
+				$this->actionAccess = $this->extObjAccess();
+
+				if ($access AND $this->actionAccess)	{
+		
+					$success = true;
+		
+					//
+					// Output page header
+					//
+		
+					$this->doc->form = '<form action="'.htmlspecialchars($this->actionTarget).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+					$this->doc->form .= '<input type="hidden" name="CMD" value="'.$this->CMD.'" />';
+					
+						// JavaScript
+					$this->doc->JScodeArray['jumpToUrl'] = '
+						var script_ended = 0;
+						var changed = 0;
+		
+						function jumpToUrl(URL)	{
+							document.location.href = URL;
+						}
+		
+						function jumpBack()	{
+							document.location.href = "'.htmlspecialchars($this->redirect).'";
+						}
+		
+						function navFrameReload() {
+							if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav)	{
+								// top.content.nav_frame.refresh_nav();
+							}
+						}
+						';
+					$this->doc->postCode.= $this->doc->wrapScriptTags('
+						script_ended = 1;');
+		
+		
+					$this->makePageHeader();
+		
+		
+					//
+					// Call submodule function
+					//
+		
+					$this->extObjContent();
+					
+					
+				} else {
+					$access = false;
+					$this->errorMessages['error'][] = sprintf($LANG->getLL('messageCmdDenied', true),$this->pageTitle);
+				}
+			}
+		}
+		
 
 		if (!is_object($this->doc)) {
 			$this->doc = t3lib_div::makeInstance($this->templateClass);
@@ -338,136 +497,56 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		}
 
 
+			// provide a selector when multiple editors are available
+		if ($access AND (count($editorList)>1)) {
+			
+			$this->makePageHeader();
+			
+			$messages = array();
+			$messages[] = '<div style="margin: 1em 3em 2em 3em;">'.sprintf($LANG->getLL('messageAvailableEditors', true),$this->media->filename).'</div>';
+						
+			$messages[] = '<div style="padding-left:3em; display:table-cell">';
+			foreach ($editorList as $idName => $editorObj) {
+				
+				$button = $this->button ($editorObj->getIcon(), $editorObj->getLabel(), $editorObj->getDescription(), $this->actionTarget.'&CMD='.$idName, '', ' style="display:block;"');
+				$messages[] = '<div style="margin-bottom:0.8em">'.$button.'</div>';
 
-		//
-		// check access
-		//
-
-		$access = false;
-
-		$this->actionAccess = $this->extObjAccess();
-
-
-
-		if ($this->actionAccess) {
-			$this->accessDenied = array();
-
-			if ($this->file) {
-				foreach ($this->file as $key => $filename) {
-					if (!tx_dam::access_checkFile($filename, $this->extObj->passthroughMissingFiles)) {
-						$this->accessDenied['file'][] = tx_dam::file_normalizePath($filename);
-						unset($this->file[$key]);
-					}
-				}
-				if ($this->file) {
-					$access = true;
-				}
-
-
-			} elseif ($this->folder) {
-				foreach ($this->folder as $key => $path) {
-					if (!tx_dam::access_checkPath($path)) {
-						$this->accessDenied['folder'][] = tx_dam::path_makeRelative($path);
-						unset($this->folder[$key]);
-					}
-				}
-				if ($this->folder) {
-					$access = true;
-				}
-
-
-			} elseif ($this->record AND $this->defaultPid) {
-				foreach ($this->record as $table => $uidList) {
-
-					$where = array();
-					$where['enableFields'] = tx_dam_db::deleteClause($table);
-					$where['pidList'] = $table.'.pid IN ('.$this->defaultPid.')';
-					$where['uid'] = $table.'.uid IN ('.implode(',',$uidList).')';
-
-					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid', $table, implode(' AND ', $where), '', '', '', 'uid');
-					if ($rows) {
-						$this->record[$table] = array_keys($rows);
-					} else {
-						$this->accessDenied['record'][$table] = $uidList;
-						unset($this->record[$table]);
-					}
-				}
-				if ($this->record) {
-					$access = true;
-				}
 			}
+			$messages[] = '</div>';
+			
+			
+			
+			$this->content.= $GLOBALS['SOBE']->getMessageBox ($this->pageTitle, $messages, $this->buttonBack(0), 2);
+			
+			$success = true;
 		}
 
-
-
-		//
-		// Main
-		//
-
-		if ($access)	{
-
-
-			//
-			// Output page header
-			//
-
-			$this->actionTarget = $this->actionTarget ? $this->actionTarget : t3lib_div::linkThisScript(array('returnUrl' => $this->returnUrl, 'redirect' => $this->redirect));
-			$this->doc->form = '<form action="'.htmlspecialchars($this->actionTarget).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
-
-				// JavaScript
-			$this->doc->JScodeArray['jumpToUrl'] = '
-				var script_ended = 0;
-				var changed = 0;
-
-				function jumpToUrl(URL)	{
-					document.location.href = URL;
-				}
-
-				function jumpBack()	{
-					document.location.href = "'.htmlspecialchars($this->redirect).'";
-				}
-
-				function navFrameReload() {
-					if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav)	{
-						// top.content.nav_frame.refresh_nav();
-					}
-				}
-				';
-			$this->doc->postCode.= $this->doc->wrapScriptTags('
-				script_ended = 1;');
-
-
-			$this->makePageHeader();
-
-
-			//
-			// Call submodule function
-			//
-
-			$this->extObjContent();
-
-
-		} else {
+			
+		if (!$access OR !$success)	{
 				// If no access
 
+
 			$this->makePageHeader();
 
-			$accessDeniedInfo = array();
+			$messages = array();
 
-			if ($this->actionAccess) {
-				foreach ($this->accessDenied as $type => $items) {
-					if ($items) {
-						$accessDeniedInfo[] = '<h4>'.$LANG->getLL($type,1).'</h4>';
-						foreach ($items as $item) {
-							$accessDeniedInfo[] = '<p>'.htmlspecialchars($item).'</p>';
-						}
+			foreach ($this->errorMessages as $type => $items) {
+				if ($items) {
+					if ($type!=='error' AND $headerText = $LANG->getLL($type,1)) {
+						$messages[] = '<h4>'.$LANG->getLL($type, true).'</h4>';
+					}
+					foreach ($items as $item) {
+						$messages[] = '<p>'.htmlspecialchars($item).'</p>';
 					}
 				}
-			} else {
-				$accessDeniedInfo[] = '<p>'.sprintf($LANG->getLL('messageCmdDenied', 1),$this->pageTitle).'</p>';
 			}
+
 				// file do not exist ...
-			$this->content.= $this->accessDeniedMessageBox(implode('', $accessDeniedInfo));
+			if (!$access)	{
+				$this->content.= $this->accessDeniedMessageBox(implode('', $messages));
+			} else {
+				$this->content.= $this->errorMessageBox(implode('', $messages));
+			}
 		}
 
 
@@ -497,7 +576,15 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 *
 	 ********************************/
 
-
+	/**
+	 * Checks if a submodule is defined.
+	 *
+	 * @return	boolean
+	 */
+	function hasExtObjDefined() {
+		return (is_array($this->extClassConf) && $this->extClassConf['name']);
+	}
+	
 	/**
 	 * Calls the 'cmdInit' function of the submodule if present.
 	 *
@@ -713,8 +800,8 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php'])    {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_edit/index.php'])    {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_edit/index.php']);
 }
 
 
@@ -723,17 +810,10 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod
 
 
 // Make instance:
-$SOBE = t3lib_div::makeInstance('tx_dam_cmd');
+$SOBE = t3lib_div::makeInstance('tx_dam_edit');
 $SOBE->init();
 
-// Include files?
-reset($SOBE->include_once);
-while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkExtObj();	// Checking for first level external objects
-
-// Repeat Include files! - if any files has been added by second-level extensions
-reset($SOBE->include_once);
-while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkSubExtObj();	// Checking second level external objects
 
 $SOBE->main();

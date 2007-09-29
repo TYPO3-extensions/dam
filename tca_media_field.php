@@ -99,7 +99,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['category_config'] =
 				'foreign_table' => 'tx_dam_cat',
 
 				'size' => 1,
-				'autoSizeMax' => 30,
+				'autoSizeMax' => 20,
 				'minitems' => 0,
 				'maxitems' => 2, // workaround - should be 1
 				'default' => '',
@@ -135,7 +135,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['mountpoints_config'] =
 
 	// for tx_dam allowed only
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config'] = $GLOBALS['T3_VAR']['ext']['dam']['TCA']['category_config'];
-$GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['size'] = 10;
+$GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['size'] = 6;
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['maxitems'] = 25;
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['MM'] = 'tx_dam_mm_cat';
 

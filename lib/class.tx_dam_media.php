@@ -152,7 +152,10 @@ class tx_dam_media {
 	 */
 	var $mode = TYPO3_MODE;
 
-
+	/**
+	 * Define which variant to be fetched
+	 */
+	var $variantConf = array();
 
 
 
@@ -161,53 +164,27 @@ class tx_dam_media {
 	 */
 	var $isAvailable = NULL;
 
-
-
-
-
-
-// TODO: $isIndexed, $isAutoIndexed, $isAutoUpdated, ....
-
 	/**
 	 * If the file is already indexed or not.
 	 */
 	var $isIndexed = NULL;
 
-	/**
-	 * If the file is automatically indexed (sometimes).
-	 */
-	var $isAutoIndexed = NULL;
 
-/**
- * If the file meta data was automatically updated for some reasons.
- */
-var $isAutoUpdated = NULL;
-
-	/**
-	 * If the file is JUST automatically indexed.
-	 */
-	var $isJustAutoIndexed = NULL;
-
-
-
-	/**
-	 * If set the file will be autoindexed if needed.
-	 */
-	var $doAutoIndexing = true;
 
 	/**
 	 * If set the file info will be updated in the index automatically.
 	 */
 	var $doAutoFileInfoUpdate = true;
 
-/**
- * If set the meta data will be updated automatically if needed.
- */
-var $doAutoMetaUpdate = false;
+	/**
+	 * If set the meta data will be updated automatically if needed.
+	 */
+	var $doAutoMetaUpdate = false;
 
 
 
 // TODO what todo with non-existing files??
+
 
 	/***************************************
 	 *
@@ -266,14 +243,33 @@ var $doAutoMetaUpdate = false;
 	 * @return	void
 	 */
 	function setWantedVariant($conf='auto') {
+		
 		if ($this->mode === 'FE' AND $conf === 'auto') {
-// TODO variant: language, versioning, ... - setup with mode and use of setup by other methods?
-
-// see tx_dam::meta_getDataVariant()
-
+			$this->variantConf = array();
+			$this->variantConf['auto'] = true;
+			// no need to set this, will be done automatically
+			// $this->variantConf['sys_language_uid'] = $GLOBALS['TSFE']->sys_language_content;
+			// $this->variantConf['lovl_mode'] = $GLOBALS['TSFE']->sys_language_contentOL;
+			
+		} elseif (is_array($conf)) {
+			$this->variantConf = $conf;
 		}
 	}
 
+
+	/**
+	 * Fetch the wanted data variant which can be versions and languages
+	 *
+	 * @return	void
+	 */
+	function fetchVariant() {
+		if (count($this->variantConf)) {
+			$metaVariant = tx_dam::meta_getVariant ($this->getMetaArray(), $this->variantConf, $this->mode);
+			$this->setMetaData ($metaVariant);
+		}
+	}
+	
+	
 	/**
 	 * Initialize the object by a given filename
 	 *
@@ -288,6 +284,7 @@ var $doAutoMetaUpdate = false;
 		if ($this->isAvailable) {
 			if ($row = tx_dam::meta_getDataForFile($this->fileInfo, '*', true, $this->mode)) {
 				$this->setMetaData ($row);
+				$this->fetchVariant();
 				$this->isFullMetaData = true;
 				$this->isIndexed = true;
 			} elseif ($autoIndex) {
@@ -307,6 +304,7 @@ var $doAutoMetaUpdate = false;
 	function fetchIndexFromMetaUID ($uid) {
 		if ($row = tx_dam::meta_getDataByUid($uid, '*', $this->mode)) {
 			$this->setMetaData ($row);
+			$this->fetchVariant();
 			$this->isFullMetaData = true;
 			$this->isIndexed = true;
 			$this->isAvailable = file_exists($this->filepath);
@@ -345,6 +343,7 @@ var $doAutoMetaUpdate = false;
 			$this->pathAbsolute = $this->fileInfo['file_path_absolute'];
 			$this->filepath = $this->pathAbsolute.$this->filename;
 			$this->isAvailable = $this->fileInfo['__exists'];
+			$this->update();
 		}
 
 		return $this->isAvailable;
@@ -362,7 +361,7 @@ var $doAutoMetaUpdate = false;
 
 	/**
 	 * Reads all data from the index.
-	 * By default only the limited amount of fields called "info fields" are fetched from the index.
+	 * Only the limited amount of fields called "info fields" might be fetched from the index.
 	 *
 	 * @param	integer		$uid Optional UID of the wanted meta data record. Default: $this->meta['uid']
 	 * @return	void
@@ -373,6 +372,7 @@ var $doAutoMetaUpdate = false;
 			if ($uid) {
 				if ($row = tx_dam::meta_getDataByUid($this->meta['uid'], '*', $this->mode)) {
 					$this->setMetaData ($row);
+					$this->fetchVariant();
 					$this->isFullMetaData = true;
 				}
 			}
@@ -448,8 +448,10 @@ var $doAutoMetaUpdate = false;
 			$mimeType['file_mime_type'] = $this->meta['file_mime_type'];
 			$mimeType['file_mime_subtype'] = $this->meta['file_mime_subtype'];
 			$mimeType['file_type'] = $this->meta['file_type'];
+			
+		} elseif ($this->fileInfo) {
+			$mimeType = tx_dam::file_getType($this->fileInfo);
 		}
-
 		return $mimeType;
 	}
 
@@ -478,7 +480,6 @@ var $doAutoMetaUpdate = false;
 	function getMimeContentType () {
 		$mimeContentType = '';
 
-		// TODO when not yet indexed: $mimeType = tx_dam::file_getType($this->getMetaArray());
 		if ($mimeType = $this->getTypeAll()) {
 			if ($mimeType['file_mime_type'] AND $mimeType['file_mime_subtype']) {
 				$mimeContentType = $mimeType['file_mime_type'].'/'.$mimeType['file_mime_subtype'];
@@ -688,8 +689,19 @@ var $doAutoMetaUpdate = false;
 		 * A secure download framework is in preparation which will be used here
 		 */		
 		
-		$file_path = tx_dam::file_relativeSitePath ($this->pathAbsolute.$this->filename);
+		$file_path = tx_dam::file_relativeSitePath ($this->getPathAbsolute());
 		return $file_path;
+	}
+
+
+	/**
+	 * Returns an absolute file path
+	 *
+	 * @return	string		Absolute path to file
+	 */
+	function getPathAbsolute () {
+
+		return $this->filepath;
 	}
 
 
@@ -818,23 +830,25 @@ var $doAutoMetaUpdate = false;
 
 
 	/**
-	 * Updates the index when meta data was changed or the fileinfo is not in sync.
+	 * Updates the index when meta data was changed.
 	 *
 	 * @return	void
 	 */
 	function updateIndex () {
 		if (count($this->metaUpdated)) {
-// TODO write index    $this->fileInfo + $this->metaUpdated;
+			tx_dam::meta_putData ($this->getID, $this->metaUpdated);
+// TODO  (respect variants)
 		}
 	}
 
 	/**
-	 * Updates the fileinfo in the index if needed.
+	 * Updates the fileinfo is not in sync.
 	 *
 	 * @return	void
+	 * @todo Check if fileinfo was changed?
 	 */
-	function updateIndexFileInfo () {
-// TODO write index    $this->fileInfo + $this->metaUpdated;
+	function updateFileInfo () {
+		tx_dam::meta_putData ($this->getID, $this->fileInfo);
 	}
 
 
@@ -848,7 +862,15 @@ var $doAutoMetaUpdate = false;
 	 *
 	 * @return	void
 	 */
-	function updateAuto () {
+	function update () {
+		if ($this->isIndexed) {
+			if ($this->doAutoMetaUpdate) {
+				$this->updateIndex ();
+			}
+			if ($this->doAutoFileInfoUpdate) {
+				$this->updateFileInfo ();
+			}
+		}
 	}
 
 
@@ -859,7 +881,7 @@ var $doAutoMetaUpdate = false;
 	 * @return	void
 	 */
 	function updateHash () {
-		if ($hash = tx_dam::file_calcHash(getPathAbsolute())) {
+		if ($hash = tx_dam::file_calcHash($this->getPathAbsolute())) {
 			$this->metaUpdated['file_hash'] = $hash;
 		}
 		$this->updateIndex();
@@ -878,14 +900,10 @@ var $doAutoMetaUpdate = false;
 	/**
 	 *
 	 */
-	function index () {
-	}
-
-
-	/**
-	 *
-	 */
 	function reindex () {
+		if ($meta = tx_dam::index_autoProcess($this->getPathAbsolute(), true)) {
+			$this->setMetaData ($meta);
+		}
 	}
 
 
@@ -893,6 +911,9 @@ var $doAutoMetaUpdate = false;
 	 *
 	 */
 	function autoIndex() {
+		if ($meta = tx_dam::index_autoProcess($this->getPathAbsolute())) {
+			$this->setMetaData ($meta);
+		}
 	}
 
 

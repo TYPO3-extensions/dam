@@ -209,7 +209,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		tx_dam::config_init();
 
-		tx_dam::config_setValue('setup.devel', '1');
+		# tx_dam::config_setValue('setup.devel', '1');
 
 
 		$this->defaultPid = tx_dam_db::getPid();
@@ -575,7 +575,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 				.button { white-space:nowrap; padding: 1px 4px 2px 2px; background-color: '.$this->doc->buttonColor.'; border: 1px solid '.$this->doc->buttonColorBorder.'; margin-left: 0.5em; margin-right: 0.55em }
 				.buttonAct { background-color: '.$this->doc->buttonColorAct.'; }
-				.button img { vertical-align: middle; padding:0px 1px 2px 1px; }
+				.button img { vertical-align: middle; padding:0px 2px 2px 1px; }
 				.button a { vertical-align: baseline; text-decoration:none; }
 				.button:hover { background-color: '.$this->doc->buttonColorHover.'; }
 				.bgColorBtn { background-color: '.$this->doc->buttonColor.'; }';
@@ -1630,9 +1630,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	string		$hoverText The hover text. Expected to be already htmlspecialchars().
 	 * @param	string		$href The url
 	 * @param	string		$aTagAttribute Additional A tag attribute (eg onclick="").
+	 * @param	string		$spanTagAttribute Additional span tag attribute (eg style="").
 	 * @return	string		Button as HTML
 	 */
-	function button ($iconImgTag, $label, $hoverText, $href, $aTagAttribute='') {
+	function button ($iconImgTag, $label, $hoverText, $href, $aTagAttribute='', $spanTagAttribute='') {
 		$this->addDocStyles();
 
 		$aTagAttribute = $aTagAttribute ? ' '.$aTagAttribute : '';
@@ -1641,7 +1642,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$iconImgTag = str_ireplace('<img ', '<img title="'.$hoverText.'" ', $iconImgTag);
 		}
 		$hoverText = $hoverText ? ' title="'.$hoverText.'" ' : '';
-		return '<span class="button"'.$hoverText.'>'.$aTag.$iconImgTag.$label.'</a></span>';
+		return '<span class="button"'.$hoverText.$spanTagAttribute.'>'.$aTag.$iconImgTag.$label.'</a></span>';
 	}
 
 

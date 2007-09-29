@@ -101,7 +101,7 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-#TODO csh
+// todo csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
 	}
 
@@ -138,7 +138,7 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 
 		} else {
 				// this should have happen in index.php already
-			$content.= $this->pObj->accessDeniedMessage(tx_dam_guiFunc::getFolderInfoBar($this->folder));
+			$content.= $this->pObj->accessDeniedMessageBox(tx_dam_guiFunc::getFolderInfoBar($this->folder));
 		}
 
 		return $content;

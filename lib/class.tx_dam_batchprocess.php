@@ -243,7 +243,6 @@ class tx_dam_batchProcess {
 		$form->initDefaultBEmode();
 		$form->setVirtualTable('tx_dam_simpleforms', 'tx_dam');
 		$form->removeRequired();
-		$form->removeTreeViewBrowseable();
 		$form->tx_dam_fixedFields = $fixedFields;
 
 			// add message for checkboxes

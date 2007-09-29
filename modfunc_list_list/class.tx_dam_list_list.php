@@ -397,7 +397,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 
 
-#TODO Clipboard			
+// todo Clipboard			
 				// It is set, if the clickmenu-layer is active AND the extended view is not enabled.
 #			$dblist->dontShowClipControlPanels = $CLIENT['FORMSTYLE'] && !$BE_USER->uc['disableCMlayers'];
 

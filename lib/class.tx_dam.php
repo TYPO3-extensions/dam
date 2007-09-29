@@ -324,7 +324,7 @@ class tx_dam {
 			if(filesize ($filename) > 0xfffff ) {	// 1MB
 				$cmd = t3lib_exec::getCommand('md5sum');
 				$output = array();
-				$retval='';
+				$retval = 0;
 				exec($cmd.' -b '.escapeshellcmd($filename), $output, $retval);
 				$output = explode(' ',$output[0]);
 				$match = array();
@@ -1056,7 +1056,7 @@ class tx_dam {
 	 */
 	function meta_getVariant ($row, $conf, $mode=TYPO3_MODE) {
 
-		$row = tx_dam_db::getRecordOverlay('tx_dam', $this->currentData, $conf, $mode);
+		$row = tx_dam_db::getRecordOverlay('tx_dam', $row, $conf, $mode);
 
 		return $row;
 	}
@@ -2611,7 +2611,7 @@ class tx_dam {
 	 * Register a selection class
 	 *
 	 * @param	string		$idName This is the ID of the selection. Chars allowed only: [a-zA-z]
-	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
+	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
 	 */
@@ -2624,7 +2624,7 @@ class tx_dam {
 	 * Register an indexing rule class
 	 *
 	 * @param	string		$idName This is the ID of the indexing rule. Chars allowed only: [a-zA-z]
-	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
+	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
 	 */
@@ -2657,7 +2657,7 @@ class tx_dam {
 	 * A previewer can be used in thumbnail view or at the top of a record.
 	 *
 	 * @param	string		$idName This is the ID of the previewer. Chars allowed only: [a-zA-z]
-	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
+	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
 	 * @todo register name as LANG resource? Or put it into the class?
@@ -2673,12 +2673,33 @@ class tx_dam {
 	 * A editor is something that modifies a file. This can be a text editor or a module to crop an image.
 	 *
 	 * @param	string		$idName This is the ID of the editor. Chars allowed only: [a-zA-z]
-	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
+	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
 	 */
-	function register_editor ($idName, $class, $position='') {
-		tx_dam::_addItem($idName, $class, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['editorClasses'], $position);
+	function register_editor ($idName, $classRef, $position='') {
+		tx_dam::_addItem($idName, $classRef, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['editorClasses'], $position);
+		
+			// an editor is also and module function so we register it here
+		if (strstr($classRef,':'))	{
+			list($file,$class) = t3lib_div::revExplode(':',$classRef,2);
+			$requireFile = t3lib_div::getFileAbsFileName($file);
+		} else {
+			$class = $classRef;
+		}
+
+			// Check for persistent object token, "&"
+		if (substr($class,0,1)=='&')	{
+			$class = substr($class,1);
+		}
+		
+			// register module function
+		t3lib_extMgm::insertModuleFunction(
+			'txdamM1_edit',
+			$class,
+			$requireFile,
+			'LLL:EXT:dam/mod_edit/locallang.xml:tx_dam_edit.title'
+		);		
 	}
 
 
@@ -2687,7 +2708,7 @@ class tx_dam {
 	 * A action is something that renders buttons, control icons, ..., which executes command for an item.
 	 *
 	 * @param	string		$idName This is the ID of the action. Chars allowed only: [a-zA-z]
-	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
+	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
 	 */
