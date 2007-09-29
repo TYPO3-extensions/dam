@@ -36,14 +36,14 @@
  *
  *
  *
- *   89: class tx_dam_actionBase
+ *   90: class tx_dam_actionBase
  *
  *              SECTION: Initialization
- *  149:     function setItemInfo ($itemInfo)
- *  161:     function setEnv ($env)
+ *  148:     function setItemInfo ($itemInfo)
+ *  160:     function setEnv ($env)
  *
  *              SECTION: Get information
- *  184:     function isTypeValid ($type, $itemInfo=NULL, $env=NULL)
+ *  183:     function isTypeValid ($type, $itemInfo=NULL, $env=NULL)
  *  206:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
  *  219:     function isValid ($type, $itemInfo=NULL, $env=NULL)
  *  230:     function getWantedPosition ($type)
@@ -56,16 +56,18 @@
  *  291:     function getDescription ()
  *
  *              SECTION: Rendering
- *  311:     function render ($type, $disabled=false)
+ *  312:     function render ($type, $disabled=false)
  *
  *              SECTION: Internal
- *  356:     function _getCommand()
- *  378:     function _renderControl ($iconImgTag, $hoverText, $command)
- *  407:     function _renderButton ($iconImgTag, $label, $hoverText, $command)
- *  429:     function _addTitleToImg ($iconImgTag, $hoverText)
- *  444:     function _cleanAttribute($attribute)
+ *  361:     function _getCommand()
+ *  383:     function _renderControl ($iconImgTag, $hoverText, $command)
+ *  413:     function _renderButton ($iconImgTag, $label, $hoverText, $command)
+ *  449:     function _renderContext ($iconImgTag, $label, $command)
+ *  471:     function _renderMulti ($label, $command)
+ *  487:     function _addTitleToImg ($iconImgTag, $hoverText)
+ *  502:     function _cleanAttribute($attribute)
  *
- * TOTAL FUNCTIONS: 17
+ * TOTAL FUNCTIONS: 19
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -84,7 +86,6 @@
  * @see tx_dam_actionCall
  * @see tx_dam_action_viewFile
  * @example ../components/class.tx_dam_actionsFile.php
- * @todo implement deny/allow
  */
 class tx_dam_actionBase {
 
@@ -113,6 +114,7 @@ class tx_dam_actionBase {
 	 var $env = array(
 	 	'returnUrl' => '',
 	 	'defaultCmdScript' => '',
+	 	'backPath' => '',
 	 	);
 
 	/**
@@ -120,19 +122,15 @@ class tx_dam_actionBase {
 	 */
 	 var $itemInfo = array();
 
-
-
-
-
 	/**
-	 * Defines if the item should be rendered diabled like a greyed icon.
+	 * Defines if the item should be rendered disabled like a greyed icon.
 	 * @access private
 	 * @var boolean
 	 */
 	var $disabled;
 
 
-//TODO mode deny/allow
+
 
 	/***************************************
 	 *
@@ -183,6 +181,7 @@ class tx_dam_actionBase {
 	 * @return	boolean
 	 */
 	function isTypeValid ($type, $itemInfo=NULL, $env=NULL) {
+		$this->type = $type;
 		if ($itemInfo) {
 			$this->setItemInfo($itemInfo);
 		}
@@ -290,6 +289,7 @@ class tx_dam_actionBase {
 	 * @return	string
 	 */
 	function getDescription () {
+		return $this->getLabel();
 	}
 
 
@@ -329,7 +329,11 @@ class tx_dam_actionBase {
 				break;
 
 			case 'context':
+ 				$content = $this->_renderContext ($this->getIcon(), $this->getLabel(), $this->_getCommand());
+				break;
 
+			case 'multi':
+ 				$content = $this->_renderMulti ($this->getLabel(), $this->_getCommand());
 				break;
 
 			default:
@@ -371,7 +375,7 @@ class tx_dam_actionBase {
 	 * Render a linked icon
 	 *
 	 * @param	string		$iconImgTagReady Icon image tag. Might contain title="", if not the hover text will be inserted.
-	 * @param	string		$hoverText The hover text. Expected to be already htmlspecialchars().
+	 * @param	string		$hoverText The hover text.
 	 * @param	string		$command Comand array
 	 * @return	string		Button as HTML
 	 * @access private
@@ -385,6 +389,7 @@ class tx_dam_actionBase {
 			$onclick = '';
 			if ($command['onclick']) {
 				$onclick = ' onclick="'.htmlspecialchars($command['onclick']).'"';
+				$command['href'] = $command['href'] ? $command['href'] : '#';
 			}
 			$aTags[0] = '<a href="'.htmlspecialchars($command['href']).'"'.$onclick.$this->_cleanAttribute($command['aTagAttribute']).'>';
 			$aTags[1] = '</a>';
@@ -399,18 +404,24 @@ class tx_dam_actionBase {
 	 * Render a GUI button in HTML
 	 *
 	 * @param	string		$iconImgTagReady Icon image tag. Might contain title="", if not the hover text will be inserted.
-	 * @param	string		$label The button label. Expected to be already htmlspecialchars().
-	 * @param	string		$hoverText The hover text. Expected to be already htmlspecialchars().
+	 * @param	string		$label The button label.
+	 * @param	string		$hoverText The hover text
 	 * @param	string		$command Comand array
 	 * @return	string		Button as HTML
 	 * @access private
 	 */
 	function _renderButton ($iconImgTag, $label, $hoverText, $command) {
-		if ($this->disabled OR $command['href'] === false) {
+
+		if ($this->disabled OR ($command['href'] === false AND $command['onclick'] === false)) {
 			$aTags = array('', '');
 		}
 		else {
-			$aTags[0] = '<a href="'.htmlspecialchars($command['href']).'"'.$this->_cleanAttribute($command['aTagAttribute']).'>';
+			$onclick = '';
+			if ($command['onclick']) {
+				$onclick = ' onclick="'.htmlspecialchars($command['onclick']).'"';
+				$command['href'] = $command['href'] ? $command['href'] : '#';
+			}
+			$aTags[0] = '<a href="'.htmlspecialchars($command['href']).'"'.$onclick.$this->_cleanAttribute($command['aTagAttribute']).'>';
 			$aTags[1] = '</a>';
 		}
 		$iconImgTag = $this->_addTitleToImg ($iconImgTag, $hoverText);
@@ -420,10 +431,56 @@ class tx_dam_actionBase {
 
 
 	/**
+	 * Render a context menu entry
+	 *
+	 * The return array has following format. Values can be used to pass to clickmenu::linkItem()
+	 * command array + array (
+	 * ['label']	string		The label
+	 * ['icon']		string		<img>-tag for the icon
+	 * ['onlyCM']	boolean		==1 and the element will NOT appear in clickmenus in the topframe (unless clickmenu is totally unavailable)! ==2 and the item will NEVER appear in top frame. (This is mostly for "less important" options since the top frame is not capable of holding so many elements horizontally)
+	 *
+	 * @param	string		$iconImgTagReady Icon image tag. Might contain title="", if not the hover text will be inserted.
+	 * @param	string		$label The cm label. Expected to be already htmlspecialchars().
+	 * @param	string		$command Comand array
+	 * @return	array		Command data to be processed outside
+	 * @see alt_clickmenu.php
+	 * @access private
+	 */
+	function _renderContext ($iconImgTag, $label, $command) {
+		$cm = $command;
+		$cm['label'] = $label;
+		$cm['icon'] = $iconImgTag;
+
+		return $cm;
+	}
+
+
+	/**
+	 * Render a context menu entry
+	 *
+	 * The return array has following format. Values can be used to create select options
+	 * command array + array (
+	 * ['label']	string		The label
+	 *
+	 * @param	string		$label The cm label
+	 * @param	string		$command Comand array
+	 * @return	array		Command data to be processed outside
+	 * @see alt_clickmenu.php
+	 * @access private
+	 */
+	function _renderMulti ($label, $command) {
+		$cm = $command;
+		$cm['label'] = $label;
+
+		return $cm;
+	}
+
+
+	/**
 	 * Insert a title to to an img tag if not yet there
 	 *
 	 * @param	string		$iconImgTagReady Icon image tag. Might contain title="", if not the hover text will be inserted.
-	 * @param	string		$hoverText The hover text. Expected to be already htmlspecialchars().
+	 * @param	string		$hoverText The hover text
 	 * @return	string		img tag
 	 * @access private
 	 */

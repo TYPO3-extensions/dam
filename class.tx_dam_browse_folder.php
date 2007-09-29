@@ -265,7 +265,7 @@ class tx_dam_browse_folder extends browse_links {
 			$folderIcon='<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/_icon_webfolders.gif','width="18" height="16"');
 
 // TODO use modes?
-			# $fileadminDir = PATH_site.$GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'];
+#			 $fileadminDir = PATH_site.$GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'];
 
 
 			$fcount = count($folder);

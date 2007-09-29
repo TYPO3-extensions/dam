@@ -34,14 +34,12 @@
  *
  *
  *
- *   74: class tx_dam_mod_list extends tx_dam_SCbase
- *   83:     function init()
- *  103:     function main()
- *  155:     function jumpToUrl(URL)
- *  213:     function printContent()
+ *   81: class tx_dam_mod_list extends tx_dam_SCbase
+ *   91:     function main()
+ *  203:     function printContent()
  *
- * TOTAL FUNCTIONS: 4
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -58,9 +56,9 @@ require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
+require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_selstorage.php');
-require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
 
 
 $LANG->includeLLFile('EXT:dam/mod_list/locallang.xml');
@@ -83,6 +81,7 @@ $BE_USER->modAccess($MCONF,1);
 class tx_dam_mod_list extends tx_dam_SCbase {
 
 
+	var $formName = 'editform';
 
 	/**
 	 * Main function of the module. Write the content to $this->content
@@ -104,13 +103,6 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		$this->doc->docType = 'xhtml_trans';
 
 
-			// This will return content necessary for the context sensitive clickmenus to work: bodytag events, JavaScript functions and DIV-layers.
-		$CMparts = $this->doc->getContextMenuCode();
-		$this->doc->bodyTagAdditions = $CMparts[1];
-		$this->doc->JScode.= $CMparts[0];
-		$this->doc->postCode.= $CMparts[2];
-
-
 		// Access check can not be checked in beforehand
 		// The user has access when he has acces to the module and that's nothing to be checked here
 		$access = true;
@@ -121,7 +113,11 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		// **************************
 		if ($access)	{
 
-			$this->selection->sl->initSelection_getStored_mergeSubmitted();
+
+
+
+			$this->selection->processSubmittedSelection();
+			$this->selection->addDefaultFilter();
 
 
 				// Store settings gui element
@@ -145,17 +141,12 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 			// Output page header
 			//
 
-			$this->doc->form='<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
-
 			$this->addDocStyles();
 			$this->addDocJavaScript();
 
-
-			$this->doc->postCode.= $this->doc->wrapScriptTags('
-				script_ended = 1;');
-
-
 			$this->extObjHeader();
+
+			$this->doc->form = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="'.$this->formName.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 				// Draw the header.
 			$this->content.= $this->doc->startPage($LANG->getLL('title'));
@@ -182,7 +173,7 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 			// output footer: search box, options, store control, ....
 			//
 
-			#$this->content.= $this->doc->spacer(10);
+			$this->content.= $this->doc->spacer(10);
 			$this->content.= $this->guiItems->getOutput('footer');
 
 

@@ -34,12 +34,13 @@
  *
  *
  *
- *   59: class tx_dam_list_thumbs extends t3lib_extobjbase
- *   69:     function modMenu()
- *   85:     function head()
- *  117:     function main()
+ *   60: class tx_dam_list_thumbs extends t3lib_extobjbase
+ *   72:     function modMenu()
+ *   88:     function head()
+ *  126:     function main()
+ *  221:     function getItemControl($item, $table='tx_dam')
  *
- * TOTAL FUNCTIONS: 3
+ * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -60,6 +61,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 	var $diaSize = 115;
 	var $diaMargin = 10;
+
+	var $calcPerms = 0;
 
 	/**
 	 * Function menu initialization
@@ -107,6 +110,12 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$this->diaSize = 200;
 		}
 
+		if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showIcons']) {
+			$this->showControls = true;
+			require_once (PATH_txdam.'lib/class.tx_dam_actioncall.php');
+		}
+		$this->calcPerms = $GLOBALS['SOBE']->calcPerms;
+
 	}
 
 	/**
@@ -115,9 +124,32 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $BE_USER,$LANG,$BACK_PATH;
+		global $BE_USER,$LANG,$BACK_PATH,$TCA;
 
 		$content = '';
+
+
+		$table = 'tx_dam';
+		t3lib_div::loadTCA($table);
+
+
+		//
+		// set query and sorting
+		//
+// TODO provide sorting selector
+		$allFields = tx_dam_db::getFieldListForUser($table);
+
+		$orderBy = ($TCA[$table]['ctrl']['sortby']) ? 'tx_dam.'.$TCA[$table]['ctrl']['sortby'] : 'tx_dam.title';
+
+		if ($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'])	{
+			if (in_array($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'], $allFields))	{
+				$orderBy = 'tx_dam.'.$this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'];
+				if ($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortRev'])	$orderBy.=' DESC';
+			}
+		}
+
+		$this->pObj->selection->qg->addOrderBy($orderBy);
+
 
 		//
 		// Use the current selection to create a query and count selected records
@@ -154,7 +186,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				$showElements[] = 'info';
 			}
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showIcons']) {
-				$showElements[] = 'icons';
+				$showElements[] = 'actions';
 			}
 
 				// extra CSS code for HTML header
@@ -162,8 +194,9 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 			$code = '';
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->pObj->selection->res)) {
-				$onClick = $this->pObj->doc->wrapClickMenuOnIcon('', 'tx_dam', $row['uid'], $listFr=1,$addParams='',$enDisItems='', $returnOnClick=TRUE);
-				$code.= tx_dam_guiFunc::getDia($row, $this->diaSize, $this->diaMargin, $showElements, $onClick);
+				$onClick = $this->pObj->doc->wrapClickMenuOnIcon('', $table, $row['uid'], $listFr=1,$addParams='',$enDisItems='', $returnOnClick=TRUE);
+				$actions = $this->getItemControl($row);
+				$code.= tx_dam_guiFunc::getDia($row, $this->diaSize, $this->diaMargin, $showElements, $onClick, true, $actions);
 			}
 
 			$content.= $this->pObj->doc->spacer(5);
@@ -174,7 +207,67 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
 		}
 
+
 		return $content;
+	}
+
+
+	/**
+	 * Creates the control panel for a single record in the listing.
+	 *
+	 * @param	array		The record for which to make the control panel.
+	 * @return	string		HTML table with the control panel (unless disabled)
+	 */
+	function getItemControl($item, $table='tx_dam')	{
+		static $actionCall;
+
+		$content = '';
+
+		if($this->showControls) {
+			if(!is_object($actionCall)) {
+				$table = 'tx_dam';
+
+				t3lib_div::loadTCA($table);
+
+				if ($table == 'pages') {
+						// If the listed table is 'pages' we have to request the permission settings for each page:
+					$localCalcPerms = $GLOBALS['BE_USER']->calcPerms($item);
+					$permsEdit = ($localCalcPerms & 2);
+					$permsDelete = ($localCalcPerms & 4);
+				} else {
+						// This expresses the edit permissions for this particular element:
+					$permsEdit = ($this->calcPerms & 16);
+					$permsDelete = ($this->calcPerms & 16);
+				}
+
+
+				$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+				$actionCall->setRequest('control', array('__type' => 'record', '__table' => $table));
+				$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+				$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+				$actionCall->setEnv('calcPerms', $this->calcPerms);
+				$actionCall->setEnv('permsEdit', $permsEdit);
+				$actionCall->setEnv('permsDelete', $permsDelete);
+				$actionCall->initActions(true);
+			}
+
+			$item['__type'] = 'record';
+			$item['__table'] = $table;
+
+			$actionCall->setRequest('control', $item);
+			$actions = $actionCall->renderActionsHorizontal(true);
+
+				// Compile items into a DIV-element:
+			$content = '
+											<!-- CONTROL PANEL: '.htmlspecialchars($item['file_name']).' -->
+											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
+		}
+
+		return $content;
+
+// TODO how to add spacer with actions?
+#		$actions[] = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clear.gif', 'width="12" height="12"').' alt="" />';
+
 	}
 }
 

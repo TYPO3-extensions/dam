@@ -70,14 +70,14 @@ class tx_dam_show_item {
 
 		$form->setVirtualTable('tx_dam_simpleforms', 'tx_dam');
 
-		$form->removeRequired($TCA['tx_dam_simpleforms']);
-		$form->setNonEditable($TCA['tx_dam_simpleforms'], $TCA['tx_dam']['txdamInterface']['info_displayFields_isNonEditable']);
+		$form->removeRequired();
+		$form->setNonEditable($TCA['tx_dam']['txdamInterface']['info_displayFields_isNonEditable']);
 		$columnsExclude = t3lib_div::trimExplode(',', $TCA['tx_dam']['txdamInterface']['info_displayFields_exclude'], 1);
 		foreach ($columnsExclude as $column) {
 			unset($TCA['tx_dam_simpleforms']['columns'][$column]);
 		}
 
-		$contentForm.= $form->getMainFields('tx_dam_simpleforms', $row);
+		$contentForm.= $form->getForm($row);
 
 		$contentForm = $form->wrapTotal($contentForm, $this->meta /* raw */, 'tx_dam');
 
@@ -95,7 +95,8 @@ class tx_dam_show_item {
 
 		$pObj->doc->JScode = $pObj->doc->getDynTabMenuJScode();
 
-		$pObj->doc->JScodeArray['changeWindowSize'] = 'self.resizeTo(520,490);';
+		$pObj->doc->JScodeArray['changeWindowSize'] = 'window.resizeTo(520,490);';
+		$pObj->doc->JScodeArray['changeWindowSize'] .= 'window.resizable=true;';
 
 			// Starting the page by creating page header stuff:
 		$content.= $pObj->doc->startPage($LANG->sL('LLL:EXT:lang/locallang_core.xml:show_item.php.viewItem'));

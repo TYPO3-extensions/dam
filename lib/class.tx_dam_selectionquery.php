@@ -33,23 +33,26 @@
  *
  *
  *
- *   75: class tx_dam_selectionQuery
- *  107:     function initPointer($resultPointer, $resultsPerPage)
- *  124:     function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)
- *  137:     function initQueryGen()
+ *   78: class tx_dam_selectionQuery
+ *  113:     function initPointer($resultPointer, $resultsPerPage, $maxPages=100)
+ *  132:     function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)
+ *  145:     function initQueryGen()
  *
  *              SECTION: General selection handling
- *  160:     function addSelectionToQuery ()
- *  174:     function addLimitToQuery ($limit='', $begin='')
- *  189:     function prepareSelectionQuery($count=false)
- *  200:     function getSelectionQueryParts($count=false)
- *  214:     function execSelectionQuery($count=false, $select='')
+ *  166:     function processSubmittedSelection()
+ *  178:     function addSelectionToQuery ()
+ *  192:     function addLimitToQuery ($limit='', $begin='')
+ *  207:     function prepareSelectionQuery($count=false)
+ *  218:     function getSelectionQueryParts($count=false)
+ *  232:     function execSelectionQuery($count=false, $select='')
+ *  251:     function execQuery($count=false, $select='')
  *
  *              SECTION: Special selection handling
- *  267:     function addFilemountsToQuerygen()
- *  287:     function setSelectionLanguage($sysLanguage=0)
+ *  306:     function addFilemountsToQuerygen()
+ *  332:     function addDefaultFilter()
+ *  343:     function setSelectionLanguage($sysLanguage=0)
  *
- * TOTAL FUNCTIONS: 10
+ * TOTAL FUNCTIONS: 13
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -107,7 +110,7 @@ class tx_dam_selectionQuery {
 	 * @param	integer		$maxPages Max allowed pages.
 	 * @return void
 	 */
-	function initPointer($resultPointer, $resultsPerPage, $maxPages=20) {
+	function initPointer($resultPointer, $resultsPerPage, $maxPages=100) {
 		global $TYPO3_CONF_VARS;
 
 		$this->pointer = t3lib_div::makeInstance('tx_dam_listPointer');
@@ -127,7 +130,7 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)	{
-		$this->SOBE = $SOBE;
+		$this->SOBE = & $SOBE;
 
 		$this->sl = t3lib_div::makeInstance('tx_dam_selection');
 		$this->sl->init($this, $SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS);
@@ -155,7 +158,17 @@ class tx_dam_selectionQuery {
 	 *
 	 ********************************/
 
-
+	/**
+	 * Get the users last stored selection or processes an undo command
+	 *
+	 * @return	void
+	 */
+	function processSubmittedSelection() {
+		$this->sl->initSelection_getStored_mergeSubmitted();
+		if ($this->sl->hasChanged) {
+			$this->pointer->setPagePointer(0);
+		}
+	}
 
 	/**
 	 * Adds the current selection to the query
@@ -308,6 +321,16 @@ class tx_dam_selectionQuery {
 				$this->qg->addWhere('1=0', 'AND', 'tx_dam.FILEMOUNTS');
 			}
 		}
+	}
+
+
+	/**
+	 * Set some additional 'enable fields' which are common in use but not always
+	 *
+	 * @return	void
+	 */
+	function addDefaultFilter() {
+		$this->qg->addWhere('tx_dam.file_status!='.TXDAM_status_file_missing, 'AND', 'file_status');
 	}
 
 

@@ -33,27 +33,29 @@
  *
  *
  *
- *   76: class tx_dam_tceFunc
+ *   78: class tx_dam_tceFunc
  *
  *              SECTION: Rendering of TCEform fields for common usage
- *  103:     function getSingleField_selectTree($PA, &$fObj)
- *  278:     function getSingleField_selectMounts($PA, &$fObj)
- *  423:     function getSingleField_typeMedia($PA, &$fObj)
+ *  105:     function getSingleField_selectTree($PA, &$fObj)
+ *  279:     function getSingleField_selectMounts($PA, &$fObj)
+ *  424:     function getSingleField_typeMedia($PA, &$fObj)
+ *  573:     function renderFileList($filesArray, $displayThumbs=true, $disabled=false)
+ *  695:     function getSingleField_typeFolder($PA, &$fObj)
  *
  *              SECTION: Rendering of TCEform fields for private usage for tx_dam table
- *  587:     function tx_dam_mediaType ($PA, &$fobj)
- *  713:     function tx_dam_file_mime_type ($PA, &$fobj)
- *  740:     function tx_dam_meta($PA, &$fobj)
- *  834:     function tx_dam_fileUsage ($PA, &$fobj)
+ *  779:     function tx_dam_mediaType ($PA, &$fobj)
+ *  905:     function tx_dam_file_mime_type ($PA, &$fobj)
+ *  932:     function tx_dam_meta($PA, &$fobj)
+ * 1028:     function tx_dam_fileUsage ($PA, &$fobj)
  *
  *              SECTION: Form element helper functions
- *  922:     function array2table($array_in)
- *  956:     function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')
+ * 1116:     function array2table($array_in)
+ * 1150:     function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')
  *
  *              SECTION: Misc helper functions
- * 1137:     function isMMForeignActive()
+ * 1335:     function isMMForeignActive()
  *
- * TOTAL FUNCTIONS: 10
+ * TOTAL FUNCTIONS: 12
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -490,13 +492,14 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$itemArray = array();
 				$filesArray = array();
 				if(intval($row['uid'])) {
-					$filesArray = tx_dam_db::getReferencedFiles($table, $row['uid'], $config['MM_match_fields'], $config['MM']);
+					$filesArray = tx_dam_db::getReferencedFiles($table, $row['uid'], $config['MM_match_fields'], $config['MM'], 'tx_dam.*');
 					foreach($filesArray['rows'] as $row)	{
 						$itemArray[] = array('table'=>'tx_dam', 'id' => $row['uid'], 'title' => ($row['title']?$row['title']:$row['file_name']));
 					}
 				}
 
-
+				$thumbsnails = $this->renderFileList($filesArray, $config['show_thumbs']);
+/*
 					// making thumbnails
 				$thumbsnails = '';
 				if ($config['show_thumbs'] AND count($filesArray))	{
@@ -505,7 +508,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 							// Icon
 						$absFilePath = tx_dam::file_absolutePath($row);
-						$fileExists = file_exists($absFilePath);
+						$fileExists = @file_exists($absFilePath);
 
 						$addAttrib = 'class="absmiddle"';
 						$addAttrib .= tx_dam_guiFunc::icon_getTitleAttribute($row);
@@ -514,19 +517,21 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 							// add clickmenu
 						if ($fileExists AND !$disabled) {
-// TODO							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
+#							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
+							$fileIcon = $this->tceforms->getClickMenu($fileIcon, 'tx_dam', $row['uid']);
 						}
 
 						$title = t3lib_div::fixed_lgd_cs($this->tceforms->noTitle($row['title']), $this->tceforms->titleLen);
-// TODO use tx_dam_guifunc?
-						$thumb = t3lib_BEfunc::thumbCode(array($field => $row['file_name']), $table, $field, $this->tceforms->backPath, 'thumbs.php', $row['file_path'], 0, ' align="middle"');
+
+						$thumb = tx_dam_image::previewImgTag($row, '', 'align="middle"');
+
 						$thumbDescr = '<div class="nobr">'.$fileIcon.$title.'<br />'.$row['file_name'].'</div>';
 
 						$thumbsnails .= '<tr><td>'.$thumb.'</td><td>'.$thumbDescr.'</td></tr>';
 					}
 					$thumbsnails = '<table border="0">'.$thumbsnails.'</table>';
 				}
-
+*/
 
 					// Creating the element:
 				$params = array(
@@ -555,6 +560,125 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		return $item;
 	}
+
+
+	/**
+	 * Render list of files.
+	 *
+	 * @param	array		$filesArray List of files. See tx_dam_db::getReferencedFiles
+	 * @param	boolean		$displayThumbs
+	 * @param	boolean		$disabled
+	 * @return	string		HTML output
+	 */
+	function renderFileList($filesArray, $displayThumbs=true, $disabled=false) {
+		global $LANG;
+
+
+		$out = '';
+
+			// Listing the files:
+		if (is_array($filesArray) AND count($filesArray))	{
+
+			$lines=array();
+			foreach($filesArray['rows'] as $row)	{
+
+				$absFilePath = tx_dam::file_absolutePath($row);
+				$fileExists = @file_exists($absFilePath);
+
+
+				$addAttrib = 'class="absmiddle"';
+				$addAttrib .= tx_dam_guiFunc::icon_getTitleAttribute($row);
+				$iconTag = tx_dam::icon_getFileTypeImgTag($row, $addAttrib);
+
+
+					// add clickmenu
+				if ($fileExists AND !$disabled) {
+#							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
+					$iconTag = $this->tceforms->getClickMenu($iconTag, 'tx_dam', $row['uid']);
+				}
+
+				$title = t3lib_div::fixed_lgd_cs($this->tceforms->noTitle($row['title']), $this->tceforms->titleLen);
+
+
+					// Create link to showing details about the file in a window:
+				if ($fileExists) {
+					#$Ahref = $GLOBALS['BACK_PATH'].'show_item.php?table='.rawurlencode($absFilePath).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
+					$onClick = 'top.launchView(\'tx_dam\', \''.$row['uid'].'\');';
+					$onClick = 'top.launchView(\''.$absFilePath.'\');';
+					$ATag_info = '<a href="#" onclick="'.htmlspecialchars($onClick).'">';
+					$info = $ATag_info.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->getLL('info',1).'" alt="" /> '.$LANG->getLL('info',1).'</a>';
+
+				} else {
+					$info = '&nbsp;';
+				}
+
+					// Thumbnail/size generation:
+				$clickThumb = '';
+				if ($displayThumbs AND $fileExists AND tx_dam_image::isPreviewPossible($row))	{
+					$clickThumb = tx_dam_image::previewImgTag($row);
+					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$clickThumb.'</div>';
+				} elseif ($displayThumbs) {
+					$clickThumb = '<div style="width:68px"></div>';
+				}
+
+
+					// Show element:
+				$lines[] = '
+					<tr class="bgColor4">
+						<td valign="top" nowrap="nowrap" style="min-width:20em">'.$iconTag.htmlspecialchars($title).'&nbsp;</td>
+						<td valign="top" nowrap="nowrap" width="1%">'.$info.'</td>
+					</tr>';
+
+
+				$infoText = tx_dam_guiFunc::meta_compileInfoData ($row, 'file_name, file_size:filesize, _dimensions, caption:truncate:50', 'table');
+				$infoText = str_replace('<table>', '<table border="0" cellpadding="0" cellspacing="1">', $infoText);
+				$infoText = str_replace('<strong>', '<strong style="font-weight:normal;">', $infoText);
+				$infoText = str_replace('</td><td>', '</td><td class="bgColor-10">', $infoText);
+
+
+				if ($displayThumbs) {
+					$lines[] = '
+						<tr class="bgColor">
+							<td valign="top" colspan="2">
+							<table border="0" cellpadding="0" cellspacing="0"><tr>
+								<td valign="top">'.$clickThumb.'</td>
+								<td valign="top" style="padding-left:1em">'.$infoText.'</td></tr>
+							</table>
+							<div style="height:0.5em;"></div>
+							</td>
+						</tr>';
+				} else {
+					$lines[] = '
+						<tr class="bgColor">
+							<td valign="top" colspan="2" style="padding-left:22px">
+							'.$infoText.'
+							<div style="height:0.5em;"></div>
+							</td>
+						</tr>';
+				}
+
+				$lines[] = '
+						<tr>
+							<td colspan="2"><div style="height:0.5em;"></div></td>
+						</tr>';
+			}
+
+				// Wrap all the rows in table tags:
+			$out .= '
+
+		<!--
+			File listing
+		-->
+				<table border="0" cellpadding="1" cellspacing="1">
+					'.implode('',$lines).'
+				</table>';
+		}
+
+			// Return accumulated content for filelisting:
+		return $out;
+	}
+
+
 
 
 
@@ -741,7 +865,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			unset($previewer);
 			$previewer = NULL;
 		}
-// TODO header code should go into header - really
+// TODO header code should go into header - really - but how
 
 		//
 		// all together now
@@ -866,9 +990,11 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		if(is_array($data)) {
 			foreach($data as $key => $value) {
 
-				if(is_array($value) AND count($value)) {
+				if(is_array($value) AND count($value) AND !isset($value['xml'])) { // skip raw xml
+
 						// convert pure data to human readable
 					if (is_array($metaDesc[$key])) {	// exif, iptc
+
 						foreach ($value as $dataKey => $dataVal) {
 							if (is_array($metaDesc[$key][$dataKey])) {	// description found?
 								$value[$dataKey] = $metaDesc[$key][$dataKey][$dataVal];	// apply

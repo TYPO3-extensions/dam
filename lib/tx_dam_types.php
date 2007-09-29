@@ -232,6 +232,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['code2sorting'] = array(
 /**
  * @access private
  */
+if (!is_array($GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['BE'])) {
 $GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['BE'] = array(
 		'default'=> '56x56',
 		'icon'=> '18x16',
@@ -243,11 +244,12 @@ $GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['BE'] = array(
 		'x-large'=> '384x384',
 		'xx-large'=> '512x512',
 	);
-
+}
 
 /**
  * @access private
  */
+if (!is_array($GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['FE'])) {
 $GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['FE'] = array(
 		'default'=> '96x96',
 		'icon'=> '18x16',
@@ -259,6 +261,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['FE'] = array(
 		'x-large'=> '512x512',
 		'xx-large'=> '800x600',
 	);
+}
 
 
 /**

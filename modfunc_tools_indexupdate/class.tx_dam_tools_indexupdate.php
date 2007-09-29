@@ -34,32 +34,35 @@
  *
  *
  *
- *   80: class tx_dam_tools_indexupdate extends t3lib_extobjbase
- *   88:     function modMenu()
- *  112:     function main()
- *  134:     function moduleContent()
- *  278:     function checkIndex($indexSessionID)
- *  373:     function checkUploads($indexSessionID)
- *  467:     function getFilesInDir($path, $recursive=FALSE, $filearray=array(), $maxDirs=999)
- *  502:     function infoIcon ($type)
- *  533:     function indexing_getProgessTable()
- *  538:     function progress_bar_update(intCurrentPercent)
- *  549:     function addTableRow(cells)
- *  571:     function setMessage(msg)
- *  576:     function finished()
- *  625:     function indexing_progressBar($intCurrentCount = 100, $intTotalCount = 100)
- *  646:     function indexing_addTableRow($contentArr)
- *  660:     function indexing_setMessage($msg)
- *  669:     function indexing_finished()
- *  678:     function indexing_flushNow()
+ *   84: class tx_dam_tools_indexupdate extends t3lib_extobjbase
+ *   92:     function modMenu()
+ *  120:     function main()
+ *  140:     function moduleContent()
+ *  347:     function statisticsLostRecords()
+ *  406:     function statisticsMediaType($addFileTypes=true)
+ *  515:     function statisticsFileType($media_type)
+ *  553:     function checkIndex($indexSessionID)
+ *  648:     function checkUploads($indexSessionID)
+ *  742:     function getFilesInDir($path, $recursive=FALSE, $filearray=array(), $maxDirs=999)
+ *  777:     function infoIcon ($type)
+ *  808:     function indexing_getProgessTable()
+ *  813:     function progress_bar_update(intCurrentPercent)
+ *  824:     function addTableRow(cells)
+ *  846:     function setMessage(msg)
+ *  851:     function finished()
+ *  900:     function indexing_progressBar($intCurrentCount = 100, $intTotalCount = 100)
+ *  921:     function indexing_addTableRow($contentArr)
+ *  935:     function indexing_setMessage($msg)
+ *  944:     function indexing_finished()
+ *  953:     function indexing_flushNow()
  *
  *              SECTION: indexSession
- *  700:     function indexSessionClear()
- *  710:     function indexSessionNew($totalFilesCount, $data='')
- *  727:     function indexSessionFetch()
- *  736:     function indexSessionWrite($indexSession)
+ *  975:     function indexSessionClear()
+ *  985:     function indexSessionNew($totalFilesCount, $data='')
+ * 1002:     function indexSessionFetch()
+ * 1011:     function indexSessionWrite($indexSession)
  *
- * TOTAL FUNCTIONS: 21
+ * TOTAL FUNCTIONS: 24
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -68,6 +71,7 @@
 
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
+require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 
 
 /**
@@ -100,11 +104,12 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				'index' => $LANG->getLL('tx_dam_tools_indexupdate.index_check'),
 				'uploads' => $LANG->getLL('tx_dam_tools_indexupdate.uploads_check'),
 				'lost_records' => $LANG->getLL('tx_dam_tools_indexupdate.lost_records_check'),
+				'cleanup_meta' => $LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta'),
 				'statistics' => $LANG->getLL('tx_dam_tools_indexupdate.statistics'),
 			),
 		);
 	}
-// TODO add function for updating media type tree
+
 
 
 	/**
@@ -117,10 +122,8 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 
 		$content = '';
-		$content.= $this->pObj->doc->spacer(5);
-		$content.=  $this->pObj->doc->funcMenu('', t3lib_BEfunc::getFuncMenu($this->pObj->id,'SET[tx_dam_tools_indexupdate.func]',$this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.func'],$this->pObj->MOD_MENU['tx_dam_tools_indexupdate.func']));
-		#$content.= $this->pObj->doc->divider(5);
-		#$content.= $this->pObj->doc->spacer(10);
+		$content.=  $this->pObj->getHeaderBar('', t3lib_BEfunc::getFuncMenu($this->pObj->id,'SET[tx_dam_tools_indexupdate.func]',$this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.func'],$this->pObj->MOD_MENU['tx_dam_tools_indexupdate.func']));
+		$content.= $this->pObj->doc->spacer(10);
 		$content.= $this->moduleContent();
 
 		return $content;
@@ -155,8 +158,6 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		$this->indexEndtime = time()+$max_execution_time;
 
 
-		$content.= $this->pObj->doc->spacer(10);
-
 		switch($func)    {
 
 			case 'lost_records':
@@ -184,10 +185,40 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				} else {
 
 					$content.= '<p><strong>'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_all_fine').'</strong></p>';
+					$content.= $statisticsLostRecords;
 					$content.= $this->pObj->doc->spacer(10);
 					$content.= '<p><input type="submit" name="" value="'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_check_again').'" /></p>';
 				}
 
+			break;
+
+			case 'cleanup_meta':
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta'), $LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta_description',1),0,1);
+				$content.= $this->pObj->doc->spacer(10);
+
+				if (t3lib_div::_GP('cleanup_meta')) {
+					$countTotal = 0;
+
+					$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'color_space='.$GLOBALS['TYPO3_DB']->fullQuoteStr('sRGB', 'tx_dam'), array('color_space' => 'RGB'));
+					$countTotal += $GLOBALS['TYPO3_DB']->sql_affected_rows();
+
+					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,title,file_name', 'tx_dam', 'title=\'\'');
+					foreach ($rows as $row) {
+						$title = tx_dam_indexing::makeTitleFromFilename($row['file_name']);
+						$values = array('title' => $title);
+						$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $values);
+						$countTotal ++;
+					}
+					$content.= '<h4>Processing: '.$countTotal. ' changes made</h4>';
+				}
+
+				$content.= '<h4>Available functions:</h4>';
+				$content.= '<ul>';
+				$content.= '<li>Create title for empty titles</li>';
+				$content.= '<li>Change unused color space \'sRGB\' to \'RGB\'</li>';
+				$content.= '</ul>';
+				$content.= $this->pObj->doc->spacer(10);
+				$content.= '<p><input type="submit" name="cleanup_meta" value="'.$LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta').'" /></p>';
 			break;
 
 			case 'statistics':
@@ -347,9 +378,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			$count = 0;
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('COUNT(uid) as count', $table, $table.'.pid NOT IN ('.tx_dam_db::getPidList().')');
 			if ($res) {
-				$rows = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-				reset($rows);
-				$row = current($rows);
+				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 				$count = $row['count'];
 				$countTotal += $count;
 			}
@@ -586,7 +615,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				$this->indexing_flushNow();
 
 				$this->indexSessionWrite($indexSession);
-
+// FIXME this seems not to work
 				if (($this->indexEndtime < time()) AND ($indexSession['currentCount'] < $indexSession['totalFilesCount'])) {
 					$params = $this->pObj->addParams;
 					$params['indexSessionID'] = $indexSession['ID'];

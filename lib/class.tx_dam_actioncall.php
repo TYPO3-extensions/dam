@@ -36,38 +36,41 @@
  *
  *
  *
- *   91: class tx_dam_actionCall
+ *   94: class tx_dam_actionCall
  *
  *              SECTION: Constructor / Initialization
- *  141:     function tx_dam_actionCall($classes=NULL)
- *  152:     function __construct($classes=NULL)
- *  164:     function initClasses($classes=NULL)
- *  177:     function registerAction ($idName, $class)
- *  190:     function setEnv ($param1, $param2=NULL)
- *  214:     function setRequest ($type, $itemInfo, $mode, $moduleName)
+ *  170:     function tx_dam_actionCall($classes=NULL)
+ *  181:     function __construct($classes=NULL)
+ *  194:     function initClasses($classes=NULL)
+ *  207:     function registerAction ($idName, $class)
+ *  220:     function setEnv ($param1, $param2=NULL)
+ *  241:     function setRequest ($type, $itemInfo, $mode='', $moduleName='')
  *
  *              SECTION: Iterator functions
- *  234:     function rewind()
- *  244:     function valid()
- *  255:     function next()
- *  265:     function key()
- *  275:     function &current()
- *  290:     function count ()
+ *  264:     function rewind()
+ *  274:     function valid()
+ *  285:     function next()
+ *  295:     function key()
+ *  305:     function &current()
+ *  320:     function count ()
  *
  *              SECTION: Rendering
- *  311:     function renderActionsHorizontal($checkValidStrict=false, $showDisabled=true)
+ *  341:     function renderActionsHorizontal($checkValidStrict=false, $showDisabled=true)
+ *  376:     function renderActionsContextMenu($checkValidStrict=false, $showDisabled=false)
+ *  413:     function renderMultiActions($checkValidStrict=false, $showDisabled=false)
+ *  452:     function checkItemValid (&$item)
  *
  *              SECTION: Init item list
- *  356:     function initActions ($checkForPossiblyValid=false, $keepInvalid=false)
- *  368:     function initItems()
- *  406:     function addItem($idName, $position='', $divider='')
+ *  497:     function initActions ($checkForPossiblyValid=false, $keepInvalid=false)
+ *  509:     function initItems()
+ *  547:     function addItem($idName, $position='', $divider='')
  *
  *              SECTION: Objects
- *  475:     function initObjects ($checkForPossiblyValid=false, $keepInvalid=false)
- *  500:     function &getByIDName ($idName)
- *  511:     function makeObject ($idName)
+ *  616:     function initObjects ($checkForPossiblyValid=false, $keepInvalid=false)
+ *  656:     function &getByIDName ($idName)
+ *  667:     function makeObject ($idName)
  *
- * TOTAL FUNCTIONS: 19
+ * TOTAL FUNCTIONS: 22
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -91,6 +94,30 @@
 class tx_dam_actionCall {
 
 	/**
+	 * defines the output/render type
+	 *
+	 * Possible values:
+	 * icon, button, control, context
+	 */
+	 var $type;
+
+	/**
+	 * holds the data of the item a action should be called for. for example just record data.
+	 *
+	 * two special fields are defined:
+	 * __type: record, dir, file
+	 * __table: table name for records
+	 *
+	 * These fields have to be defined if no real data is available yet.
+	 * dir and file data has the format of tx_dam::file_compileInfo();
+	 */
+	 var $itemInfo = array(
+	 		'__type' => '',
+	 		'__table' => '',
+	 	);
+
+
+	/**
 	 * stores action class references by idName keys
 	 */
 	var $classes = array();
@@ -111,6 +138,7 @@ class tx_dam_actionCall {
 	 var $env = array(
 	 	'returnUrl' => '',
 	 	'defaultCmdScript' => '',
+	 	'backPath' => '',
 	 	);
 
 	/**
@@ -140,7 +168,7 @@ class tx_dam_actionCall {
 	 * @see __construct()
 	 */
 	function tx_dam_actionCall($classes=NULL) {
-		$this->__construct($classes=NULL);
+		$this->__construct($classes);
 	}
 
 
@@ -153,6 +181,7 @@ class tx_dam_actionCall {
 	function __construct($classes=NULL) {
 		$this->classes = is_array($classes) ? $classes : $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['actionClasses'];
 		$this->classes = is_array($this->classes) ? $this->classes : array();
+		$this->env['backPath'] = $GLOBALS['BACK_PATH'];
 	}
 
 
@@ -191,9 +220,6 @@ class tx_dam_actionCall {
 	 function setEnv ($param1, $param2=NULL) {
 	 	$env = array();
 
- 		$this->env['mode'] = $this->mode;
- 		$this->env['moduleName'] = $this->moduleName;
-
 	 	if (is_array($param1)) {
 	 		$env = $param1;
 	 	}
@@ -212,11 +238,14 @@ class tx_dam_actionCall {
 	 * @param	string		$moduleName Module name, eg. $GLOBALS['MCONF']['name']
 	 * @return	void
 	 */
-	function setRequest ($type, $itemInfo, $mode, $moduleName) {
+	function setRequest ($type, $itemInfo, $mode='', $moduleName='') {
 		$this->type = $type;
 		$this->itemInfo = $itemInfo;
  		$this->mode = $mode;
- 		$this->moduleName = $moduleName;
+ 		$this->moduleName = $moduleName ? $moduleName : $GLOBALS['MCONF']['name'].'.'.$GLOBALS['SOBE']->extClassConf['name'];
+
+ 		$this->env['mode'] = $this->mode;
+ 		$this->env['moduleName'] = $this->moduleName;
 	}
 
 
@@ -306,27 +335,27 @@ class tx_dam_actionCall {
 	 * Dividers and spacer are rendered for horizontal use.
 	 *
 	 * @param	boolean		$checkValidStrict Perform a strict valid test with isValid() for each action.
-	 * @param	boolean		$showDisabled Will render diabled items for non-valid actions. Eg. a greyed icon without link.
+	 * @param	boolean		$showDisabled Will render disabled items for non-valid actions. Eg. a greyed icon without link.
 	 * @return	array		Array of rendered items. Can be imploded for example.
 	 */
 	function renderActionsHorizontal($checkValidStrict=false, $showDisabled=true) {
 		$actions = array();
-		$valid = true;
 		$this->rewind();
-		while ($this->valid()) {
+		while ($valid = $this->valid()) {
 			$item = $this->current();
-			if ($checkValidStrict) {
-				$valid = $this->checkItemValid($item);
-			}
 
-			if ($valid OR $showDisabled) {
-				if ($this->enableSpacer AND $item == '__spacer') {
-					$actions[] = '&nbsp; &nbsp;';
+			if ($this->enableSpacer AND $item == '__spacer') {
+				$actions[] = '&nbsp; &nbsp;';
+			}
+			elseif ($this->enableDivider AND $item == '__divider') {
+				$actions[] = '&nbsp;<span style="border-left:1px dotted #666">&nbsp;</span>';
+			}
+			elseif (is_object($item)) {
+				if ($checkValidStrict) {
+					$valid = $this->checkItemValid($item);
 				}
-				elseif ($this->enableDivider AND $item == '__divider') {
-					$actions[] = '&nbsp;<span style="border-left:1px dotted #666">&nbsp;</span>';
-				}
-				elseif (is_object($item)) {
+
+				if ($valid OR $showDisabled) {
 					$actions[] = $item->render($this->type, !$valid);
 				}
 			}
@@ -335,6 +364,81 @@ class tx_dam_actionCall {
 		return $actions;
 	}
 
+
+	/**
+	 * Walk through the list of actions and render them.
+	 * Dividers and spacer are rendered for horizontal use.
+	 *
+	 * @param	boolean		$checkValidStrict Perform a strict valid test with isValid() for each action.
+	 * @param	boolean		$showDisabled Will render disabled items for non-valid actions. Eg. a greyed icon without link.
+	 * @return	array		Array of rendered items. Can be imploded for example.
+	 */
+	function renderActionsContextMenu($checkValidStrict=false, $showDisabled=false) {
+		$actions = array();
+		$divider = 0;
+		$this->rewind();
+		while ($valid = $this->valid()) {
+			$item = $this->current();
+
+			if ($this->enableSpacer AND $item == '__spacer') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif ($this->enableDivider AND $item == '__divider') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif (is_object($item)) {
+				if ($checkValidStrict) {
+					$valid = $this->checkItemValid($item);
+				}
+
+				if ($valid OR $showDisabled) {
+					$actions[$item->idName] = $item->render($this->type, !$valid);
+					$actions[$item->idName]['valid'] = $valid;
+				}
+			}
+			$this->next();
+		}
+		return $actions;
+	}
+
+
+	/**
+	 * Walk through the list of actions and render them.
+	 * Dividers are rendered for list use.
+	 *
+	 * @param	boolean		$checkValidStrict Perform a strict valid test with isValid() for each action.
+	 * @param	boolean		$showDisabled Will render disabled items for non-valid actions. Eg. a greyed icon without link.
+	 * @return	array		Array of rendered items. Can be imploded for example.
+	 */
+	function renderMultiActions($checkValidStrict=false, $showDisabled=false) {
+		$actions = array();
+		$divider = 0;
+		$this->rewind();
+		while ($valid = $this->valid()) {
+			$item = $this->current();
+
+			if ($this->enableSpacer AND $item == '__spacer') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif ($this->enableDivider AND $item == '__divider') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif (is_object($item)) {
+				if ($checkValidStrict) {
+					$valid = $this->checkItemValid($item);
+				}
+
+				if ($valid OR $showDisabled) {
+					$actions[$item->idName] = $item->render($this->type, !$valid);
+					$actions[$item->idName]['valid'] = $valid;
+
+				}
+			}
+			$this->next();
+		}
+
+		return $actions;
+	}
 
 
 	/**
@@ -510,10 +614,21 @@ class tx_dam_actionCall {
 	 * @return	void
 	 */
 	function initObjects ($checkForPossiblyValid=false, $keepInvalid=false) {
+
+		$setupAllowDeny = tx_dam::config_getValue('setup.actions.allowDeny.', true);
+		list($modName, $modFuncName) = explode('.', $this->moduleName);
+		$setupAllowDenyMod = tx_dam::config_getValue('mod.'.$modName.'.actions.allowDeny.', true);
+		if ($modFuncName) {
+			$setupAllowDenyModfunc = tx_dam::config_getValue('mod.'.$this->moduleName.'.actions.allowDeny.', true);
+		}
+		$allowDeny = new tx_dam_allowdeny_list(array_keys($this->classes), $setupAllowDeny, $setupAllowDenyMod, $setupAllowDenyModfunc);
+
+#debug(array($setupAllowDeny, $setupAllowDenyMod, $setupAllowDenyModfunc));
 		foreach ($this->classes as $idName => $classRef) {
-			if ($this->makeObject($idName)) {
+			if ($allowDeny->isAllowed($idName) AND $this->makeObject($idName)) {
 				$this->objects[$idName]->setItemInfo($this->itemInfo);
 				$this->objects[$idName]->setEnv($this->env);
+				$this->objects[$idName]->getIdName();
 				if ($checkForPossiblyValid) {
 					$valid = $this->objects[$idName]->isPossiblyValid($this->type);
 				}
@@ -526,6 +641,10 @@ class tx_dam_actionCall {
 			}
 		}
 	}
+
+
+
+
 
 
 	/**

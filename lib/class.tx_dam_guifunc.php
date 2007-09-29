@@ -33,37 +33,50 @@
  *
  *
  *
- *   81: class tx_dam_guiFunc
+ *   94: class tx_dam_guiFunc
  *
  *              SECTION: icons
- *  102:     function icon_getFileTypeImgTag($infoArr, $addAttrib='')
- *  118:     function icon_getMediaTypeImgTag($infoArr, $addAttrib='', $addTitleAttr=true)
- *  143:     function icon_getTitleAttribute($infoArr, $displayItems='')
- *  159:     function convert_mediaType($type)
+ *  115:     function icon_getFileTypeImgTag($infoArr, $addAttrib='')
+ *  135:     function icon_getMediaTypeImgTag($infoArr, $addAttrib='', $addTitleAttr=true)
+ *  172:     function icon_getTitleAttribute($infoArr, $displayItems='')
+ *  188:     function convert_mediaType($type)
  *
  *              SECTION: Small GUI elements
- *  189:     function getMediaTypeIconBox($infoArr, $iconPlusType=TRUE)
+ *  218:     function getMediaTypeIconBox($infoArr, $iconPlusType=TRUE)
  *
  *              SECTION: Table GUI elements
- *  221:     function getRecordInfoHeader($row)
+ *  254:     function getRecordInfoHeader($row, $extraContentLeft='', $extraContentMiddle='', $extraContentRight='')
+ *  310:     function getRecordInfoHeaderExtra($row, $extraContentLeft='', $extraContentMiddle='', $extraContentRight='')
+ *  323:     function getReferencesTable($uidList, $displayColumns='page,content_element')
  *
  *              SECTION: Path related functions
- *  285:     function getFolderInfoBar($pathInfo, $maxLength=55)
- *  319:     function getPathBreadcrumbMenu($pathInfo, $browsable=FALSE, $maxLength=55, $param='SET[tx_dam_folder]')
+ *  442:     function getFolderInfoBar($pathInfo, $maxLength=55)
+ *  476:     function getPathBreadcrumbMenu($pathInfo, $browsable=FALSE, $maxLength=55, $param='SET[tx_dam_folder]')
  *
  *              SECTION: Thumbnail like a dia
- *  383:     function getDia($row, $diaSize=115, $diaMargin=10, $showElements='', $onClick=NULL, $makeIcon=TRUE)
- *  484:     function getDiaStyles($diaSize=115, $diaMargin=10, $margin=0)
+ *  541:     function getDia($row, $diaSize=115, $diaMargin=10, $showElements='', $onClick=NULL, $makeIcon=TRUE, $actions='')
+ *  638:     function getDiaStyles($diaSize=115, $diaMargin=10, $margin=0)
  *
  *              SECTION: Meta data related - prepare for output
- *  562:     function meta_compileHoverText ($row, $displayItems='', $implodeWith="\n")
- *  580:     function meta_compileInfoData ($row, $displayItems='', $formatData='')
+ *  715:     function meta_compileHoverText ($row, $displayItems='', $implodeWith="\n")
+ *  734:     function meta_compileInfoData ($row, $displayItems='', $formatData='')
+ *
+ *              SECTION: image scaling and thumbs
+ *  851:     function thumbnail($fileInfo, $size='', $titleContent='', $imgAttributes='', $iconAttributes='', $onClick=NULL, $makeFileIcon=TRUE)
+ *  895:     function image_thumbnailIconImgTag($fileInfo, $size='', $imgAttributes='', $iconAttributes='', $makeFileIcon=TRUE)
  *
  *              SECTION: Tools - used internally but might be useful for general usage
- *  689:     function tools_formatValue ($itemValue, $format, $config)
- *  773:     function thumbnail($theFile, $size='', $title='', $attribs='', $attribsIcon='', $onClick=NULL, $makeFileIcon=TRUE, $backPath='')
+ *  945:     function getFieldLabel ($field, $hsc=true)
+ *  962:     function tools_formatValue ($itemValue, $format, $config='')
+ * 1051:     function tools_calcAge($seconds, $labels='min|hrs|days|yrs')
+ * 1074:     function tools_explodeAttributes($attributeString)
+ * 1092:     function tools_implodeAttributes($attributes, $hsc=true)
+ * 1108:     function tools_insertWordBreak($content, $every)
  *
- * TOTAL FUNCTIONS: 14
+ *              SECTION: Misc stuff
+ * 1132:     function getLabelFromItemlist($table,$col,$key)
+ *
+ * TOTAL FUNCTIONS: 23
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -166,7 +179,7 @@ class tx_dam_guiFunc {
 
 
 	/**
-	 * Converts the media type code to a name .
+	 * Converts the media type code to a name.
 	 * In comparison to tx_dam::convert_mediaType() this function returns a localized name if possible.
 	 *
 	 * @param	mixed		$type Media type name or media type code to convert. Integer or 'text','image','audio','video','interactive', 'service','font','model','dataset','collection','software','application'
@@ -252,13 +265,13 @@ class tx_dam_guiFunc {
 					<td valign="top" align="left" style="padding-left:20px;">';
 		if (isset($row['title'])) {
 			$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.title',1).'</strong><br />'.
-						htmlspecialchars($row['title']).'</div>';
+						tx_dam_guiFunc::tools_insertWordBreak(htmlspecialchars($row['title']),35).'</div>';
 		}
 		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',1).'</strong><br />'.
-					htmlspecialchars($row['file_name']).'</div>';
+					tx_dam_guiFunc::tools_insertWordBreak(htmlspecialchars($row['file_name']),35).'</div>';
 
 		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path',1).'</strong><br />'.
-					htmlspecialchars($row['file_path']).'</div>';
+					str_replace('/', '/<wbr>', htmlspecialchars($row['file_path'])).'</div>';
 
 		if ($row['media_type'] == TXDAM_mtype_image) {
 			$out = '';
@@ -411,6 +424,7 @@ class tx_dam_guiFunc {
 
 
 
+
 	/********************************
 	 *
 	 * Path related functions
@@ -504,6 +518,7 @@ class tx_dam_guiFunc {
 
 
 
+
 	/***************************************
 	 *
 	 *	 Thumbnail like a dia
@@ -511,19 +526,19 @@ class tx_dam_guiFunc {
 	 ***************************************/
 
 
-
 	/**
 	 * Returns a dia like thumbnail
 	 *
-	 * @param	array		tx_dam record
-	 * @param	integer		dia size
-	 * @param	integer		dia margin
-	 * @param	array		Extra elements to show: "title,info,icons"
+	 * @param	array		$row tx_dam record
+	 * @param	integer		$diaSize dia size
+	 * @param	integer		$diaMargin dia margin
+	 * @param	array		$showElements Extra elements to show: "title,info,icons"
 	 * @param	string		$onClick: ...
 	 * @param	boolean		$makeIcon: ...
+	 * @param	string		$actions action content to be displayed
 	 * @return	string		HTML output
 	 */
-	function getDia($row, $diaSize=115, $diaMargin=10, $showElements='', $onClick=NULL, $makeIcon=TRUE) {
+	function getDia($row, $diaSize=115, $diaMargin=10, $showElements='', $onClick=NULL, $makeIcon=TRUE, $actions='') {
 
 		if(!is_array($showElements)) {
 			$showElements = t3lib_div::trimExplode(',', $showElements,1);
@@ -535,14 +550,14 @@ class tx_dam_guiFunc {
 			$GLOBALS['SOBE']->doc->inDocStylesArray['tx_dam_SCbase_dia'] = tx_dam_guiFunc::getDiaStyles($diaSize, $diaMargin);
 		}
 
-// using css/stylesheet
+// use css/stylesheet
 		$iconBgColor = t3lib_div::modifyHTMLcolor($GLOBALS['SOBE']->doc->bgColor,-10,-10,-10);
 		$titleLen = ceil( (30*($diaSize-$diaMargin))/(200-$diaMargin) );
 
 		$hpixels = $row['hpixels'];
 		$vpixels = $row['vpixels'];
 		if ($hpixels AND $vpixels) {
-			list($hpixels, $vpixels) = tx_dam_guifunc::tools_calcThumbSize($hpixels, $vpixels, $diaSize, $diaSize);
+			list($hpixels, $vpixels) = tx_dam_image::calcSize($hpixels, $vpixels, $diaSize, $diaSize);
 		} else {
 			if($hpixels > $diaSize) {
 				$hpixels = $diaSize;
@@ -551,7 +566,6 @@ class tx_dam_guiFunc {
 				$vpixels = $diaSize;
 			}
 		}
-
 
 		$uid = $row['uid'];
 		$imgAttributes = array();
@@ -563,10 +577,15 @@ class tx_dam_guiFunc {
 		}
 
 		$imgAttributes['onclick'] = $onClick;
-		$thumb = tx_dam_guiFunc::image_thumbnailImgTag($row, $diaSize, $imgAttributes);
+		$thumb = tx_dam_image::previewImgTag($row, $diaSize, $imgAttributes);
 
-		if (!$makeIcon AND empty($thumb)) { return; }
-		$thumb = $thumb ? $thumb : '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.tx_dam_guiFunc::getMediaTypeIconBox($row).'</a>';
+		if (!$makeIcon AND empty($thumb)) { return ''; }
+		if (empty($thumb)) {
+			$thumb = tx_dam_guiFunc::getMediaTypeIconBox($row);
+			if ($onClick) {
+				$thumb = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$thumb.'</a>';
+			}
+		}
 
 		$descr = '';
 		if (in_array('title', $showElements)) {
@@ -576,7 +595,6 @@ class tx_dam_guiFunc {
 			$code = strtoupper($row['file_type']).', ';
 			$code.= $row['hpixels']? $row['hpixels'].'x'.$row['vpixels'].', ' :'';
 			$code.= t3lib_div::formatSize($row['file_size']);
-			# $code.= $row['color_space'] ? ', '.$LANG->sL(tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space'])) : '';
 			$descr .= '<span class="txdam-descr">'.htmlspecialchars($code).'</span>';
 		}
 		if($descr) {
@@ -584,24 +602,29 @@ class tx_dam_guiFunc {
 		}
 
 		$icons  = '';
+		$iconArr = array();
 		if (in_array('icons', $showElements)) {
-			$iconArr = array();
+			// deprecated
 			$iconArr[] = tx_dam_SCbase::icon_editRec('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
 			$iconArr[] = tx_dam_SCbase::btn_editRec_inNewWindow('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
 			$iconArr[] = tx_dam_SCbase::icon_infoRec('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
 			$iconArr[] = tx_dam_SCbase::btn_removeRecFromSel('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
-
-			$icons = '<div style="margin:3px;">'.implode('<span style="width:40px;"></span>', $iconArr).'</div>';
 		}
+		if (in_array('actions', $showElements)) {
+			$actions;
+		}
+		$icons = $icons ? '<div style="margin:3px;">'.implode('<span style="width:40px;"></span>', $iconArr).'</div>' : '';
+		$actions = $actions ? '<div style="margin:3px;">'.$actions.'</div>' : '';
 
 		$diaCode = '
 		<table class="txdam-dia" cellspacing="0" cellpadding="0" border="0">
 		<tr><td><span><span class="txdam-dia">'.$thumb.'</span></td></tr>
-		'. ( ($descr.$icons) ? '<tr><td align="center" bgcolor="'.$iconBgColor.'">'.$descr.$icons.'</td></tr>' : '').'
+		'. ( ($descr.$icons) ? '<tr><td align="center" bgcolor="'.$iconBgColor.'">'.$descr.$icons.$actions.'</td></tr>' : '').'
 		</table> ';
 
 		return $diaCode;
 	}
+
 
 	/**
 	 * Return CSS code to be used with used with thumbnail created by getDia()
@@ -681,7 +704,6 @@ class tx_dam_guiFunc {
 	 ***************************************/
 
 
-
 	/**
 	 * Compiles from a meta data array text to be used in title attributes.
 	 *
@@ -699,6 +721,7 @@ class tx_dam_guiFunc {
 		}
 		return $infoData;
 	}
+
 
 	/**
 	 * Compiles from a meta data array human readable content.
@@ -734,10 +757,12 @@ class tx_dam_guiFunc {
 					if ($row['media_type'] == TXDAM_mtype_image AND $row['hpixels']) {
 						$infoData[$item]['value'] = $row['hpixels'].'x'.$row['vpixels'].' px';
 						$label = 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics';
+					} elseif ($row['height_unit']) {
+						$infoData[$item]['value'] = $row['width'].'x'.$row['height'].' '.$row['height_unit'];
+						$label = 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics';
 					}
-// TODO document size: mm, cm, ...
 				break;
-// TODO
+// TODO _techinfo
 //				case '_techinfo':
 //					if ($row['media_type'] == TXDAM_mtype_image AND $row['color_space']) {
 //						$value = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space']);
@@ -811,25 +836,7 @@ class tx_dam_guiFunc {
 
 
 	/**
-	 * Checks if a thumbnail can be generated for a file
-	 *
-	 * @param	array		$item	Fileinfo array
-	 * @return	boolean
-	 */
-	function image_isThumbnailPossible ($fileInfo) {
-		$thumbnailPossible = false;
-
-		if ($fileInfo['file_type']=='ttf' || t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fileInfo['file_type'])) {
-		#if( ($fileInfo['media_type']==TXDAM_mtype_image) AND t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fileInfo['file_type'])) {
-			$thumbnailPossible = true;
-		}
-		return $thumbnailPossible;
-	}
-
-	/**
 	 * Returns a linked image-tag for thumbnail(s)
-	 * All $TYPO3_CONF_VARS[GFX][imagefile_ext] extension are made to thumbnails + ttf file (renders font-example)
-	 *
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @param	string		$size Optional: $size is [w]x[h] of the thumbnail. 56 is default.
@@ -839,7 +846,7 @@ class tx_dam_guiFunc {
 	 * @param	string		$onClick Optional: If falso no A tag with onclick will be wrapped. If NULL top.launchView() will be used. If string it's value will be used as onclick value.
 	 * @param	boolean		$makeFileIcon If true a file icon will be returned if no thumbnail is possible
 	 * @return	string		Thumbnail image tag.
-	 * @deprecated version - 23.05.2006
+	 * @deprecated - really?
 	 */
 	function thumbnail($fileInfo, $size='', $titleContent='', $imgAttributes='', $iconAttributes='', $onClick=NULL, $makeFileIcon=TRUE)	{
 
@@ -896,7 +903,7 @@ class tx_dam_guiFunc {
 		unset($imgAttributes['href']);
 		unset($imgAttributes['onclick']);
 
-		$thumbnail = tx_dam_guiFunc::image_thumbnailImgTag($fileInfo, $size, $imgAttributes);
+		$thumbnail = tx_dam_image::previewImgTag($fileInfo, $size, $imgAttributes);
 
 		if (!$thumbnail AND $makeFileIcon) {
 
@@ -918,121 +925,6 @@ class tx_dam_guiFunc {
 
 		return $thumbnail;
 	}
-
-
-	/**
-	 * Returns a image-tag for thumbnail(s)
-	 *
-	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
-	 * @param	string		$size Optional: $size is [w]x[h] of the thumbnail. 56 is default.
-	 * @param	mixed		$imgAttributes additional attributes for the image tag
-	 * @return	string		Thumbnail image tag.
-	 */
-	function image_thumbnailImgTag($fileInfo, $size='', $imgAttributes='')	{
-
-		$thumbnail = '';
-
-			// get some file information
-		if (!is_array($fileInfo)) {
-			$fileInfo = tx_dam::file_compileInfo($fileInfo);
-		}
-		$filepath = tx_dam::file_absolutePath($fileInfo);
-
-		if ($filepath)	{
-
-			$fileType = tx_dam::file_getType($fileInfo);
-
-
-			if (!is_array($imgAttributes)) {
-				$imgAttributes = tx_dam_guifunc::tools_explodeAttributes($imgAttributes);
-			}
-
-			$imgAttributes['alt'] = isset($imgAttributes['alt']) ? $imgAttributes['alt'] : ($fileInfo['alt_text'] ? $fileInfo['alt_text'] : $fileInfo['title']);
-			$imgAttributes['title'] = isset($imgAttributes['title']) ? $imgAttributes['title'] : $imgAttributes['alt'];
-
-
-				// Check and parse the size parameter
-			$size = trim($size);
-			list($sizeX, $sizeY) = tx_dam_guifunc::tools_parseThumbSize($size);
-			$sizeMax = $max = max($sizeX, $sizeY);
-
-
-				// get maximum image pixel size
-			$maxImageSize = 0;
-			if ($fileInfo['hpixels']) {
-				$maxImageSize = max($fileInfo['hpixels'], $fileInfo['vpixels']);
-
-			} elseif (t3lib_div::inList('gif,jpg,png', $fileType['file_type'])) {
-				if (is_array($imgInfo = @getimagesize($filepath)))	{
-					$fileInfo['hpixels'] = $imgInfo[0];
-					$fileInfo['vpixels'] = $imgInfo[1];
-					$maxImageSize = max($fileInfo['hpixels'], $fileInfo['vpixels']);
-				}
-			}
-
-
-				// calculate the thumbnail size
-			$useOriginalImage = false;
-			if ($maxImageSize AND $maxImageSize<=$sizeMax)	{
-				$useOriginalImage = true;
-				$thumbSizeX = $fileInfo['hpixels'];
-				$thumbSizeY = $fileInfo['vpixels'];
-				$imgAttributes['width'] = $thumbSizeX;
-				$imgAttributes['height'] = $thumbSizeY;
-
-			} elseif ($maxImageSize) {
-				list($thumbSizeX, $thumbSizeY) = tx_dam_guifunc::tools_calcThumbSize($fileInfo['hpixels'], $fileInfo['vpixels'], $sizeX, $sizeY);
-				$imgAttributes['width'] = $thumbSizeX;
-				$imgAttributes['height'] = $thumbSizeY;
-				$size = $thumbSizeX.'x'.$thumbSizeY;
-
-			} elseif (tx_dam_guifunc::image_isThumbnailPossible($fileType)) {
-				$thumbSizeX = $sizeX;
-				$thumbSizeY = $sizeY;
-// TODO calc width/height from cm size or similar
-
-			} else {
-				$thumbSizeX = 0;
-				$thumbSizeY = 0;
-			}
-
-
-
-			if ($thumbSizeX) {
-
-				$imgAttributes = tx_dam_guifunc::tools_implodeAttributes($imgAttributes);
-
-					// use the original image if it's size fits to the thumbnail size
-				if ($useOriginalImage)	{
-					if (TYPO3_MODE=='FE') {
-						$filepath = preg_replace ('#^'.preg_quote(PATH_site).'#', '', $filepath);
-					} else {
-						$filepath = $GLOBALS['BACK_PATH'].'../'.preg_replace ('#^'.preg_quote(PATH_site).'#', '', $filepath);
-					}
-					$thumbnail = '<img src="'.htmlspecialchars($filepath).'"'.$imgAttributes.' />';
-
-					// use thumbs.php script
-				} elseif (tx_dam_guifunc::image_isThumbnailPossible($fileType)) {
-
-					$url = 'thumbs.php?';
-					$url .= '&dummy='.$GLOBALS['EXEC_TIME'];
-					$url .= '&file='.rawurlencode($filepath);
-					$url .= $size?'&size='.$size:'';
-
-			 		if (TYPO3_MODE=='FE') {
-						$url = TYPO3_mainDir.$url;
-					} else {
-						$url = $GLOBALS['BACK_PATH'].$url;
-					}
-					$thumbnail = '<img src="'.htmlspecialchars($url).'"'.$imgAttributes.' />';
-				}
-				else { $thumbnail = 'no thumb: '.htmlspecialchars($filepath); }
-			}
-		}
-
-		return $thumbnail;
-	}
-
 
 
 
@@ -1174,67 +1066,6 @@ class tx_dam_guiFunc {
 
 
 	/**
-	 * Convert a text thumbnail size "default, icon, xx-small, x-small, small, medium, large, x-large, xx-large" into pixel sizes.
-	 *
-	 * @param	string $size Image size
-	 * @return array array($sizeX, $sizeY);
-	 */
-	function tools_convertThumbSize ($size) {
-		$thumbSizes = tx_dam_guifunc::tools_getThumbSizes();
-		$size = $thumbSizes[$size];
-		if (!$size) $size = $thumbSizes['default'];
-		list($sizeX, $sizeY) = explode('x', $size.'x'.$size);
-		return array($sizeX, $sizeY);
-	}
-
-
-	/**
-	 * Returns an array with thumbnail sizes
-	 *
-	 * @param	string $mode Wanted TYPO3_MODE
-	 * @return array
-	 */
-	function tools_getThumbSizes ($mode=TYPO3_MODE) {
-		return $GLOBALS['T3_VAR']['ext']['dam']['thumbsizes'][$mode];
-	}
-
-
-	/**
-	 * Check and parse the size parameter like '64x64'
-	 *
-	 * @param	string $size Image size
-	 * @return array array($sizeX, $sizeY);
-	 */
-	function tools_parseThumbSize ($size) {
-		$size = trim($size);
-		list($sizeX, $sizeY) = explode('x', $size.'x'.$size);
-		if(!intval($sizeX)) list($sizeX, $sizeY) = tx_dam_guifunc::tools_convertThumbSize($size);
-		return array($sizeX, $sizeY);
-	}
-
-
-	/**
-	 * Calculate a thumbnail size
-	 *
-	 * @param	integer $sourceX Source image size
-	 * @param	integer $sourceY Source image size
-	 * @param	integer $destMaxX Destination maximum image size
-	 * @param	integer $destMaxY Destination maximum image size
-	 * @return array Destination image size: $thumbSizeX, $thumbSizeY
-	 */
-	function tools_calcThumbSize($sourceX, $sourceY, $destMaxX, $destMaxY) {
-		if ($sourceX>$sourceY) {
-			$thumbSizeX = $destMaxX;
-			$thumbSizeY = intval(round($sourceY*$destMaxX/$sourceX));
-		} else {
-			$thumbSizeX = intval(round($sourceX*$destMaxY/$sourceY));
-			$thumbSizeY = $destMaxY;
-		}
-		return array($thumbSizeX, $thumbSizeY);
-	}
-
-
-	/**
 	 * Explode a string into a HTML tags attributes and it's values
 	 *
 	 * @param 	string 	$attributeString HTML tag or it's attributes
@@ -1249,7 +1080,6 @@ class tx_dam_guiFunc {
 		}
 		return $attributes;
 	}
-
 
 
 	/**
@@ -1268,6 +1098,18 @@ class tx_dam_guiFunc {
 	}
 
 
+	/**
+	 * Inserts <wbr> in a string to make it possible to make a line break in a string without spaces.
+	 *
+	 * @param string $content
+	 * @param integer $every After n chars a <wbr> will be inserted
+	 * @return string
+	 */
+	function tools_insertWordBreak($content, $every) {
+		// TODO this could be done a little more intelegent: when a space is nearby don't insert <wbr>
+		return chunk_split($content, $every, '<wbr>');
+	}
+
 
 
 
@@ -1276,8 +1118,6 @@ class tx_dam_guiFunc {
 	 *   Misc stuff
 	 *
 	 ***************************************/
-
-
 
 
 	/**

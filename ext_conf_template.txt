@@ -2,7 +2,5 @@
 web_file = 0
   # cat=basic//10; type=boolean; label= Hide Media sysfolder: This adds global user TSConfig which hides the Media sysfolder for all users (options.hideRecords.pages = xx).
 hideMediaFolder = 0
-  # cat=basic//10; type=boolean; label= Developer Functions: This activates special functions for development. This should stay deactivated for normal usage!
-devel = 0
-  # cat=basic//10; type=boolean; label= Debug Functions: This activates special functions for debuging. This should stay deactivated for normal usage!
+  # cat=basic//10; type=boolean; label= Developer/Debug Functions: This activates special functions for development and debugging. This should stay deactivated for normal usage!
 debug = 0

@@ -36,10 +36,10 @@
  *
  *   62: class tx_dam_selectionRecords extends tx_dam_selProcBase
  *   70:     function tx_dam_selectionRecords()
- *   94:     function selection_getItemTitle($id, $value)
- *  112:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
- *  138:     function makeSearchQueryPart($table, $fields, $searchString)
- *  163:     function getSearchFields($table, $searchString)
+ *   95:     function selection_getItemTitle($id, $value)
+ *  111:     function selection_getItemIcon($id, $value)
+ *  133:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
+ *  158:     function selection_getQueryPartForItems($queryType, $cat, $itemArray, &$damObj)
  *
  * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")

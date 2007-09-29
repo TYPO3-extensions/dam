@@ -1,3 +1,105 @@
+06-11-19 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: implemented multi action framework
+	* Added: implemented multi actions in record list module
+	* Added: implemented multi action: delete
+	* Added: implemented multi action: hide, unhide
+	* Added: media types: text, image, ... can be used as items in TCA allowed_types/disallowed_types which trigger the element browser to show those media types
+	* Added: tx_dam_extFileFunctions::func_move
+	* Added: tx_dam::process_moveFile
+	
+06-11-18 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: implemented actions in modfunc_list_thumbs
+	* Change: smaller code cleanups in actions code
+	* Added: action tx_dam_action_editRecPopup - edit record in popup
+	* Added: tx_dam_image - has some useful functions for thumbnail and scaling stuff
+
+06-11-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: Possibility to define file extensions that define what files should be skipped while indexing: $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['skipFileTypes']
+	* Added: file_compileInfo() return $fileInfo['file_extension'] now
+	* Added: added Info main module as placeholder for submodules
+	* Change: removed 'devel' option from ext_conf_template.txt
+	* Added: more locallang labels in tools modules
+	* Added: top bars in tools modules - like all others
+
+06-11-12 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: Uploads module show errors from tce (db) now
+	* Added: default field to tt_content: ce_flexform
+
+06-11-10 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: All records with missing files will be excluded from query now
+	* Fix: unnecessary use of $LANG in indexing make trouble
+	* Added: tx_dam_db::evalData()
+	* Added tx_dam_iterator_media
+	* Change: iterators can be used in FE now more flexible
+	
+06-11-4 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: to all action links: '&vC='.$GLOBALS['BE_USER']->veriCode();
+	* Fix: fixed smaller todo's and some localization stuff
+	* Added: File icons with relative path are cached now
+	* Change: Element browser highlight current selection now
+	* Change: removed sRGB from the colorspace list, it's a color profile
+	* Added: tidy tool to index-check submodule, can correct color_space for now
+	* Fix: fixed detection of colorspace with identify
+	* Added: size in mm calculation for images
+	* Added: unit tests - 46 now
+	* Fix: fixed several bugs in tx_dam while implementing more unit tests
+	* Change: fe_group is now like in tt_content
+	* Change: records layout is change due to changed fe_group field
+
+06-10-25 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: added file context sub-menus to record context menu
+
+06-10-24 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: record context menus works now
+	* Added: file context menus works too
+	* Change: media field rendering shows nicer file list and support context menus
+
+06-10-18 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: sortby was used wrong which caused random numbered title's - that bug was a highlight!
+
+06-10-17 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: Output of error messages in indexing process. This is when TCEMain fails to insert record.
+	* Fix: sql definition of file_path
+	* Added: update function for EM - Media folder have to be a sysfolder now
+	* Change: made record info popup window resizable
+	* Change: check post_max_size for upload size calculation
+	* Added: XCLASS to make Media folder hideable when it is a db mount
+
+06-10-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: backup files (*.txt~) will now be detected with it's file type: txt
+	* Change: removed t3lib_extMgm::allowTableOnStandardPages() for all dam tables so they will not be seen on 'reacte new record' action. Web>List seems still to work, but not creation of records.
+	* Change: Media folder is now a sysfolder (type 255) by default but can be of any page type. This is needed to identify dam folder: 'module'='dam';
+	* Added: Media>Tools>Categories
+	* Change: enabled tx_dam_metypes_avail in TCA so it is editable in Media folder for admins
+	* Added: title attributes to list browser buttons: |< < > >|
+	* Fix: tx_damindex_rule_doReindexing has always a radio button selected now
+	* Added: tx_damindex_rule_doReindexing has full reindexing option now
+	* Added: $meta['file'] array in tx_dam_indexing which holds the pure file info
+	* Added: Usage of identify to get images size and format. Used by default now.
+	* Added: tx_dam_indexing: added t3lib_div::devLog() all over the place
+
+06-09-14 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: fixed some sorting issues in list modules (no sorting or depreciated sorting field was used)
+	* Added: tx_dam_db::getFieldListForUser()
+	* Change: if the selection change in list modules the list pointer (result browser) resets now
+	*Added: check function_exists('sem_get') in tx_dam_indexing
+
+06-09-13 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: field file_path is changed to varchar(255) and defined as index (including file_name and other) which will speed up things!!
+
 06-09-01 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: tx_dam_indexing. Locking should prevent double indexing from two concurrent processes
@@ -87,7 +189,7 @@
 	* Added folder element browser
 	* Added: register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
 	* Added constant PATH_txdam_siteRel
-	* Added default fields to tt_content: tx_dam_images, tx_dam_files, tx_dam_flexform
+	* Added default fields to tt_content: tx_dam_images, tx_dam_files
 	* Added default field tx_dam_flexform and txdam_addCTypeFlexFormValue() to have a default flexform field usable for CTypes (instead of plugins which have their own)
 	* Added: module tx_dam_tools_indexsetup. Moved from dam_cron extension with small changes. Needs to be improved
 	* Change: several small chages to components/tx_dam_actions_*

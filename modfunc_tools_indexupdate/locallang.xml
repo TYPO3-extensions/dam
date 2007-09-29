@@ -28,6 +28,8 @@
             <label index="tx_dam_tools_indexupdate.uploads_description">This updates the index for files in uploads/ which is needed to identify the used files in content elements.</label>
             <label index="tx_dam_tools_indexupdate.statistics">Statistics</label>
             <label index="tx_dam_tools_indexupdate.statistics_description">This shows a statistics about indexed media items.</label>
+            <label index="tx_dam_tools_indexupdate.cleanup_meta">Tidy meta data</label>
+            <label index="tx_dam_tools_indexupdate.cleanup_meta_description">This cleans the meta data from invalid content and repairs things if possible.</label>
             <label index="tx_dam_tools_indexupdate.lost_records_check">Check lost records</label>
             <label index="tx_dam_tools_indexupdate.lost_records_description">This function collect lost records which are not stored inside the Media folder for some reason. Lost record can be moved to the Media folder then.</label>
             <label index="tx_dam_tools_indexupdate.lost_records_all_fine">All fine. No lost records found.</label>
@@ -58,6 +60,8 @@
             <label index="tx_dam_tools_indexupdate.uploads_description">Diese Funktion überprüft den Index für Dateien in uploads/. Das ist notwendig um die Verwendung von Dateien in Inhaltselementen zu erkennen. (Dies sollte nur zur Initialisierung notwendig sein. Ist das DAM System installiert werden Dateien in uploads/ automatisch indexiert.)</label>
             <label index="tx_dam_tools_indexupdate.statistics">Statistik</label>
             <label index="tx_dam_tools_indexupdate.statistics_description">Diese Funktion zeigt eine Statistik der indexierten Media Elemente an.</label>
+            <label index="tx_dam_tools_indexupdate.cleanup_meta">Metadaten aufräumen</label>
+            <label index="tx_dam_tools_indexupdate.cleanup_meta_description">Diese Funktion sucht nach fehlerhaften Metadaten und versucht diese zu reparieren.</label>
             <label index="tx_dam_tools_indexupdate.lost_records_check">Überprüfe auf verlorene Datensätze</label>
             <label index="tx_dam_tools_indexupdate.lost_records_description">Diese Funktion sucht Datensätze die nicht im Media SysFolder gespeichert sind. Diese können dann korrigiert werden.</label>
             <label index="tx_dam_tools_indexupdate.lost_records_all_fine">Alles in Ordnung. Es wurden keine verlorenen Datensätze gefunden.</label>

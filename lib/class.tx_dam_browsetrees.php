@@ -34,10 +34,10 @@
  *
  *
  *   59: class tx_dam_browseTrees
- *   69:     function init($thisScript, $mode='browse', $folderOnly=false)
- *   91:     function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')
- *  160:     function getTrees()
- *  182:     function getMountsForTreeClass($classKey, $treeName='')
+ *   71:     function init($thisScript, $mode='browse', $folderOnly=false)
+ *   95:     function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')
+ *  167:     function getTrees()
+ *  189:     function getMountsForTreeClass($classKey, $treeName='')
  *
  * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the script "update-class-index")

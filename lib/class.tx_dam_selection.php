@@ -33,30 +33,32 @@
  *
  *
  *
- *   79: class tx_dam_selection
- *  113:     function init(&$pObj, &$SOBE, $selectionClasses, $paramPrefix='slqg', $store_MOD_SETTINGS='')
- *  127:     function hasSelection()
- *  137:     function serialize()
- *  150:     function setFromSerialized($sel, $storeAsCurrent=true)
+ *   81: class tx_dam_selection
+ *  120:     function init(&$pObj, &$SOBE, $selectionClasses, $paramPrefix='slqg', $store_MOD_SETTINGS='')
+ *  134:     function hasSelection()
+ *  144:     function serialize()
+ *  155:     function unserialize($sel)
+ *  167:     function setFromSerialized($sel, $storeAsCurrent=true)
  *
  *              SECTION: selection storage / undo
- *  177:     function initSelection_getStored_mergeSubmitted()
- *  194:     function setCurrentSelectionFromStored()
- *  207:     function storeSelection()
- *  217:     function storeCurrentSelectionAsUndo()
- *  243:     function undoSelection()
+ *  193:     function initSelection_getStored_mergeSubmitted()
+ *  217:     function setCurrentSelectionFromStored()
+ *  233:     function storeSelection()
+ *  245:     function storeCurrentSelectionAsUndo()
+ *  273:     function undoSelection()
  *
  *              SECTION: selection to query definition conversion
- *  268:     function getSelectionWhereClausearray()
- *  332:     function getWhereClausePart($queryType, $operator, $cat, $id, $value)
- *  348:     function setFieldMapping($table, $fieldMapping)
- *  355:     function getFieldMapping($table, $field)
+ *  301:     function getSelectionWhereClauseArray()
+ *  360:     function getSelectionArrayFor($selectionRuleName)
+ *  387:     function getWhereClausePart($queryType, $operator, $selectionRuleName, $id, $value)
+ *  402:     function setFieldMapping($table, $fieldMapping)
+ *  409:     function getFieldMapping($table, $field)
  *
  *              SECTION: selection array processing
- *  379:     function mergeSelection ($sel)
- *  505:     function cleanSelectionArray($sel, $removeEmptyValues=TRUE, $countDown=2)
+ *  433:     function mergeSelection ($sel)
+ *  546:     function cleanSelectionArray($sel, $removeEmptyValues=TRUE, $countDown=2)
  *
- * TOTAL FUNCTIONS: 15
+ * TOTAL FUNCTIONS: 17
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -94,6 +96,11 @@ class tx_dam_selection {
 	 * prefix used for special commands (undo)
 	 */
 	var $paramPrefix = 'slqg';
+
+	/**
+	 * indicates if the current/stored selection was modified by GP params
+	 */
+	var $hasChanged = false;
 
 	var $pObj;
 	var $SOBE;
@@ -179,7 +186,7 @@ class tx_dam_selection {
 
 
 	/**
-	 * Get the users last stored selection or processes.an undo command
+	 * Get the users last stored selection or processes an undo command
 	 *
 	 * @return	void
 	 */
@@ -187,11 +194,18 @@ class tx_dam_selection {
 
 		if (t3lib_div::_GP($this->paramPrefix.'_undo')) {
 			$this->undoSelection ();
+			$this->hasChanged = true;
 		} else {
 			$this->setCurrentSelectionFromStored();
-			$this->mergeSelection(t3lib_div::GParrayMerged($this->paramStr));
-			$this->storeCurrentSelectionAsUndo();
-			$this->storeSelection();
+			if ($sel = t3lib_div::GParrayMerged($this->paramStr)) {
+				$oldSel = serialize($this->sel);
+				$this->mergeSelection($sel);
+				$this->storeCurrentSelectionAsUndo();
+				$this->storeSelection();
+				if ($oldSel != serialize($this->sel)) {
+					$this->hasChanged = true;
+				}
+			}
 		}
 	}
 
@@ -383,14 +397,14 @@ class tx_dam_selection {
 
 
 	/**
-	 * TODO
+	 * TODO setFieldMapping()
 	 */
 	function setFieldMapping($table, $fieldMapping) {
 		$this->fieldMapping[$table] = $fieldMapping;
 	}
 
 	/**
-	 * TODO
+	 * TODO getFieldMapping()
 	 */
 	function getFieldMapping($table, $field) {
 		$fieldMapped = '';

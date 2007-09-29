@@ -33,33 +33,35 @@
  *
  *
  *
- *  103: class tx_dam_browse_media extends browse_links
- *  118:     function isValid($type, &$pObj)
- *  140:     function initDAM ()
- *  165:     function render($type, &$pObj)
- *  244:     function main()
+ *   89: class tx_dam_browse_media extends browse_links
+ *  105:     function isValid($type, &$pObj)
+ *  127:     function initDAM ()
+ *  145:     function initDAMSelection ()
+ *  186:     function render($type, &$pObj)
+ *  261:     function main()
  *
  *              SECTION: Media Browser Module
- *  334:     function dam_select($allowedFileTypes='', $disallowedFileTypes='')
- *  393:     function renderFileList($files, $mode='file')
+ *  352:     function dam_select($allowedFileTypes=array(), $disallowedFileTypes=array())
+ *  422:     function getSelectionSelector ()
+ *  461:     function renderFileList($files, $mode='file')
  *
  *              SECTION: Upload module
- *  547:     function dam_upload($allowedFileTypes='', $disallowedFileTypes='')
- *  612:     function createFolder($path)
+ *  617:     function dam_upload($allowedFileTypes=array(), $disallowedFileTypes=array())
+ *  683:     function createFolder($path)
  *
  *              SECTION: Collect Data
- *  639:     function getFileListArr ($allowedFileTypes, $disallowedFileTypes, $mode)
+ *  710:     function getFileListArr ($allowedFileTypes, $disallowedFileTypes, $mode)
  *
  *              SECTION: Tools
- *  713:     function addDisplayOptions()
- *  739:     function displayThumbs()
- *  760:     function getModSettings($key='')
- *  802:     function processParams()
- *  840:     function isParamPassed ($paramName)
- *  850:     function reinitParams()
- *  873:     function quoteJSvalue($value)
+ *  809:     function addDisplayOptions()
+ *  835:     function displayThumbs()
+ *  856:     function getModSettings($key='')
+ *  904:     function processParams()
+ *  962:     function isParamPassed ($paramName)
+ *  972:     function reinitParams()
+ *  998:     function quoteJSvalue($value)
  *
- * TOTAL FUNCTIONS: 16
+ * TOTAL FUNCTIONS: 18
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -72,12 +74,6 @@ if (!defined ('PATH_txdam')) {
 require_once(PATH_txdam.'lib/class.tx_dam_browsetrees.php');
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
-
-
-
-// TODO workaround - shouldn't be needed
-require_once (PATH_t3lib.'class.t3lib_pagetree.php');
-
 
 
 
@@ -173,7 +169,7 @@ class tx_dam_browse_media extends browse_links {
 		}
 
 		if ($txdamSel=='__txdam_eb_selection' OR $txdamSel=='') {
-			$this->damSC->selection->sl->initSelection_getStored_mergeSubmitted();
+			$this->damSC->selection->processSubmittedSelection();
 		}
 	}
 
@@ -191,6 +187,7 @@ class tx_dam_browse_media extends browse_links {
 		global $LANG, $BE_USER;
 
 		$this->pObj = &$pObj;
+		$pObj->browser = & $this;
 
 			// init class browse_links
 		$this->init();
@@ -241,6 +238,9 @@ class tx_dam_browse_media extends browse_links {
 				'pointer' => $this->damSC->selection->pointer->page,
 				'SLCMD' => t3lib_div::GParrayMerged('SLCMD'),
 				'Selection' => $this->damSC->selection->sl->sel,
+				'Query' => $this->damSC->selection->qg->query,
+				'QueryArray' => $this->damSC->selection->qg->getQueryParts(),
+				'PM' => t3lib_div::GParrayMerged('PM'),
 			);
 
 			$this->damSC->debugContent['browse_links'] = '<h4>EB SETTINGS</h4>'.t3lib_div::view_array($debugArr);
@@ -345,11 +345,11 @@ class tx_dam_browse_media extends browse_links {
  	/**
 	 * TYPO3 Element Browser: Showing the DAM trees, allowing you to browse for media records.
 	 *
-	 * @param	string		$allowedFileTypes Comma list of allowed file types
-	 * @param	string		$disallowedFileTypes Comma list of disallowed file types
+	 * @param	array		$allowedFileTypes Array list of allowed file types
+	 * @param	array		$disallowedFileTypes Array list of disallowed file types
 	 * @return	string		HTML content for the module
 	 */
-	function dam_select($allowedFileTypes='', $disallowedFileTypes='')	{
+	function dam_select($allowedFileTypes=array(), $disallowedFileTypes=array())	{
 		global $BE_USER;
 
 		$content = '';
@@ -362,8 +362,19 @@ class tx_dam_browse_media extends browse_links {
 
 		$files = $this->getFileListArr($allowedFileTypes, $disallowedFileTypes, $this->mode);
 
+		$allowed = array();
+		if ($allowedFileTypes) {
+			$allowed[] = implode(' ', $allowedFileTypes);
+		} else {
+			$allowed[] = '*';
+		}
+		if ($disallowedFileTypes) {
+			$allowed[] = implode(' -', $disallowedFileTypes);
+		}
+		$allowed = implode(' / -', $allowed);
+
 		$fileList = '';
-		$fileList .= $allowedFileTypes ? $this->barheader($allowedFileTypes.' ') : '<h3 class="bgColor5">&nbsp;</h3>';
+		$fileList .= $allowed ? $this->barheader($allowed.' ') : '<h3 class="bgColor5">&nbsp;</h3>';
 		$fileList .= '<br/>';
 		$fileList .= $this->renderFileList($files, $this->mode);
 
@@ -462,6 +473,7 @@ class tx_dam_browse_media extends browse_links {
 			foreach($files as $fI)	{
 
 				if (!$fI['__exists']) {
+					tx_dam::meta_updateStatus ($fI);
 					continue;
 				}
 
@@ -506,10 +518,11 @@ class tx_dam_browse_media extends browse_links {
 					$info = '&nbsp;';
 				}
 
+
 					// Thumbnail/size generation:
 				$clickThumb = '';
-				if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fI['file_type']) AND $displayThumbs AND is_file($fI['file_name_absolute']))	{
-					$clickThumb = t3lib_BEfunc::getThumbNail($GLOBALS['BACK_PATH'].'thumbs.php', $fI['file_path_absolute'].$fI['file_name'], '');
+				if ($displayThumbs AND is_file($fI['file_name_absolute']) AND tx_dam_image::isPreviewPossible($fI))	{
+					$clickThumb = tx_dam_image::previewImgTag($fI);
 					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$ATag_insert.$clickThumb.'</a>'.'</div>';
 				} elseif ($displayThumbs) {
 					$clickThumb = '<div style="width:68px"></div>';
@@ -597,13 +610,14 @@ class tx_dam_browse_media extends browse_links {
  	/**
 	 * Display uploads module
 	 *
-	 * @param	string		$allowedFileTypes Comma list of allowed file types
-	 * @param	string		$disallowedFileTypes Comma list of disallowed file types
+	 * @param	array		$allowedFileTypes Array list of allowed file types
+	 * @param	array		$disallowedFileTypes Array list of disallowed file types
 	 * @return	string		HTML content for the module
 	 */
-	function dam_upload($allowedFileTypes='', $disallowedFileTypes='')	{
+	function dam_upload($allowedFileTypes=array(), $disallowedFileTypes=array())	{
 		global $BE_USER, $FILEMOUNTS, $TYPO3_CONF_VARS;
 
+// TODO use $allowedFileTypes, $disallowedFileTypes
 
 		$content = '';
 
@@ -688,8 +702,8 @@ class tx_dam_browse_media extends browse_links {
 	/**
 	 * Makes a DAM db query and collects data to be used in EB display
 	 *
-	 * @param	string		$allowedFileTypes Comma list of allowed file types
-	 * @param	string		$disallowedFileTypes Comma list of disallowed file types
+	 * @param	array		$allowedFileTypes Array list of allowed file types
+	 * @param	array		$disallowedFileTypes Array list of disallowed file types
 	 * @param	string		$mode EB mode: "db", "file", ...
 	 * @return	array		Array of file elements
 	 */
@@ -704,13 +718,38 @@ class tx_dam_browse_media extends browse_links {
 		$this->damSC->selection->addSelectionToQuery();
 		$this->damSC->selection->qg->query['FROM']['tx_dam'] = tx_dam_db::getMetaInfoFieldList(true, array('hpixels','vpixels','caption'));
 		#$this->damSC->selection->qg->addSelectFields(...
+
+		$allowedMediaTypes = array();
+		$disallowedMediaTypes = array();
+
+		foreach ($allowedFileTypes as $key => $type) {
+			if ($mediaType = tx_dam::convert_mediaType($type)) {
+				$allowedMediaTypes[] = $mediaType;
+				unset($allowedFileTypes[$key]);
+			}
+		}
+		foreach ($disallowedFileTypes as $key => $type) {
+			if ($mediaType = tx_dam::convert_mediaType($type)) {
+				$disallowedMediaTypes[] = $mediaType;
+				unset($disallowedFileTypes[$key]);
+			}
+		}
+
 		if ($allowedFileTypes) {
-			$extList = '"'.implode ('","', explode(',',$allowedFileTypes)).'"';
+			$extList = implode (',', $GLOBALS['TYPO3_DB']->fullQuoteArray($allowedFileTypes, 'tx_dam'));
 			$this->damSC->selection->qg->addWhere('AND tx_dam.file_type IN ('.$extList.')', 'WHERE', 'tx_dam.file_type');
 		}
 		if ($disallowedFileTypes) {
-			$extList = '"'.implode ('","', explode(',',$disallowedFileTypes)).'"';
-			$this->damSC->selection->qg->addWhere('AND NOT tx_dam.file_type IN ('.$extList.')', 'WHERE', 'NOT tx_dam.file_type');
+			$extList = implode (',', $GLOBALS['TYPO3_DB']->fullQuoteArray($disallowedFileTypes, 'tx_dam'));
+			$this->damSC->selection->qg->addWhere('AND tx_dam.file_type NOT IN ('.$extList.')', 'WHERE', 'NOT tx_dam.file_type');
+		}
+		if ($allowedMediaTypes) {
+			$extList = implode (',', $GLOBALS['TYPO3_DB']->fullQuoteArray($allowedMediaTypes, 'tx_dam'));
+			$this->damSC->selection->qg->addWhere('AND tx_dam.media_type IN ('.$extList.')', 'WHERE', 'tx_dam.media_type');
+		}
+		if ($disallowedMediaTypes) {
+			$extList = implode (',', $GLOBALS['TYPO3_DB']->fullQuoteArray($disallowedMediaTypes, 'tx_dam'));
+			$this->damSC->selection->qg->addWhere('AND tx_dam.media_type NOT IN ('.$extList.')', 'WHERE', 'NOT tx_dam.media_type');
 		}
 		$this->damSC->selection->execSelectionQuery(TRUE);
 
@@ -873,24 +912,44 @@ class tx_dam_browse_media extends browse_links {
 		$pArr = explode('|', $this->bparams);
 		$this->formFieldName = $pArr[0];
 
+		$this->allowedFileTypes = array();
+		$this->disallowedFileTypes = array();
+
 		switch((string)$this->mode)	{
 			case 'rte':
 			break;
 			case 'db':
 				$this->allowedTables = $pArr[3];
 				if ($this->allowedTables=='tx_dam') {
-					$this->allowedFileTypes = $pArr[4];
-					$this->disallowedFileTypes = $pArr[5];
+					$this->allowedFileTypes = t3lib_div::trimExplode(',', $pArr[4], true);
+					$this->disallowedFileTypes = t3lib_div::trimExplode(',', $pArr[5], true);
 				}
 			break;
 			case 'file':
 			case 'filedrag':
-				$this->allowedTables = $pArr[3];
-				$this->allowedFileTypes = $pArr[3];
+				$this->allowedTables = '';
+				$this->allowedFileTypes = t3lib_div::trimExplode(',', $pArr[3], true);
 			break;
 			case 'wizard':
 			break;
 		}
+
+		if ($this->allowedFileTypes) {
+			$allAllowed = false;
+			foreach ($this->allowedFileTypes as $key => $type) {
+				if ($type=='*') {
+					$allAllowed = true;
+				} elseif (substr($type,0,1)=='-') {
+					unset($this->allowedFileTypes[$key]);
+					$this->disallowedFileTypes[] = substr($type,1);
+				}
+			}
+
+			if ($allAllowed) {
+				$this->allowedFileTypes = array();
+			}
+		}
+
 	}
 
 

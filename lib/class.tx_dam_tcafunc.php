@@ -33,6 +33,15 @@
  *
  *
  *
+ *   62: class tx_dam_tcaFunc
+ *   95:     function addTableFieldsToItemArray (&$params, &$pObj)
+ *
+ *              SECTION: Tools
+ *  164:     function getTypeFields ($table, $showItemDef, $includePalettes=true)
+ *  196:     function getCleanFieldList($table, $list)
+ *
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 

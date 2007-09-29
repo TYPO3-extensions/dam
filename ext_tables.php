@@ -39,14 +39,19 @@ unset($tempColumns);
 
 
 
+t3lib_div::loadTCA('tt_content');
+
 	// extend tt_content with fields for general usage
 $tempColumns = array(
 	'tx_dam_images' => txdam_getMediaTCA('image_field', 'tx_dam_images'),
 	'tx_dam_files' => txdam_getMediaTCA('media_field', 'tx_dam_files'),
-	'tx_dam_flexform' => array(
+);
+if (!isset($TCA['tx_dam']['columns']['ce_flexform'])) {
+	$tempColumns['ce_flexform'] = array(
 		'l10n_display' => 'hideDiff',
-		'label' => 'LLL:EXT:cms/locallang_ttc.php:pi_flexform',
-		'config' => Array (
+		'exclude' => 1,
+		'label' => 'LLL:EXT:dam/lib/locallang.xml:options',
+		'config' => array (
 			'type' => 'flex',
 			'ds_pointerField' => 'CType',
 			'ds' => array(
@@ -71,10 +76,9 @@ $tempColumns = array(
 				',
 			)
 		)
-	),
-);
+	);
+}
 
-t3lib_div::loadTCA('tt_content');
 t3lib_extMgm::addTCAcolumns('tt_content',$tempColumns,1);
 
 unset($tempColumns);
@@ -130,7 +134,6 @@ if (TYPO3_MODE=='BE')	{
 		'tx_dam_file_upload',
 		PATH_txdam.'modfunc_file_upload/class.tx_dam_file_upload.php',
 		'LLL:EXT:dam/modfunc_file_upload/locallang.xml:tx_dam_file_upload.title'
-
 	);
 
 
@@ -167,6 +170,8 @@ if (TYPO3_MODE=='BE')	{
 	);
 
 
+	t3lib_extMgm::addModule('txdamM1','info','',PATH_txdam.'mod_info/');
+	
 
 	t3lib_extMgm::addModule('txdamM1','tools','',PATH_txdam.'mod_tools/');
 
@@ -186,9 +191,9 @@ if (TYPO3_MODE=='BE')	{
 
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_tools',
-		'tx_dam_tools_filerelcheck',
-		PATH_txdam.'modfunc_tools_filerelcheck/class.tx_dam_tools_filerelcheck.php',
-		'LLL:EXT:dam/modfunc_tools_filerelcheck/locallang.xml:tx_dam_tools_filerelcheck.title'
+		'tx_dam_tools_categories',
+		PATH_txdam.'modfunc_tools_categories/class.tx_dam_tools_categories.php',
+		'LLL:EXT:dam/lib/locallang.xml:categories'
 	);
 
 
@@ -251,8 +256,12 @@ if (TYPO3_MODE=='BE')	{
 
 		// add context menu
 	$GLOBALS['TBE_MODULES_EXT']['xMOD_alt_clickmenu']['extendCMclasses'][]=array(
-		'name' => 'tx_dam_cm1',
-		'path' => PATH_txdam.'class.tx_dam_cm1.php'
+		'name' => 'tx_dam_cm_record',
+		'path' => PATH_txdam.'class.tx_dam_cm_record.php'
+	);
+	$GLOBALS['TBE_MODULES_EXT']['xMOD_alt_clickmenu']['extendCMclasses'][]=array(
+		'name' => 'tx_dam_cm_file',
+		'path' => PATH_txdam.'class.tx_dam_cm_file.php'
 	);
 
 
@@ -267,9 +276,9 @@ if (TYPO3_MODE=='BE')	{
 
 
 
-	tx_dam::register_action ('tx_dam_action_newFolder',    'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_newFolder');
-	tx_dam::register_action ('tx_dam_action_renameFolder', 'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_renameFolder');
-	tx_dam::register_action ('tx_dam_action_deleteFolder', 'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_deleteFolder');
+	tx_dam::register_action ('tx_dam_action_renameFolder',    'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_renameFolder');
+	tx_dam::register_action ('tx_dam_action_deleteFolder',    'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_deleteFolder');
+	tx_dam::register_action ('tx_dam_action_newFolder',       'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_newFolder');
 
 	tx_dam::register_action ('tx_dam_action_newTextfile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_newTextfile');
 	tx_dam::register_action ('tx_dam_action_editFileRecord',  'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFileRecord');
@@ -281,14 +290,21 @@ if (TYPO3_MODE=='BE')	{
 	tx_dam::register_action ('tx_dam_action_deleteFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFile');
 #	tx_dam::register_action ('tx_dam_action_deleteFileQuick', 'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFileQuick');
 
-	tx_dam::register_action ('tx_dam_action_editRec',        'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRec');
-	tx_dam::register_action ('tx_dam_action_viewFileRec',        'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_viewFileRec');
-	tx_dam::register_action ('tx_dam_action_infoRec',        'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_infoRec');
-	tx_dam::register_action ('tx_dam_action_revertRec',      'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_revertRec');
-	tx_dam::register_action ('tx_dam_action_hideRec',        'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_hideRec');
-	tx_dam::register_action ('tx_dam_action_deleteRec',      'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteRec');
-//	tx_dam::register_action ('tx_dam_action_deleteQuickRec',      'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteQuickRec');
-	tx_dam::register_action ('tx_dam_action_lockWarningRec', 'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_lockWarningRec');
+	tx_dam::register_action ('tx_dam_action_editRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRec');
+	tx_dam::register_action ('tx_dam_action_editRecPopup',    'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRecPopup');
+	tx_dam::register_action ('tx_dam_action_viewFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_viewFileRec');
+	tx_dam::register_action ('tx_dam_action_infoRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_infoRec');
+	tx_dam::register_action ('tx_dam_action_cmSubFile',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_cmSubFile');
+	tx_dam::register_action ('tx_dam_action_revertRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_revertRec');
+	tx_dam::register_action ('tx_dam_action_hideRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_hideRec');
+	tx_dam::register_action ('tx_dam_action_deleteRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteRec');
+//	tx_dam::register_action ('tx_dam_action_deleteQuickRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteQuickRec');
+	tx_dam::register_action ('tx_dam_action_lockWarningRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_lockWarningRec');
+
+	tx_dam::register_action ('tx_dam_multiaction_hideRec',    'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_hideRec');
+	tx_dam::register_action ('tx_dam_multiaction_unHideRec',  'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_unHideRec');
+	tx_dam::register_action ('tx_dam_multiaction_deleteRec',  'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_deleteRec');
+
 
 
 	tx_dam::register_previewer ('tx_dam_previewerImage', 'EXT:dam/components/class.tx_dam_previewerImage.php:&tx_dam_previewerImage');
@@ -300,7 +316,8 @@ if (TYPO3_MODE=='BE')	{
 
 
 tx_dam::register_mediaTable ('tx_dam');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam');
+#t3lib_extMgm::allowTableOnStandardPages('tx_dam');
+#t3lib_extMgm::addToInsertRecords('tx_dam');
 
 t3lib_extMgm::addLLrefForTCAdescr('tx_dam','EXT:dam/locallang_csh_dam.xml');
 
@@ -312,7 +329,7 @@ $TCA['tx_dam'] = array(
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
 		'type' => 'media_type',
-		'sortby' => 'title',
+#		'sortby' => 'sorting',
 		'default_sortby' => 'ORDER BY title',
 		'delete' => 'deleted',
 
@@ -332,7 +349,7 @@ $TCA['tx_dam'] = array(
 		),
 		'dividers2tabs' => '1',
 		'typeicon_column' => 'media_type',
-// TODO move icon to somewhere else?
+// TODO move icons to somewhere else?
 		'typeicons' => array(
 			'0' => PATH_txdam_rel.'i/18/mtype_undefined.gif',
 			'1' => PATH_txdam_rel.'i/18/mtype_text.gif',
@@ -358,15 +375,14 @@ $TCA['tx_dam'] = array(
 	'txdamInterface' => array(
 		'index_fieldList' => 'title,keywords,description,caption,alt_text,file_orig_location,file_orig_loc_desc,ident,creator,publisher,copyright,instructions,date_cr,date_mod,loc_desc,loc_country,loc_city,language,category',
 		'info_fieldList_add' => '',
-// TODO ?
-		'xinfo_displayFields_exclude' => 'category',
+// currently unused		'info_displayFields_exclude' => 'category',
 		'info_displayFields_isNonEditable' => 'media_type,thumb,file_usage',
 	),
 );
 
 
 tx_dam::register_mediaTable ('tx_dam_cat');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_cat');
+#t3lib_extMgm::allowTableOnStandardPages('tx_dam_cat');
 
 $TCA['tx_dam_cat'] = array(
 	'ctrl' => array(
@@ -378,6 +394,7 @@ $TCA['tx_dam_cat'] = array(
 		'sortby' => 'sorting',
 		'default_sortby' => 'ORDER BY sorting,title',
 		'delete' => 'deleted',
+
 		'treeParentField' => 'parent_id',
 
 		'versioningWS' => true,
@@ -400,9 +417,28 @@ $TCA['tx_dam_cat'] = array(
 
 
 
+tx_dam::register_mediaTable ('tx_dam_metypes_avail');
+#t3lib_extMgm::allowTableOnStandardPages('tx_dam_metypes_avail');
+
+$TCA['tx_dam_metypes_avail'] = array(
+	'ctrl' => array(
+		'title' => 'LLL:EXT:dam/lib/locallang.xml:mediaTypes',
+		'label' => 'title',
+		'tstamp' => 'tstamp',
+		'sortby' => 'sorting',
+		'default_sortby' => 'ORDER BY sorting,title',
+
+		'treeParentField' => 'parent_id',
+
+		'dynamicConfigFile' => PATH_txdam.'tca.php',
+		'iconfile' => PATH_txdam_rel.'i/mediafolder.gif',
+	),
+);
+
+
 
 tx_dam::register_mediaTable ('tx_dam_selection');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_selection');
+#t3lib_extMgm::allowTableOnStandardPages('tx_dam_selection');
 
 $TCA['tx_dam_selection'] = array(
 	'ctrl' => array(

@@ -33,49 +33,50 @@
  *
  *
  *
- *  100: class tx_dam_selBrowseTree extends t3lib_treeView
- *  162:     function getJumpToParam($row, $command='SELECT')
- *  175:     function wrapTitle($title,$row,$bank=0)
- *  199:     function getControl($title,$row)
- *  231:     function PM_ATagWrap($icon,$cmd,$bMark='')
- *  248:     function getIcon($row)
- *  269:     function getRootIcon($row)
- *  292:     function wrapIcon($icon,$row)
- *  321:     function printTree($treeArr='')
- *  383:     function printRootOnly()
- *  400:     function setMounts($mountpoints)
- *  415:     function getTreeTitle()
- *  424:     function getDefaultIcon()
- *  434:     function getTreeName()
+ *  101: class tx_dam_selBrowseTree extends t3lib_treeView
+ *  163:     function getJumpToParam($row, $command='SELECT')
+ *  176:     function wrapTitle($title,$row,$bank=0)
+ *  200:     function getControl($title,$row)
+ *  232:     function PM_ATagWrap($icon,$cmd,$bMark='')
+ *  249:     function getIcon($row)
+ *  270:     function getRootIcon($row)
+ *  293:     function wrapIcon($icon,$row)
+ *  323:     function printTree($treeArr='')
+ *  385:     function printRootOnly()
+ *  402:     function setMounts($mountpoints)
+ *  417:     function getTreeTitle()
+ *  426:     function getDefaultIcon()
+ *  436:     function getTreeName()
  *
  *              SECTION: DAM specific functions
- *  453:     function selection_getItemTitle($id)
- *  477:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
- *  510:     function old_tceformsSelect_wrapTitle($title,$row)
- *  531:     function tceformsSelect_wrapTitle($title, $row)
+ *  455:     function selection_getItemTitle($id)
+ *  473:     function selection_getItemIcon($id, $value)
+ *  494:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
+ *  525:     function tceformsSelect_wrapTitle($title, $row)
  *
  *              SECTION: element browser specific functions
- *  575:     function eb_wrapTitle($title,$row)
- *  594:     function eb_PM_ATagWrap($icon,$cmd,$bMark='')
- *  611:     function eb_printTree($treeArr='')
- *  673:     function ext_isLinkable($row)
+ *  569:     function eb_wrapTitle($title,$row)
+ *  588:     function eb_PM_ATagWrap($icon,$cmd,$bMark='')
+ *  605:     function eb_printTree($treeArr='')
+ *  661:     function ext_isLinkable($row)
  *
  *
- *  688: class tx_dam_browseTree extends tx_dam_selBrowseTree
+ *  676: class tx_dam_browseTree extends tx_dam_selBrowseTree
  *
  *
- *  707: class tx_dam_selProcBase
- *  727:     function tx_dam_selProcBase()
- *  747:     function init()
- *  756:     function getTreeTitle()
- *  765:     function getDefaultIcon()
- *  775:     function getTreeName()
+ *  695: class tx_dam_selProcBase
+ *  715:     function tx_dam_selProcBase()
+ *  735:     function init()
+ *  744:     function getTreeTitle()
+ *  753:     function getDefaultIcon()
+ *  763:     function getTreeName()
  *
  *              SECTION: Selection specific functions
- *  795:     function selection_getItemTitle($id, $value)
- *  812:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
+ *  783:     function selection_getItemTitle($id, $value)
+ *  795:     function selection_getItemIcon($id, $value)
+ *  815:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
  *
- * TOTAL FUNCTIONS: 28
+ * TOTAL FUNCTIONS: 29
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -145,7 +146,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	 */
 	var $ext_IconMode = true;
 
-// TODO $clickMenuScript
+// TODO context $clickMenuScript
 	var $clickMenuScript='';
 
 
@@ -515,35 +516,12 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	/**
 	 * Wrapping $title in a-tags.
 	 *
-	 * TODO remove this ?!
-	 *
 	 * @param	string		Title string
 	 * @param	string		Item record
 	 * @param	integer		Bank pointer (which mount point number)
 	 * @return	string
 	 * @access private
 	 */
-	function old_tceformsSelect_wrapTitle($title,$row)	{
-
-		if ($this->parentField AND in_array($row[$this->parentField],$this->TCEforms_nonSelectableItemsArray)) {
-			$this->TCEforms_nonSelectableItemsArray[] = $row['uid'];
-			return '<span style="color:grey;vertical-align:top;">'.$title.'</span>';
-
-		} elseif (in_array($row['uid'],$this->TCEforms_nonSelectableItemsArray)) {
-			return '<span style="color:grey;vertical-align:top;">'.$title.'</span>';
-
-		} else {
-			if($row['uid']) {
-				$selectTitle = $this->TCEFormsSelect_prefixTreeName ? $this->getTreeTitle(). ': '.$title : $title;
-			} else {
-				$selectTitle = $this->getTreeTitle(). ' (Root)';
-			}
-			$id = $this->TCEFormsSelect_prefixTreeName ? $this->treeName.':'.$row['uid'] : $row['uid'];
-			$aOnClick = 'setFormValueFromBrowseWin(\''.$this->TCEforms_itemFormElName.'\',\''.$id.'\',\''.t3lib_div::slashJS($selectTitle).'\'); return false;';
-			return '<a style="vertical-align:top;" href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
-		}
-	}
-
 	function tceformsSelect_wrapTitle($title, $row)	{
 
 		if ($this->parentField AND in_array($row[$this->parentField],$this->TCEforms_nonSelectableItemsArray)) {
@@ -627,29 +605,23 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	function eb_printTree($treeArr='')	{
 		global  $BE_USER;
 
-		$titleLen=intval($BE_USER->uc['titleLen']);
-
 		if (!is_array($treeArr))	$treeArr=$this->tree;
 
 		$out='';
 		$c=0;
+		$cmpItem = '';
 
-// TODO			// Preparing the current-path string (if found in the listing we will see a red blinking arrow).
-		if (!$GLOBALS['SOBE']->curUrlInfo['value'])	{
-			$cmpPath='';
-		} else if (substr(trim($GLOBALS['SOBE']->curUrlInfo['info']),-1)!='/')	{
-			$cmpPath=PATH_site.dirname($GLOBALS['SOBE']->curUrlInfo['info']).'/';
-		} else {
-			$cmpPath=PATH_site.$GLOBALS['SOBE']->curUrlInfo['info'];
+		$selection = $GLOBALS['SOBE']->browser->damSC->selection->sl->sel;
+		if (is_array($selection['SELECT'][$this->treeName])) {
+			$cmpItem = key($selection['SELECT'][$this->treeName]);
 		}
 
 			// Traverse rows for the tree and print them into table rows:
 		foreach($treeArr as $k => $v)	{
 			$c++;
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
-
 				// Creating blinking arrow, if applicable:
-			if ($GLOBALS['SOBE']->curUrlInfo['act']=='file' && $cmpPath==$v['row']['path'])	{
+			if ($cmpItem && $GLOBALS['SOBE']->act=='file' && $cmpItem==$v['row']['uid'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
 			} else {
@@ -662,7 +634,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 				// Put table row with folder together:
 			$out.='
 				<tr class="'.$bgColorClass.'">
-					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle($this->getTitleStr($v['row'],$titleLen),$v['row']).'</td>
+					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle($this->getTitleStr($v['row'],$BE_USER->uc['titleLen']),$v['row']).'</td>
 					'.$arrCol.'
 					<td width="1%">'.$cEbullet.'</td>
 				</tr>';
@@ -671,7 +643,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 		$out='
 
 			<!--
-				Folder tree:
+				DAM browse tree:
 			-->
 			<table border="0" cellpadding="0" cellspacing="0" class="typo3-browsetree" style="width:100%">
 				'.$out.'

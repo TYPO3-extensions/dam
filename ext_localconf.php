@@ -26,11 +26,15 @@ if (!function_exists('str_ireplace')) {
 
 	// that's the base API
 require_once(PATH_txdam.'lib/class.tx_dam.php');
+	// include basic image stuff because it's used so often
+require_once(PATH_txdam.'lib/class.tx_dam_image.php');
 
 
 	// get extension setup
 $TYPO3_CONF_VARS['EXTCONF']['dam']['setup'] = unserialize($_EXTCONF);
 
+
+if (!isset($TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['defaultSetup'])) {
 $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['defaultSetup'] = '<phparray>
 	<pid>0</pid>
 	<pathlist type="array">
@@ -89,11 +93,15 @@ $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['defaultSetup'] = '<phparray>
 	<collectMeta type="boolean">1</collectMeta>
 	<extraSetup></extraSetup>
 </phparray>';
+}
 
+if (!isset($TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['skipFileTypes'])) {
+	$TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['skipFileTypes'] = 'xmp';
+}
 
 
 	// set some config values from extension setup
-tx_dam::config_setValue('setup.devel', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']);
+tx_dam::config_setValue('setup.devel', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['debug']);
 tx_dam::config_setValue('setup.debug', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['debug']);
 
 	// register default icons
@@ -107,6 +115,9 @@ require_once(PATH_txdam.'tca_media_field.php');
 
 	// register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
 $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_extfilefunc.php'] = PATH_txdam.'lib/class.tx_dam_tce_file.php';
+	// register XCLASS of alt_db_navframe to hide media sysfolder
+$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/alt_db_navframe.php'] = PATH_txdam.'compat/ux_alt_db_navframe.php';
+
 
 
 	// register show item rendering
@@ -115,6 +126,17 @@ $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/show_item.php']['typeRendering'][] = 'EXT:
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_media.php:&tx_dam_browse_media';
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_category.php:&tx_dam_browse_category';
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_folder.php:&tx_dam_browse_folder';
+
+
+tx_dam::register_indexingRule ('tx_damindex_rule_recursive', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_recursive');
+tx_dam::register_indexingRule ('tx_damindex_rule_folderAsCat', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_folderAsCat');
+tx_dam::register_indexingRule ('tx_damindex_rule_doReindexing', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_doReindexing');
+tx_dam::register_indexingRule ('tx_damindex_rule_titleFromFilename', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_titleFromFilename');
+tx_dam::register_indexingRule ('tx_damindex_rule_dryRun', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_dryRun');
+
+if($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']) {
+	tx_dam::register_indexingRule ('tx_damindex_rule_devel', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_devel');
+}
 
 	// register navigation tree and select rule for nav tree.
 tx_dam::register_selection ('txdamFolder',    'EXT:dam/components/class.tx_dam_selectionFolder.php:&tx_dam_selectionFolder');
@@ -132,7 +154,6 @@ tx_dam::register_dbTrigger ('tx_dam_dbTriggerMediaTypes', 'EXT:dam/components/cl
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = 'EXT:dam/class.tx_dam_tce_process.php:&tx_dam_tce_process';
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_process.php:&tx_dam_tce_process';
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_filetracking.php:&tx_dam_tce_filetracking';
-
 
 
 

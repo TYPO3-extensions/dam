@@ -33,17 +33,16 @@
  *
  *
  *
- *   66: class tx_dam_file_list extends t3lib_extobjbase
- *   74:     function modMenu()
- *   93:     function head()
- *  129:     function main()
- *  245:     function jumpExt(URL,anchor)
+ *   65: class tx_dam_file_list extends t3lib_extobjbase
+ *   73:     function modMenu()
+ *   92:     function head()
+ *  128:     function main()
  *
  *              SECTION: Rendering
- *  303:     function renderInfo ($bytes)
- *  318:     function getActions()
+ *  289:     function renderInfo ($bytes)
+ *  304:     function getActions()
  *
- * TOTAL FUNCTIONS: 6
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -159,6 +158,9 @@ class tx_dam_file_list extends t3lib_extobjbase {
 
 			// Create filelisting object
 		$filelist = t3lib_div::makeInstance('tx_dam_listfiles');
+
+		$filelist->setParameterName('form', $this->pObj->formName);
+
 		$filelist->enableAutoIndexing = true;
 			// Enable/disable display of thumbnails
 		$filelist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showThumb'];
@@ -170,10 +172,11 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		$filelist->showUnixPerms = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showUnixPerms'];
 			// Display file sizes in bytes or formatted
 		$filelist->showDetailedSize = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showDetailedSize'];
+			// enable context menus
+		$filelist->enableContextMenus = true;
 
 
-
-$filelist->clickMenus = false;
+// TODO clipBoard
 $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
@@ -181,7 +184,8 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 		$filelist->addData($dirListFolder, 'dir');
 		$filelist->addData($dirListFiles, 'files');
 		$filelist->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
-		$filelist->setParameterNames('SET[tx_dam_file_list_sortField]', 'SET[tx_dam_file_list_sortRev]');
+		$filelist->setParameterName('sortField', 'SET[tx_dam_file_list_sortField]');
+		$filelist->setParameterName('sortRev', 'SET[tx_dam_file_list_sortRev]');
 		$filelist->setPointer($this->pObj->selection->pointer);
 
 
@@ -229,24 +233,6 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 //				exit;
 //			}
 //		}
-
-
-
-
-
-
-
-
-
-
-			// JavaScript
-		$this->pObj->doc->JScodeArray['redirectUrls'] = $this->pObj->doc->redirectUrls(t3lib_div::getIndpEnv('REQUEST_URI'));
-		$this->pObj->doc->JScodeArray['jumpExt'] = '
-			function jumpExt(URL,anchor)	{
-				var anc = anchor?anchor:"";
-				document.location = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
-			}
-			';
 
 
 
@@ -320,7 +306,7 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 		if($this->pObj->pathInfo['dir_writable']) {
 			$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
-			$actionCall->setRequest('button', $this->pObj->pathInfo, '', $GLOBALS['MCONF']['name']);
+			$actionCall->setRequest('button', $this->pObj->pathInfo);
 			$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 			$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
 			$actionCall->setEnv('pathInfo', $this->pObj->pathInfo);

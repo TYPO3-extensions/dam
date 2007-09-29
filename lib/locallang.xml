@@ -79,6 +79,13 @@
             <label index="application">Application</label>
             <label index="categories">Categories</label>
             <label index="mediaTypes">Media types</label>
+            <label index="status">Status</label>
+            <label index="status_file_ok">File ok</label>
+            <label index="status_file_changed">File changed</label>
+            <label index="status_file_missing">File missing</label>
+            <label index="status_idx_man">Manually indexed</label>
+            <label index="status_idx_auto">Auto indexed</label>
+            <label index="status_idx_cron">Cron indexed</label>
             <label index="indexRun">Indexing date</label>
             <label index="noRecordsInSelection">The current selection doesn't give a result. No records found.</label>
             <label index="noSelection">There's nothing selected.</label>
@@ -101,6 +108,7 @@
             <label index="tx_dam_batchProcess.processed">Batch Process finished.</label>
             <label index="field_selector">Field Selector</label>
             <label index="showThumbnails">Display thumbnails</label>
+            <label index="showMultiAction">Display batch edit options</label>
             <label index="showfullTitle">Display full file names</label>
             <label index="showAlternateBgColors">Display alternating row colors</label>
             <label index="showUnixPerms">Display detailed file permissions</label>
@@ -143,6 +151,16 @@
             <label index="content_age">Content Age</label>
             <label index="media_element">Media Element</label>
             <label index="media_element_age">Media Element Age</label>
+            <label index="browse_first">First</label>
+            <label index="browse_last">Last</label>
+            <label index="browse_next">Next</label>
+            <label index="browse_previous">Previous</label>
+            <label index="cm_file_sub">File ...</label>
+            <label index="submitMultiAction">Execute</label>
+            <label index="doForSelected">selected</label>
+            <label index="doForFullList">all listed</label>
+            <label index="for">for</label>
+            <label index="actionSelect">Command</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
@@ -162,6 +180,7 @@
             <label index="application">Applikation</label>
             <label index="categories">Kategorien</label>
             <label index="mediaTypes">Medientypen</label>
+            <label index="status">Status</label>
             <label index="indexRun">Indexierungsdatum</label>
             <label index="noRecordsInSelection">Keine Datensätze mit der aktuellen Auswahl gefunden.</label>
             <label index="noSelection">Es ist nichts ausgewählt.</label>
@@ -184,6 +203,7 @@
             <label index="tx_dam_batchProcess.processed">Stapelverarbeitung abgeschlossen.</label>
             <label index="field_selector">Feld-Auswahl</label>
             <label index="showThumbnails">Zeige Vorschaubilder</label>
+            <label index="showMultiAction">Zeige Optionen zur Stapelverarbeitung</label>
             <label index="showfullTitle">Zeige lange Dateinamen</label>
             <label index="showAlternateBgColors">Zeige wechselnde Zeilenfarben</label>
             <label index="showUnixPerms">Zeige ausführliche Dateirechte</label>
@@ -226,6 +246,16 @@
             <label index="content_age">Inhalts-Element Alter</label>
             <label index="media_element">Media Element</label>
             <label index="media_element_age">Media Element Alter</label>
+            <label index="browse_first">Anfang</label>
+            <label index="browse_last">Ende</label>
+            <label index="browse_next">Weiter</label>
+            <label index="browse_previous">Zurück</label>
+            <label index="cm_file_sub">Datei ...</label>
+            <label index="submitMultiAction">Ausführen</label>
+            <label index="doForSelected">selektierte</label>
+            <label index="doForFullList">gesammte Liste</label>
+            <label index="for">für</label>
+            <label index="actionSelect">Befehl</label>
         </languageKey>
     </data>
     <orig_hash type="array">

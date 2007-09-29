@@ -34,17 +34,18 @@
  *
  *
  *
- *   65: class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree
- *   84:     function tx_dam_selectionMeTypes()
- *  109:     function getJumpToParam($row, $command='SELECT')
- *  127:     function getTitleStr ($row)
- *  145:     function getIcon($row)
+ *   66: class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree
+ *   85:     function tx_dam_selectionMeTypes()
+ *  110:     function getJumpToParam($row, $command='SELECT')
+ *  128:     function getTitleStr ($row)
+ *  146:     function getIcon($row)
  *
  *              SECTION: DAM specific functions
- *  170:     function selection_getItemTitle($id)
- *  189:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
+ *  171:     function selection_getItemTitle($id)
+ *  184:     function selection_getItemIcon($id, $value)
+ *  211:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
  *
- * TOTAL FUNCTIONS: 6
+ * TOTAL FUNCTIONS: 7
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */

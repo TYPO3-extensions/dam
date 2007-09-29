@@ -34,13 +34,14 @@
  *
  *
  *
- *   39: class tx_dam_cmd_folderrename extends t3lib_extobjbase
- *   51:     function head()
- *   67:     function main()
- *  110:     function renameForm()
- *  129:     function renameFolder()
+ *   60: class tx_dam_cmd_folderrename extends t3lib_extobjbase
+ *   68:     function accessCheck()
+ *   78:     function head()
+ *   88:     function getContextHelp()
+ *   99:     function main()
+ *  140:     function renderForm()
  *
- * TOTAL FUNCTIONS: 4
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -85,7 +86,7 @@ class tx_dam_cmd_folderrename extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-// TODO csh
+#TODO csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
 	}
 

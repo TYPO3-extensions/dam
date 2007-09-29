@@ -33,8 +33,11 @@
  *
  *
  *
- * TOTAL FUNCTIONS: 6
- * (This index is automatically created/updated by the extension "extdeveval")
+ *   66: class tx_dam_mainnavframe extends tx_dam_navframe
+ *   70:     function init()
+ *
+ * TOTAL FUNCTIONS: 1
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 

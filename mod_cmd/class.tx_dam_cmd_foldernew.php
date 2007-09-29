@@ -34,12 +34,14 @@
  *
  *
  *
- *   64: class tx_dam_cmd_foldernew extends t3lib_extobjbase
- *   75:     function head()
- *  118:     function main()
- *  172:     function folderForm()
+ *   66: class tx_dam_cmd_foldernew extends t3lib_extobjbase
+ *   77:     function accessCheck()
+ *   87:     function head()
+ *   97:     function getContextHelp()
+ *  109:     function main()
+ *  134:     function renderForm()
  *
- * TOTAL FUNCTIONS: 3
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -93,7 +95,7 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-// TODO csh
+#TODO csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
 	}
 

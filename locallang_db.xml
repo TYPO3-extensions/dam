@@ -183,8 +183,12 @@
             <label index="tx_dam_log_download.typo3_mode">TYPO3 mode:</label>
             <label index="tx_dam_log_download.bytes_downloaded">Downloaded bytes:</label>
             <label index="tx_dam_log_download.sitetitle">Website title:</label>
+            <label index="ffds_mode.sheet_label">Mode</label>
+            <label index="ffds_mode.mode">Mode:</label>
+            <label index="ffds_layout.sheet_label">Layout</label>
+            <label index="ffds_layout.layout">Layout:</label>
 			<label index="ffds_selection.sheet_label">Selection</label>
-            <label index="ffds_selection.selection_type.I.from_mode">Defined by Mode (TypoScript)</label>
+            <label index="ffds_selection.selection_type.I.from_mode">Defined by Modus (TypoScript)</label>
 			<label index="ffds_selection.selection_type.I.items">selected items (Items to display)</label>
             <label index="ffds_selection.selection_type.I.folder">selected Folder (Folder to display)</label>
 			<label index="ffds_selection.selection_type.I.selection">exported selection rule(s) (Selections to display)</label>
@@ -284,6 +288,33 @@
             <label index="tx_dam_selection.type.I.1">Feste Einträge</label>
             <label index="tx_dam_selection.type">Auswahl-Typ</label>
             <label index="tx_dam_selection.definition">Auswahl Definition:</label>
+            <label index="ffds_mode.sheet_label">Modus</label>
+            <label index="ffds_mode.mode">Modus:</label>
+            <label index="ffds_layout.sheet_label">Layout</label>
+            <label index="ffds_layout.layout">Layout:</label>
+            <label index="ffds_selection.sheet_label">Auswahl</label>
+            <label index="ffds_selection.selection_type.I.from_mode">Definiert vom Modus (TypoScript)</label>
+            <label index="ffds_selection.selection_type.I.items">Ausgewählte Elemente (Elemente anzeigen)</label>
+            <label index="ffds_selection.selection_type.I.folder">Ausgewählte Verzeichnisse (Verzeichnis anzeigen)</label>
+            <label index="ffds_selection.selection_type.I.selection">Gespeicherte Auswahlregeln (Auswahl anzeigen)</label>
+            <label index="ffds_selection.selection_type.I.categories">Ausgewählte Kategorien (Kategorien anzeigen)</label>
+            <label index="ffds_selection.selection_type.I.merged">Auswahl zusammenführen (Elemente, Auswahl, Kategorien)</label>
+			<label index="ffds_selection.selection_type">Anzuzeigende Elemente holen von ...:</label>
+            <label index="ffds_selection.items">Elemente anzeigen:</label>
+            <label index="ffds_selection.selections">Auswahl anzeigen:</label>
+            <label index="ffds_selection.folder">Verzeichnis anzeigen:</label>
+            <label index="ffds_selection.categories">Kategorien anzeigen:</label>
+            <label index="ffds_selection.categories_display.I.0">Unterkategorien NICHT mit einbeziehen</label>
+            <label index="ffds_selection.categories_display.I.1">Unterkategorien mit einbeziehen</label>
+            <label index="ffds_selection.categories_display">Kategorien Anzeigeoptionen:</label>
+            <label index="ffds_selection.categories_where">Auf Kategorien begrenzen (werden nicht angezeigt):</label>
+            <label index="ffds_selection.categories_where_mode.I.0">AND (Elemente müssen auch in den gewählten Kategorien sein)</label>
+            <label index="ffds_selection.categories_where_mode.I.1">NOT (Elemente dürfen nicht in den gewählten Kategorien sein)</label>
+            <label index="ffds_selection.categories_where_mode">Kategorien begrenzen, Modus:</label>
+            <label index="ffds_selection.default_sorting.I.0">Standard</label>
+            <label index="ffds_selection.default_sorting">Standardsortierung:</label>
+            <label index="ffds_selection.default_sorting_reverse">Absteigend sortieren:</label>
+            <label index="ffds_selection.limit">Maximale Anzahl Elemente:</label>
 			<label index="ffds_options.sheet_label">Optionen</label>
         </languageKey>
         <languageKey index="no" type="array">

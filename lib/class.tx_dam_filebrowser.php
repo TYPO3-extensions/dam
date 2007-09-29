@@ -36,10 +36,13 @@
  *
  *
  *
- *   62: class  tx_dam_filebrowser extends tx_dam_listfiles
- *   75:     function getBrowseableFolderList($pathInfo, $renderNavHeader=true)
+ *   65: class tx_dam_filebrowser extends tx_dam_listfiles
+ *   78:     function getBrowseableFolderList($pathInfo, $renderNavHeader=true)
+ *  106:     function getStaticFolderList($pathInfo, $renderFolderInfoBar=true)
+ *  129:     function _filebrowser_makeDataList($pathInfo)
+ *  174:     function _filebrowser_makePreset()
  *
- * TOTAL FUNCTIONS: 1
+ * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -59,7 +62,7 @@ require_once(PATH_txdam.'lib/class.tx_dam_listpointer.php');
  * @package DAM-BeLib
  * @subpackage Lib
  */
-class  tx_dam_filebrowser extends tx_dam_listfiles {
+class tx_dam_filebrowser extends tx_dam_listfiles {
 
 
 
@@ -156,7 +159,9 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 		$this->addData($dirListFolder, 'dir');
 		$this->addData($dirListFiles, 'files');
 		$this->setCurrentSorting($this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortRev']);
-		$this->setParameterNames('SET[tx_dam_file_list_sortField]', 'SET[tx_dam_file_list_sortRev]');
+		$this->setParameterName('sortField', 'SET[tx_dam_file_list_sortField]');
+		$this->setParameterName('sortRev', 'SET[tx_dam_file_list_sortRev]');
+
 		$this->setPointer($this->pointer);
 	}
 
@@ -186,6 +191,7 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 			// Enable/disable display of AlternateBgColors
 		#$this->showAlternateBgColors = true;
 // TODO do not exist: $this->pObj->modTSconfig
+// TODO showAlternateBgColors
 		$this->showAlternateBgColors = $this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
 			// Enable/disable display of unix like permission string
 		$this->showUnixPerms = false;
