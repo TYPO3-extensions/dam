@@ -139,6 +139,7 @@
             <label index="selection">Selection</label>
             <label index="current_selection">Current list selection</label>
             <label index="eb_selection">Element-Browser selection</label>
+            <label index="eb_addAllToList">Add all to list</label>
             <label index="displayExtendedInfo">Display extended info</label>
             <label index="submitProcess">Process</label>
             <label index="submitClearForm">Clear Form</label>
@@ -239,6 +240,7 @@
             <label index="selection">Auswahl</label>
             <label index="current_selection">Aktuelle Listen-Auswahl</label>
             <label index="eb_selection">Element-Browser Auswahl</label>
+            <label index="eb_addAllToList">Alle zur Liste hinzufügen</label>
             <label index="displayExtendedInfo">Zeige zusätzliche Informationen</label>
             <label index="submitProcess">Bearbeitung durchführen</label>
             <label index="submitClearForm">Formular leeren</label>

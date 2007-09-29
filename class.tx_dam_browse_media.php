@@ -450,7 +450,7 @@ if (is_string($allowedFileTypes)) {
 
 		$fileList = '';
 		$fileList .= $allowed ? $this->barheader($allowed.' ') : '<h3 class="bgColor5">&nbsp;</h3>';
-		$fileList .= '<br/>';
+		$fileList .= $this->doc->spacer(5);
 		$fileList .= $this->renderFileList($files, $this->mode, $this->act);
 
 
@@ -536,14 +536,49 @@ if (is_string($allowedFileTypes)) {
 	 * @return	string		HTML output
 	 */
 	function renderFileList($files, $mode='file', $act='') {
-		global $LANG;
+		global $LANG, $BACK_PATH, $TCA;
 
 		$out = '';
+
+
+		// sorting selector
+		
+		// TODO move to scbase (see tx_dam_list_thumbs too)
+		
+		$allFields = tx_dam_db::getFieldListForUser('tx_dam');
+		if (is_array($allFields) && count($allFields)) {
+			$fieldsSelItems=array();
+			foreach ($allFields as $field => $title) {
+				$fL = is_array($TCA['tx_dam']['columns'][$field]) ? preg_replace('#:$#', '', $GLOBALS['LANG']->sL($TCA['tx_dam']['columns'][$field]['label'])) : '['.$field.']';
+				$fieldsSelItems[$field] = t3lib_div::fixed_lgd_cs($fL, 15);
+			}
+			$sortingSelector = $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:labelSorting',1).' ';
+			$sortingSelector .= t3lib_befunc::getFuncMenu($this->addParams, 'SET[txdam_sortField]', $this->damSC->MOD_SETTINGS['txdam_sortField'], $fieldsSelItems);
+			
+			if($this->damSC->MOD_SETTINGS['txdam_sortRev'])	{
+				$params = (array)$this->addParams + array('SET[txdam_sortRev]' => '0');
+				$href = t3lib_div::linkThisScript($params);
+				$sortingSelector .=  '<button name="SET[txdam_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
+						'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2up.gif','width="12" height="7"').' alt="" />'.
+						'</button>';
+			} else {
+				$params = (array)$this->addParams + array('SET[txdam_sortRev]' => '1');
+				$href = t3lib_div::linkThisScript($params);
+				$sortingSelector .=  '<button name="SET[txdam_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
+						'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2down.gif','width="12" height="7"').' alt="" />'.
+						'</button>';
+			}
+			$sortingSelector = $this->getFormTag().$sortingSelector.'</form>';
+		}
+
+		$out .= $sortingSelector;
+		$out .= $this->doc->spacer(20);
 
 			// Listing the files:
 		if (is_array($files) AND count($files))	{
 
 			$displayThumbs = $this->displayThumbs();
+			$addAllJS = '';
 
 				// Traverse the file list:
 			$lines=array();
@@ -557,7 +592,7 @@ if (is_string($allowedFileTypes)) {
 					// Create file icon:
 				$iconFile = tx_dam::icon_getFileType($fI);
 				$iconTag = tx_dam_guiFunc::icon_getFileTypeImgTag($fI);
-				$iconAndFilename = $iconTag.htmlspecialchars(t3lib_div::fixed_lgd_cs($fI['file_title'], $GLOBALS['BE_USER']->uc['titleLen']));
+				$iconAndFilename = $iconTag.htmlspecialchars(t3lib_div::fixed_lgd_cs($fI['file_title'], max($GLOBALS['BE_USER']->uc['titleLen'], 120)));
 
 
 					// Create links for adding the file:
@@ -593,6 +628,8 @@ if (is_string($allowedFileTypes)) {
 						
 						$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+						
+						$addAllJS .= 'insertElement('.$onClick_params.'); ';
 					}
 				
 					
@@ -666,8 +703,8 @@ if (is_string($allowedFileTypes)) {
 						</tr>';
 			}
 
-				// Wrap all the rows in table tags:
-			$out .= '
+			// Wrap all the rows in table tags:
+		$out .= '
 
 
 
@@ -677,6 +714,18 @@ if (is_string($allowedFileTypes)) {
 				<table border="0" cellpadding="1" cellspacing="0" id="typo3-fileList">
 					'.implode('',$lines).'
 				</table>';
+		}
+		
+		
+		if ($addAllJS) {
+			$label = $LANG->getLL('eb_addAllToList', true);
+			$titleAttrib = ' title="'.$label.'"';
+			$onClick = $addAllJS.'return true;';
+			$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+			$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' alt="" />';
+	
+			$addAllButton = '<div style="margin:1.5em 0 1em 1em; text-align:left;"><span class="button"'.$titleAttrib.'>'.$ATag_add.$addIcon.$label.'</a></span></div>';
+			$out = $out.$addAllButton;
 		}
 
 			// Return accumulated content for filelisting:
@@ -813,6 +862,7 @@ if (is_string($allowedFileTypes)) {
 	 * @return	array		Array of file elements
 	 */
  	function getFileListArr ($allowedFileTypes, $disallowedFileTypes, $mode) {
+ 		global $TCA;
 
 		$filearray = array();
 
@@ -824,6 +874,31 @@ if (is_string($allowedFileTypes)) {
 		$this->damSC->selection->qg->query['FROM']['tx_dam'] = tx_dam_db::getMetaInfoFieldList(true, array('hpixels','vpixels','caption'));
 		#$this->damSC->selection->qg->addSelectFields(...
 
+
+		//
+		// set sorting
+		//
+
+		$allFields = tx_dam_db::getFieldListForUser('tx_dam');
+
+		
+		if ($this->damSC->MOD_SETTINGS['txdam_sortField'])	{
+			if (in_array($this->damSC->MOD_SETTINGS['txdam_sortField'], $allFields))	{
+				$orderBy = 'tx_dam.'.$this->damSC->MOD_SETTINGS['txdam_sortField'];
+			}
+		} else {
+			$orderBy = $TCA['tx_dam']['ctrl']['sortby'] ? $TCA['tx_dam']['ctrl']['sortby'] : $TCA['tx_dam']['ctrl']['default_sortby'];
+			$orderBy = $GLOBALS['TYPO3_DB']->stripOrderBy($orderBy);
+			$this->damSC->MOD_SETTINGS['txdam_sortField'] = $orderBy;
+		}
+		if ($this->damSC->MOD_SETTINGS['txdam_sortRev'])	$orderBy.=' DESC';
+		$this->damSC->selection->qg->addOrderBy($orderBy);
+		
+		
+		//
+		// allowed media types
+		//
+		
 		$allowedMediaTypes = array();
 		$disallowedMediaTypes = array();
 
@@ -989,6 +1064,8 @@ if (is_string($allowedFileTypes)) {
 				'mode' => '',
 				'bparams' => '',
 				'txdamSel' => '',
+				'txdam_sortField' => '',
+				'txdam_sortRev' => '',
 				);
 			$settings = t3lib_div::_GP('SET');
 				// save params in session

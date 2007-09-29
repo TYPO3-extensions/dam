@@ -244,7 +244,7 @@ class tx_dam_indexing {
 		
 		$this->defaultSetup = tx_dam::config_getValue('tx_dam.indexing.defaultSetup');
 		
-#debug($this->defaultSetup,'$defaultSetup');
+
 		$this->skipFileTypes = t3lib_div::trimExplode(',', tx_dam::config_getValue('setup.indexing.skipFileTypes'), true);
 
 
@@ -556,7 +556,7 @@ class tx_dam_indexing {
 		global $TYPO3_CONF_VARS;
 
 		$setup = false;
-		$basePath = $basePath ? $basePath : PATH_site;
+		$basePath = $basePath ? $basePath : ($TYPO3_CONF_VARS['BE']['lockRootPath'] ? $TYPO3_CONF_VARS['BE']['lockRootPath'] : PATH_site);	
 
 		if ($path) {
 			$setup = $this->findSetupInPath($path, $walkUp, $basePath);
@@ -1018,6 +1018,8 @@ class tx_dam_indexing {
 				if ($this->writeDevLog) 	t3lib_div::devLog('initAvailableRules(): '.$ruleId.' '.$classfile, 'tx_dam_indexing');
 
 				if (is_object($obj = &t3lib_div::getUserObj($classfile)))      {
+					
+					$obj->writeDevLog = $this->writeDevLog;
 
 						// this is set in the class itself
 					unset($this->ruleConf[$ruleId]['shy']);

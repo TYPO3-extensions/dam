@@ -67,6 +67,15 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 
 
 	/**
+	 * Do some init things
+	 *
+	 * @return	void
+	 */
+	function cmdInit() {
+		$GLOBALS['SOBE']->templateClass = 'template';
+	}
+	
+	/**
 	 * Additional access check
 	 *
 	 * @return	boolean Return true if access is granted
@@ -154,7 +163,7 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 		$msg[] = '<input type="input" name="data[file_name]" value="'.htmlspecialchars($this->pObj->data['file_name']).'"'.$this->pObj->doc->formWidthText(30).' />';
 		$msg[] = '&nbsp;';
 		$msg[] = $GLOBALS['LANG']->getLL('tx_dam_cmd_filenew.text_content',1);
-		$msg[] = '<textarea rows="15" name="data[file_content]" wrap="off"'.$this->pObj->doc->formWidthText(48,'width:98%;height:65%','off').'>'.
+		$msg[] = '<textarea rows="30" name="data[file_content]" wrap="off"'.$this->pObj->doc->formWidthText(48,'width:99%;height:65%','off').' class="fixed-font enable-tab">'.
 					t3lib_div::formatForTextarea($this->pObj->data['file_content']).
 					'</textarea>';
 

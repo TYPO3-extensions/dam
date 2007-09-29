@@ -139,6 +139,7 @@ class tx_dam_image {
 	 * @param	mixed		$imgAttributes additional attributes for the image tag
 	 * @return	array		Thumbnail image tag, url and attributes with width/height
 	 * @todo calc width/height from cm size or similar when hpixels not available
+	 * @todo return false when file is missing?
 	 */
 	function preview($fileInfo, $size='', $imgAttributes='')	{
 
@@ -148,7 +149,7 @@ class tx_dam_image {
 		}
 		$filepath = tx_dam::file_absolutePath($fileInfo);
 
-		if ($filepath)	{
+		if ($filepath AND @file_exists($filepath) AND @is_file($filepath))	{
 
 			$fileType = tx_dam::file_getType($fileInfo);
 

@@ -26,7 +26,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] =
 				'prepend_tname' => 1,
 				'MM' => 'tx_dam_mm_ref',
 				'MM_foreign_select' => 1, // obsolete in 4.1
-				'MM_opposite_field' => 1,
+				'MM_opposite_field' => 'file_usage',
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
 				'allowed_types' => '',
@@ -53,7 +53,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] =
 				'prepend_tname' => 1,
 				'MM' => 'tx_dam_mm_ref',
 				'MM_foreign_select' => 1, // obsolete in 4.1
-				'MM_opposite_field' => 1,
+				'MM_opposite_field' => 'file_usage',
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
 				'allowed_types' => $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],

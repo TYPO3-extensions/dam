@@ -402,6 +402,7 @@ $TCA['tx_dam'] = array(
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'hideDiff',
 			'config' => array(
+				// 'allowed' => '*', // this might be needed for bidi MM relations sometimes
 				'type' => 'user',
 				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_fileUsage',
 				'noTableWrapping' => TRUE,
@@ -823,8 +824,9 @@ $TCA['tx_dam'] = array(
 
 
 		'deleted' => array(
-			'exclude' => '1',
 			'label' => 'Deleted',
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'check',
 				'default' => '0'
@@ -832,6 +834,7 @@ $TCA['tx_dam'] = array(
 		),
 		'index_type' => array(
 			'label' => 'Index type:',
+			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',
 				'size' => '4',
@@ -840,6 +843,7 @@ $TCA['tx_dam'] = array(
 		),
 		'file_inode' => array(
 			'label' => 'File inode:',
+			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',
 				'size' => '5',
@@ -848,6 +852,7 @@ $TCA['tx_dam'] = array(
 		),
 		'file_hash' => array(
 			'label' => 'File hash:',
+			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',
 				'size' => '32',
@@ -856,6 +861,7 @@ $TCA['tx_dam'] = array(
 		),
 		'file_status' => array(
 			'label' => 'File status code:',
+			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',
 				'size' => '5',
@@ -865,6 +871,7 @@ $TCA['tx_dam'] = array(
 		'tstamp' => array(
 			'exclude' => '1',
 			'label' => 'Timestamp:',
+			'l10n_mode' => 'exclude',
 			'config' => array(
 				'type' => 'input',
 				'size' => '15',

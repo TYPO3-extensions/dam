@@ -1,4 +1,26 @@
 <?php
+/***************************************************************
+*  Copyright notice
+*
+*  (c) 2004-2007 Rene Fritz (r.fritz@colorcube.de)
+*  All rights reserved
+*
+*  This script is part of the TYPO3 project. The TYPO3 project is
+*  free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/copyleft/gpl.html.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+***************************************************************/
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
@@ -95,15 +117,26 @@ class tx_dam_show_item {
 
 		$pObj->doc->JScode = $pObj->doc->getDynTabMenuJScode();
 
-		$pObj->doc->JScodeArray['changeWindowSize'] = 'window.resizeTo(520,490);';
-		$pObj->doc->JScodeArray['changeWindowSize'] .= 'window.resizable=true;';
+		$pObj->doc->JScodeArray['changeWindowSize'] = '
+		function _resizeWindow() {
+			window.resizable=true;
+			width = document.getElementById(\'wrapall\').offsetWidth;
+			width += 50;
+			if (width < 520) {
+				width = 520;
+			}
+			window.resizeTo(width,490);
+		}';
+		$pObj->doc->bodyTagAdditions .= ' onload="_resizeWindow();"';
 
 			// Starting the page by creating page header stuff:
 		$content.= $pObj->doc->startPage($LANG->sL('LLL:EXT:lang/locallang_core.xml:show_item.php.viewItem'));
+		$content.= '<div id="wrapall">';
 		$content.= $pObj->doc->spacer(5);
 
 
 		$content.= $pObj->doc->section('',$contentForm);
+		$content.= '</div>';
 
 		return $content;
 	}

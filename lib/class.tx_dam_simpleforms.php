@@ -513,6 +513,33 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 
 
 	/**
+	 * Format field content of various types if $config['format'] is set to date, filesize, ..., user
+	 * This is primarily for the field type none but can be used for user field types for example
+	 *
+	 * @param	array		Configuration for the display
+	 * @param	string		The value to display
+	 * @return	string		Formatted Field content
+	 */
+//	function formatValue ($config, $itemValue)	{
+//		
+//		// workaround for : Warning: date() expects parameter 2 to be long, string given in
+//		$format = trim($config['format']);
+//		switch($format)	{		
+//			case 'date':
+//			case 'datetime':
+//			case 'time':
+//			case 'timesec':
+//			case 'year':		
+//				$itemValue = 0 + $itemValue;
+//				break;
+//		}
+//		
+//		return parent::formatValue ($config, $itemValue);
+//	}
+
+
+
+	/**
 	 * Returns TSconfig for table/row
 	 * Multiple requests to this function will return cached content so there is no performance loss in calling this many times since the information is looked up only once.
 	 *

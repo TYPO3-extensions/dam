@@ -126,9 +126,9 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 		$this->domIdPrefix=$this->treeName;
 		$this->MOUNTS = $GLOBALS['FILEMOUNTS'];
 
-		$this->iconPath = PATH_txdam_rel.'i/';
+		$this->iconPath = PATH_txdam_rel.'i/18/';
 		$this->iconName = 'folder_web_ro.gif';
-		$this->rootIcon = PATH_txdam_rel.'i/folder_mount.gif';
+		$this->rootIcon = PATH_txdam_rel.'i/18/folder_mount.gif';
 		$this->ext_IconMode = '1'; // no context menu on icons
 
 	}

@@ -174,7 +174,9 @@ class tx_dam_browseTrees {
 				if(tx_dam::config_checkValueEnabled('setup.selections.'.$classKey.'.hidden', false)) {
 					continue;
 				}
-				$tree .= $treeObj->getBrowsableTree();
+                if(is_object($treeObj) && method_exists ($treeObj, 'getBrowsableTree')){
+					$tree .= $treeObj->getBrowsableTree();
+                }
 			}
 		}
 

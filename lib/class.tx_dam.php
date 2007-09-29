@@ -408,9 +408,10 @@ class tx_dam {
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @param	array		$conf Additional configuration
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	string		URL to file
 	 */
-	function file_url ($fileInfo, $conf) {
+	function file_url ($fileInfo, $conf=array(), $mode=TYPO3_MODE) {
 
 		/*
 		 * A secure download framework is in preparation which will be used here

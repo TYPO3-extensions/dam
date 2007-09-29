@@ -104,7 +104,7 @@ class tx_dam_tools extends tx_dam_SCbase {
 			// Output page header
 			//
 
-			$this->doc->form = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->doc->form = $this->getFormTag();
 
 			$this->addDocStyles();
 			$this->addDocJavaScript();

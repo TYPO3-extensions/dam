@@ -694,6 +694,32 @@ var $doAutoMetaUpdate = false;
 
 
 	/**
+	 * Returns a URL that can be used eg. for direct download.
+	 * This is for files managed by the DAM only. Other files may fail.
+	 *
+	 * @param	array		$conf Additional configuration
+	 * @return	string		URL to file
+	 */
+	function getURL ($conf=array()) {
+
+		/*
+		 * A secure download framework is in preparation which will be used here
+		 */
+		 
+
+		if ($this->mode='FE') {
+			$prefix = $GLOBALS['TSFE']->absRefPrefix;
+		} else {
+			$prefix = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
+		}
+
+		$file_url = $prefix.$this->getPathForSite();
+
+		return $file_url;
+	}
+
+
+	/**
 	 * Returns raw meta data array of the database record.
 	 * Updated data will be merged with original table data.
 	 *

@@ -188,6 +188,11 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	var $pageTitle = '[no title]';
 
 	/**
+	 * the class name to be used for $this->doc
+	 */
+	var $templateClass = 'mediumDoc';
+
+	/**
 	 * tx_dam_tce_file object
 	 */
 	var $TCEfile;
@@ -319,13 +324,18 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
 
 
+		$this->extObjCmdInit();
+
+
 		//
 		// Initialize the template object
 		//
 
-		$this->doc = t3lib_div::makeInstance('mediumDoc');
-		$this->doc->backPath = $BACK_PATH;
-		$this->doc->docType = 'xhtml_trans';
+		if (!is_object($this->doc)) {
+			$this->doc = t3lib_div::makeInstance($this->templateClass);
+			$this->doc->backPath = $BACK_PATH;
+			$this->doc->docType = 'xhtml_trans';
+		}
 
 
 
@@ -487,6 +497,19 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 *
 	 ********************************/
 
+
+	/**
+	 * Calls the 'cmdInit' function of the submodule if present.
+	 *
+	 * @return	boolean	Default is true
+	 */
+	function extObjCmdInit()	{
+		if (is_callable(array($this->extObj,'cmdInit'))) {
+			return $this->extObj->cmdInit();
+		} else {
+			return true;
+		}
+	}
 
 	/**
 	 * Calls the 'accessCheck' function of the submodule if present.

@@ -36,7 +36,7 @@
             <label index="tx_dam_file_upload.uploadFailed">Upload failed</label>
             <label index="tx_dam_file_upload.uploadFailedDesc">It seems the file(s) were too large for uploading.</label>
             <label index="tx_dam_file_upload.indexingFailed">Indexing failed</label>
-            <label index="tx_dam_file_upload.maxSizeHint">(Maximum file size: %s)</label>
+            <label index="tx_dam_file_upload.maxSizeHint">(Maximum upload size: %s)</label>
             <label index="tx_dam_file_upload.uploadNothing">No files uploaded!</label>
             <label index="tx_dam_file_upload.uploadMessages">Messages:</label>
             <label index="tx_dam_file_upload.maxSizeExceeded">Files size exceeded? (%s)</label>
@@ -62,7 +62,7 @@
             <label index="tx_dam_file_upload.uploadFailed">Hochladen war nicht erfolgreich</label>
             <label index="tx_dam_file_upload.uploadFailedDesc">Es scheint die Dateien waren zu groß zum Hochladen.</label>
             <label index="tx_dam_file_upload.indexingFailed">Indexierung fehlgeschlagen</label>
-            <label index="tx_dam_file_upload.maxSizeHint">(Maximale Dateigröße: %s)</label>
+            <label index="tx_dam_file_upload.maxSizeHint">(Maximale Uploadgröße: %s)</label>
             <label index="tx_dam_file_upload.uploadNothing">Keine Dateien hochgeladen!</label>
             <label index="tx_dam_file_upload.uploadMessages">Meldungen:</label>
             <label index="tx_dam_file_upload.maxSizeExceeded">Maximale Dateigröße (%s) überschritten?</label>

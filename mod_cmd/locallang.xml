@@ -27,6 +27,7 @@
             <label index="messageCmdDenied">You're not allowed to execute the command '%s'.</label>
             <label index="labelWarning">Warning:</label>
             <label index="labelCmdSave">Save</label>
+            <label index="labelCmdSaveClose">Save &amp; Cose</label>
             <label index="tx_dam_cmd_nothing.title">[no command]</label>
             <label index="tx_dam_cmd_nothing.messageNoCmd">There's no command passed to this module. (You shouldn't see this message.)</label>
             <label index="tx_dam_cmd_nothing.messageUnknownCmd">The command passed to this module is unknown. (You shouldn't see this message.)</label>
@@ -62,6 +63,7 @@
             <label index="messageCmdDenied">Sie sind nicht berechtigt das Komando '%s' auszuführen.</label>
             <label index="labelWarning">Warnung:</label>
             <label index="labelCmdSave">Sichern</label>
+            <label index="labelCmdSaveClose">Sichern &amp; Schließen</label>
             <label index="labelTargetFolder">Zielverzeichnis:</label>
             <label index="tx_dam_cmd_filerename.title_file">Datei umbenennen</label>
             <label index="tx_dam_cmd_filerename.title_folder">Verzeichnis umbenennen</label>

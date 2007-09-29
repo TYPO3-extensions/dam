@@ -483,7 +483,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		for ($a=0; $a<$uploadFields; $a++)	{
 				// Adding 'size="50" ' for the sake of Mozilla!
 			$code .='
-				<input type="file" name="upload_'.$a.'"'.$this->pObj->doc->formWidth(35).' size="50" />
+				<input type="file" name="upload_'.$a.'"'.$this->pObj->doc->formWidth(35).' size="45" />
 				<input type="hidden" name="file[upload]['.$a.'][target]" value="'.htmlspecialchars($path).'" />
 				<input type="hidden" name="file[upload]['.$a.'][data]" value="'.$a.'" /><br />
 			';
@@ -657,6 +657,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			$table[$tr][$td++] = '&nbsp;';
 		}
 
+		$addAllJS = '';
 
 		foreach ($files as $item) {
 			$tr++;
@@ -700,6 +701,8 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 						$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';				
 						
+						$addAllJS .= 'insertElement('.$onClick_params.'); ';
+						
 						$table[$tr][$td++] = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
 					} else {
 						$table[$tr][$td++] = '';
@@ -723,6 +726,18 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			// render table
 		if ($tr) {
 			$code = $this->pObj->doc->table($table, $tableLayout);
+
+			if ($addAllJS) {
+				$label = $LANG->getLL('eb_addAllToList', true);
+				$titleAttrib = ' title="'.$label.'"';
+				$onClick = $addAllJS.'return true;';
+				$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+				$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' alt="" />';
+		
+				$addAllButton = '<div style="margin:1em 0 1em 1em;"><span class="button"'.$titleAttrib.'>'.$ATag_add.$addIcon.$label.'</a></span></div>';
+				$code = $code.$addAllButton;
+			}			
+			
 		} else {
 			$code = false;
 		}

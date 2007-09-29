@@ -433,7 +433,8 @@ class tx_dam_querygen {
 			}
 
 				// tables
-			$queryParts['FROM'].= ' '.implode (', ',array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM']))));
+			$selectTables = array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM'])));
+			$queryParts['FROM'].= ' '.implode (', ', $selectTables);
 
 
 			//
@@ -445,6 +446,15 @@ class tx_dam_querygen {
 				$query[] = 'LEFT JOIN '.$table.' ON '.$on;
 			}
 			$queryParts['FROM'].= "\n".implode ("\n",$query);
+
+
+			//
+			// FROM
+			//
+			
+			if ($selectTables_enableFields = array_diff(array_unique(array_keys($select['enableFields'])), $selectTables)) {
+				$queryParts['FROM'].= ', '.implode (', ',$selectTables_enableFields);
+			}
 
 
 			//

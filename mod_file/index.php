@@ -136,7 +136,7 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 
 			$this->extObjHeader();
 
-			$this->doc->form = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="'.$this->formName.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->doc->form = $this->getFormTag();
 
 				// Draw the header.
 			$this->content.= $this->doc->startPage($LANG->getLL('title'));
