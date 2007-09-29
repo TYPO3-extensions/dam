@@ -1,3 +1,8 @@
+07-03-11 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: 4287: In multilingual environments wrong files are displayed in the non-default languages
+    * Change: Workaround for media browser of htmlArea in T3 4.1
+
 07-03-06 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: 5143: Categories module shows php error

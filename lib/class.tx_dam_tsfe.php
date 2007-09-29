@@ -91,8 +91,9 @@ class tx_dam_tsfe {
 			}
 		}
 
+		$uid = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
 		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
-		$damFiles = tx_dam_db::getReferencedFiles($refTable, $this->cObj->data['uid'], $refField);
+		$damFiles = tx_dam_db::getReferencedFiles($refTable, $uid, $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 
