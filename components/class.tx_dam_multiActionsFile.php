@@ -33,11 +33,11 @@
  *
  *
  *
- *   77: class tx_dam_multiaction_recordBase extends tx_dam_actionbase
+ *   77: class tx_dam_multiaction_fileBase extends tx_dam_actionbase
  *  102:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
  *
  *
- *  123: class tx_dam_multiaction_hideRec extends tx_dam_multiaction_recordBase
+ *  123: class tx_dam_multiaction_hideRec extends tx_dam_multiaction_fileBase
  *  136:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
  *  158:     function getLabel ()
  *  168:     function _getCommand()
@@ -48,7 +48,7 @@
  *  204:     function _getCommand()
  *
  *
- *  223: class tx_dam_multiaction_deleteRec extends tx_dam_multiaction_recordBase
+ *  223: class tx_dam_multiaction_deleteRec extends tx_dam_multiaction_fileBase
  *  233:     function getLabel ()
  *  244:     function _getCommand()
  *
@@ -74,7 +74,7 @@ require_once (PATH_txdam.'lib/class.tx_dam_actionbase.php');
  * @subpackage  Action
  * @see tx_dam_actionbase
  */
-class tx_dam_multiaction_recordBase extends tx_dam_actionbase {
+class tx_dam_multiaction_fileBase extends tx_dam_actionbase {
 
 	/**
 	 * Defines the types that the object can render
@@ -101,7 +101,7 @@ class tx_dam_multiaction_recordBase extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] === 'record'); # AND ($this->itemInfo['__table'] === 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'file' OR $this->itemInfo['__type'] === 'dir');
 		}
 		return $valid;
 	}
@@ -113,114 +113,14 @@ class tx_dam_multiaction_recordBase extends tx_dam_actionbase {
 
 
 /**
- * Hide/Unhide record action
+ * Delete record action
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Component
  * @subpackage  Action
  * @see tx_dam_actionbase
  */
-class tx_dam_multiaction_hideRec extends tx_dam_multiaction_recordBase {
-
-	/**
-	 * Returns true if the action is of the wanted type
-	 * This method should return true if the action is possibly true.
-	 * This could be the case when a control is wanted for a list of files and in beforhand a check should be done which controls might be work.
-	 * In a second step each file is checked with isValid().
-	 *
-	 * @param	string		$type Action type
-	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
-	 * @param	array		$env Environment array. Can be set with setEnv() too.
-	 * @return	boolean
-	 */
-	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
-		global $TCA;
-
-		$valid = false;
-		if (parent::isPossiblyValid ($type, $itemInfo, $env)) {
-			if ($this->itemInfo['__table']) {
-				$this->_hiddenField = $TCA[$this->itemInfo['__table']]['ctrl']['enablecolumns']['disabled'];
-				if ($this->env['permsEdit'] && $this->_hiddenField && $TCA[$this->itemInfo['__table']]['columns'][$this->_hiddenField]
-					&& (!$TCA[$this->itemInfo['__table']]['columns'][$this->_hiddenField]['exclude'] || $GLOBALS['BE_USER']->check('non_exclude_fields', $this->itemInfo['__table'].':'.$this->_hiddenField))) {
-						$valid = true;
-				}
-			}
-		}
-		return $valid;
-	}
-
-
-	/**
-	 * Returns the short label like: Delete
-	 *
-	 * @return	string
-	 */
-	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.hide');
-	}
-
-	/**
-	 * Returns a command array for the current type
-	 *
-	 * @return	array		Command array
-	 * @access private
-	 */
-	function _getCommand() {
-
-		$params = '&data['.$this->itemInfo['__table'].'][###UID###]['.$this->_hiddenField.']=1';
-		$commands['action'] = 'tce-data:'.$params;
-
-		return $commands;
-	}
-}
-
-
-
-/**
- * Hide/Unhide record action
- *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Component
- * @subpackage  Action
- * @see tx_dam_actionbase
- */
-class tx_dam_multiaction_unHideRec extends tx_dam_multiaction_hideRec {
-
-	/**
-	 * Returns the short label like: Delete
-	 *
-	 * @return	string
-	 */
-	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.unhide');
-	}
-
-	/**
-	 * Returns a command array for the current type
-	 *
-	 * @return	array		Command array
-	 * @access private
-	 */
-	function _getCommand() {
-
-		$params = '&data['.$this->itemInfo['__table'].'][###UID###]['.$this->_hiddenField.']=0';
-		$commands['action'] = 'tce-data:'.$params;
-
-		return $commands;
-	}
-}
-
-
-
-/**
- * Delete file/record action
- *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Component
- * @subpackage  Action
- * @see tx_dam_actionbase
- */
-class tx_dam_multiaction_deleteRec extends tx_dam_multiaction_recordBase {
+class tx_dam_multiaction_deleteFile extends tx_dam_multiaction_fileBase {
 
 	var $cmd = 'tx_dam_cmd_filedelete';
 
@@ -242,12 +142,12 @@ class tx_dam_multiaction_deleteRec extends tx_dam_multiaction_recordBase {
 	 * @access private
 	 */
 	function _getCommand() {
-
+		
 		$script = $this->env['defaultCmdScript'];
 		$script .= '?CMD='.$this->cmd;
 		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
-		$script .= '&record['.$this->itemInfo['__table'].']=###ITEMLIST###';
+		$script .= '&###PARAMLIST###';
 
 		$commands['action'] = 'url:'.$script;
 
@@ -258,14 +158,14 @@ class tx_dam_multiaction_deleteRec extends tx_dam_multiaction_recordBase {
 
 
 /**
- * Copy file/record action
+ * Copy file action
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Component
  * @subpackage  Action
  * @see tx_dam_actionbase
  */
-class tx_dam_multiaction_copyRec extends tx_dam_multiaction_deleteRec {
+class tx_dam_multiaction_copyFile extends tx_dam_multiaction_deleteFile {
 
 	var $cmd = 'tx_dam_cmd_filecopy';
 
@@ -283,14 +183,14 @@ class tx_dam_multiaction_copyRec extends tx_dam_multiaction_deleteRec {
 
 
 /**
- * Move file/record action
+ * Move file action
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Component
  * @subpackage  Action
  * @see tx_dam_actionbase
  */
-class tx_dam_multiaction_moveRec extends tx_dam_multiaction_deleteRec {
+class tx_dam_multiaction_moveFile extends tx_dam_multiaction_deleteFile {
 
 	var $cmd = 'tx_dam_cmd_filemove';
 
@@ -308,9 +208,7 @@ class tx_dam_multiaction_moveRec extends tx_dam_multiaction_deleteRec {
 
 
 
-
-
-class tx_dam_multiActionsRecord {
+class tx_dam_multiActionsFile {
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/components/class.tx_dam_multiActionsRecord.php'])	{

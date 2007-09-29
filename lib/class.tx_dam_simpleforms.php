@@ -201,7 +201,7 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 				<td nowrap="nowrap" valign="middle"'.$_BGCOLOR_HEAD.'>'.
 #				'<img name="req_###FIELD_TABLE###_###FIELD_ID###_###FIELD_FIELD###" src="'.$BACK_PATH.'clear.gif" width="10" height="10" alt="" />'.
 				$_FIELD_SETFIXED.
-				'<img name="cm_###FIELD_TABLE###_###FIELD_ID###_###FIELD_FIELD###" src="'.$BACK_PATH.'clear.gif" width="7" height="10" alt="" /></td>
+				'<img name="cm_###FIELD_TABLE###_###FIELD_ID###_###FIELD_FIELD###" src="###FIELD_REQICON###" width="10" height="10" alt="" /></td>
 				<td valign="top">###FIELD_ITEM######FIELD_PAL_LINK_ICON###</td>
 			</tr>
 			<tr>
@@ -286,6 +286,18 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	 */
 	function setNewBEDesignOrig()	{
 		parent::setNewBEDesign();
+		
+			// Wrapping a single field:
+		$this->fieldTemplate='
+			<tr ###BGCOLOR_HEAD######CLASSATTR_2###>
+				<td>###FIELD_HELP_ICON###</td>
+				<td width="99%"><span style="color:###FONTCOLOR_HEAD###;"###CLASSATTR_4###><b>###FIELD_NAME###</b></span>###FIELD_HELP_TEXT###</td>
+			</tr>
+			<tr ###BGCOLOR######CLASSATTR_1###>
+				<td nowrap="nowrap"><img name="req_###FIELD_TABLE###_###FIELD_ID###_###FIELD_FIELD###" src="###FIELD_REQICON###" width="10" height="10" alt="" /><img name="cm_###FIELD_TABLE###_###FIELD_ID###_###FIELD_FIELD###" src="clear.gif" width="7" height="10" alt="" /></td>
+				<td valign="top">###FIELD_ITEM######FIELD_PAL_LINK_ICON###</td>
+			</tr>';		
+		
 	}
 
 
@@ -308,9 +320,9 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 				$marker['SETFIXED']='<img src="'.$BACK_PATH.'gfx/pil2right.gif" width="7" height="12" vspace="2" alt="" />';
 			}
 		} else {
-			$itemFormElName=$this->prependFormFieldNames.'_fixedFields['.$table.']['.$row['uid'].']['.$field.']';		// Form field name
+			$itemFormElName = $this->prependFormFieldNames.'_fixedFields['.$table.']['.$row['uid'].']['.$field.']';		// Form field name
 
-			$marker['SETFIXED']='<input type="hidden" name="'.$itemFormElName.'" value="0" />'.
+			$marker['SETFIXED'] = '<input type="hidden" name="'.$itemFormElName.'" value="0" />'.
 								'<input type="checkbox" name="'.$itemFormElName.'"'.(in_array($field, $this->tx_dam_fixedFields)?' checked':'').' value="1" />';
 		}
 
@@ -319,7 +331,6 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 		} else {
 			$marker['REQICON'] = $BACK_PATH.'clear.gif';
 		}
-
 
 		return $marker;
 	}

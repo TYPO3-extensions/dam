@@ -235,6 +235,18 @@ if (TYPO3_MODE === 'BE')	{
 	);
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_cmd',
+		'tx_dam_cmd_filecopy',
+		PATH_txdam.'mod_cmd/class.tx_dam_cmd_filecopymove.php',
+		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filecopy.title'
+	);
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_cmd',
+		'tx_dam_cmd_filemove',
+		PATH_txdam.'mod_cmd/class.tx_dam_cmd_filecopymove.php',
+		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filemove.title'
+	);
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_cmd',
 		'tx_dam_cmd_filenew',
 		PATH_txdam.'mod_cmd/class.tx_dam_cmd_filenew.php',
 		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filenew.title'
@@ -297,7 +309,7 @@ if (TYPO3_MODE === 'BE')	{
 	tx_dam::register_action ('tx_dam_action_deleteFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFile');
 #	tx_dam::register_action ('tx_dam_action_deleteFileQuick', 'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFileQuick');
 
-	tx_dam::register_action ('tx_dam_action_localizeRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_localizeRec');
+	tx_dam::register_action ('tx_dam_action_localizeRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_localizeRec');
 	tx_dam::register_action ('tx_dam_action_editRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRec');
 	tx_dam::register_action ('tx_dam_action_editRecPopup',    'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRecPopup');
 	tx_dam::register_action ('tx_dam_action_viewFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_viewFileRec');
@@ -305,15 +317,21 @@ if (TYPO3_MODE === 'BE')	{
 	tx_dam::register_action ('tx_dam_action_cmSubFile',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_cmSubFile');
 	tx_dam::register_action ('tx_dam_action_revertRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_revertRec');
 	tx_dam::register_action ('tx_dam_action_hideRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_hideRec');
-	tx_dam::register_action ('tx_dam_action_renameFileRec',      'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_renameFileRec');
-	tx_dam::register_action ('tx_dam_action_replaceFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_replaceFileRec');
+	tx_dam::register_action ('tx_dam_action_renameFileRec',   'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_renameFileRec');
+	tx_dam::register_action ('tx_dam_action_replaceFileRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_replaceFileRec');
 	tx_dam::register_action ('tx_dam_action_deleteRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteRec');
 #	tx_dam::register_action ('tx_dam_action_deleteQuickRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteQuickRec');
 	tx_dam::register_action ('tx_dam_action_lockWarningRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_lockWarningRec');
 
 	tx_dam::register_action ('tx_dam_multiaction_hideRec',    'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_hideRec');
 	tx_dam::register_action ('tx_dam_multiaction_unHideRec',  'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_unHideRec');
+	tx_dam::register_action ('tx_dam_multiaction_copyRec',    'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_copyRec');
+	tx_dam::register_action ('tx_dam_multiaction_moveRec',    'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_moveRec');
 	tx_dam::register_action ('tx_dam_multiaction_deleteRec',  'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_deleteRec');
+
+	tx_dam::register_action ('tx_dam_multiaction_copyFile',   'EXT:dam/components/class.tx_dam_multiActionsFile.php:&tx_dam_multiaction_copyFile');
+	tx_dam::register_action ('tx_dam_multiaction_moveFile',   'EXT:dam/components/class.tx_dam_multiActionsFile.php:&tx_dam_multiaction_moveFile');
+	tx_dam::register_action ('tx_dam_multiaction_deleteFile', 'EXT:dam/components/class.tx_dam_multiActionsFile.php:&tx_dam_multiaction_deleteFile');
 
 
 

@@ -242,7 +242,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->path = tx_dam::path_makeRelative(key($SLCMD['SELECT']['txdamFolder']));
 		}
 		$this->checkOrSetPath();
-		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
 
 
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->defaultPid, $this->perms_clause);
@@ -382,12 +381,17 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	/**
 	 * Checks if $this->path is a path under one of the filemounts
 	 *
+	 * @param string $path If set this path will be set as current
 	 * @return	void
 	 * @see init()
 	 * @todo check path access in modules or set path to a valid path?
 	 */
-	function checkOrSetPath()	{
+	function checkOrSetPath($path='')	{
 		global $FILEMOUNTS;
+
+		if ($path) {
+			$this->path = $path;
+		}
 
 		if (!$this->path) {
 			reset($FILEMOUNTS);
@@ -409,6 +413,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->pathInfo = $pathInfo;
 			$this->pathAccess = false;
 		}
+		
+		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
 
 		if (tx_dam::config_getValue('setup.devel')) {
 			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>'.t3lib_div::view_array($this->pathInfo);

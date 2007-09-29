@@ -30,6 +30,7 @@
             <label index="tx_dam_cmd_nothing.title">[no command]</label>
             <label index="tx_dam_cmd_nothing.messageNoCmd">There's no command passed to this module. (You shouldn't see this message.)</label>
             <label index="tx_dam_cmd_nothing.messageUnknownCmd">The command passed to this module is unknown. (You shouldn't see this message.)</label>
+            <label index="labelTargetFolder">Target folder:</label>
             <label index="tx_dam_cmd_filerename.title_file">Rename file</label>
             <label index="tx_dam_cmd_filerename.title_folder">Rename folder</label>
             <label index="tx_dam_cmd_filereplace.title">Replace file</label>
@@ -48,11 +49,20 @@
             <label index="tx_dam_cmd_filenew.title">Create text file</label>
             <label index="tx_dam_cmd_filenew.text_content">Text content:</label>
             <label index="tx_dam_cmd_fileedit.title">Edit file</label>
+            <label index="tx_dam_cmd_filecopy.title">Copy file</label>
+            <label index="tx_dam_cmd_filecopy.selectTarget">Select a target folder to copy the files to.</label>
+            <label index="tx_dam_cmd_filecopy.message">Are you sure to copy the file(s) to '%'?</label>
+            <label index="tx_dam_cmd_filecopy.submit">Copy file</label>
+            <label index="tx_dam_cmd_filemove.title">Move file</label>
+            <label index="tx_dam_cmd_filemove.selectTarget">Select a target folder to move the files to.</label>
+            <label index="tx_dam_cmd_filemove.message">Are you sure to move the file(s) to '%s'?</label>
+            <label index="tx_dam_cmd_filemove.submit">Move file</label>
         </languageKey>
         <languageKey index="de" type="array">
             <label index="messageCmdDenied">Sie sind nicht berechtigt das Komando '%s' auszuführen.</label>
             <label index="labelWarning">Warnung:</label>
             <label index="labelCmdSave">Sichern</label>
+            <label index="labelTargetFolder">Zielverzeichnis:</label>
             <label index="tx_dam_cmd_filerename.title_file">Datei umbenennen</label>
             <label index="tx_dam_cmd_filerename.title_folder">Verzeichnis umbenennen</label>
             <label index="tx_dam_cmd_filereplace.title">Datei ersetzen</label>
@@ -71,6 +81,12 @@
             <label index="tx_dam_cmd_filenew.title">Text-Datei anlegen</label>
             <label index="tx_dam_cmd_filenew.text_content">Text-Inhalt:</label>
             <label index="tx_dam_cmd_fileedit.title">Datei bearbeiten</label>
+            <label index="tx_dam_cmd_filecopy.title">Datei kopieren</label>
+            <label index="tx_dam_cmd_filecopy.message">Sind Sie sicher das Sie die Datei(en) nach '%s' kopieren wollen?</label>
+            <label index="tx_dam_cmd_filecopy.submit">Datei kopieren</label>
+            <label index="tx_dam_cmd_filemove.title">Datei verschieben</label>
+            <label index="tx_dam_cmd_filemove.message">Sind Sie sicher das Sie die Datei(en) nach '%s' verschieben wollen?</label>
+            <label index="tx_dam_cmd_filemove.submit">Datei verschieben</label>
         </languageKey>
     </data>
     <orig_hash type="array">

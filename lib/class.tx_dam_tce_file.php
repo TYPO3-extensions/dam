@@ -400,40 +400,42 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
 
 	/**
-	 * Return max upload file size
+	 * This creates a new folder. (action=6)
 	 *
-	 * @return integer Maximum file size for uploads in bytes
+	 * @param	array		$cmds['data'] is the foldername. $cmds['target'] is the path where to create it.
+	 * @return	string		Returns the new foldername upon success
 	 */
-	function getMaxUploadSize() {
-		$upload_max_filesize = ini_get('upload_max_filesize');
-		$match = array();
-		if (preg_match('#(M|MB)$#i', $upload_max_filesize, $match)) {
-			$upload_max_filesize = intval($upload_max_filesize)*1048576;
-		} elseif (preg_match('#(k|kB)$#i', $upload_max_filesize, $match)) {
-			$upload_max_filesize = intval($upload_max_filesize)*1024;
+	function func_newfolder($cmds, $id)	{
+		if (!$this->isInit) return FALSE;
+
+		$theFolder = $this->cleanFileName($cmds['data']);
+		
+			// main log entry
+		$this->log['cmd']['newfolder'][$id] = array(
+				'errors' => array(),
+				'target_path' => $cmds['target'],
+				'target_folder' => $theFolder,
+				);
+				
+		if ($theFolder)	{
+			if ($this->checkFileNameLen($theFolder))	{
+				$theTarget = $this->is_directory($cmds['target']);	// Check the target dir
+				if ($theTarget)	{
+					if ($this->actionPerms['newFolder'])	{
+						$theNewFolder = $theTarget.'/'.$theFolder;
+						if ($this->checkPathAgainstMounts($theNewFolder))	{
+							if (!@file_exists($theNewFolder))	{
+								if (t3lib_div::mkdir($theNewFolder)){
+									$this->writelog(6,0,1,'Directory "%s" created in "%s"',array($theFolder,$theTarget.'/'), 'newfolder', $id);
+									return $theNewFolder;
+								} else $this->writelog(6,1,100,'Directory "%s" not created. Write-permission problem in "%s"?',array($theFolder,$theTarget.'/'), 'newfolder', $id);
+							} else $this->writelog(6,1,101,'File or directory "%s" existed already!',array($theNewFolder), 'newfolder', $id);
+						} else $this->writelog(6,1,102,'Destination path "%s" was not within your mountpoints!',array($theTarget.'/'), 'newfolder', $id);
+					} else $this->writelog(6,1,103,'You are not allowed to create directories!','', 'newfolder', $id);
+				} else $this->writelog(6,2,104,'Destination "%s" was not a directory',array($cmds['target']), 'newfolder', $id);
+			} else $this->writelog(6,1,105,'New name "%s" was too long (max %s characters)',array($theFolder,$this->maxInputNameLen), 'newfolder', $id);
 		}
-
-		$post_max_size = ini_get('post_max_size');
-		$match = array();
-		if (preg_match('#(M|MB)$#i', $post_max_size, $match)) {
-			$post_max_size = intval($post_max_size)*1048576;
-		} elseif (preg_match('#(k|kB)$#i', $post_max_size, $match)) {
-			$post_max_size = intval($post_max_size)*1024;
-		}
-
-		$upload_max_filesize = min($post_max_size, $upload_max_filesize);
-
-		$maxFileSize = intval($this->maxUploadFileSize)*1024;
-		$maxFileSize = $maxFileSize ? $maxFileSize : intval($GLOBALS['TYPO3_CONF_VARS']['BE']['maxFileSize'])*1024;
-
-		if (min($maxFileSize, $upload_max_filesize)==0) {
-			$upload_max_filesize = max($maxFileSize, $upload_max_filesize);
-		} else {
-			$upload_max_filesize = min($maxFileSize, $upload_max_filesize);
-		}
-		return $upload_max_filesize;
 	}
-
 
 	/**
 	 * This creates a new file. (action=8)
@@ -571,6 +573,125 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
 
 	/**
+	 * Copying files and folders (action=2)
+	 *
+	 * @param	array		$cmds['data'] is the file/folder to copy. $cmds['target'] is the path where to copy to. $cmds['altName'] (boolean): If set, another filename is found in case the target already exists
+	 * @return	string		Returns the new filename upon success
+	 */
+	function func_copy($cmds, $id)	{
+		if (!$this->isInit) return FALSE;
+
+			// Initialize and check basic conditions:
+		$theFile = $cmds['data'];
+		$theDest = $this->is_directory($cmds['target']);	// Clean up destination directory
+		$altName = $cmds['altName'];
+
+
+			// main log entry
+		$this->log['cmd']['move'][$id] = array(
+				'errors' => array(),
+				'orig_filename' => $theFile,
+				'target_file' => '',
+				'target_folder' => '',
+				'target_path' => $theDest,
+				);
+				
+		if (!$theDest)	{
+			$this->writelog(2,2,100,'Destination "%s" was not a directory',array($cmds['target']), 'copy', $id);
+			return FALSE;
+		}
+		if (!$this->isPathValid($theFile) || !$this->isPathValid($theDest))	{
+			$this->writelog(2,2,101,'Target or destination had invalid path (".." and "//" is not allowed in path). T="%s", D="%s"',array($theFile,$theDest), 'copy', $id);
+			return FALSE;
+		}
+
+			// Processing of file or directory.
+		if (@is_file($theFile))	{	// If we are copying a file...
+			if ($this->actionPerms['copyFile'])	{
+				if (filesize($theFile) < ($this->maxCopyFileSize*1024))	{
+					$fI = t3lib_div::split_fileref($theFile);
+					if ($altName)	{	// If altName is set, we're allowed to create a new filename if the file already existed
+						$theDestFile = $this->getUniqueName($fI['file'], $theDest);
+						$fI = t3lib_div::split_fileref($theDestFile);
+					} else {
+						$theDestFile = $theDest.'/'.$fI['file'];
+					}
+					if ($theDestFile && !@file_exists($theDestFile))	{
+						if ($this->checkIfAllowed($fI['fileext'], $theDest, $fI['file'])) {
+							if ($this->checkPathAgainstMounts($theDestFile) && $this->checkPathAgainstMounts($theFile))	{
+								if ($this->PHPFileFunctions)	{
+									copy ($theFile,$theDestFile);
+								} else {
+									$cmd = 'cp "'.$theFile.'" "'.$theDestFile.'"';
+									exec($cmd);
+								}
+								t3lib_div::fixPermissions($theDestFile);
+								clearstatcache();
+								if (@is_file($theDestFile))	{
+									$this->writelog(2,0,1,'File "%s" copied to "%s"',array($theFile,$theDestFile), 'copy', $id);
+
+									$this->log['cmd']['move'][$id]['target_file'] = $theDestFile;
+									
+										// update meta data
+									if ($this->processMetaUpdate) {
+										tx_dam::notify_fileCopied($theFile, $theDestFile);
+									}
+									
+									return $theDestFile;
+								} else $this->writelog(2,2,109,'File "%s" WAS NOT copied to "%s"! Write-permission problem?',array($theFile,$theDestFile), 'copy', $id);
+							} else	$this->writelog(2,1,110,'Target or destination was not within your mountpoints! T="%s", D="%s"',array($theFile,$theDestFile), 'copy', $id);
+						} else $this->writelog(2,1,111,'Fileextension "%s" is not allowed in "%s"!',array($fI['fileext'],$theDest.'/'), 'copy', $id);
+					} else $this->writelog(2,1,112,'File "%s" already exists!',array($theDestFile), 'copy', $id);
+				} else $this->writelog(2,1,113,'File "%s" exceeds the size-limit of %s bytes',array($theFile,$this->maxCopyFileSize*1024), 'copy', $id);
+			} else $this->writelog(2,1,114,'You are not allowed to copy files','', 'copy', $id);
+			// FINISHED copying file
+
+		} elseif (@is_dir($theFile) && !$this->dont_use_exec_commands) {		// if we're copying a folder
+			if ($this->actionPerms['copyFolder'])	{
+				$theFile = $this->is_directory($theFile);
+				if ($theFile)	{
+					$fI = t3lib_div::split_fileref($theFile);
+					if ($altName)	{	// If altName is set, we're allowed to create a new filename if the file already existed
+						$theDestFile = $this->getUniqueName($fI['file'], $theDest);
+						$fI = t3lib_div::split_fileref($theDestFile);
+					} else {
+						$theDestFile = $theDest.'/'.$fI['file'];
+					}
+					if ($theDestFile && !@file_exists($theDestFile))	{
+						if (!t3lib_div::isFirstPartOfStr($theDestFile.'/',$theFile.'/'))	{			// Check if the one folder is inside the other or on the same level... to target/dest is the same?
+							if ($this->checkIfFullAccess($theDest) || $this->is_webPath($theDestFile)==$this->is_webPath($theFile))	{	// no copy of folders between spaces
+								if ($this->checkPathAgainstMounts($theDestFile) && $this->checkPathAgainstMounts($theFile))	{
+										// No way to do this under windows!
+									$cmd = 'cp -R "'.$theFile.'" "'.$theDestFile.'"';
+									exec($cmd);
+									clearstatcache();
+									if (@is_dir($theDestFile))	{
+										$this->writelog(2,0,2,'Directory "%s" copied to "%s"',array($theFile,$theDestFile), 'copy', $id);
+
+										$this->log['cmd']['move'][$id]['target_folder'] = $theDestFile;
+									
+											// update meta data
+										if ($this->processMetaUpdate) {
+											tx_dam::notify_fileCopied($theFile, $theDestFile);
+										}
+									
+										return $theDestFile;
+									} else $this->writelog(2,2,119,'Directory "%s" WAS NOT copied to "%s"! Write-permission problem?',array($theFile,$theDestFile), 'copy', $id);
+								} else $this->writelog(2,1,120,'Target or destination was not within your mountpoints! T="%s", D="%s"',array($theFile,$theDestFile), 'copy', $id);
+							} else $this->writelog(2,1,121,'You don\'t have full access to the destination directory "%s"!',array($theDest.'/'), 'copy', $id);
+						} else $this->writelog(2,1,122,'Destination cannot be inside the target! D="%s", T="%s"',array($theDestFile.'/',$theFile.'/'), 'copy', $id);
+					} else $this->writelog(2,1,123,'Target "%s" already exists!',array($theDestFile), 'copy', $id);
+				} else $this->writelog(2,2,124,'Target seemed not to be a directory! (Shouldn\'t happen here!)','', 'copy', $id);
+			} else $this->writelog(2,1,125,'You are not allowed to copy directories','', 'copy', $id);
+			// FINISHED copying directory
+
+		} else {
+			$this->writelog(2,2,130,'The item "%s" was not a file or directory!',array($theFile), 'copy', $id);
+		}
+	}
+	
+
+	/**
 	 * Moving files and folders (action=3)
 	 *
 	 * @param	array		$cmds['data'] is the file/folder to move. $cmds['target'] is the path where to move to. $cmds['altName'] (boolean): If set, another filename is found in case the target already exists
@@ -592,9 +713,9 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 				'errors' => array(),
 				'orig_filename' => $theFile,
 				'target_file' => '',
+				'target_folder' => '',
 				'target_path' => $theDest,
 				);
-
 
 
 		if (!$theDest)	{
@@ -629,6 +750,8 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 								clearstatcache();
 								if (@is_file($theDestFile))	{
 
+									$this->log['cmd']['move'][$id]['target_file'] = $theDestFile;
+									
 										// update meta data
 									if ($this->processMetaUpdate) {
 										tx_dam::notify_fileMoved($theFile, $theDestFile);
@@ -669,6 +792,8 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 									}
 									clearstatcache();
 									if (@is_dir($theDestFile))	{
+
+										$this->log['cmd']['move'][$id]['target_folder'] = $theDestFile;
 
 											// update meta data
 										if ($this->processMetaUpdate) {
@@ -812,8 +937,44 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 	}
 
 
+// TODO function func_unzip($cmds)	{
 
 
+	/**
+	 * Return max upload file size
+	 *
+	 * @return integer Maximum file size for uploads in bytes
+	 */
+	function getMaxUploadSize() {
+		$upload_max_filesize = ini_get('upload_max_filesize');
+		$match = array();
+		if (preg_match('#(M|MB)$#i', $upload_max_filesize, $match)) {
+			$upload_max_filesize = intval($upload_max_filesize)*1048576;
+		} elseif (preg_match('#(k|kB)$#i', $upload_max_filesize, $match)) {
+			$upload_max_filesize = intval($upload_max_filesize)*1024;
+		}
+
+		$post_max_size = ini_get('post_max_size');
+		$match = array();
+		if (preg_match('#(M|MB)$#i', $post_max_size, $match)) {
+			$post_max_size = intval($post_max_size)*1048576;
+		} elseif (preg_match('#(k|kB)$#i', $post_max_size, $match)) {
+			$post_max_size = intval($post_max_size)*1024;
+		}
+
+		$upload_max_filesize = min($post_max_size, $upload_max_filesize);
+
+		$maxFileSize = intval($this->maxUploadFileSize)*1024;
+		$maxFileSize = $maxFileSize ? $maxFileSize : intval($GLOBALS['TYPO3_CONF_VARS']['BE']['maxFileSize'])*1024;
+
+		if (min($maxFileSize, $upload_max_filesize)==0) {
+			$upload_max_filesize = max($maxFileSize, $upload_max_filesize);
+		} else {
+			$upload_max_filesize = min($maxFileSize, $upload_max_filesize);
+		}
+		return $upload_max_filesize;
+	}
+	
 
 	/**
 	 * Logging actions
@@ -833,6 +994,8 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		if (is_object($GLOBALS['BE_USER']))	{
 			$GLOBALS['BE_USER']->writelog($type,$action,$error,$details_nr,$details,$data);
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog($actionName.'/'.$action.'/'.$details_nr.' - '.vsprintf($details, $data), 'tx_dam_tce_file', $error);
 
 		if($error AND $actionName AND !((string)($id)=='')) {
 			$this->log['errors']++;
@@ -926,10 +1089,8 @@ class tx_dam_tce_file {
 
 		// Internal, static: GP var
 	var $file;						// Array of file-operations.
-	var $redirect;					// Redirect URL
 	var $CB;						// Clipboard operations array
 	var $overwriteExistingFiles;	// If existing files should be overridden.
-	var $vC;						// VeriCode - a hash of server specific value and other things which identifies if a submission is OK. (see $BE_USER->veriCode())
 
 		// Internal, dynamic:
 	var $fileProcessor;				// File processor object: tx_dam_extFileFunctions
@@ -947,10 +1108,7 @@ class tx_dam_tce_file {
 
 			// GP vars:
 		$this->file = is_array($file) ? $file : t3lib_div::_GP('file');
-		$this->redirect = t3lib_div::_GP('redirect');
-		$this->CB = t3lib_div::_GP('CB');
 		$this->overwriteExistingFiles = t3lib_div::_GP('overwriteExistingFiles');
-		$this->vC = t3lib_div::_GP('vC');
 
 			// Initializing:
 		# $this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
@@ -958,15 +1116,6 @@ class tx_dam_tce_file {
 		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
 		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
 		$this->fileProcessor->dontCheckForUnique = $this->overwriteExistingFiles ? 1 : 0;
-
-			// Checking referer / executing:
-		$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
-		$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
-		if ($httpHost!=$refInfo['host'] && $this->vC!=$BE_USER->veriCode() && !$TYPO3_CONF_VARS['SYS']['doNotCheckReferer'])	{
-			$this->fileProcessor->writeLog(0,2,1,'Referer host "%s" and server host "%s" did not match!',array($refInfo['host'],$httpHost));
-
-			$this->error = 'referer';
-		}
 
 		return $this->error;
 
@@ -1001,6 +1150,8 @@ class tx_dam_tce_file {
 	function initClipboard()	{
 		global $TYPO3_CONF_VARS;
 
+		$this->CB = t3lib_div::_GP('CB');
+		
 		if (is_array($this->CB))	{
 			require_once(PATH_t3lib.'class.t3lib_clipboard.php');
 			$clipObj = t3lib_div::makeInstance('t3lib_clipboard');

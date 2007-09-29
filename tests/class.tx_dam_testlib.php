@@ -188,6 +188,7 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 		@unlink(PATH_txdam.'tests/fixtures/.indexing.setup.xml');
 	}
 
+
 	/**
 	 * Removes testfiles from index
 	 */
@@ -197,6 +198,17 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($path, 'tx_dam');		
 		$GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_dam', 'file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam'));
 	}
+
+
+	/**
+	 * Removes a meta record from index
+	 */
+	protected function removeFixtureUIDFromIndex($uid) {
+		if ($uid=intval($uid)) {
+			$GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_dam', 'uid='.$uid);
+		}
+	}
+
 
 	/**
 	 * Returns an fixture which is a random already indexed file.
@@ -227,6 +239,7 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 
 		return false;
 	}
+
 
 	/**
 	 *

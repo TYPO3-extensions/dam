@@ -653,6 +653,9 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		$table[$tr][$td++] = $LANG->getLL('c_size');
 		# $table[$tr][$td++] = $LANG->getLL('c_rw');
 		$table[$tr][$td++] = '&nbsp;';
+		if (is_object($this->ebObj)) {
+			$table[$tr][$td++] = '&nbsp;';
+		}
 
 
 		foreach ($files as $item) {
@@ -674,6 +677,36 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 				$table[$tr][$td++] = date($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'], $row['file_ctime']);
 				$table[$tr][$td++] = htmlspecialchars(t3lib_div::formatSize($row['file_size']));
 				$table[$tr][$td++] = $this->pObj->btn_editRec_inNewWindow('tx_dam', $item['uid']);
+				
+				if (is_object($this->ebObj)) {
+					
+					if (intval($row['uid'])) {
+						$row = $this->ebObj->enhanceItemArray($row, $this->ebObj->mode);
+						$iconFile = tx_dam::icon_getFileType($row);
+						$titleAttrib = tx_dam_guiFunc::icon_getTitleAttribute($row);
+					
+								// JS: insertElement(table, uid, type, filename, fpath, filetype, imagefile ,action, close)
+						$onClick_params = implode (', ', array(
+							"'".$row['_ref_table']."'",
+							"'".$row['_ref_id']."'",
+							"'".$this->ebObj->mode."'",
+							t3lib_div::quoteJSvalue($row['file_name']),
+							t3lib_div::quoteJSvalue($row['_ref_file_path']),
+							"'".$row['file_type']."'",
+							"'".$iconFile."'")
+							);
+						$onClick = 'return insertElement('.$onClick_params.');';
+						$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+						$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
+						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';				
+						
+						$table[$tr][$td++] = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
+					} else {
+						$table[$tr][$td++] = '';
+					}
+				}
+				
+				
 			} else {
 					// failure
 				$table[$tr][$td++] = $this->pObj->doc->icons(2); // warning

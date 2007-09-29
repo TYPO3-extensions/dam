@@ -1,3 +1,49 @@
+07-02-15 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: tx_dam_tce_file removed referer check
+	* Added: tx_dam::meta_putData()
+	
+07-02-14 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: Multi actions in file module
+	* Added: Multi action: Media>File file copy
+	* Added: Multi action: Media>File file move
+	* Added: Multi action: Media>File file delete
+	* Added: Multi action: Media>List file copy
+	* Added: Multi action: Media>List file move
+
+07-01-25 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: plus icon for insert file after upload in CE
+
+07-01-22 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: Workaround of usage of $GLOBALS['SOBE']->config_checkValueEnabled() in tx_dam_guiRenderList
+	* Fix: file delete command module didn't show error messages
+	* Added: show 'file not exists' icon in tx_dam_cmd_filedelete
+	* Change: smaller GUI and code cleanups in tx_dam_cmd_filedelete
+	* Fix: tx_Dam::path_makeAbsolute make use of 'dir_*' now
+	* Change: code cleanups in lib/tx_dam_list*
+
+07-01-20 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: tx_dam::process_copyFile()
+	* Added: tx_dam::process_moveFolder()
+	* Added: tx_dam::process_copyFolder()
+	* Added: tx_dam::process_createFolder()
+	* Added: tx_dam::notify_fileCopied()
+	* Added: tx_dam_db::cloneFilePath()
+	* Added: ux_t3lib_extFileFunctions::func_copy()
+	
+07-01-15 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: small changes to tx_dam_scbase
+	* Change: small changes to tx_dam_simpleforms
+	
+07-01-10 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: fix call of $GLOBALS['SOBE']->config_checkValueEnabled() in EB
+
 06-12-07 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_image generate checksum for thumbs.php. Needed for t3 4.0.3
@@ -56,6 +102,7 @@
 06-11-26 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: removed usage of pathinfo() because of problems with utf-8 in some PHP versions
+	* Fix: Return to list and reload navframe when new category was created
 
 06-11-25 Rene Fritz  <r.fritz@colorcube.de>
 

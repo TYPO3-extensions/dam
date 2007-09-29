@@ -84,17 +84,16 @@ class tx_dam_listfiles extends tx_dam_listbase {
 	var $dataObjects = array();
 
 	/**
-	 * pathInfo array of the current folder
-	 */
-	var $pathInfo = NULL;
-
-	/**
 	 * Display file sizes in bytes or formatted
 	 */
 	var $showDetailedSize = false;
 
 
-
+	/**
+	 * Dummy table name
+	 */
+	var $table = 'files';
+	
 
 	/***************************************
 	 *
@@ -116,17 +115,19 @@ class tx_dam_listfiles extends tx_dam_listbase {
 
 
 	/**
-	 * Initialization of class
+	 * Initialization of object
+	 * PHP5 constructor
 	 *
 	 * @return	void
 	 */
 	function __construct() {
-		global $BE_USER;
-
+		
 		parent::__construct();
 
 		$this->paramName['setFolder'] = 'SET[tx_dam_folder]';
 
+		$this->showMultiActions = false;
+		$this->showAction = false;
 		$this->showIcon = true;
 
 		$this->clearColumns();
@@ -153,15 +154,18 @@ class tx_dam_listfiles extends tx_dam_listbase {
 	 ***************************************/
 
 
+
 	/**
-	 * Set pathInfo array needed for header control (create folder etc)
+	 * Initialize the object
 	 *
-	 * @param	array		$pathInfo
 	 * @return	void
 	 */
-	function setPathInfo($pathInfo)	{
-		$this->pathInfo = $pathInfo;
+	function init() {
+		$this->returnUrl = t3lib_div::_GP('returnUrl');
+
+		$this->processParams();
 	}
+
 
 
 
@@ -170,7 +174,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 
 	/***************************************
 	 *
-	 *	 Column rendering
+	 *	 Rendering
 	 *
 	 ***************************************/
 
@@ -260,14 +264,24 @@ class tx_dam_listfiles extends tx_dam_listbase {
 
 
 	/**
-	 * Renders the action
+	 * Renders the multi-action
 	 *
 	 * @param	array		$item item array
 	 * @return	string
 	 */
-	function getItemAction ($item) {
-		return '';
+	function getItemMultiAction ($item) {
+		$multiAction = '';
+
+		if ($item['__type'] =='file') {
+			$multiActionID = $item[$item['__type'].'_path_absolute'].$item['file_name'];
+			$multiActionSelected = in_array($multiActionID, $this->recs);
+
+			$multiAction = '<input type="checkbox" name="'.$this->paramName['recs'].'['.$this->table.'][]" value="'.htmlspecialchars($multiActionID).'"'.($multiActionSelected?' checked="checked"':'').' />';
+		}
+		
+		return $multiAction;
 	}
+
 
 
 	/**
@@ -320,45 +334,6 @@ class tx_dam_listfiles extends tx_dam_listbase {
 
 
 	/**
-	 * Creates the control panel for a single record in the listing.
-	 *
-	 * @param	array		The record for which to make the control panel.
-	 * @return	string		HTML table with the control panel (unless disabled)
-	 */
-	function getItemControl($item)	{
-		global $TYPO3_CONF_VARS;
-		
-		static $actionCall = array();;
-
-		$content = '';
-
-		if ($this->showControls) {
-			if (!is_object($actionCall)) {
-				$actionCall[$item['__type']] = t3lib_div::makeInstance('tx_dam_actionCall');
-				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
-				$actionCall[$item['__type']]->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
-				$actionCall[$item['__type']]->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
-				$actionCall[$item['__type']]->setEnv($this->actionsEnv);
-				$actionCall[$item['__type']]->initActions(true);
-			} elseif ($actionCall[$item['__type']]->itemInfo['__type']!=$item['__type']){
-				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
-				$actionCall[$item['__type']]->initActions(true);
-			}
-
-			$actionCall[$item['__type']]->setRequest('control', $item);
-			$actions = $actionCall[$item['__type']]->renderActionsHorizontal(true);
-
-				// Compile items into a DIV-element:
-			$content = '
-											<!-- CONTROL PANEL: '.htmlspecialchars($item['file_name']).' -->
-											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
-		}
-
-		return $content;
-	}
-
-
-	/**
 	 * Creates the control panel for the path: create folder etc.
 	 *
 	 * @return	string		HTML table with the control panel (unless disabled)
@@ -387,6 +362,67 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Creates the control panel for a single record in the listing.
+	 *
+	 * @param	array		The record for which to make the control panel.
+	 * @return	string		HTML table with the control panel (unless disabled)
+	 */
+	function getItemControl($item)	{
+		global $TYPO3_CONF_VARS;
+		
+		static $actionCall = array();
+
+		$content = '';
+
+		if ($this->showControls) {
+			if (!is_object($actionCall[$item['__type']])) {
+				$actionCall[$item['__type']] = t3lib_div::makeInstance('tx_dam_actionCall');
+				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
+				$actionCall[$item['__type']]->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+				$actionCall[$item['__type']]->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+				$actionCall[$item['__type']]->setEnv($this->actionsEnv);
+				$actionCall[$item['__type']]->initActions(true);
+			} elseif ($actionCall[$item['__type']]->itemInfo['__type']!=$item['__type']){
+				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
+				$actionCall[$item['__type']]->initActions(true);
+			}
+
+			$actionCall[$item['__type']]->setRequest('control', $item);
+			$actions = $actionCall[$item['__type']]->renderActionsHorizontal(true);
+
+				// Compile items into a DIV-element:
+			$content = '
+											<!-- CONTROL PANEL: '.htmlspecialchars($item['file_name']).' -->
+											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
+		}
+
+		return $content;
+	}
+
+
+
+	/**
+	 * Returns an array of multi actions to be rendered by renderMultiActionBar()
+	 *
+	 * @return array
+	 * @see tx_dam_actionCall::renderMultiActions()
+	 * @see renderMultiActionBar()
+	 */
+	function getMultiActions() {
+		global $TYPO3_CONF_VARS;
+		
+		$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+		$actionCall->setRequest('multi', array('__type' => 'file'));
+		$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+		$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+		$actionCall->setEnv($this->actionsEnv);
+		$actionCall->initActions(true);
+
+		$actions = $actionCall->renderMultiActions();
+		return $actions;
 	}
 
 

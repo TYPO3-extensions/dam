@@ -75,6 +75,7 @@ class tx_dam_file_list extends t3lib_extobjbase {
 
 		return array(
 			'tx_dam_file_list_showThumb' => '',
+			'tx_dam_file_list_showMultiActions' => '',
 			'tx_dam_file_list_showfullTitle' => '',
 			'tx_dam_file_list_showUnixPerms' => '',
 			'tx_dam_file_list_showDetailedSize' => '',
@@ -109,6 +110,7 @@ class tx_dam_file_list extends t3lib_extobjbase {
 			$this->pObj->MOD_SETTINGS['tx_dam_file_list_showUnixPerms'] = false;
 		}
 		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showDetailedSize', $LANG->getLL('showDetailedSize'));
+		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showMultiActions', $LANG->getLL('showMultiAction'));
 
 			// This will return content necessary for the context sensitive clickmenus to work: bodytag events, JavaScript functions and DIV-layers.
 //		$CMparts = $this->pObj->doc->getContextMenuCode();
@@ -129,7 +131,19 @@ class tx_dam_file_list extends t3lib_extobjbase {
 
 		$content = '';
 
+		//
+		// Create filelisting object
+		//
 
+		$filelist = t3lib_div::makeInstance('tx_dam_listfiles');
+		$filelist->init();
+		
+		$filelist->setActionsEnv(array(
+				'pathInfo' => $this->pObj->pathInfo,
+			));
+
+
+			
 		//
 		// fetches folder
 		//
@@ -163,16 +177,67 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		$dirListFiles->sort($sortField, $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
 
 		$this->pObj->selection->pointer->setTotalCount($dirListFolder->count()+$dirListFiles->count());
-
-			// Create filelisting object
-		$filelist = t3lib_div::makeInstance('tx_dam_listfiles');
 		
-		$filelist->setActionsEnv(array(
-				'pathInfo' => $this->pObj->pathInfo,
-			));
+
+		//
+		// process multi action if needed
+		//
+
+		if ($processAction = $filelist->getMultiActionCommand()) {
+
+			if ($processAction['onItems'] === '_all') {
+
+				$uidList = array();
+				if ($dirListFiles->count())	{
+	
+					while ($dirListFiles->valid()) {
+	
+						$item = $list->current();
+						$uidList[] = tx_dam::file_absolutePath($item);
+	
+						$dirListFiles->next();
+					}
+				}
+			} else {
+				
+				$uidList = t3lib_div::trimExplode(',', $processAction['onItems'], true);
+			}
+
+			if ($uidList) {
+				$itemList = '';
+				foreach ($uidList as $file) {
+					$itemList .= '&file[]='.rawurlencode($file);
+				}
+				switch ($processAction['actionType']) {
+					case 'url':
+						$url = str_replace('###PARAMLIST###', $itemList, $processAction['action']);
+						header('Location: '.$url);
+						exit;
+					break;
+// TODO
+//					case 'tce-data':
+//						$params = '';
+//						foreach ($uidList as $uid) {
+//							$params .= str_replace('###UID###', $uid, $processAction['action']);
+//						}
+//						$url = $GLOBALS['SOBE']->doc->issueCommand($params, -1);
+//
+//
+//						$url = $BACK_PATH.'tce_file.php?&redirect='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).'&vC='.$BE_USER->veriCode().'&prErr=1&uPT=1'.$params;
+//
+//						header('Location: '.$url);
+//						exit;
+//					break;
+				}
+			}
+		}
+			
+
 				
 		$filelist->setParameterName('form', $this->pObj->formName);
 
+			// enable display of multi actions
+		$filelist->showMultiActions = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showMultiActions'];
 			// Enable/disable display of thumbnails
 		$filelist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showThumb'];
 			// Enable/disable display of long titles
@@ -191,13 +256,14 @@ class tx_dam_file_list extends t3lib_extobjbase {
 $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
-		$filelist->setPathInfo($this->pObj->pathInfo);
 		$filelist->addData($dirListFolder, 'dir');
 		$filelist->addData($dirListFiles, 'files');
 		$filelist->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
 		$filelist->setParameterName('sortField', 'SET[tx_dam_file_list_sortField]');
 		$filelist->setParameterName('sortRev', 'SET[tx_dam_file_list_sortRev]');
 		$filelist->setPointer($this->pObj->selection->pointer);
+		
+		$this->pObj->doc->JScodeArray['filelist-JsCode'] = $filelist->getJsCode();
 
 
 		$fileListTable = $filelist->getListTable();

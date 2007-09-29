@@ -78,7 +78,7 @@ $LANG->includeLLFile('EXT:dam/mod_cmd/locallang.xml');
 
 
 
-require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
+require_once(PATH_t3lib.'class.t3lib_basicfilefunc.php');
 require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
 require_once(PATH_txdam.'lib/class.tx_dam_listfiles.php');
 
@@ -268,6 +268,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 		$this->TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
 		$this->TCEfile->init();
+		$this->TCEfile->overwriteExistingFiles(t3lib_div::_GP('overwriteExistingFiles'));
 
 
 		parent::init();

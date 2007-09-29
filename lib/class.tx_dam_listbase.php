@@ -428,6 +428,52 @@ class tx_dam_listbase {
 	}
 	
 	
+
+
+	/***************************************
+	 *
+	 *	 Process params and commands
+	 *
+	 ***************************************/
+
+
+	/**
+	 * Returns a table with directories and files listed.
+	 *
+	 * @return	void
+	 */
+	function processParams()	{
+		if ($this->paramName['recs'] AND !count($this->recs)) {
+			$recs = t3lib_div::_GP($this->paramName['recs']);
+			if ($this->table AND is_array($recs[$this->table])) {
+				$this->recs = $recs[$this->table];
+			} elseif (!$this->table AND is_array($recs)) {
+				$this->recs = $recs;
+			}
+		}
+	}
+
+
+	/**
+	 * Test submitted data if a command should be processed and return an array with command values
+	 *
+	 * @return mixed FALSE if nor action should be performed or an array with information about the action
+	 */
+	function getMultiActionCommand() {
+		if (t3lib_div::_GP($this->paramName['multi_action_submit']) AND $action=t3lib_div::_GP($this->paramName['multi_action'])) {
+			$processAction = array();
+
+			list ($processAction['actionType'], $processAction['action']) = explode(':', $action, 2);
+
+			if (t3lib_div::_GP($this->paramName['multi_action_target']) === 'all') {
+				 $processAction['onItems'] = '_all';
+			} else {
+				 $processAction['onItems'] = implode(',', $this->recs);
+			}
+			return $processAction;
+		}
+		return false;
+	}
 	
 	
 	

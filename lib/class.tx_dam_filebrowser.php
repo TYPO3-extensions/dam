@@ -64,8 +64,32 @@ require_once(PATH_txdam.'lib/class.tx_dam_listpointer.php');
  */
 class tx_dam_filebrowser extends tx_dam_listfiles {
 
+	/**
+	 * Initialize the object
+	 * PHP4 constructor
+	 *
+	 * @return	void
+	 * @see __construct()
+	 */
+	function tx_dam_filebrowser() {
+		$this->__construct();
+	}
 
 
+	/**
+	 * Initialize the object
+	 * PHP5 constructor
+	 *
+	 * @return	void
+	 * @see __construct()
+	 */
+	function __construct() {
+		
+		parent::__construct();
+		
+		$this->SOBE = & $GLOBALS['SOBE'];
+	}
+	
 
 	/**
 	 * Creates a file/folder browser.
@@ -134,7 +158,7 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 		//
 
 		$dirListFolder = t3lib_div::makeInstance('tx_dam_iterator_dir');
-		$dirListFolder->read($pathInfo['dir_path_absolute'], 'dir,link');
+		$dirListFolder->read($pathInfo, 'dir,link');
 
 
 		//
@@ -142,7 +166,7 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 		//
 
 		$dirListFiles = t3lib_div::makeInstance('tx_dam_iterator_dir');
-		$dirListFiles->read($pathInfo['dir_path_absolute'], 'file');
+		$dirListFiles->read($pathInfo, 'file');
 
 
 		//
@@ -157,7 +181,6 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 		// setup filelisting
 		//
 
-		$this->setPathInfo($pathInfo);
 		$this->addData($dirListFolder, 'dir');
 		$this->addData($dirListFiles, 'files');
 		$this->setCurrentSorting($this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortRev']);
@@ -174,7 +197,7 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 	 * @return void
 	 */
 	function _filebrowser_makePreset() {
-
+		
 		$this->removeColumn('_CONTROL_');
 		$this->clickMenus = false;
 		$this->clipBoard = false;
@@ -191,7 +214,7 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 			// Enable/disable display of long titles
 		$this->showfullTitle = false;
 			// Enable/disable display of AlternateBgColors
-		$this->showAlternateBgColors = $this->SOBE->config_checkValueEnabled('alternateBgColors', true);
+		$this->showAlternateBgColors = is_object($this->SOBE) ? $this->SOBE->config_checkValueEnabled('alternateBgColors', true) : true;
 			
 			// Enable/disable display of unix like permission string
 		$this->showUnixPerms = false;
