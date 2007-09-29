@@ -80,35 +80,15 @@ require_once (PATH_txdam.'lib/class.tx_dam_actioncall.php');
 class tx_dam_listrecords extends tx_dam_listbase {
 
 
-
-
-
-	// Used in this class:
-	var $no_noWrap = 0;
-	var $oddColumnsTDAttr = ''; // If set this is <td>-params for odd columns in addElement. Used with db_layout / pages section
-
-	// Not used in this class - but maybe extension classes...
-	var $fixedL = 50; // Max length of strings
-	var $headLineCol = '#dddddd'; // Head line color
-
-
-	// internal
-	var $table = ''; // set to the tablename if single-table mode
+	var $table = ''; // set to the tablename
+	
 	var $returnUrl = '';
-
-	var $res;
+	
 	var $allItemCount = 0; // Counting the elements no matter what...
-
-	var $addElement_tdParams = array(); // Keys are fieldnames and values are td-parameters to add in addElement();
-
-
+	
 	var $calcPerms = 0;
+	
 	var $currentTable = array();
-
-
-	var $noControlPanels = 0;
-
-
 
 
 
@@ -154,6 +134,11 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 
 
+	/***************************************
+	 *
+	 *	 Set data
+	 *
+	 ***************************************/
 
 
 
@@ -181,50 +166,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	function setDataObject($dbObj) {
 		$this->dataObjects['db'] = $dbObj;
 
-	}
-
-
-	/***************************************
-	 *
-	 *	 Process params and commands
-	 *
-	 ***************************************/
-
-
-	/**
-	 * Returns a table with directories and files listed.
-	 *
-	 * @return	void
-	 */
-	function processParams()	{
-		if ($this->paramName['recs'] AND !count($this->recs)) {
-			$recs = t3lib_div::_GP($this->paramName['recs']);
-			if (is_array($recs[$this->table])) {
-				$this->recs = $recs[$this->table];
-			}
-		}
-	}
-
-
-	/**
-	 * Test submitted data if a command should be processed and return an array with command values
-	 *
-	 * @return mixed FALSE if nor action should be performed or an array with information about the action
-	 */
-	function getMultiActionCommand() {
-		if (t3lib_div::_GP($this->paramName['multi_action_submit']) AND $action=t3lib_div::_GP($this->paramName['multi_action'])) {
-			$processAction = array();
-
-			list ($processAction['actionType'], $processAction['action']) = explode(':', $action, 2);
-
-			if (t3lib_div::_GP($this->paramName['multi_action_target']) === 'all') {
-				 $processAction['onItems'] = '_all';
-			} else {
-				 $processAction['onItems'] = implode(',', $this->recs);
-			}
-			return $processAction;
-		}
-		return false;
 	}
 
 
@@ -433,7 +374,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	}
 
 
-
 	/**
 	 * Renders the item icon
 	 *
@@ -441,12 +381,11 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 * @return	string
 	 */
 	function getItemIcon (&$item) {
-		static $titleNotIndexed;
-		static $iconNotIndexed;
+		static $iconNotExists;
 
-		if(!$iconNotIndexed) {
-			$titleNotIndexed = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists', true).'"';
-			$iconNotIndexed = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotIndexed.' alt="" />';
+		if(!$iconNotExists) {
+			$titleNotExists = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists', true).'"';
+			$iconNotExists = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotExists.' alt="" />';
 		}
 
 		$titletext = t3lib_BEfunc::getRecordIconAltText($item, $this->table);
@@ -455,11 +394,13 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 		if (!is_file(tx_dam::file_absolutePath($item))) {
 			$item['file_status'] = TXDAM_status_file_missing;
-			$itemIcon.= $iconNotIndexed;
+			$itemIcon.= $iconNotExists;
 		}
 
 		return $itemIcon;
 	}
+
+
 
 
 	/***************************************
@@ -542,7 +483,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 		return $content;
 	}
-
 
 
 	/**
@@ -629,16 +569,11 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		return $actions;
 	}
 
+
+
+
+
 #TODO Clipboard
-
-
-
-
-	/***************************************
-	 *
-	 *	 Clipboard
-	 *
-	 ***************************************/
 
 
 

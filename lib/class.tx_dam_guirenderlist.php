@@ -139,8 +139,10 @@ class tx_dam_guiRenderList {
 		
 		$GLOBALS['SOBE']->develAvailableGuiItems[$func] = $func;
 	
-		if (!$GLOBALS['SOBE']->config_checkValueEnabled('guiElements.'.$func, true)) return;
-		
+		if (is_callable(array($GLOBALS['SOBE'], 'config_checkValueEnabled'))) {
+// TODO this doesn't work with EB
+			if (!$GLOBALS['SOBE']->config_checkValueEnabled('guiElements.'.$func, true)) return;
+		}
 		
 		$prefix = is_object($obj) ? get_class($obj).'>' : '';
 

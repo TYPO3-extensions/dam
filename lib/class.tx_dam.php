@@ -476,9 +476,13 @@ class tx_dam {
 
 
 	/**
-	 * Returns a folder name from a path.
-	 * This works NOT with a path without trailing slash.
+	 * Returns the last part from a path.
+	 * If the last part is a filename the filename will be returned.
 	 * (needed because pathinfo is broken on some php5.x versions using utf-8 chars)
+	 * Examples:
+	 * example/folder/ -> folder
+	 * example/folder -> folder
+	 * example/folder/filename -> filename
 	 *
 	 * @param	string		$path 
 	 * @return	string		The name of the folder
@@ -521,7 +525,11 @@ class tx_dam {
 
 		if ($path) {
 			if (is_array($path)) {
-				$path = $path['file_path_absolute'] ? $path['file_path_absolute'] : $path['file_path'];
+				if (isset($path['dir_name'])) {
+					$path = $path['dir_path_absolute'] ? $path['dir_path_absolute'] : $path['dir_path'];
+				} else {
+					$path = $path['file_path_absolute'] ? $path['file_path_absolute'] : $path['file_path'];
+				}
 			}
 	
 			$path = tx_dam::path_makeClean ($path);
@@ -639,6 +647,7 @@ class tx_dam {
 			$pathInfo['dir_title'] = $pathInfo['dir_name'];
 			$pathInfo['dir_path_absolute'] = $path;
 			$pathInfo['dir_path_relative'] = tx_dam::path_makeRelative($path);
+			$pathInfo['dir_path'] = $pathInfo['dir_path_relative'];
 			$pathInfo['dir_path_normalized'] = $pathInfo['dir_path_relative'];
 			$pathInfo['dir_path_from_mount'] = tx_dam::path_makeRelative($path, $pathInfo['mount_path']);
 
@@ -1053,6 +1062,25 @@ class tx_dam {
 
 
 	/**
+	 * Updates the meta data in the index for a given UID.
+	 *
+	 * @param	integer		$uid UID of the meta data record
+	 * @param	array		$row Meta data record array with field/value pairs to be updated
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
+	 * @return	boolean		True when index was updated
+	 */
+	function meta_putData ($uid, $meta, $mode=TYPO3_MODE) {
+
+		if($uid = intval($uid)) {
+			$meta['uid'] = $uid;
+			return tx_dam_db::insertUpdateData($meta);
+		}
+
+		return false;
+	}
+	
+
+	/**
 	 * Checks if a file was changed or if it's missing and updates the status accordingly
 	 *
 	 * @param	array		$row Meta data record array with 'uid' field
@@ -1413,7 +1441,7 @@ class tx_dam {
 
 		if ($filename = tx_dam::file_absolutePath($filename)) {
 	
-			 if(!@is_file($filename)){
+			 if(!@file_exists($filename)){
 				 tx_dam::notify_fileDeleted($filename);
 	
 			 } else {
@@ -1520,7 +1548,7 @@ class tx_dam {
 
 
 	/**
-	 * Rename a file and process DB update
+	 * Move a file and process DB update
 	 *
 	 * @param	string		$oldFilePath File path
 	 * @param	string		$newPath New path. This is a directory path where the file should be moved to.
@@ -1576,6 +1604,62 @@ class tx_dam {
 
 
 	/**
+	 * Copy a file and process DB update
+	 *
+	 * @param	string		$oldFilePath File path
+	 * @param	string		$newPath New path. This is a directory path where the file should be copied to.
+	 * @param	boolean		$allowNewName If set and the target already exists a new name will be created.
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_copyFile($oldFilePath, $newPath, $allowNewName=FALSE, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = true;
+
+		$oldFilePath = tx_dam::file_absolutePath($oldFilePath);
+		$newPath = tx_dam::path_makeAbsolute($newPath);
+		$oldFileName = tx_dam::file_basename($oldFilePath);
+				
+		if ($oldFilePath !== $newPath) {
+
+			$error = false;
+
+				// Init TCE-file-functions object:
+			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+			$TCEfile->init();
+
+				// Processing rename folder
+			$cmd = array();
+			$cmd['copy']['NONE']['data'] = $oldFilePath;
+			$cmd['copy']['NONE']['target'] = $newPath;
+			$cmd['copy']['NONE']['altName'] = $allowNewName;
+
+			$TCEfile->setCmdmap($cmd);
+			$TCEfile->process();
+			if ($TCEfile->errors()) {
+				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+			}
+			// already done in tx_dam_tce_file:
+			// tx_dam::notify_fileCopied($oldPath, $newPath);
+		}
+
+
+		if (!$error) {
+			$info = array(
+					'target_file' => $oldFilePath,
+					'new_file' => $newPath.$oldFileName,
+				);
+			tx_dam::_callProcessPostTrigger('copyFile', $info);
+		}
+
+		return $error;
+	}
+
+
+	/**
 	 * Creates a new file
 	 *
 	 * @param 	array 	$filename Filename
@@ -1585,7 +1669,6 @@ class tx_dam {
 	 */
 	function process_createFile($filename, $content='', $getFullErrorLogEntry=FALSE) {
 		global $TYPO3_CONF_VARS;
-		
 
 		$error = false;
 
@@ -1820,8 +1903,166 @@ class tx_dam {
 
 		return $error;
 	}
+	
+// TODO tx_dam::process_moveFolder($fspath, $getFullErrorLogEntry=FALSE);
+	
+	/**
+	 * Move a folder and process DB update
+	 *
+	 * @param	string		$oldPath Folder path
+	 * @param	string		$newPath New folder path. This is a directory path where the folder should be moved to.
+	 * @param	boolean		$allowNewName If set and the target already exists a new name will be created.
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_moveFolder($oldPath, $newPath, $allowNewName=FALSE, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = true;
+
+		$oldPath = tx_dam::path_makeAbsolute($oldPath);
+		$newPath = tx_dam::path_makeAbsolute($newPath);
+		$oldFolderName = tx_dam::path_basename($oldPath);
+				
+		if ($oldPath !== $newPath) {
+
+			$error = false;
+
+				// Init TCE-file-functions object:
+			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+			$TCEfile->init();
+
+				// Processing rename folder
+			$cmd = array();
+			$cmd['copy']['NONE']['data'] = $oldPath;
+			$cmd['copy']['NONE']['target'] = $newPath;
+			$cmd['copy']['NONE']['altName'] = $allowNewName;
+
+			$TCEfile->setCmdmap($cmd);
+			$TCEfile->process();
+			if ($TCEfile->errors()) {
+				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+			}
+			// already done in tx_dam_tce_file:
+			// tx_dam::notify_fileMoved($oldPath, $newPath);
+		}
 
 
+		if (!$error) {
+			$info = array(
+					'target_folder' => $oldPath,
+					'new_folder' => $newPath.$oldFolderName,
+				);
+			tx_dam::_callProcessPostTrigger('moveFolder', $info);
+		}
+
+
+		return $error=true;
+	}
+
+
+	/**
+	 * Move a folder and process DB update
+	 *
+	 * @param	string		$oldFolderPath Folder path
+	 * @param	string		$newPath New path. This is a directory path where the folder should be copied to.
+	 * @param	boolean		$allowNewName If set and the target already exists a new name will be created.
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_copyFolder($oldFolderPath, $newPath, $allowNewName=FALSE, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = true;
+
+		$oldFolderPath = tx_dam::path_makeAbsolute($oldFolderPath);
+		$newPath = tx_dam::path_makeAbsolute($newPath);
+		$oldFolderName = tx_dam::path_basename($oldFolderPath);
+				
+		if ($oldFolderPath !== $newPath) {
+
+			$error = false;
+
+				// Init TCE-file-functions object:
+			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+			$TCEfile->init();
+
+				// Processing rename folder
+			$cmd = array();
+			$cmd['move']['NONE']['data'] = $oldFolderPath;
+			$cmd['move']['NONE']['target'] = $newPath;
+			$cmd['move']['NONE']['altName'] = $allowNewName;
+
+			$TCEfile->setCmdmap($cmd);
+			$TCEfile->process();
+			if ($TCEfile->errors()) {
+				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+			}
+			// already done in tx_dam_tce_file:
+			// tx_dam::notify_fileCopied($oldPath, $newPath);
+		}
+
+
+		if (!$error) {
+			$info = array(
+					'target_folder' => $oldFolderPath,
+					'new_folder' => $newPath.$oldFolderName,
+				);
+			tx_dam::_callProcessPostTrigger('copyFolder', $info);
+		}
+
+		return $error;
+	}
+	
+
+	/**
+	 * Creates a folder
+	 *
+	 * @param	string		$path Folder path
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_createFolder($path, $getFullErrorLogEntry=FALSE){
+		global $TYPO3_CONF_VARS;
+
+		$error = false;
+
+		$path = tx_dam::path_makeAbsolute($path);
+		$folderName = tx_dam::path_basename($path);
+		$pathDest =  preg_replace('#/$#', '', dirname($path));
+		
+			// Init TCE-file-functions object:
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+
+			// Processing delete folder
+		$cmd = array();
+		$cmd['newfolder']['NONE']['target'] = $pathDest;
+		$cmd['newfolder']['NONE']['data'] = $folderName;
+		$TCEfile->setCmdmap($cmd);
+		$log = $TCEfile->process();
+
+		if ($TCEfile->errors()) {
+			$error = $TCEfile->getLastError($getFullErrorLogEntry);
+		}
+
+		if (!$error) {
+			$info = array(
+					'target_path' => $path,
+				);
+			tx_dam::_callProcessPostTrigger('createFolder', $info);
+		}
+
+		return $error;
+	}
+	
+	
 	/**
 	 * Deletes a folder and it's files and process DB update
 	 *
@@ -1952,6 +2193,47 @@ class tx_dam {
 			// the item is a folder
 		} elseif (@is_dir($dest)) {
 			tx_dam_db::updateFilePath($src, $dest);
+		}
+		// else unknown
+	}
+
+
+	/**
+	 * Notifies the DAM about (external) changes to names and movements about files or folders.
+	 * This will update all related meta data
+	 *
+	 * @param	string		$src File/folder name with path of the source that was changed.
+	 * @param	string		$dest File/folder name with path of the destination which is a new name or/and a new location.
+	 * @return	void
+	 */
+	function notify_fileCopied ($src, $dest) {
+
+		if (@is_file($dest)) {
+
+			if ($meta = tx_dam::meta_getDataForFile($src, '*', true)) {
+
+				$fileInfo = tx_dam::file_compileInfo ($dest);
+
+				$values = $meta;
+				$values['uid'] = 'NEW';
+				$values['deleted'] = '0';
+				$values['file_name'] = $fileInfo['file_name'];
+				$values['file_path'] = $fileInfo['file_path'];
+				$values['file_mtime'] = $fileInfo['file_mtime'];
+				if ($meta['file_dl_name']==$meta['file_name']) {
+					$values['file_dl_name'] = $fileInfo['file_name'];
+				}
+
+				tx_dam_db::insertUpdateData($values);
+
+			} else {
+					// file is not yet indexed
+				tx_dam::index_autoProcess($dest);
+			}
+
+			// the item is a folder
+		} elseif (@is_dir($dest)) {
+			tx_dam_db::cloneFilePath($src, $dest);
 		}
 		// else unknown
 	}

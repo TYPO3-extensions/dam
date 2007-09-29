@@ -302,7 +302,7 @@ class tx_dam_db {
 	 * Old relations will be deleted, means you have to put them into the list if you want to preserve them.
 	 *
 	 * @param	array		$meta meta record values
-	 * @return	integer		record id
+	 * @return	integer		record id or false if an error occured
 	 */
 	function insertUpdateData($meta)	{
 		global $TYPO3_CONF_VARS;
@@ -346,8 +346,11 @@ class tx_dam_db {
 
 			// data change - always before a deletion
 		$tce->process_datamap();
+		if (count($this->errorLog)) return false;
+		
 			// delete record when requested
 		$tce->process_cmdmap();
+		if (count($this->errorLog)) return false;
 
 
 		if ($id === 'NEW') {
@@ -639,11 +642,40 @@ class tx_dam_db {
 		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($oldPath, 'tx_dam');
 		$where['file_path'] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
 
-		$rows = tx_dam_db::getDataWhere ('DISTINCT file_path', $where);
+		$rows = tx_dam_db::getDataWhere ('DISTINCT tx_dam.file_path', $where);
 
 		foreach($rows as $row) {
 			$updatedPath = preg_replace('#^'.preg_quote($oldPath).'#', $newPath, $row['file_path']);
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($row['file_path'], 'tx_dam'), array('file_path'=>$updatedPath));
+		}
+	}
+
+
+	/**
+	 * Clone all meta data records that matches/begins with the old path and updates the file path.
+	 *
+	 * @param	string		$oldPath old path
+	 * @param	string		$newPath new path
+	 * @return	void
+	 */
+	function cloneFilePath($oldPath, $newPath)	{
+
+		$oldPath = tx_dam::path_makeRelative($oldPath);
+		$newPath = tx_dam::path_makeRelative($newPath);
+
+		$where = array();
+		$where['enableFields'] = 'deleted=0';
+		$where['pidList'] = '';
+		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($oldPath, 'tx_dam');
+		$where['file_path'] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
+
+		$rows = tx_dam_db::getDataWhere ('DISTINCT *', $where);
+
+		$preg_oldPath = '#^'.preg_quote($oldPath).'#';
+		foreach($rows as $row) {
+			$row['file_path'] = preg_replace($preg_oldPath, $newPath, $row['file_path']);
+			$row['uid'] = 'NEW';
+			tx_dam_db::insertUpdateData($row);
 		}
 	}
 

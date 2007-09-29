@@ -111,8 +111,8 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 			// add some options
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_showThumb', $LANG->getLL('showThumbnails'));
-		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_showMultiActions', $LANG->getLL('showMultiAction'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_onlyDeselected', $LANG->getLL('tx_dam_list_list.onlyDeselected'));
+		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_showMultiActions', $LANG->getLL('showMultiAction'));
 	}
 
 

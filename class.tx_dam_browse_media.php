@@ -1116,6 +1116,19 @@ if (is_string($allowedFileTypes)) {
 		return '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="'.$name.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 	}
 
+
+	/**
+	 * Check a config value if its enabled
+	 * @param	string		$configPath Pointer to an "object" in the TypoScript array, fx. 'my.option'
+	 * @param	mixed 		$default Default value when option is not set
+	 * @return boolean
+	 * @see tx_dam_SCbase
+	 */
+	function config_checkValueEnabled($configPath, $default=false) {
+		
+		return $this->damSC->config_checkValueEnabled($configPath, $default);
+	}
+
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/class.tx_dam_browse_media.php'])	{

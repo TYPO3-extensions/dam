@@ -130,7 +130,7 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 			}
 
 			if ($errors) {
-				$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), implode('<br />', $error), $this->pObj->buttonBack(0), 2);
+				$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), implode('<br />', $errors), $this->pObj->buttonBack(0), 2);
 
 			} else {
 				$this->pObj->redirect();
@@ -229,6 +229,9 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 		$references = 0;
 
 
+		$titleNotExists = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists', true).'"';
+		$iconNotExists = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotExists.' valign="top" alt="" />';
+
 		$referencedIcon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/is_referenced.gif', 'width="15" height="12"').' title="'.$LANG->getLL('tx_dam_cmd_filedelete.messageReferencesUsed',1).'" alt="" />';
 
 			// init table layout
@@ -243,10 +246,11 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 				'5' => array('<th width="1%" class="bgColor5">','</th>'),
 			),
 			'defRow' => array(
-				'defCol' => array('<td nowrap="nowrap" class="bgColor4">','</td>'),
+				'defCol' => array('<td nowrap="nowrap" class="bgColor4">','</td>'), 
+				'2' => array('<td class="bgColor4">','</td>'),
 				'3' => array('<td style="text-align:center" class="bgColor4">','</td>'),
 				'4' => array('<td style="padding:0 5px 0 5px" class="bgColor4">','</td>'),
-				'5' => array('<td style="text-align:center" class="bgColor1">','</td>'),
+				'5' => array('<td style="text-align:center" class="bgColor4">','</td>'),
 			),
 		);
 
@@ -278,9 +282,13 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 			$title = t3lib_div::fixed_lgd_cs($title,50);
 
 			$icon = tx_dam_guiFunc::icon_getFileTypeImgTag($meta, 'class="c-recicon"', false);
-
-			$info = $GLOBALS['SOBE']->btn_infoFile($meta);
-
+			if (!@file_exists($filepath)) {
+				$icon .= $iconNotExists;
+				$info = '';
+			} else {
+				$info = $GLOBALS['SOBE']->btn_infoFile($meta);
+			}
+			
 			if ($meta['uid'] AND $ref=tx_dam_db::getMediaUsageReferences($meta['uid'])) {
 				$references += count($ref);
 			}
@@ -313,7 +321,6 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 		$msg[] = $LANG->getLL('tx_dam_cmd_filedelete.message',1);
 
 		$buttons = '
-			<input type="hidden" name="data[delete]['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
 			<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filedelete.submit',1).'" />
 			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
 

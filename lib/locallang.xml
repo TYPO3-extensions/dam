@@ -126,6 +126,7 @@
             <label index="viewFile">View file</label>
             <label index="editFile">Edit file</label>
             <label index="replaceFile">Replace file</label>
+            <label index="cm.move">Move</label>
             <label index="pathNoAccess">You have no access to the requested path.</label>
             <label index="pathNotExists">The requested path do not exists.</label>
             <label index="fileNotIndexed">The file is not indexed yet.</label>
@@ -225,6 +226,7 @@
             <label index="viewFile">Datei ansehen</label>
             <label index="editFile">Datei bearbeiten</label>
             <label index="replaceFile">Datei ersetzen</label>
+            <label index="cm.move">Verschieben</label>
             <label index="pathNoAccess">Sie haben keinen Zugriff auf das gewünschte Verzeichnis</label>
             <label index="pathNotExists">Das gewünschte Verzeichnis existiert nicht.</label>
             <label index="fileNotIndexed">Die Datei ist noch nicht indexiert.</label>
