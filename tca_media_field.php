@@ -19,6 +19,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] =
 				'form_type' => 'user',
 				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->getSingleField_typeMedia',
 
+				'userProcessClass' => 'EXT:mmforeign/class.tx_mmforeign_tce.php:tx_mmforeign_tce',
 				'type' => 'group',
 				'internal_type' => 'db',
 				'allowed' => 'tx_dam',
@@ -53,6 +54,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] =
 				'form_type' => 'user',
 				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->getSingleField_typeMedia',
 
+				'userProcessClass' => 'EXT:mmforeign/class.tx_mmforeign_tce.php:tx_mmforeign_tce',
 				'type' => 'group',
 				'internal_type' => 'db',
 				'allowed' => 'tx_dam',

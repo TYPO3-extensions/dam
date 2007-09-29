@@ -168,16 +168,14 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 	 * @param	array		$cmds['data'] is the the file/folder to delete
 	 * @return	boolean		Returns true upon success
 	 */
-	function func_delete($cmds)	{
+	function func_delete($cmds, $id)	{
 		if (!$this->isInit) return FALSE;
 
 			// Checking path:
 		$theFile = $cmds['data'];
 
-		$id = (string)$cmds['data'];
-
 			// main log entry
-		$this->log['cmd']['upload'][$id] = array(
+		$this->log['cmd']['delete'][$id] = array(
 				'errors' => array(),
 				'orig_filename' => $theFile,
 				'target_file' => '',
@@ -634,6 +632,8 @@ class tx_dam_tce_file {
 	 * @return	void
 	 */
 	function initClipboard()	{
+		global $TYPO3_CONF_VARS;
+
 		if (is_array($this->CB))	{
 			require_once(PATH_t3lib.'class.t3lib_clipboard.php');
 			$clipObj = t3lib_div::makeInstance('t3lib_clipboard');

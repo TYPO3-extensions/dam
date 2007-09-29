@@ -117,7 +117,6 @@ class tx_dam_batchProcess {
 		if(t3lib_div::_GP($this->startParam)) {
 			$data = t3lib_div::_POST('data');
 			$data_fixedFields = t3lib_div::_POST('data_fixedFields');
-			$this->getFormSetup();
 			$formSubmitted = $this->extractFormData($data, $data_fixedFields);
 			$this->saveFormSetup();
 			return $formSubmitted;

@@ -474,6 +474,7 @@ class tx_dam_indexing {
 		global $TYPO3_CONF_VARS;
 
 		$setup = false;
+		$basePath = $basePath ? $basePath : PATH_site;
 
 		if ($path) {
 			$setup = $this->findSetupInPath($path, $walkUp, $basePath);
@@ -599,9 +600,17 @@ class tx_dam_indexing {
 			$uid = intval($status['meta']['uid']);
 
 			if ($uid) {
+
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_dam', 'uid='.intval($uid));
+				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+
+					// this is needed for fields like group/MM
+				require_once (PATH_t3lib.'class.t3lib_transferdata.php');
+				$processData = t3lib_div::makeInstance('t3lib_transferData');
+				$row = $processData->renderRecordRaw('tx_dam', $row['uid'], $row['pid'], $row);
+
 					// index rule use 'row' for merging
-				$meta['row'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+				$meta['row'] = $row;
 				$meta['reindexed'] = $this->doReindexing;
 			} else {
 				$uid = 'NEW';
@@ -1081,10 +1090,10 @@ class tx_dam_indexing {
 			$mimeType['fulltype'] = $mt;
 			$mimeType['file_mime_type'] = $mtarr[0];
 			$mimeType['file_mime_subtype'] = $mtarr[1];
+		}
 
-			if ($mimeType['file_type'] == '') {
-				$mimeType['file_type'] = array_search($mimeType['fulltype'],$TX_DAM['file2mime'],true);
-			}
+		if ($mimeType['file_type'] == '') {
+			$mimeType['file_type'] = array_search($mimeType['fulltype'],$TX_DAM['file2mime'],true);
 		}
 
 		unset($mimeType['fulltype']);

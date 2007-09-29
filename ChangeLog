@@ -1,3 +1,26 @@
+06-09-01 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_batchprocess. Old stored data was used in batch processing when field was set empty
+	* Fix: tx_dam_list_list. Deleted translated records will not be displayed
+	* Fix #3636: tx_dam_tce_process. test intval($id) in processDatamap_postProcessFieldArray to work not with id='NEW'
+	* Fix #3438: tx_dam_db. Deleted records are displayed in "usage" tab of dam records
+	* Fix #3500: tx_dam_db. tx_dam_db::getReferencedFiles doesn't respect $whereClause
+	* Fix #3778: missing $this in function process() in file upload_status.php
+	* Fix #3453:  increased TCA file_path max value to 255
+	* Fix #3371, 3371: added missing backpath in class.tx_dam_browse_media.php, class.tx_dam_selectionFolder.php, ...
+	* Fix #3940:  category not assignable if title contains ' character -  added t3lib_div::slashJS() in tx_dam_tcefunc and tx_dam_selprocbase
+	* Change: added configuration to TCA to make MM-Ref table work with coming version of mmforeign
+
+06-08-31 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_indexing. use PATH_site as default path for searching indexing setup
+	* Fix: tx_dam_indexing. reindexing use right values for MM fields now
+	* Fix: tx_dam_listbase, tx_dam_listbase. fixed very small bugs
+	* Fix: tx_dam_querygen. fixed small bugs
+	* Fix: tx_dam_scbase. fixed small bugs
+	* Fix: tx_dam_tce_file. fixed small bugs. Added $id to func_delete function and fixed log name to 'delete'.
+	* Change: removed unfinished 'new file' command module and action code
+
 06-07-18 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: added class="typo3-icon" to icons here and there

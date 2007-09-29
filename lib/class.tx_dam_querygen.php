@@ -173,6 +173,7 @@ class tx_dam_querygen {
 	 * @return	void
 	 */
 	function initFESelect($table='', $pidList='') {
+		$this->mode = 'FE';
 		$this->initBESelect($table='', $pidList='');
 
 		$this->mode = 'FE';
@@ -298,7 +299,6 @@ class tx_dam_querygen {
 	function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')	{
 		$local_table = $local_table ? $local_table : $this->table;
 		$key = $local_table.'.'.$mm_table.'.'.$foreign_table;
-		#$this->query['MM'][$key] = $local_table.','.$mm_table.($foreign_table?','.$foreign_table:'');
 
 		$this->query['MM'][$local_table] = '1';
 		$this->query['MM'][$mm_table] = '1';
@@ -423,7 +423,7 @@ class tx_dam_querygen {
 
 			$query = array();
 			foreach($select['LEFT_JOIN'] as $table => $on) {
-				$query[] = 'LEFT JOIN '.$table.' ON ('.$on.')';
+				$query[] = 'LEFT JOIN '.$table.' ON '.$on;
 			}
 			$queryParts['FROM'].= "\n".implode ("\n",$query);
 
@@ -435,7 +435,9 @@ class tx_dam_querygen {
 			$query = array();
 			$query[] = '1';
 
-			$query[] = implode (' ',$select['WHERE']['WHERE']);
+			if (is_array($select['WHERE']['WHERE']) AND count($select['WHERE']['WHERE'])) {
+				$query[] = implode (' ',$select['WHERE']['WHERE']);
+			}
 			unset($select['WHERE']['WHERE']);
 
 			foreach($select['WHERE'] as $operator => $items){
@@ -470,7 +472,7 @@ class tx_dam_querygen {
 				$queryParts['ORDERBY'] = implode (',',$select['ORDERBY']);
 			}
 			if(count($select['LIMIT']) AND !$count) {
-				$queryParts['LIMIT'] = implode (' ',$select['LIMIT']); #TODO ???
+				$queryParts['LIMIT'] = implode (' ',$select['LIMIT']); // TODO ???
 			}
 		}
 

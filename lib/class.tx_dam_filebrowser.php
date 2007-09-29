@@ -110,7 +110,7 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 		$this->clickMenus = false;
 		$this->clipBoard = false;
 
-			// disbale sorting links
+			// disable sorting links
 		$this->enableSorting = false;
 
 			// Enable/disable display of thumbnails

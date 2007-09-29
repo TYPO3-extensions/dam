@@ -126,7 +126,8 @@ $TCA['tx_dam'] = array(
 		),
 		'l18n_diffsource' => array(
 			'config'=>array(
-				'type'=>'passthrough')
+				'type' => 'passthrough'
+			)
 		),
 
 
@@ -215,7 +216,7 @@ $TCA['tx_dam'] = array(
 				'type' => 'input',
 				'readOnly' => true,
 				'size' => '25',
-				'max' => '100',
+				'max' => '255',
 				'eval' => 'required',
 			)
 		),

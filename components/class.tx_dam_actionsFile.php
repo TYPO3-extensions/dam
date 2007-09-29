@@ -33,12 +33,6 @@
  *
  *
  *
- *  119: class tx_dam_action_newTextfile extends tx_dam_actionbase
- *  137:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  152:     function getIcon ($addAttribute='')
- *  169:     function getLabel ()
- *  178:     function getDescription ()
- *  188:     function _getCommand()
  *
  *
  *  213: class tx_dam_action_editFileRecord extends tx_dam_actionbase
@@ -107,98 +101,6 @@ require_once (PATH_txdam.'lib/class.tx_dam_actionbase.php');
 
 
 
-
-/**
- * New file action
- *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-Component
- * @subpackage Action
- * @see tx_dam_actionbase
- */
-class tx_dam_action_newTextfile extends tx_dam_actionbase {
-
-	var $cmd = 'tx_dam_cmd_filenew';
-
-	/**
-	 * Defines the types that the object can render
-	 * @var array
-	 */
-	var $typesAvailable = array('icon', 'button');
-
-	/**
-	 * Returns true if the action is of the wanted type
-	 *
-	 * @param	string		$type Action type
-	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
-	 * @param	array		$env Environment array. Can be set with setEnv() too.
-	 * @return	boolean
-	 */
-	function isValid ($type, $itemInfo=NULL, $env=NULL) {
-		$valid = $this->isTypeValid ($type, $itemInfo, $env);
-		if ($valid) {
-			$valid = ($this->itemInfo['__type'] == 'dir');
-		}
-		return $valid;
-	}
-
-	/**
-	 * Returns the icon image tag.
-	 * Additional attributes to the image tagcan be added.
-	 *
-	 * @param	string		$addAttribute Additional attributes
-	 * @return	string
-	 */
-	function getIcon ($addAttribute='') {
-
-		if ($this->disabled) {
-			$iconFile = 'gfx/new_file_i.gif';
-		} else {
-			$iconFile = 'gfx/new_file.gif';
-		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
-
-		return $icon;
-	}
-
-	/**
-	 * Returns the short label like: Delete
-	 *
-	 * @return	string
-	 */
-	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:file');
-	}
-
-	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
-	 *
-	 * @return	string
-	 */
-	function getDescription () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:newTextFile');
-	}
-
-	/**
-	 * Returns a command array for the current type
-	 *
-	 * @return	array		Command array
-	 * @access private
-	 */
-	function _getCommand() {
-
-		$path = $this->itemInfo['dir_path_relative'];
-
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($path);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
-
-		$commands['href'] = $script;
-
-		return $commands;
-	}
-}
 
 
 

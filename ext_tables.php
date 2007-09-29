@@ -170,12 +170,6 @@ if (TYPO3_MODE=='BE')	{
 		PATH_txdam.'mod_cmd/class.tx_dam_cmd_filedelete.php',
 		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filedelete.title'
 	);
-	t3lib_extMgm::insertModuleFunction(
-		'txdamM1_cmd',
-		'tx_dam_cmd_filenew',
-		PATH_txdam.'mod_cmd/class.tx_dam_cmd_filenew.php',
-		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filenew.title'
-	);
 
 		// folder command modules (invisible)
 	t3lib_extMgm::insertModuleFunction(
@@ -220,11 +214,9 @@ if (TYPO3_MODE=='BE')	{
 	tx_dam::register_action ('tx_dam_action_renameFolder', 'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_renameFolder');
 	tx_dam::register_action ('tx_dam_action_deleteFolder', 'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_deleteFolder');
 
-#	tx_dam::register_action ('tx_dam_action_newTextfile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_newTextfile');
 	tx_dam::register_action ('tx_dam_action_editFileRecord',  'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFileRecord');
 	tx_dam::register_action ('tx_dam_action_viewFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_viewFile');
 	tx_dam::register_action ('tx_dam_action_infoFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_infoFile');
-#	tx_dam::register_action ('tx_dam_action_editFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFile');
 	tx_dam::register_action ('tx_dam_action_renameFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_renameFile');
 	tx_dam::register_action ('tx_dam_action_replaceFile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_replaceFile');
 	tx_dam::register_action ('tx_dam_action_deleteFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFile');

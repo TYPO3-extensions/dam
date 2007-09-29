@@ -77,16 +77,6 @@ require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 // TODO workaround - shouldn't be needed
 require_once (PATH_t3lib.'class.t3lib_pagetree.php');
-/*
-> > - BE: Verwendet man den Elementbrowser (für welche Aktion auch immer),
-> > wühlt eine Seite im Baum und sucht mit der Suchfunktion in der rechten
-> > Hülfte des Elementbrowsers und schlieüt in die Suche Unterebenen ein,
-> > erhült man im Fenster des ELementbrowsers:
-> >
-> > Fatal error: Cannot instantiate non-existent class: t3lib_pagetree in
-> > /data/users/c145/htdocs/typo3_src-3.7.0_dam/t3lib/class.t3lib_div.php
-> > on line 3238
-*/
 
 
 
@@ -188,15 +178,6 @@ class tx_dam_browse_media extends browse_links {
 		$content = '';
 
 		switch((string)$this->mode)	{
-//			case 'rte':
-//				$content = $this->main_rte();
-//			break;
-//			case 'filedrag':
-//				$content = $this->main_file();
-//			break;
-//			case 'wizard':
-//				$content = $this->main_rte(1);
-//			break;
 			case 'db':
 			case 'file':
 				$content = $this->main();
@@ -205,10 +186,10 @@ class tx_dam_browse_media extends browse_links {
 			break;
 		}
 
-#tx_dam::config_setValue('setup.debug', true);
+		$debug = false;
 
 			// debug output
-		if (tx_dam::config_getValue('setup.debug')) {
+		if ($debug OR tx_dam::config_getValue('setup.debug')) {
 
 			$bparams = explode('|', $this->bparams);
 
@@ -452,7 +433,7 @@ class tx_dam_browse_media extends browse_links {
 					// Thumbnail/size generation:
 				$clickThumb = '';
 				if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fI['file_type']) AND $displayThumbs AND is_file($fI['file_name_absolute']))	{
-					$clickThumb = t3lib_BEfunc::getThumbNail('thumbs.php', $fI['file_path_absolute'].$fI['file_name'], '');
+					$clickThumb = t3lib_BEfunc::getThumbNail($GLOBALS['BACK_PATH'].'thumbs.php', $fI['file_path_absolute'].$fI['file_name'], '');
 					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$ATag_insert.$clickThumb.'</a>'.'</div>';
 				} elseif ($displayThumbs) {
 					$clickThumb = '<div style="width:68px"></div>';

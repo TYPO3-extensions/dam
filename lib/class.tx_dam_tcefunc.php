@@ -1067,7 +1067,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						$itemTitle = $GLOBALS['LANG']->JScharCode(t3lib_BEfunc::getRecordTitle($itemTable, $rec));
 						$elValue = $itemTable.'_'.$itemUid;
 					}
-					$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',unescape(\''.rawurlencode(str_replace('%20', ' ', $elValue)).'\'),'.$itemTitle.');';
+					$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',unescape(\''.rawurlencode(str_replace('%20', ' ', $elValue)).'\'),'.$this->slashJS($itemTitle).');';
 
 	#				$counter++;
 	#				if ($params['maxitems'] && $counter >= $params['maxitems'])	{	break;	}	// Makes sure that no more than the max items are inserted... for convenience.
@@ -1102,7 +1102,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					implode('<br />', $icons['L']).'</td>
 				<td valign="top">'.
 					implode('<br />', $icons['R']).'</td>
-				<td><img src="clear.gif" width="5" height="1" alt="" /></td>
+				<td style="height:5px;"><span></span></td>
 				<td valign="top">'.
 					$this->tceforms->wrapLabels($params['thumbnails']).
 				'</td>
@@ -1125,7 +1125,19 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 *
 	 ************************************************************/
 
-
+	/**
+	 * This function is used to escape any ' -characters when transferring text to JavaScript!
+	 * Usage: 3
+	 *
+	 * @param	string		String to escape
+	 * @param	boolean		If set, also backslashes are escaped.
+	 * @param	string		The character to escape, default is ' (single-quote)
+	 * @return	string		Processed input string
+	 */
+	function slashJS($string,$extended=0,$char="'")	{
+		if ($extended)	{$string = str_replace ("\\", "\\\\", $string);}
+		return str_replace ($char, "\\".$char, $string);
+	}
 
 
 	/**
@@ -1139,15 +1151,15 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		$error = 0;
 
-// 		for future t3 version
+// 		for future t3 version?
 //
 //		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
 //			return true;
 //		}
 
 			// is mmforeign loaded?
-		if (t3lib_extMgm::isLoaded('mmforeign')) {
-			return true;
+		if (!t3lib_extMgm::isLoaded('mmforeign')) {
+			return 'Warning: DAM References are disabled! Install extension "mmforeign".';
 		}
 
 			// this forces us to think all is fine
@@ -1162,11 +1174,13 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php']))) {
 			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php'];
 		}
-		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php']))) {
-			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php'];
+		if ($TYPO3_CONF_VARS['EXTCONF']['mmforeign']['setup']['patchStandardMM']) {
+				if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php']))) {
+					return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php'];
+				}
 		}
 
-		return 'Warning: DAM References are disabled! Install extension "mmforeign".';
+		return true;
 	}
 
 }

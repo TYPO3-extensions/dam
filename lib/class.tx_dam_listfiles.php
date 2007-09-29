@@ -206,7 +206,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 				break;
 				case 'size':
 					if ($type=='file') {
-						$columns[$field] = $item[$type.'_size'];
+						$columns[$field] = (string)($item[$type.'_size']);
 					}
 					else {
 						$columns[$field] = '';
@@ -243,7 +243,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 					$columns[$field] = htmlspecialchars(t3lib_div::fixed_lgd($content, $this->titleLength));
 				break;
 			}
-			if ($columns[$field] == '') {
+			if ($columns[$field] === '') {
 				$columns[$field] = '&nbsp;';
 			}
 		}
@@ -252,7 +252,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		if ($this->showThumbs AND $this->thumbnailPossible($item))	{
 			$columns['title'] .= '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail($item['file_path_absolute'].$item['file_name']).'</div>';
 		}
-		if ($columns['size'] AND !$this->showDetailedSize) {
+		if (!$this->showDetailedSize) {
 			$columns['size'] = t3lib_div::formatSize($columns['size']);
 		}
 		return $columns;

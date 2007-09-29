@@ -449,7 +449,9 @@ class tx_dam_db {
 	 * @param	string		$limit: Default: 1000
 	 * @return	array		...
 	 */
-	function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClause='', $groupBy='', $orderBy='', $limit=1000) {
+	function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
+
+		$whereClauses = is_array($whereClauses) ? $whereClauses : array('where' => (preg_replace('^AND ', trim($whereClauses))));
 
 		$fields = $fields ? $fields : tx_dam_db::getMetaInfoFieldList();
 		$local_table = 'tx_dam';
@@ -458,6 +460,10 @@ class tx_dam_db {
 		$MM_table = $MM_table ? $MM_table : 'tx_dam_mm_ref';
 
 		$where = array();
+		if (!isset($whereClauses['deleted']) AND !isset($whereClauses['enableFields'])) {
+			$where['enableFields'] = 'tx_dam.deleted=0';
+		}
+		$where = array_merge($where, $whereClauses);
 
 		if ($foreign_table) {
 			$where[] = $MM_table.'.tablenames='.$GLOBALS['TYPO3_DB']->fullQuoteStr($foreign_table, $MM_table);
@@ -477,7 +483,10 @@ class tx_dam_db {
 		if(!$orderBy) {
 			$orderBy = $MM_table.'.sorting';
 		}
-		$where[] = 'tx_dam.deleted=0';
+
+		while ($key = array_search('', $where)) {
+			unset ($where[$key]);
+		}
 
 		$where = implode(' AND ', $where);
 

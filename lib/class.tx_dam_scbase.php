@@ -1248,7 +1248,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		require_once (PATH_txdam.'lib/class.tx_dam_filebrowser.php');
 		$filelist = t3lib_div::makeInstance('tx_dam_filebrowser');
 		$filelist->SOBE = &$this;
-		$this->paramName['setFolder'] = $folderParam;
+		$filelist->paramName['setFolder'] = $folderParam;
 		$content.= $filelist->getBrowseableFolderList(tx_dam::path_makeAbsolute($path));
 
 		return $content;
@@ -1415,12 +1415,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function icon_infoRec($table, $uid, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
 
-		$params = array();
-		$params['edit['.$table.']['.$uid.']'] = 'edit';
-		$params = t3lib_div::implodeArrayForUrl('', $params);
 		$onClick = 'top.launchView(\''.$table.'\','.$uid.',\''.$BACK_PATH.'\');return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif"', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
 					'</a>';
 
 		return $content;
