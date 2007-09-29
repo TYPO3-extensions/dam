@@ -1,4 +1,20 @@
 #
+# Table structure for table 'be_groups'
+#
+CREATE TABLE be_groups (
+	tx_dam_mountpoints tinytext NOT NULL
+);
+
+
+#
+# Table structure for table 'be_users'
+#
+CREATE TABLE be_users (
+	tx_dam_mountpoints tinytext NOT NULL
+);
+
+
+#
 # Table structure for table 'tx_dam'
 #
 CREATE TABLE tx_dam (
@@ -7,7 +23,7 @@ CREATE TABLE tx_dam (
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
   crdate int(11) unsigned DEFAULT '0' NOT NULL,
   cruser_id int(11) unsigned DEFAULT '0' NOT NULL,
-  
+
   # might be handy to reconnect a record to a reuploaded file
   deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
   # like hidden but not active means: don`t use in element browser (insert content in page)
@@ -15,7 +31,7 @@ CREATE TABLE tx_dam (
 
   #
   sorting int(10) unsigned DEFAULT '0' NOT NULL,
-  
+
   # could be usefull for frontend applications which use the dam data
   hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
   starttime int(11) unsigned DEFAULT '0' NOT NULL,
@@ -78,25 +94,25 @@ CREATE TABLE tx_dam (
 
   # name that should be used for download
   file_dl_name varchar(100) DEFAULT '' NOT NULL,
-  
-  
+
+
   # relation to content elements
   file_usage blob NOT NULL,
-  
-  
 
-  # serialized array
-  meta blob NOT NULL,
+
+
+  # xml / array
+  meta text NOT NULL,
 
 
   # sku / bestell nr
   # for custom use. DAM don`t use this
   ident varchar(45) DEFAULT '' NOT NULL,
-  
+
   # photographer
   creator varchar(45) DEFAULT '' NOT NULL,
 
-  keywords text NOT NULL,
+  keywords tinytext NOT NULL,
   description text NOT NULL,
 
   # if not set by hand, the first kb of a pdf, doc file for example
@@ -113,10 +129,10 @@ CREATE TABLE tx_dam (
 
   # vendor?
   publisher varchar(45) DEFAULT '' NOT NULL,
-  copyright varchar(45) DEFAULT '' NOT NULL,
-  
+  copyright varchar(128) DEFAULT '' NOT NULL,
+
   # instructions and notes
-  instructions text NOT NULL,
+  instructions tinytext NOT NULL,
 
   # created, modified
   # date_cr don`t have to be the file creation time. It is the time a photo is shooten not the time the slide is scanned and saved
@@ -135,7 +151,7 @@ CREATE TABLE tx_dam (
 
   hpixels int(11) unsigned DEFAULT '0' NOT NULL,
   vpixels int(11) unsigned DEFAULT '0' NOT NULL,
-  
+
   # RGB,sRGB,YUV, ...
   color_space varchar(4) DEFAULT '' NOT NULL,
 
@@ -145,6 +161,15 @@ CREATE TABLE tx_dam (
   # px,mm,cm,m,p, ...
   height_unit char(3) DEFAULT '' NOT NULL,
 
+
+
+  sys_language_uid int(11) DEFAULT '0' NOT NULL,
+  l18n_parent int(11) DEFAULT '0' NOT NULL,
+  l18n_diffsource mediumblob NOT NULL,
+
+  t3ver_oid int(11) unsigned DEFAULT '0' NOT NULL,
+  t3ver_id int(11) unsigned DEFAULT '0' NOT NULL,
+  t3ver_label varchar(30) DEFAULT '' NOT NULL,
 
 #  FULLTEXT  (title),
 #  FULLTEXT  (keywords),
@@ -228,6 +253,7 @@ CREATE TABLE tx_dam_mm_ref (
   uid_local int(11) unsigned DEFAULT '0' NOT NULL,
   uid_foreign int(11) unsigned DEFAULT '0' NOT NULL,
   tablenames varchar(30) DEFAULT '' NOT NULL,
+  ident varchar(30) DEFAULT '' NOT NULL,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
   KEY uid_local (uid_local),
   KEY uid_foreign (uid_foreign)

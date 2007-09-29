@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -61,26 +61,26 @@ class tx_dam_batchProcess {
 	 * Parameter name of the submitted data
 	 */
 	var $startParam = 'process';
-	
+
 	/**
 	 * Data which should replace the current record data
 	 */
-	var $replaceData = array();	
+	var $replaceData = array();
 
 
 	/**
 	 * Data which should be appended the current record data
 	 */
-	var $appendData = array();	
+	var $appendData = array();
 
 
 	/**
 	 * Array of the record data which has changed
 	 */
-	var $updated = array();	
+	var $updated = array();
 
 
-	
+
 
 	/**
 	 * Processes submitted GP data from the preset form
@@ -95,11 +95,11 @@ class tx_dam_batchProcess {
 			$data = t3lib_div::_POST('data');
 		}
 
-			
+
 		if (is_array($data['tx_dam_simpleforms'][1])) {
 
 			t3lib_div::loadTCA('tx_dam');
-			
+
 				// get which fields are append
 			$appendFieldsArr = t3lib_div::_POST('data_fixedFields');
 
@@ -126,58 +126,58 @@ class tx_dam_batchProcess {
 		}
 		return FALSE;
 	}
-	
-	
+
+
 	/**
 	 * Run the batch
 	 * 
 	 * @param 	mixed 	A valid db query result
 	 */
-	function runBatch($res, $table='tx_dam') {	
+	function runBatch($res, $table='tx_dam') {
 		global $TCA;
 
 		if (!$res OR !is_array($TCA[$table])) { return FALSE; }
-		
+
 		$this->updated = array();
-		
+
 			// is needed to check the input data
 		require_once (PATH_t3lib.'class.t3lib_tcemain.php');
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$tce->debug=0;
 		$tce->disableRTE=1;
-		$tce->stripslashes_values=0;		
-		
-		
+		$tce->stripslashes_values=0;
+
+
 			// is needed to get the record for merging with submittedtceforms data
 		require_once (PATH_t3lib.'class.t3lib_transferdata.php');
 		$trData = t3lib_div::makeInstance('t3lib_transferData');
 		$trData->lockRecords = 0;
 		$trData->disableRTE = 1;
-			
 
-		
+
+
 		while($rowRaw = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$uid = $rowRaw['uid'];
 			$pid = $rowRaw['pid'];
-			
-		
+
+
 				// get record in tceforms format
 			$trData->defVals = array();
 			$trData->regTableItems_data = array();
 			$trData->fetchRecord($table, $uid, '');
 			reset($trData->regTableItems_data);
-			$row = current($trData->regTableItems_data);			
-			
-			
-		
+			$row = current($trData->regTableItems_data);
+
+
+
 			$rowUpdate = array();
-			
+
 			foreach($this->replaceData as $field => $value) {
 				$rowUpdate[$field] = $value;
 			}
-			
+
 			foreach($this->appendData as $field => $value) {
-		
+
 				switch($TCA[$table]['columns'][$field]['config']['type'])	{
 					case 'input':
 						$rowUpdate[$field] = trim($row[$field].' '.$value);
@@ -198,7 +198,7 @@ class tx_dam_batchProcess {
 					default:
 						$rowUpdate[$field] = $value; // replace anyway
 					break;
-				}						
+				}
 			}
 
 
@@ -207,9 +207,9 @@ class tx_dam_batchProcess {
 
 
 #TODO  			tx_dam_db::insertMetaRecord($rowUpdate,$row['uid']);
-				
+
 				$newRec = array_merge($row,$rowUpdate);
-				
+
 				$tce->start( array( $table => array($uid => $newRec) ) ,array() );
 				foreach($rowUpdate as $field => $value) {
 					$result = $tce->checkValue($table, $field, $value, $uid, 'update', $pid, $pid);
@@ -219,26 +219,26 @@ class tx_dam_batchProcess {
 #TODO is that right?
 						unset($rowUpdate[$field]);
 					}
-				}					
+				}
 
-			
+
 				$GLOBALS['TYPO3_DB']->exec_UPDATEquery($table, 'uid='.$uid, $rowUpdate);
 				echo $GLOBALS['TYPO3_DB']->sql_error();
-				
+
 				$rowInfo = array();
 				foreach ($rowRaw as $field => $dummy) {
 					$rowInfo[$field] = isset($newRec[$field]) ? $newRec[$field] : $rowRaw[$field];
 				}
-	
-				
+
+
 				$this->updated[$table][$uid]['data'] = $rowUpdate;
 				$this->updated[$table][$uid]['info'] = $rowInfo;
 			}
 		}
-	}	
-			
-			
-			
+	}
+
+
+
 
 
 
@@ -248,21 +248,21 @@ class tx_dam_batchProcess {
 	 *
 	 ********************************/
 
-			
+
 	/**
 	 * Show the gui: preset form
 	 * 
 	 * @return	string 		HTML
 	 */
-	function showPresetForm() {	
+	function showPresetForm() {
 		global $SOBE, $LANG;
-		
+
 		$content = '';
 		$content.= $SOBE->doc->section('',$LANG->getLL('tx_dam_batchProcess.introduction'),0,1);
 		$content.= $SOBE->doc->spacer(5);
-#TODO $rec - saved preset ?			
+#TODO $rec - saved preset ?
 		$code = $this->getPresetForm($rec, $fixedFields, $LANG->getLL('tx_dam_batchProcess.appendDesc'));
-		
+
 		$cnBgColor = t3lib_div::modifyHTMLcolor($SOBE->doc->bgColor3,-5,-5,-5);
 		$content.= $SOBE->doc->section('','<table border="0" cellpadding="4" width="100%"><tr><td bgcolor="'.$cnBgColor.'">'.
 						$code.
@@ -270,27 +270,27 @@ class tx_dam_batchProcess {
 
 		$content.= '<br /><div style="margin-left:35px;"><input type="submit" name="'.$this->startParam.'" value="'.$LANG->getLL('tx_dam_batchProcess.submit').'" /></div><br />';
 
-		
-		return $content;	
+
+		return $content;
 	}
-			
-			
+
+
 	/**
 	 * Show the gui: result table
 	 * 
 	 * @return	string 		HTML
 	 */
-	function showResult() {	
+	function showResult() {
 		global $SOBE, $LANG;
-		
+
 		$content = '';
-			
+
 		$content.= $SOBE->doc->section('',$LANG->getLL('tx_dam_batchProcess.processed'),0,1);
 		$content.= $this->getResultTable();
 
-		return $content;	
-	}		
-	
+		return $content;
+	}
+
 	/**
 	 * Render a form with TCEForms to edit/enter the preset data
 	 * 
@@ -310,13 +310,11 @@ class tx_dam_batchProcess {
 		$rec['pid'] = 1;
 		$rec['media_type'] = 0;
 
-			// fake table - to be safe
-		t3lib_div::loadTCA('tx_dam');
-		$TCA['tx_dam_simpleforms'] = $TCA['tx_dam'];
 
 		require_once (PATH_txdam.'lib/class.tx_dam_simpleforms.php');
 		$form = t3lib_div::makeInstance('tx_dam_simpleForms');
 		$form->initDefaultBEmode();
+		$form->setVirtualTable('tx_dam_simpleforms', 'tx_dam');
 		$form->removeRequired($TCA['tx_dam_simpleforms']);
 		$form->tx_dam_fixedFields = $fixedFields;
 
@@ -348,51 +346,53 @@ class tx_dam_batchProcess {
 		'.$form->printNeededJSFunctions_top();
 		$content.= $form->printNeededJSFunctions();
 
-		unset($TCA['tx_dam_simpleforms']);
+		$form->removeVirtualTable('tx_dam_simpleforms');
 
 		return $content;
-	}		
-		
+	}
 
-    /**
+
+
+
+	/**
 	 * Render the table with result records
 	 * 
 	 * @return	string		Rendered Table
 	 */
-    function getResultTable()   {
-        global $BACK_PATH, $BE_USER, $LANG, $SOBE;
+	function getResultTable()   {
+		global $BACK_PATH, $BE_USER, $LANG, $SOBE;
 
 		if (!count($this->updated)) { return ; }
 
-            // init table layout
-        $refTableLayout = array (
-            'table' => array ('<table border="0" cellpadding="1" cellspacing="1" class="typo3-recent-edited">', '</table>'),
-            'defRow' => array (
-                'tr' => array('<tr class="bgColor4">','</tr>'),
-                'defCol' => Array('<td valign="top">','</td>')
-            )
-        );
+			// init table layout
+		$refTableLayout = array (
+			'table' => array ('<table border="0" cellpadding="1" cellspacing="1" class="typo3-recent-edited">', '</table>'),
+			'defRow' => array (
+				'tr' => array('<tr class="bgColor4">','</tr>'),
+				'defCol' => Array('<td valign="top">','</td>')
+			)
+		);
 
-        $cTable=array();
-        $tr=0;
+		$cTable=array();
+		$tr=0;
 
-        foreach ($this->updated as $table => $recdata) {
-	        foreach ($recdata as $uid => $data) {
-	        	$row = $data['info'];
+		foreach ($this->updated as $table => $recdata) {
+			foreach ($recdata as $uid => $data) {
+				$row = $data['info'];
 
-	                // Create output item for record
-	            $recordElementLink = tx_dam_div::getItemFromRecord($table, $row);
-#TODO more info	
-	                // Add row to table
-	            $td=0;
-	            $cTable[$tr][$td++] = $recordElementLink;
-	            $tr++;
-	        }
-        }
+					// Create output item for record
+				$recordElementLink = tx_dam_div::getItemFromRecord($table, $row);
+#TODO more info
+					// Add row to table
+				$td=0;
+				$cTable[$tr][$td++] = $recordElementLink;
+				$tr++;
+			}
+		}
 
-            // Return rendered table
-        return $SOBE->doc->table($cTable, $refTableLayout);
-    }	
+			// Return rendered table
+		return $SOBE->doc->table($cTable, $refTableLayout);
+	}
 
 
 
@@ -404,7 +404,7 @@ class tx_dam_batchProcess {
 	 ***************************************/
 
 
-    /**
+	/**
 	 * I'm wondering why there's no function like this somewhere else ?????
 	 * 
 	 * @params	string		group element data from t3lib_transferdata
@@ -419,7 +419,7 @@ class tx_dam_batchProcess {
 		}
 		return implode (',', $itemArray);
 	}
-				
+
 }
 
 

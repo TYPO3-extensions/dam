@@ -1,10 +1,10 @@
-******************
+*****************
 TODO LIST
 *****************
 
 General:
 - BUG: proper support for file mounts
-- BUG: support for more than one mediabase sysfolder
+- BUG: support for more than one mediabase sysfolder (maybe)
 - BUG: proper support for BE user rights
 
 - Todo: move all string in locallang.php
@@ -26,16 +26,16 @@ General:
 
 Navframe
 - BUG: plus/minus buttons work now - but not the minus buttons for categories. This is a little complex ...
-       minus buttons for categories seems to be possible with sql sub-selects which are available in mysql 4.1
+	   minus buttons for categories seems to be possible with sql sub-selects which are available in mysql 4.1
 - BUG: css for +=- do not work in ie
 - Todo: highlight row do not fully work (folder rows)
 
 Media>Indexing
 - BUG: handle double indexing, deleted files, ....   integration in file module
 - Todo: finish/enhance meta services
-- Feature: better indexing process: only index ~20 files then reload and index the next 20 files. This gives feedback and do not break indexing because of too long index time
+- Todo: respect character encoding
 - Feature: reindexing. Means to update certain fields from files because a new index service may be available
-- Feature: proper exim and iptc support (read/write)
+- Feature: exim and iptc write support
 
 Media>List
 - Feature: reimplementation of the list module/class - for reuseability - use in selection module too
@@ -53,6 +53,7 @@ Media>List>Process
 Media>File
 - finish File module
 - Feature: FTP submodule
+- Feature: WebDAV submodule
 
 
 TCEforms
@@ -62,3 +63,67 @@ T3 general
 - Todo: finish t3lib_modsettings
 - Todo: create new multilevel thumbnail system
 - Todo: file icon system
+
+
+
+
+
+
+
+
+
+
+######### unsorted #########
+
+
+Änderungen aus externen Extensions übernehmen
+
+
+
+relationen MM auch mit CTypes nicht nur mit tt_content
+
+sorting über MM
+
+
+
+
+IPTC category codes
+IPTC cat tree?
+
+
+
+
+- Neues Bild und Text/Bild Content Element (TCEForms) das Referenzen erlaubt und insgesamt aufgebohrt ist (Bildunterschrift für jedes Bild einzeln, etc). Hier wird etwas DHTML verwendet werden. Wenn sich hier jemand betätigen will, Freiwillige vor. Vorschläge auch willkommen.
+- Filemodul (Uff)
+
+
+
+
+
+Ansonsten
+
+- offizielle Audio Tabellen Erweiterung von mir (brauchen andere)
+
+- Framework zur Bearbeitung von Dateitypen auf der Basis Thomas Murphy einen MP3 Tag Editor Prototypen baut.
+
+- Die Klassen des DAM welche zur Auswahl der Datensätze verwendet werden werde ich abstrahieren um sie auch in anderen Projekten einsetzen zu können Codename: Dataminer.
+
+
+
+
+"Volker Graubaum" <volker.graubaum@e-netconsulting.de>
+1) Integration des Klemmbretts, um die verschiedenen netten Funktionen
+zu nutzen.
+In dem zusammenhang auch ermöglichen, das Dateien innerhalb Ordner
+verschoben werden, und auch
+(das wird sicher kniffelig denn Du mußt Dir merken, in welcher Kategorie
+Du eingestiegen bist, oder ist das einfach?), innerhalb von Kategorien
+verschiebbar oder kopierbar sind.
+2) Garbage Collection, automatisch oder händisch (was ist wenn Dateien
+gelöscht werden, z.B. per FTP?)
+4) Klasse für Verwendung von Medienelementen. Ich denke dafür müßte
+vermutlich das Typo3 Image- & Filehandling umgeschrieben werden, oder?
+5) Verstecken des SysOrdners für Redakteure
+6) Filtermöglichkeiten (inkl. Suchbegriff) mit Bearbeitungsfunktions
+
+

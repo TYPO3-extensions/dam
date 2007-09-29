@@ -61,7 +61,7 @@ class  tx_dam_fileList extends fileList {
 
 		$pointer = t3lib_div::_GP('pointer');
 		$this->start($path,$pointer,'','');
-		
+
 		$this->backPath = $BACK_PATH;
 		$this->script = 'index.php';
 		$this->clickMenus = 0;
@@ -73,19 +73,19 @@ class  tx_dam_fileList extends fileList {
 		$this->counter=0; // should not be needed. Bug somewhere
 		$this->generateList();
 		$this->writeBottom();
-		
+
 		return str_replace('?id=', '?'.$this->folderParam.'=', $this->HTMLcode);
 	}
 
-	
+
 	/********************************
 	 *
 	 * Overwrites methods from filelist
 	 *
 	 ********************************/
 
-	var $widthGif = '<img src="clear.gif" width="1" height="1" hspace="130" alt="" />';	 
-	
+	var $widthGif = '<img src="clear.gif" width="1" height="1" hspace="130" alt="" />';
+
 	/**
 	 * Make the top of the list
 	 * 
@@ -119,7 +119,7 @@ class  tx_dam_fileList extends fileList {
 			*/
 
 			if ($root)	{
-					// The icon with link	
+					// The icon with link
 				$theIcon = '<img'.t3lib_iconWorks::skinImg($this->backPath,$icon,'width="18" height="16"').' title="'.htmlspecialchars($theFile['file']).'" alt="" />';
 				if ($this->clickMenus) $theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($theIcon,$path);
 
@@ -127,15 +127,15 @@ class  tx_dam_fileList extends fileList {
 				if(!$pathOnly) {
 					$theData['up'].=$this->linkWrapDir('<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/i/folder_up.gif','width="18" height="16"').' title="'.htmlspecialchars($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.upOneLevel',1)).'" alt="" />',$theFile['path']);
 				}
-			} else {	
+			} else {
 					// root:0
 				$theIcon='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/i/_icon_ftp.gif','width="18" height="16"').' alt="" />';
 				$theData[$titleCol].='<br />'.htmlspecialchars(t3lib_div::fixed_lgd_cs($title,$this->fixedL+20));
 			}
-			
+
 				// Adding top element
 			$out.=$this->addelement(1,'',$theData,'',$this->leftMargin,$theIcon);
-	
+
 			$this->HTMLcode.='
 
 		<!--
@@ -161,12 +161,75 @@ class  tx_dam_fileList extends fileList {
 	}
 
 
+	/**
+	 * Returns an array with file/dir items + an array with the sorted items
+	 *
+	 * @param	string		Path (absolute) to read
+	 * @param	string		$type is the technical type; file,dir,link. empty is all kinds of stuff.
+	 * @param	string		$extList: List of fileextensions to select. If empty, all are selected.
+	 * @return	array		Array('files'=>array(), 'sorting'=>array());
+	 */
+	function readDirectory($path,$type,$extList='')	{
+		$items = Array('files'=>array(), 'sorting'=>array());
+		$path = $GLOBALS['SOBE']->basicFF->is_directory($path);	// Cleaning name...
+
+		if($path && $GLOBALS['SOBE']->basicFF->checkPathAgainstMounts($path.'/'))	{
+			$d = @dir($path);
+			$tempArray=Array();
+			if (is_object($d))	{
+				while($entry=$d->read()) {
+
+
+#TODO this limit is needed sometimes
+					if (count($tempArray)>=10000) break;
+
+
+
+					if ($entry!='.' && $entry!='..')	{
+						$wholePath = $path.'/'.$entry;		// Because of odd PHP-error where  <br />-tag is sometimes placed after a filename!!
+						if (@file_exists($wholePath) && (!$type || t3lib_div::inList($type,filetype($wholePath))))	{
+							if ($extList)	{
+								$fI = t3lib_div::split_fileref($entry);
+								if (t3lib_div::inList($extList,$fI['fileext']))	{
+									$tempArray[] = $wholePath;
+								}
+							} else {
+								$tempArray[] = $wholePath;
+							}
+						}
+					}
+				}
+				$d->close();
+			}
+				// Get fileinfo
+			reset($tempArray);
+			while (list(,$val)=each($tempArray))	{
+				$temp = $GLOBALS['SOBE']->basicFF->getTotalFileInfo($val);
+				$items['files'][] = $temp;
+				if ($this->sort)	{
+					$items['sorting'][] = strtoupper($temp[$this->sort]);
+				} else {
+					$items['sorting'][] = '';
+				}
+			}
+				// Sort if required
+			if ($this->sort)	{
+				if (!$this->sortRev)	{
+					asort($items['sorting']);
+				} else {
+					arsort($items['sorting']);
+				}
+			}
+		}
+		return $items;
+	}
+
 }
 
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_filelist.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_filelist.php']);
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_filelist.php']);
 }
 
 

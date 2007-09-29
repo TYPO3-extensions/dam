@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -74,6 +74,7 @@ class tx_dam_querygen {
 	var $query = array();
 
 
+	var $table = 'tx_dam';
 
 	/**
 	 * Initialize the object
@@ -98,12 +99,16 @@ class tx_dam_querygen {
 	 * 
 	 * @return	void		
 	 */
-	function init() {
+	function init($table='') {
+
+		if($table) {
+			$this->table = $table;
+		}
+
 		$this->query = array(
 			'DISTINCT' => true,
-			'FROM' => array (
-				'tx_dam' => 'tx_dam.*',
-			),
+			'SELECT' => array (),
+			'FROM' => array (),
 			'LEFT_JOIN' => array (),
 			'MM' => array (),
 			'WHERE' => array(
@@ -117,6 +122,7 @@ class tx_dam_querygen {
 			'ORDERBY' => array (),
 			'LIMIT' => array (),
 		);
+		$this->addSelectFields();
 	}
 
 
@@ -126,12 +132,13 @@ class tx_dam_querygen {
 	 * @param	[type]		$pidList: ...
 	 * @return	void		
 	 */
-	function initBESelect($pidList='') {
-		$this->init();
+	function initBESelect($table='', $pidList='') {
+		$this->init($table);
 		if ($pidList) {
-			$this->query['WHERE']['WHERE']['tx_dam.pid'] = 'AND tx_dam.pid IN ('.$pidList.')';
+			$this->query['WHERE']['WHERE'][$this->table.'.pid'] = 'AND '.$this->table.'.pid IN ('.$pidList.')';
 		}
-		$this->query['enableFields']['tx_dam'] = t3lib_BEfunc::deleteClause('tx_dam');
+		$this->query['enableFields'][$this->table] = $this->enableFields();
+		$this->addSelectFields();
 	}
 
 	/**
@@ -139,13 +146,8 @@ class tx_dam_querygen {
 	 * 
 	 * @return	void		
 	 */
-	function initFESelect() {
-		$this->init();
-		if(is_object($this->cObj)) {
-			$this->query['enableFields']['tx_dam'] = $this->cObj->enableFields('tx_dam');
-		} else {
-			$this->query['enableFields']['tx_dam'] = t3lib_BEfunc::BEenableFields('tx_dam').t3lib_BEfunc::deleteClause('tx_dam');
-		}
+	function initFESelect($table='', $pidList='') {
+		$this->initBESelect($table='', $pidList='');
 	}
 
 
@@ -155,22 +157,98 @@ class tx_dam_querygen {
 	 *	 Modify query definition
 	 *
 	 ***************************************/
-	 
-	 
-	 
+
+	/**
+	 * 
+	 * 
+	 * @param	[type]		$count: ...
+	 * @return	string		query
+	 */
+	function setCount($count=false) {
+		if($count) {
+			$this->query['FROM']['COUNT'] = $this->table.'.uid';
+		} else {
+			unset($this->query['FROM']['COUNT']);
+		}
+	}
+
+	/**
+	 * defines the main table
+	 * 
+	 * @return	void		
+	 */
+	function addSelectFields($fields='*', $table='') {
+		$table = $table ? $table :$this->table;
+		$this->query['FROM'][$table] = $this->compileFieldList($table, $fields);
+	}
+
+	/**
+	 * 
+	 * 
+	 * @param	[type]		$pidList: ...
+	 * @return	void		
+	 */
+	function addPidList($pidList='', $table='') {
+		if ($pidList) {
+			$table = $table ? $table :$this->table;
+			$this->query['WHERE']['WHERE'][$table.'.pidList'] = 'AND '.$table.'.pid IN ('.$pidList.')';
+		}
+	}
+
+	/**
+	 * Init the db select array for FE usage.
+	 * 
+	 * @return	void		
+	 */
+	function addEnableFields($table='') {
+		$table = $table ? $table :$this->table;
+		$this->query['enableFields'][$table] = $this->enableFields($table);
+	}
+
+	/**
+	 * Adds a LIMIT to the db select array.
+	 * 
+	 * @param	[type]		$limit: ...
+	 * @param	[type]		$begin: ...
+	 * @return	void		
+	 */
+	function addLimit ($limit, $begin='') {
+
+		if($limit) {
+			$this->query['LIMIT'] = array((intval($begin)?$begin.',':'').$limit);
+#TODO ??			$this->query['LIMIT'][] = (intval($begin)?$begin.',':'').$limit;
+		}
+	}
+
+
+	/**
+	 * Add a WHERE definition to the select array.
+	 * 
+	 * @params mixed 	string. Where clause.
+	 * @params string 	type: ADD, OR, NOT. Default: WHERE
+	 * @params string 	key to be used for the select array. If empty a md5 hash will be generated from the where clause.
+	 * @return	void		
+	 */
+	function addWhere($where, $type='WHERE', $key='')	{
+		if(is_array($where)) {
+			$this->query['WHERE'] = t3lib_div::array_merge_recursive_overrule($this->query['WHERE'], $where);
+		} else {
+			$key = $key ? $key : md5($key);
+			$this->query['WHERE'][$type][$key] = $where;
+		}
+	}
+
 	/**
 	 * Add a mm table to the select array.
 	 * The where clause have to be added separately.
 	 * 
-	 * @param	[type]		$mm_table: ...
-	 * @param	[type]		$foreign_table: ...
-	 * @param	[type]		$local_table: ...
-	 * @return	void		
 	 * @params string 	mm table. Default: 'tx_dam_mm_cat'
 	 * @params string 	foreign table. Default: 'tx_dam_cat'
 	 * @params string 	local table. Default: 'tx_dam'
+	 * @return	void		
 	 */
 	function queryAddMM($mm_table='tx_dam_mm_cat',$foreign_table='tx_dam_cat',$local_table='tx_dam')	{
+		$local_table = $local_table ? $local_table : $this->table;
 		$key = $local_table.'.'.$mm_table.'.'.$foreign_table;
 		#$this->query['MM'][$key] = $local_table.','.$mm_table.($foreign_table?','.$foreign_table:'');
 
@@ -189,29 +267,40 @@ class tx_dam_querygen {
 	 * @param	[type]		$mmtable: ...
 	 * @return	[type]		...
 	 */
-	function queryAddCategoryJoin($mmtable='tx_dam_mm_cat')	{
-		$this->query['LEFT_JOIN'][$mmtable] = 'tx_dam.uid='.$mmtable.'.uid_local';
+	function addMMJoin($mmtable, $local_table='')	{
+		$local_table = $local_table ? $local_table : $this->table;
+
+		$this->query['LEFT_JOIN'][$mmtable] = $local_table.'.uid='.$mmtable.'.uid_local';
 	}
-	
-	
+
 	/**
-	 * Add a WHERE definition to the select array.
+	 * Merge a WHERE definition array to the select WHERE array part.
 	 * 
-	 * @param	array		$where: ...
-	 * @param	string		$key: ...
+	 * @params mixed 	array. Where clause(s).
 	 * @return	void		
-	 * @params mixed 	string or array. Where clause(s).
-	 * @params string 	key to be used for the select array if $where is a string. If empty a md5 hash will be generated from the where clause.
 	 */
-	function queryAddWhere($where, $key='')	{
+	function mergeWhere($where)	{
 		if(is_array($where)) {
 			$this->query['WHERE'] = t3lib_div::array_merge_recursive_overrule($this->query['WHERE'], $where);
-		} else {
-			$key = $key ? $key : md5($key);
-			$this->query['WHERE'][$key] = $where;
 		}
 	}
 
+
+	/***************************************
+	 *
+	 *	 compatibility
+	 *
+	 ***************************************/
+
+	/**
+	 * [Describe function...]
+	 * 
+	 * @param	[type]		$mmtable: ...
+	 * @return	[type]		...
+	 */
+	function queryAddCategoryJoin($mmtable='tx_dam_mm_cat', $local_table='')	{
+		$this->addMMJoin($mmtable, $local_table);
+	}
 
 
 	/***************************************
@@ -227,7 +316,7 @@ class tx_dam_querygen {
 	 * @return	string		the query
 	 */
 	function getQuery() {
-		
+
 		$queryParts = $this->getQueryParts();
 		$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 					$queryParts['SELECT'],
@@ -236,8 +325,8 @@ class tx_dam_querygen {
 					$queryParts['GROUPBY'],
 					$queryParts['ORDERBY'],
 					$queryParts['LIMIT']
-				);	
-					
+				);
+
 		return $query;
 	}
 
@@ -263,7 +352,7 @@ class tx_dam_querygen {
 		//
 		// SELECT (COUNT, DISTINCT)
 		//
-			
+
 		$count = $select['FROM']['COUNT'];
 		$distinct = $select['DISTINCT'] ? ' DISTINCT ' :'';
 
@@ -279,23 +368,23 @@ class tx_dam_querygen {
 				$queryParts['SELECT'].= ' COUNT('.trim($distinct.$select['FROM']['COUNT']).') as count';
 				unset($select['FROM']['COUNT']);
 			} else {
-				
-				
+
+
 				//
 				// FROM
-				//				
-				
-				$queryParts['SELECT'].= implode (',',$select['FROM']);
+				//
+
+				$queryParts['SELECT'].= implode (',',$select['FROM']+$select['SELECT']);
 			}
 
 				// tables
 			$queryParts['FROM'].= ' '.implode (',',array_keys($select['FROM'])+array_keys($select['MM']));
-			
-			
+
+
 			//
 			// LEFT_JOIN
 			//
-			
+
 			$query = array();
 			foreach($select['LEFT_JOIN'] as $table => $on) {
 				$query[] = 'LEFT JOIN '.$table.' ON ('.$on.')';
@@ -308,7 +397,7 @@ class tx_dam_querygen {
 			//
 
 			$query = array();
-			$query[] = '1=1';
+			$query[] = '1';
 
 			$query[] = implode (' ',$select['WHERE']['WHERE']);
 			unset($select['WHERE']['WHERE']);
@@ -331,14 +420,14 @@ class tx_dam_querygen {
 				}
 			}
 			$query[] = implode (' ',$select['enableFields']);
-			
+
 			$queryParts['WHERE'] = "\n".implode ("\n",$query);
 
 
 			//
 			// GROUPBY, ORDERBY, LIMIT
 			//
-					
+
 			if(count($select['GROUPBY'])) {
 				$queryParts['GROUPBY'] = implode (',',$select['GROUPBY']);
 			}
@@ -354,8 +443,97 @@ class tx_dam_querygen {
 		return $queryParts;
 	}
 
-}
 
+	/***************************************
+	 *
+	 *	 helper functions
+	 *
+	 ***************************************/
+
+
+
+	/**
+	 * Creates part of query for searching after a word ($this->searchString) fields in input table
+	 * 
+	 * @param	string		Table, in which the fields are being searched.
+	 * @param	string		search string
+	 * @return	string		Returns part of WHERE-clause for searching, if applicable.
+	 */
+	function makeSearchQueryPart($table, $searchString)	{
+		global $TCA;
+
+			// Make query, only if table is valid and a search string is actually defined:
+		if ($TCA[$table] && $searchString)	{
+
+				// Loading full table description - we need to traverse fields:
+			t3lib_div::loadTCA($table);
+
+				// Initialize field array:
+			$sfields=array();
+			$sfields[]='uid';	// Adding "uid" by default.
+
+				// Traverse the configured columns and add all columns that can be searched:
+			foreach($TCA[$table]['columns'] as $fieldName => $info)	{
+				if ($info['config']['type']=='text' || ($info['config']['type']=='input' && !ereg('date|time|int',$info['config']['eval'])))	{
+					$sfields[]=$table.'.'.$fieldName;
+				}
+			}
+
+				// If search-fields were defined (and there always are) we create the query:
+			if (count($sfields))	{
+				$like=' LIKE "%'.$GLOBALS['TYPO3_DB']->quoteStr($searchString, $table).'%"';		// Free-text searching...
+				$queryPart = '('.implode($like.' OR ',$sfields).$like.')';
+
+					// Return query:
+				return $queryPart;
+			}
+		}
+	}
+
+	/**
+	 * Returns field list with table name prepended
+	 * 
+	 * @param	mixed		Field list as array or comma list as string
+	 * @param	string		Table name
+	 * @return	string		Comma list of fields with table name prepended
+	 */
+	function compileFieldList($table, $fields) {
+		$fieldList = array();
+
+		if ($fields=='*') {
+			$fieldList[$table] = $table.'.*';
+		} else {
+			$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
+			foreach ($fields as $field) {
+				$fieldList[$table.'.'.$field] = $table.'.'.$field;
+			}
+		}
+
+		return implode(',',$fieldList);
+	}
+
+
+#TODO
+	/**
+	 * Returns a part of a WHERE clause which will filter out records with start/end times or hidden/fe_groups fields set to values that should de-select them according to the current time, preview settings or user login. Definitely a frontend function.
+	 * THIS IS A VERY IMPORTANT FUNCTION: Basically you must add the output from this function for EVERY select query you create for selecting records of tables in your own applications - thus they will always be filtered according to the "enablefields" configured in TCA
+	 * Simply calls t3lib_pageSelect::enableFields() BUT will send the show_hidden flag along! This means this function will work in conjunction with the preview facilities of the frontend engine/Admin Panel.
+	 *
+	 * @param	string		The table for which to get the where clause
+	 * @return	string		The part of the where clause on the form " AND NOT [fieldname] AND ...". Eg. " AND NOT hidden AND starttime < 123345567"
+	 * @see t3lib_pageSelect::enableFields()
+	 */
+	function enableFields($table='')	{
+		$table = $table ? $table : $this->table;
+
+		if (is_object($GLOBALS['TSFE'])) {
+			return $GLOBALS['TSFE']->sys_page->enableFields($table);
+		} else {
+			# return t3lib_BEfunc::BEenableFields($table).t3lib_BEfunc::deleteClause($table);
+			return t3lib_BEfunc::deleteClause($table);
+		}
+	}
+}
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_querygen.php'])	{

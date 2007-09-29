@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -116,14 +116,14 @@ class tx_dam_db {
 	function checkFileIsIndexed ($fileName,$path,$mtime) {
 #TODO: pid?
 #TODO check for moved files etc - maybe use a different function for that
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,file_mtime,file_status', 'tx_dam', "file_name='".$GLOBALS['TYPO3_DB']->quoteStr($fileName,'tx_dam')."' AND file_path='".$GLOBALS['TYPO3_DB']->quoteStr($path,'tx_dam')."' AND NOT deleted");
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,file_mtime,file_status', 'tx_dam', "file_name='".$GLOBALS['TYPO3_DB']->quoteStr($fileName,'tx_dam')."' AND file_path='".$GLOBALS['TYPO3_DB']->quoteStr($path,'tx_dam')."' AND deleted=0");
 
 		### look if more than one record fit and do heavier check
 
 		$uid=0;
 		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$uid=$row['uid'];
-			
+
 			if ($row['file_mtime']==$mtime) {
 				return array(TXDAM_file_ok, $uid);
 			} else {
@@ -150,7 +150,7 @@ class tx_dam_db {
 	 */
 	function updateRecordStatus($uid,$status,$mtime=0)	{
 #TODO define proper status values
-		
+
 		$values = array();
 		$values['tstamp'] = time();
 		$values['file_status'] = $status;
@@ -171,9 +171,9 @@ class tx_dam_db {
 	 * @params integer 	status value
 	 */
 	function insertMetaRecord($meta, $id='NEW', $status=TXDAM_needs_review)	{
-		
+
 		$meta = $this->cleanupRecordArray ('tx_dam', $meta);
-		
+
 		#TODO set proper status
 		$meta['file_status']=TXDAM_needs_review;
 
@@ -216,15 +216,15 @@ class tx_dam_db {
 		echo $GLOBALS['TYPO3_DB']->sql_error();
 		$id = $GLOBALS['TYPO3_DB']->sql_insert_id($res);
 		}
-		
+
 		return $id;
 	}
 
 
 
 
-	
-	
+
+
 
 
 
@@ -233,9 +233,9 @@ class tx_dam_db {
 	 *	 references
 	 *
 	 ***************************************/
-	 
-	 
-	
+
+
+
 
 	/**
 	 * Make a list of files by a mm-relation to the tx_dam table
@@ -249,31 +249,27 @@ class tx_dam_db {
 	 * @param	[type]		$limit: ...
 	 * @return	[type]		...
 	 */
-	function get_mm_fileList($local_table, $local_uid, $select='', $whereClause='', $groupBy='', $orderBy='', $limit=100, $MM_table='tx_dam_mm_ref') {
-		
+	function get_mm_fileList($local_table, $local_uid, $MM_ident='', $MM_table='tx_dam_mm_ref', $select='', $whereClause='', $groupBy='', $orderBy='', $limit=100) {
+
 		$select = $select ? $select : 'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.file_type' ;
-//debug(tx_dam_db::SELECT_mm_query(
-//			$select,
-//			$local_table,
-//			'tx_dam_mm_ref',
-//			'tx_dam',
-//			'AND '.$local_table.'.uid IN ('.$local_uid.') '.$whereClause, 
-//			$groupBy, 
-//			$orderBy,
-//			$limit
-//		));
+
+
+		$whereClause = ' AND '.$MM_table.'.tablenames="'.$GLOBALS['TYPO3_DB']->quoteStr($local_table,$MM_table).'"';
+		if ($MM_ident) {
+			$whereClause.= ' AND '.$MM_table.'.ident="'.$GLOBALS['TYPO3_DB']->quoteStr($MM_ident,$MM_table).'"';
+		}
 
 		if(!$orderBy) {
 			$orderBy = $MM_table.'.sorting';
 		}
-					
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
 			$select,
-			$local_table,
-			$MM_table,
 			'tx_dam',
+			$MM_table,
+			$local_table,
 			'AND '.$local_table.'.uid IN ('.$local_uid.') '.$whereClause,
-			$groupBy, 
+			$groupBy,
 			$orderBy,
 			$limit
 		);
@@ -283,10 +279,28 @@ class tx_dam_db {
 			$files[$row['uid']] = $row['file_path'].$row['file_name'];
 			$rows[$row['uid']] = $row;
 		}
-		
+
 		return array('files'=>$files, 'rows'=>$rows);
 	}
-	
+
+########## debug
+
+
+	function SELECT_mm_query($select,$local_table,$mm_table,$foreign_table,$whereClause='',$groupBy='',$orderBy='',$limit='')	{
+		$mmWhere = $local_table ? $local_table.'.uid='.$mm_table.'.uid_local' : '';
+		$mmWhere.= ($local_table AND $foreign_table) ? ' AND ' : '';
+		$mmWhere.= $foreign_table ? $foreign_table.'.uid='.$mm_table.'.uid_foreign' : '';
+		return $GLOBALS['TYPO3_DB']->SELECTquery(
+					$select,
+					($local_table ? $local_table.',' : '').$mm_table.($foreign_table ? ','.$foreign_table : ''),
+					$mmWhere.' '.$whereClause,		// whereClauseMightContainGroupOrderBy
+					$groupBy,
+					$orderBy,
+					$limit
+				);
+	}
+
+#############
 	/**
 	 * Make a list of references to foreign tables (eg. tt_content) by a mm-relation to the tx_dam table
 	 * 
@@ -303,12 +317,12 @@ class tx_dam_db {
 		if(!$orderBy) {
 			$orderBy = $MM_table.'.tablenames';
 		}
-				
+
 		$res = tx_dam_db::exec_SELECT_mm_refList(
 			$tx_dam_uid,
 			$select,
-			$whereClause, 
-			$groupBy, 
+			$whereClause,
+			$groupBy,
 			$orderBy,
 			$limit,
 			$MM_table
@@ -318,10 +332,9 @@ class tx_dam_db {
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 			$rows[$row['uid']] = $row;
 		}
-		
+
 		return $rows;
 	}
-
 
 
 	/**
@@ -340,55 +353,25 @@ class tx_dam_db {
 		if(!$orderBy) {
 			$orderBy = $MM_table.'.tablenames';
 		}
-									
-		$select = $select ? $select : 'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.file_type, '.$MM_table.'.tablenames' ;
-		$whereClause = ((string)$tx_dam_uid) ? (' AND tx_dam.uid IN ('.$tx_dam_uid.') '.$whereClause) : $whereClause;
-		
-//debug(tx_dam_db::SELECT_mm_query(
-//			$select,
-//			'',
-//			$MM_table,
-//			'tx_dam',
-//			$whereClause, 
-//			$groupBy, 
-//			$orderBy,
-//			$limit
-//		));
-		
-		
+
+		$select = $select ? $select : 'tx_dam.uid, tx_dam.title, tx_dam.file_path, tx_dam.file_name, tx_dam.file_type, '.$MM_table.'.tablenames, '.$MM_table.'.ident' ;
+		$whereClause.= $tx_dam_uid ? ' AND tx_dam.uid IN ('.$tx_dam_uid.')' : '';
+
+
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
 			$select,
-			'',
-			$MM_table,
 			'tx_dam',
-			$whereClause, 
-			$groupBy, 
+			$MM_table,
+			'',
+			$whereClause,
+			$groupBy,
 			$orderBy,
 			$limit
 		);
-		
+
 		return $res;
 	}
-
-########## debug
-
-	
-	function SELECT_mm_query($select,$local_table,$mm_table,$foreign_table,$whereClause='',$groupBy='',$orderBy='',$limit='')	{
-		$mmWhere = $local_table ? $local_table.'.uid='.$mm_table.'.uid_local' : '';
-		$mmWhere.= ($local_table AND $foreign_table) ? ' AND ' : '';
-		$mmWhere.= $foreign_table ? $foreign_table.'.uid='.$mm_table.'.uid_foreign' : '';
-		return $GLOBALS['TYPO3_DB']->SELECTquery(
-					$select,
-					($local_table ? $local_table.',' : '').$mm_table.($foreign_table ? ','.$foreign_table : ''),
-					$mmWhere.' '.$whereClause,		// whereClauseMightContainGroupOrderBy
-					$groupBy,
-					$orderBy,
-					$limit
-				);
-	}	
-	
-#############
-
 
 
 
@@ -398,9 +381,9 @@ class tx_dam_db {
 	 *	 categories
 	 *
 	 ***************************************/
-	 
-	 
-	 	 
+
+
+
 	/**
 	 * @param	[type]		$title: ...
 	 * @return	[type]		...
@@ -426,7 +409,7 @@ class tx_dam_db {
 */
 
 
-	
+
 	/**
 	 * Returns an array with rows for subrecords with parent_id=$uid
 	 * 
@@ -439,10 +422,10 @@ class tx_dam_db {
 	 */
 	function getSubRecords ($uidList,$level=1,$fields='*',$table='tx_dam_cat',$where='')	{
 		$rows = array();
-		
+
 		while ($level && $uidList)	{
 			$level--;
-			
+
 			$newIdList = array();
 			t3lib_div::loadTCA($table);
 			$ctrl = $GLOBALS['TCA'][$table]['ctrl'];
@@ -454,8 +437,8 @@ class tx_dam_db {
 			$uidList = implode(',', $newIdList);
 
 		}
-		
-		
+
+
 		return $rows;
 	}
 
@@ -472,7 +455,7 @@ class tx_dam_db {
 	function getSubRecordsIdList($uidList,$level=1,$table='tx_dam_cat',$where='')	{
 		$rows = tx_dam_db::getSubRecords ($uidList,$level,'uid',$table,$where);
 		return implode(',',array_keys($rows));
-	}	
+	}
 
 
 
@@ -489,7 +472,7 @@ class tx_dam_db {
 	 * @params array 	meta data. $meta['media_type'] and $meta['file_type'] have to be set
 	 */
 	function updateBrowseTypes($meta)	{
-		
+
 		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
 
 		// MEDIA tx_dam_metypes_avail
@@ -560,7 +543,7 @@ class tx_dam_db {
 	 * @param	[type]		$pid: ...
 	 * @return	void		
 	 */
-	function createDAMFolder($pid=0) {		
+	function createDAMFolder($pid=0) {
 		$fields_values = array();
 		$fields_values['pid'] = $pid;
 		$fields_values['sorting'] = 10111; #TODO
@@ -589,8 +572,8 @@ class tx_dam_db {
 		}
 		return $rows;
 	}
-	
-	
+
+
 	/**
 	 * Returns pidList of DAM Folders
 	 * 
@@ -621,14 +604,14 @@ class tx_dam_db {
 		#$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'pid=0', array('pid' => $df['uid']));
 		#$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_cat', 'pid=0', array('pid' => $df['uid']));
 
-		return array ($df['uid'],$df['uid'],implode(',',array_keys($damFolders)));	
-			
+		return array ($df['uid'],$df['uid'],implode(',',array_keys($damFolders)));
+
 #		return array (
 #			'defaultPid' => $df['uid'],
 #			'defaultFolder' => $df['uid'],
 #			'folderList' => implode(',',array_keys($damFolders))
 #		);
-	}	
+	}
 
 
 
@@ -649,14 +632,14 @@ class tx_dam_db {
 	function getInfoFieldListDAM($prependTableName=TRUE, $addFields=array()) {
 
 		$infoFields = tx_dam_db::getTCAFieldListArray('tx_dam', TRUE, $addFields);
-		$infoFields['file_name'] = 'file_name';		
-		$infoFields['file_dl_name'] = 'file_dl_name';		
-		$infoFields['file_path'] = 'file_path';		
-		$infoFields['file_size'] = 'file_size';		
-		$infoFields['file_type'] = 'file_type';		
-		$infoFields['file_ctime'] = 'file_ctime';		
+		$infoFields['file_name'] = 'file_name';
+		$infoFields['file_dl_name'] = 'file_dl_name';
+		$infoFields['file_path'] = 'file_path';
+		$infoFields['file_size'] = 'file_size';
+		$infoFields['file_type'] = 'file_type';
+		$infoFields['file_ctime'] = 'file_ctime';
 		$infoFields = tx_dam_db::compileFieldList('tx_dam', $infoFields, FALSE, $prependTableName);
-		
+
 		return $infoFields;
 	}
 
@@ -671,11 +654,11 @@ class tx_dam_db {
 	 */
 	function compileFieldList($table, $fields, $checkTCA=TRUE, $prependTableName=TRUE) {
 		global $TCA;
-		
+
 		$fieldList = array();
-		
+
 		$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
-		
+
 		if ($checkTCA) {
 			if (is_array($TCA[$table])) {
 				$fields = $this->cleanupFieldList($table, $fields);
@@ -712,7 +695,7 @@ class tx_dam_db {
 		}
 		return $row;
 	}
-	
+
 	/**
 	 * Removes fields from a field list that are not configured in TCA
 	 * 
@@ -723,7 +706,7 @@ class tx_dam_db {
 	function cleanupFieldList($table, $fields) {
 		$allowedFields = $this->getTCAFieldListArray($table);
 		$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
-		
+
 		foreach ($fields as $key => $field) {
 			if (!in_array($field, $allowedFields)) {
 				unset($fields[$key]);
@@ -745,7 +728,7 @@ class tx_dam_db {
 		global $TCA;
 
 		$fieldListArr=array();
-		
+
 		if (!is_array($addFields)) {
 			$addFields = t3lib_div::trimExplode(';', $addFields, 1);
 		}
@@ -754,7 +737,7 @@ class tx_dam_db {
 				$fieldListArr[$field] = $field;
 			#}
 		}
-		
+
 		if (is_array($TCA[$table]))	{
 			t3lib_div::loadTCA($table);
 			if (!$mainFieldsOnly) {
@@ -798,7 +781,7 @@ class tx_dam_db {
 
 		$arg_list = func_get_args();
 		foreach ($arg_list as $in_list)	{
-			
+
 			if (!is_array($in_list) AND empty($in_list))	{
 				continue;
 			}
@@ -813,7 +796,7 @@ class tx_dam_db {
 
 		return implode(',',t3lib_div::uniqueArray($listArray));
 	}
-	
+
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_db.php'])	{

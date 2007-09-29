@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -64,26 +64,6 @@
 
 
 
-require_once(PATH_t3lib.'class.t3lib_treeview.php');
-
-class tx_dam_tceFunc_selectTreeView extends t3lib_treeview {
-
-	var $TCEforms_itemFormElName='';
-	var $TCEforms_nonSelectableItemsArray=array();
-
-	function wrapTitle($title,$v)	{
-		if($v['uid']>0) {
-			if (in_array($v['uid'],$this->TCEforms_nonSelectableItemsArray)) {
-				return '<span style="color:grey">'.$title.'</span>';
-			} else {
-				$aOnClick = 'setFormValueFromBrowseWin(\''.$this->TCEforms_itemFormElName.'\','.$v['uid'].',\''.$title.'\'); return false;';
-				return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
-			}
-		} else {
-			return $title;
-		}
-	}
-}
 
 
 
@@ -98,7 +78,7 @@ require_once(t3lib_extMgm::extPath('dam').'lib/class.tx_dam_div.php');
  * @subpackage tx_dam
  */
 class tx_dam_tceFunc {
-	
+
 	/**
 	 * see dam_ttcontent extension
 	 * 
@@ -115,7 +95,7 @@ class tx_dam_tceFunc {
 		foreach ($fileList as $file) {
 			$files[] = $filePath.$file;
 		}
-		
+
 		$damFiles = tx_dam_db::get_mm_fileList('tt_content', $this->cObj->data['uid']);
 
 		$files = array_merge($files, $damFiles['files']);
@@ -146,6 +126,192 @@ class tx_dam_tceFunc {
 	 * @return	string		The HTML code for the TCEform field
 	 */
 	function getSingleField_selectTree($PA, &$pObj)	{
+		global $TCA, $LANG;
+
+			// Init:
+		$table = $PA['table'];
+		$field = $PA['field'];
+		$row = $PA['row'];
+
+		$this->pObj = &$PA['pObj'];
+
+			// Field configuration from TCA:
+		$config = $PA['fieldConf']['config'];
+
+		if (!($config['treeView'] AND $config['foreign_table']))	{ return ''; }
+
+#TODO it seems TCE has a bug and do not work correctly with '1'
+$config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
+
+#TODO check: group,db,allowed,MM
+#TODO check: select,foreign_table
+
+		$type = $config['type'];
+		$internal_type = $config['internal_type'] ? $config['internal_type'] : 'select';
+		$show_thumbs = $config['show_thumbs'];
+		$size = intval($config['size']);
+		$maxitems = t3lib_div::intInRange($config['maxitems'],0);
+		if (!$maxitems)	$maxitems=100000;
+		$minitems = t3lib_div::intInRange($config['minitems'],0);
+		$allowed = $config['allowed'];
+		$disallowed = $config['disallowed'];
+
+			// Getting the selector box items from the system
+		$selItems = $this->pObj->addSelectOptionsToItemArray($this->pObj->initItemArray($PA['fieldConf']),$PA['fieldConf'],$this->pObj->setTSconfig($table,$row),$field);
+		$selItems = $this->pObj->addItems($selItems,$PA['fieldTSConfig']['addItems.']);
+		if ($config['itemsProcFunc']) $selItems = $this->pObj->procItems($selItems,$PA['fieldTSConfig']['itemsProcFunc.'],$config,$table,$row,$field);
+
+			// Possibly remove some items:
+		$removeItems=t3lib_div::trimExplode(',',$PA['fieldTSConfig']['removeItems'],1);
+		foreach($selItems as $tk => $p)	{
+			if (in_array($p[1],$removeItems))	{
+				unset($selItems[$tk]);
+			} else if (isset($PA['fieldTSConfig']['altLabels.'][$p[1]])) {
+				$selItems[$tk][0]=$this->pObj->sL($PA['fieldTSConfig']['altLabels.'][$p[1]]);
+			}
+
+				// Removing doktypes with no access:
+			if ($table.'.'.$field == 'pages.doktype')	{
+				if (!($GLOBALS['BE_USER']->isAdmin() || t3lib_div::inList($GLOBALS['BE_USER']->groupData['pagetypes_select'],$p[1])))	{
+					unset($selItems[$tk]);
+				}
+			}
+		}
+
+			// "Extra" configuration; Returns configuration for the field based on settings found in the "types" fieldlist. See http://typo3.org/documentation/document-library/doc_core_api/Wizards_Configuratio/.
+		$specConf = $this->pObj->getSpecConfFromString($PA['extra'], $PA['fieldConf']['defaultExtras']);
+
+			// Creating the label for the "No Matching Value" entry.
+		$nMV_label = isset($PA['fieldTSConfig']['noMatchingValue_label']) ? $this->pObj->sL($PA['fieldTSConfig']['noMatchingValue_label']) : '[ '.$this->pObj->getLL('l_noMatchingValue').' ]';
+		$nMV_label = @sprintf($nMV_label, $PA['itemFormElValue']);
+
+			// If a SINGLE selector box...
+		if ($maxitems<=1 AND !$config['treeView'])	{
+
+		} else {
+			$item.= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'" />';
+
+				// Set max and min items:
+			$maxitems = t3lib_div::intInRange($config['maxitems'],0);
+			if (!$maxitems)	$maxitems=100000;
+			$minitems = t3lib_div::intInRange($config['minitems'],0);
+
+				// Register the required number of elements:
+			$this->pObj->requiredElements[$PA['itemFormElName']] = array($minitems,$maxitems,'imgName'=>$table.'_'.$row['uid'].'_'.$field);
+
+
+			if($config['treeView'] AND $config['foreign_table']) {
+				global $TCA, $LANG;
+
+				if($config['treeViewClass'] AND is_object($treeViewObj = &t3lib_div::getUserObj($config['treeViewClass'],'user_',false)))      {
+					$treeViewObj->init();
+				} else {
+#TODO workaround, treeview has "require_once (PATH_t3lib.'class.t3lib_div.php')" and do not work in FE because of redeclare t3lib_div. index_ts.php use require(PATH_t3lib.'class.t3lib_div.php');
+
+					require_once(t3lib_extMgm::extPath('dam').'lib/class.tx_dam_selprocbase.php');
+					$treeViewObj = t3lib_div::makeInstance('tx_dam_browseTree');
+					$treeViewObj->table = $config['foreign_table'];
+					$treeViewObj->init();
+					$treeViewObj->parentField = $TCA[$config['foreign_table']]['ctrl']['treeParentField'];
+				}
+				$treeViewObj->mode = 'tceformsSelect';
+				$treeViewObj->backPath = $this->pObj->backPath;
+				$treeViewObj->expandAll=1;
+				$treeViewObj->expandFirst=1;
+				$treeViewObj->ext_IconMode = '1'; // no context menu on icons
+
+				$treeViewObj->TCEforms_itemFormElName = $PA['itemFormElName'];
+				if ($table==$config['foreign_table']) {
+					$treeViewObj->TCEforms_nonSelectableItemsArray[] = $row['uid'];
+				}
+				if($config['treeViewClause']) {
+					$treeViewObj->clause = ' '.$config['treeViewClause'];
+				}
+				$treeContent = $treeViewObj->getBrowsableTree();
+				$treeItemC = count($treeViewObj->ids);
+
+
+				#if ($this->pObj->docLarge)	$cols = round($cols*$this->pObj->form_largeComp);
+				#$width = ceil($cols*$this->pObj->form_rowsToStylewidth);
+				$width=240;
+
+				$height = $config['autoSizeMax'] ? t3lib_div::intInRange($treeItemC+3,t3lib_div::intInRange($size,1),$config['autoSizeMax']) : $size;
+					// hardcoded: 12 is the height of the font
+				$height=$height*13;
+
+				$divStyle = 'position:relative; left:0px; top:0px; height:'.$height.'px; width:'.$width.'px;border:solid 1px;overflow:auto;background:#fff;';
+				$thumbnails='<div  name="'.$PA['itemFormElName'].'_selTree" style="'.htmlspecialchars($divStyle).'">';
+				$thumbnails.=$treeContent;
+				$thumbnails.='</div>';
+
+			} else {
+
+				$sOnChange = 'setFormValueFromBrowseWin(\''.$PA['itemFormElName'].'\',this.options[this.selectedIndex].value,this.options[this.selectedIndex].text); '.implode('',$PA['fieldChangeFunc']);
+
+					// Put together the select form with selected elements:
+				$selector_itemListStyle = isset($config['itemListStyle']) ? ' style="'.htmlspecialchars($config['itemListStyle']).'"' : ' style="'.$this->pObj->defaultMultipleSelectorStyle.'"';
+				$size = $config['autoSizeMax'] ? t3lib_div::intInRange(count($itemArray)+1,t3lib_div::intInRange($size,1),$config['autoSizeMax']) : $size;
+				$thumbnails = '<select style="width:150 px;" name="'.$PA['itemFormElName'].'_sel"'.$this->pObj->insertDefStyle('select').($size?' size="'.$size.'"':'').' onchange="'.htmlspecialchars($sOnChange).'"'.$PA['onFocus'].$selector_itemListStyle.'>';
+				#$thumbnails = '<select                       name="'.$PA['itemFormElName'].'_sel"'.$this->pObj->insertDefStyle('select').($size?' size="'.$size.'"':'').' onchange="'.htmlspecialchars($sOnChange).'"'.$PA['onFocus'].$selector_itemListStyle.'>';
+				foreach($selItems as $p)	{
+					$thumbnails.= '<option value="'.htmlspecialchars($p[1]).'">'.htmlspecialchars($p[0]).'</option>';
+				}
+				$thumbnails.= '</select>';
+
+			}
+
+				// Perform modification of the selected items array:
+			$itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue'],1);
+
+			foreach($itemArray as $tk => $tv) {
+				$tvP = explode('|',$tv,2);
+				if (in_array($tvP[0],$removeItems) && !$PA['fieldTSConfig']['disableNoMatchingValueElement'])	{
+					$tvP[1] = rawurlencode($nMV_label);
+				} elseif (isset($PA['fieldTSConfig']['altLabels.'][$tvP[0]])) {
+					$tvP[1] = rawurlencode($this->pObj->sL($PA['fieldTSConfig']['altLabels.'][$tvP[0]]));
+				} else {
+					$tvP[1] = rawurlencode($this->pObj->sL(rawurldecode($tvP[1])));
+				}
+				$itemArray[$tk]=implode('|',$tvP);
+			}
+			$params=array(
+				'size' => $size,
+				'dontShowMoveIcons' => ($maxitems<=1),
+				'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'],0),
+				'maxitems' => $maxitems,
+				'info' => '',
+				'thumbnails' => $thumbnails,
+				#'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->pObj->defaultMultipleSelectorStyle.'"',
+				'style' => ' style="width:200px;"',
+				'headers' => array(
+					'selector' => $this->pObj->getLL('l_selected').':<br />',
+					'items' => $this->pObj->getLL('l_items').':<br />'
+				),
+				'noBrowser' => 1,
+			);
+			$item.= $this->pObj->dbFileIcons($PA['itemFormElName'],$internal_type,$allowed,$itemArray,'',$params,$PA['onFocus']);
+		}
+
+			// Wizards:
+		$altItem = '<input type="hidden" name="'.$PA['itemFormElName'].'" value="'.htmlspecialchars($PA['itemFormElValue']).'" />';
+		$item = $this->pObj->renderWizards(array($item,$altItem),$config['wizards'],$table,$row,$field,$PA,$PA['itemFormElName'],$specConf);
+
+		return $item;
+	}
+
+	/**
+	 * Generation of TCEform elements of the type "select"
+	 * This will render a selector box element, or possibly a special construction with two selector boxes. That depends on configuration.
+	 * 
+	 * @param	string		The table name of the record
+	 * @param	string		The field name which this element is supposed to edit
+	 * @param	array		The record data array where the value(s) for the field can be found
+	 * @param	array		An array with additional configuration options.
+	 * @return	string		The HTML code for the TCEform field
+	 */
+	function getSingleField_selectMounts($PA, &$pObj)	{
+		global $TCA, $LANG;
+
 		$table = $PA['table'];
 		$field = $PA['field'];
 		$row = $PA['row'];
@@ -156,13 +322,16 @@ class tx_dam_tceFunc {
 			// Field configuration from TCA:
 		$config = $PA['fieldConf']['config'];
 
-// it seems TCE has a bug and do not work correctly with '1'		
+#TODO it seems TCE has a bug and do not work correctly with '1'
 $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 			// Getting the selector box items from the system
 		$selItems = $this->pObj->addSelectOptionsToItemArray($this->pObj->initItemArray($PA['fieldConf']),$PA['fieldConf'],$this->pObj->setTSconfig($table,$row),$field);
 		$selItems = $this->pObj->addItems($selItems,$PA['fieldTSConfig']['addItems.']);
 		if ($config['itemsProcFunc']) $selItems = $this->pObj->procItems($selItems,$PA['fieldTSConfig']['itemsProcFunc.'],$config,$table,$row,$field);
+
+			// "Extra" configuration; Returns configuration for the field based on settings found in the "types" fieldlist. See http://typo3.org/documentation/document-library/doc_core_api/Wizards_Configuratio/.
+		$specConf = $this->pObj->getSpecConfFromString($PA['extra'], $PA['fieldConf']['defaultExtras']);
 
 			// Possibly remove some items:
 		$removeItems=t3lib_div::trimExplode(',',$PA['fieldTSConfig']['removeItems'],1);
@@ -190,104 +359,127 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$minitems = intval($config['minitems']);
 		$size = intval($config['size']);
 
-			// If a SINGLE selector box...
-		if ($maxitems<=1 AND !$config['treeView'])	{
 
-		} else {
-			$item.= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'" />';
+		$item.= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'" />';
 
-				// Set max and min items:
-			$maxitems = t3lib_div::intInRange($config['maxitems'],0);
-			if (!$maxitems)	$maxitems=100000;
-			$minitems = t3lib_div::intInRange($config['minitems'],0);
+			// Set max and min items:
+		$maxitems = t3lib_div::intInRange($config['maxitems'],0);
+		if (!$maxitems)	$maxitems=100000;
+		$minitems = t3lib_div::intInRange($config['minitems'],0);
 
-				// Register the required number of elements:
-			$this->pObj->requiredElements[$PA['itemFormElName']] = array($minitems,$maxitems,'imgName'=>$table.'_'.$row['uid'].'_'.$field);
+			// Register the required number of elements:
+		$this->pObj->requiredElements[$PA['itemFormElName']] = array($minitems,$maxitems,'imgName'=>$table.'_'.$row['uid'].'_'.$field);
 
 
-			if($config['treeView'] AND $config['foreign_table']) {
-				global $TCA, $LANG;
 
-				if($config['treeViewClass'] AND is_object($treeViewObj = &t3lib_div::getUserObj($config['treeViewClass'],'user_',false)))      {
-				} else {
-					$treeViewObj = t3lib_div::makeInstance('tx_dam_tceFunc_selectTreeView');
+			// Perform modification of the selected items array:
+		$itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue'],1);
+
+#debug($itemArray);
+//--------------------
+
+
+
+		require_once(PATH_txdam.'lib/class.tx_dam_browsetrees.php');
+
+		$browseTrees = t3lib_div::makeInstance('tx_dam_browseTrees');
+		$browseTrees->init('', 'tceformsSelect');
+
+
+		$treeItemC = 0;
+		$treeContent = '';
+		$newItemArray = array();
+
+		if (is_array($browseTrees->arrayTree)) {
+			foreach($browseTrees->arrayTree as $treeName => $treeViewObj)	{
+
+				if ($treeViewObj->isTCEFormsSelectClass AND $treeViewObj->supportMounts) {
+					$treeViewObj->backPath = $this->pObj->backPath;
+					$treeViewObj->TCEforms_itemFormElName = $PA['itemFormElName'];
+					$treeViewObj->tceformsSelect_prefixTreeName = true;
+
+					if ((string)$treeViewObj->supportMounts=='rootOnly') {
+						$treeContent.= $treeViewObj->printRootOnly();
+						$treeItemC += 1;
+
+					} else {
+						$treeViewObj->expandAll=1;
+						$treeViewObj->expandFirst=1;
+						$treeViewObj->setRecs=1;
+
+						$treeContent.= $treeViewObj->getBrowsableTree();
+
+						$treeItemC += count($treeViewObj->ids);
+					}
+
+
+					foreach ($itemArray as $tk => $tv) {
+						$tvP = explode('|',$tv,2);
+						list($treeName, $treeId) = explode(':',$tvP[0]);
+						if($tvP[1]=='' AND $treeName==$treeViewObj->treeName) {
+							if(isset($treeViewObj->recs[$treeId]) OR $treeId==0) {
+								$tvP[1] = $treeViewObj->dam_treeTitle();
+								if ($treeId) {
+									$itemTitle = $treeViewObj->getTitleStr($treeViewObj->recs[$treeId]);
+									$tvP[1].= $itemTitle ? ': '.$itemTitle : '';
+								} else {
+									$tvP[1].= ' (Root)';
+								}
+								$newItemArray[$tk]=implode('|',$tvP);
+							}
+						}
+					}
+
 				}
-				$treeViewObj->table = $config['foreign_table'];
-				$treeViewObj->init();
-				$treeViewObj->backPath = $this->pObj->backPath;
-				$treeViewObj->parentField = $TCA[$config['foreign_table']]['ctrl']['treeParentField'];
-				$treeViewObj->expandAll=1;
-				$treeViewObj->expandFirst=1;
-				$treeViewObj->ext_IconMode = '1'; // no context menu on icons
-				$treeViewObj->title = $LANG->sL($TCA[$config['foreign_table']]['ctrl']['title']);
-				$treeViewObj->TCEforms_itemFormElName = $PA['itemFormElName'];
-				if ($table==$config['foreign_table']) {
-					$treeViewObj->TCEforms_nonSelectableItemsArray[] = $row['uid'];
-				}
-				$treeContent=$treeViewObj->getBrowsableTree();
-				$treeItemC = count($treeViewObj->ids);
-				
-				
-				#if ($this->pObj->docLarge)	$cols = round($cols*$this->pObj->form_largeComp);
-				#$width = ceil($cols*$this->pObj->form_rowsToStylewidth);
-				$width=240;
-				
-				$config['autoSizeMax'] = t3lib_div::intInRange($config['autoSizeMax'],0);
-				$height = $config['autoSizeMax'] ? t3lib_div::intInRange($treeItemC+1,t3lib_div::intInRange($size,1),$config['autoSizeMax']) : $size;
-					// hardcoded: 12 is the height of the font
-				$height=$height*13;	
-
-				$divStyle = 'position:relative; left:0px; top:0px; height:'.$height.'px; width:'.$width.'px;border:solid 1px;overflow:auto;background:#fff;';			
-				$thumbnails='<div  name="'.$PA['itemFormElName'].'_selTree" style="'.htmlspecialchars($divStyle).'">';
-				$thumbnails.=$treeContent;
-				$thumbnails.='</div>';	
-							
-			} else {
-
-				$sOnChange = 'setFormValueFromBrowseWin(\''.$PA['itemFormElName'].'\',this.options[this.selectedIndex].value,this.options[this.selectedIndex].text); '.implode('',$PA['fieldChangeFunc']);
-	
-					// Put together the select form with selected elements:
-				$selector_itemListStyle = isset($config['itemListStyle']) ? ' style="'.htmlspecialchars($config['itemListStyle']).'"' : ' style="'.$this->pObj->defaultMultipleSelectorStyle.'"';
-				$size = $config['autoSizeMax'] ? t3lib_div::intInRange(count($itemArray)+1,t3lib_div::intInRange($size,1),$config['autoSizeMax']) : $size;
-				$thumbnails = '<select style="width:150 px;" name="'.$PA['itemFormElName'].'_sel"'.$this->pObj->insertDefStyle('select').($size?' size="'.$size.'"':'').' onchange="'.htmlspecialchars($sOnChange).'"'.$PA['onFocus'].$selector_itemListStyle.'>';
-				#$thumbnails = '<select                       name="'.$PA['itemFormElName'].'_sel"'.$this->pObj->insertDefStyle('select').($size?' size="'.$size.'"':'').' onchange="'.htmlspecialchars($sOnChange).'"'.$PA['onFocus'].$selector_itemListStyle.'>';
-				foreach($selItems as $p)	{
-					$thumbnails.= '<option value="'.htmlspecialchars($p[1]).'">'.htmlspecialchars($p[0]).'</option>';
-				}
-				$thumbnails.= '</select>';
-
 			}
-
-				// Perform modification of the selected items array:
-			$itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue'],1);
-			foreach($itemArray as $tk => $tv) {
-				$tvP = explode('|',$tv,2);
-				if (in_array($tvP[0],$removeItems) && !$PA['fieldTSConfig']['disableNoMatchingValueElement'])	{
-					$tvP[1] = rawurlencode($nMV_label);
-				} elseif (isset($PA['fieldTSConfig']['altLabels.'][$tvP[0]])) {
-					$tvP[1] = rawurlencode($this->pObj->sL($PA['fieldTSConfig']['altLabels.'][$tvP[0]]));
-				} else {
-					$tvP[1] = rawurlencode($this->pObj->sL(rawurldecode($tvP[1])));
-				}
-				$itemArray[$tk]=implode('|',$tvP);
-			}
-			$params=array(
-				'size' => $size,
-				'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'],0),
-				#'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->pObj->defaultMultipleSelectorStyle.'"',
-				'style' => ' style="width:140px;"',
-				'dontShowMoveIcons' => ($maxitems<=1),
-				'maxitems' => $maxitems,
-				'info' => '',
-				'headers' => array(
-					'selector' => $this->pObj->getLL('l_selected').':<br />',
-					'items' => $this->pObj->getLL('l_items').':<br />'
-				),
-				'noBrowser' => 1,
-				'thumbnails' => $thumbnails
-			);
-			$item.= $this->pObj->dbFileIcons($PA['itemFormElName'],'','',$itemArray,'',$params,$PA['onFocus']);
 		}
+		$itemArray = $newItemArray;
+
+		#if ($this->pObj->docLarge)	$cols = round($cols*$this->pObj->form_largeComp);
+		#$width = ceil($cols*$this->pObj->form_rowsToStylewidth);
+		$width=240;
+
+		$config['autoSizeMax'] = t3lib_div::intInRange($config['autoSizeMax'],0);
+		$height = $config['autoSizeMax'] ? t3lib_div::intInRange($treeItemC+1,t3lib_div::intInRange($size,1),$config['autoSizeMax']) : $size;
+			// hardcoded: 12 is the height of the font
+		$height=$height*13;
+
+		$divStyle = 'position:relative; left:0px; top:0px; height:'.$height.'px; width:'.$width.'px;border:solid 1px;overflow:auto;background:#fff;';
+		$thumbnails='<div  name="'.$PA['itemFormElName'].'_selTree" style="'.htmlspecialchars($divStyle).'">';
+		$thumbnails.=$treeContent;
+		$thumbnails.='</div>';
+
+//-------------------
+
+		foreach($itemArray as $tk => $tv) {
+			$tvP = explode('|',$tv,2);
+			if (in_array($tvP[0],$removeItems) && !$PA['fieldTSConfig']['disableNoMatchingValueElement'])	{
+				$tvP[1] = rawurlencode($nMV_label);
+			} elseif (isset($PA['fieldTSConfig']['altLabels.'][$tvP[0]])) {
+				$tvP[1] = rawurlencode($this->pObj->sL($PA['fieldTSConfig']['altLabels.'][$tvP[0]]));
+			} else {
+				$tvP[1] = rawurlencode($this->pObj->sL(rawurldecode($tvP[1])));
+			}
+			$itemArray[$tk]=implode('|',$tvP);
+		}
+#debug($itemArray);
+		$params=array(
+			'size' => $size,
+			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'],0),
+			#'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->pObj->defaultMultipleSelectorStyle.'"',
+			'style' => ' style="width:200px;"',
+			'dontShowMoveIcons' => ($maxitems<=1),
+			'maxitems' => $maxitems,
+			'info' => '',
+			'headers' => array(
+				'selector' => $this->pObj->getLL('l_selected').':<br />',
+				'items' => $this->pObj->getLL('l_items').':<br />'
+			),
+			'noBrowser' => 1,
+			'thumbnails' => $thumbnails
+		);
+		$item.= $this->pObj->dbFileIcons($PA['itemFormElName'],'','',$itemArray,'',$params,$PA['onFocus']);
+
 
 			// Wizards:
 		$altItem = '<input type="hidden" name="'.$PA['itemFormElName'].'" value="'.htmlspecialchars($PA['itemFormElValue']).'" />';
@@ -297,36 +489,41 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	}
 
 
-
 	/**
 	 * Generation of TCEform elements of the type "group"
 	 * This will render a selectorbox into which elements from either the file system or database can be inserted. Relations.
 	 * 
-	 * @param	string		The table name of the record
-	 * @param	string		The field name which this element is supposed to edit
-	 * @param	array		The record data array where the value(s) for the field can be found
-	 * @param	array		An array with additional configuration options.
 	 * @return	string		The HTML code for the TCEform field
 	 */
 	function getSingleField_typeMedia($PA, &$pObj)	{
-		
-		
+		global $TYPO3_CONF_VARS;
+
+		$this->pObj = &$PA['pObj'];
+
+		if(!$TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['mmref']) {
+			return $this->pObj->getSingleField_typeNone_render(array('rows'=>1),'Warning: DAM References are disabled!');
+		} elseif (
+			!(preg_match('#(/ext/dam/|/ext/cc_tcaview/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_tcemain.php'])) OR
+			!($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php']==t3lib_extMgm::extPath('dam').'compat/class.ux_t3lib_transferdata.php') OR
+			!($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php']==t3lib_extMgm::extPath('dam').'compat/class.ux_t3lib_loaddbgroup.php')
+			) {
+			return $this->pObj->getSingleField_typeNone_render(array('rows'=>2),'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_tcemain.php']);
+		}
+
 		$table = $PA['table'];
 		$field = $PA['field'];
 		$row = $PA['row'];
 
-		$this->pObj = &$PA['pObj'];			
-		
+
 			// Init:
 		$config = $PA['fieldConf']['config'];
-		$MM_table = $config['MM'];
 		$internal_type = $config['internal_type'];
 		$show_thumbs = $config['show_thumbs'];
 		$size = intval($config['size']);
 		$maxitems = t3lib_div::intInRange($config['maxitems'],0);
 		if (!$maxitems)	$maxitems=100000;
 		$minitems = t3lib_div::intInRange($config['minitems'],0);
-		$allowed = $config['allowed'];		
+		$allowed = $config['allowed'];
 		$allowedTypes = $config['allowed_types'];
 		$disallowedTypes = $config['disallowed_types'];
 
@@ -348,7 +545,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 								'</span><br />';
 					}
 				}
-				
+
 					// Creating string showing allowed types:
 				$tempFT = t3lib_div::trimExplode(',',$allowedTypes,1);
 				if (!count($tempFT))	{$info.='*';}
@@ -369,25 +566,27 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 
 
-#debug($PA['itemFormElValue'],'$PA[itemFormElValue]');				
-				
+#debug($PA['itemFormElValue'],'$PA[itemFormElValue]');
+
 				$itemArray = array();
 				$filesArray = array();
 				if(intval($row['uid'])) { // not for NEW records
-						// Making the array of file items:					
-					$filesArray = tx_dam_db::get_mm_fileList($table, $row['uid'],'','','','','',$MM_table);
-	
+						// Making the array of file items:
+					$filesArray = tx_dam_db::get_mm_fileList($table, $row['uid'], $config['MM_ident'],$config['MM']);
+
 					foreach($filesArray['rows'] as $row)	{
-						# $itemArray[] = array('table'=>'tx_dam', 'id'=>$row['uid'], 'title' => ($row['title']?$row['title']:$row['file_name']));
-						$itemArray[] = array('table'=>'tx_dam', 'id'=>$row['uid'], 'title' => $row['file_name']);
+						$itemArray[] = array('table'=>'tx_dam', 'id'=>$row['uid'], 'title' => ($row['title']?$row['title']:$row['file_name']));
+						# $itemArray[] = array('table'=>'tx_dam', 'id'=>$row['uid'], 'title' => $row['file_name']);
 					}
 				}
+
+
 
 #debug($itemArray,'$itemArray');
 
 				$thumbsnail='';
 				if ($show_thumbs AND count($filesArray))	{
-					
+
 					$imgs = array();
 					foreach($filesArray['rows'] as $row)	{
 						$rowCopy = array();
@@ -404,14 +603,14 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 									($absFilePath ? $this->pObj->getClickMenu($fileIcon, $absFilePath) : $fileIcon).
 									$row['file_name'].
 									'</div>';
-									
+
 						$title = t3lib_div::fixed_lgd_cs($this->pObj->noTitle($row['title']),$this->pObj->titleLen);
 						$thumb .= ($title ? '<div class="nobr" style="margin-bottom:5px;">'.$title.'</div>' : '');
-									
+
 						$imgs[] = $thumb;
-					}					
-					
-					
+					}
+
+
 					$thumbsnail = implode('',$imgs);
 				}
 
@@ -425,7 +624,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					'info' => $info,
 					'thumbnails' => $thumbsnail
 				);
-				
+
 				$user_el_param = $config['allowed_types'];
 				$item.= $this->dbFileIcons($PA['itemFormElName'],'db',implode(',',$tempFT_db),$itemArray,'',$params,$PA['onFocus'],$user_el_param);
 			break;
@@ -439,8 +638,127 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	}
 
 
+	/**
+	 * Generation of TCEform elements of the type "none"
+	 * This will render a non-editable display of the content of the field.
+	 *
+	 * @param	array		An array with additional configuration options.
+	 * @return	string		The HTML code for the TCEform field
+	 */
+	function getSingleField_meta($PA, &$pObj)	{
 
 
+
+		 // description of exif data
+		$metaDesc['exif']['ExposureMode']=array(
+		   'Auto Exposure',
+		   'Manual Exposure',
+		   'Auto bracket');
+		$metaDesc['exif']['MeteringMode']=array(
+		   'unknown',
+		   'Average',
+		   'CenterWeightedAverage',
+		   'Spot',
+		   'MultiSpot',
+		   'Pattern',
+		   'Partial');
+		$metaDesc['exif']['SensingMethod']=array(
+		   '',
+		   'Not defined',
+		   'One-chip color area sensor',
+		   'Two-chip color area sensor',
+		   'Three-chip color area sensor',
+		   'Color sequential area sensor',
+		   'Trilinear sensor',
+		   'Color sequential linear sensor');
+		$metaDesc['exif']['SubjectDistanceRange']=array(
+		   'unknown',
+		   'Macro',
+		   'Close view',
+		   'Distant view');
+		$metaDesc['exif']['ExposureProgram']=array(
+		   'Not defined',
+		   'Manual',
+		   'Normal program',
+		   'Aperture priority',
+		   'Shutter priority',
+		   'Creative program',
+		   'Action program',
+		   'Portrait mode',
+		   'Landscape mode');
+
+
+
+
+
+		$this->pObj = &$PA['pObj'];
+
+			// Init:
+		$config = $PA['fieldConf']['config'];
+		$config['pass_content'] = true;
+		$config['fixedRows'] = true;
+
+
+		$wantedCharset = $TYPO3_CONF_VARS['BE']['forceCharset'] ? $TYPO3_CONF_VARS['BE']['forceCharset'] : 'iso-8859-1';
+		if(!$wantedCharset=='utf-8') {
+			$csConvObj = t3lib_div::makeInstance('t3lib_cs');
+		}
+
+		$data = t3lib_div::xml2array($PA['itemFormElValue']);
+
+		$content = '';
+		if(is_array($data)) {
+			foreach($data as $key => $value) {
+
+				if(is_array($value) AND count($value)) {
+						// convert pure data to human readable
+					if (is_array($metaDesc[$key])) {	// exif, iptc
+						foreach ($value as $dataKey => $dataVal) {
+							if (is_array($metaDesc[$key][$dataKey])) {	// description found?
+								$value[$dataKey] = $metaDesc[$key][$dataKey][$dataVal];	// apply
+							}
+						}
+					}
+
+					$content.= '<h4>'.strtoupper($key).'</h4>';
+					if(is_object($csConvObj)) {
+						$csConvObj->convArray($value, 'utf-8', $wantedCharset);
+					}
+					$content.= $this->array2table($value);
+				}
+			}
+		} else {
+				// if decoding went wrong just show the content
+			$content = nl2br(htmlspecialchars($PA['itemFormElValue']));
+		}
+		return $this->pObj->getSingleField_typeNone_render($config, $content);
+	}
+
+	/**
+	 * Returns HTML-code, which is a visual representation of a multidimensional array
+	 *
+	 * @param	array		Array to view
+	 * @return	string		HTML output
+	 */
+	function array2table($array_in)	{
+		if (is_array($array_in))	{
+			$result='<table border="0" cellpadding="1" cellspacing="2">';
+			if (!count($array_in))	{$result.= '<tr><td class="bgColor5"></td></tr>';}
+			while (list($key,$val)=each($array_in))	{
+				$result.= '<tr><td class="bgColor5">'.htmlspecialchars((string)$key).'</td>';
+				$result.= '<td class="bgColor4">';
+				if (is_array($array_in[$key]))	{
+					$result.= 'array'; #$this->array2table($array_in[$key]);
+				} else
+					$result.= nl2br(htmlspecialchars((string)$val));
+				$result.= '</td></tr>';
+			}
+			$result.= '</table>';
+		} else	{
+			$result  = false;
+		}
+		return $result;
+	}
 
 	/************************************************************
 	 *
@@ -504,8 +822,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		}
 
 			// Create selector box of the options
+		$sSize = $params['autoSizeMax'] ? t3lib_div::intInRange($itemArrayC+1,t3lib_div::intInRange($params['size'],1),$params['autoSizeMax']) : $params['size'];
 		if (!$selector)	{
-			$sSize = $params['autoSizeMax'] ? t3lib_div::intInRange($itemArrayC+1,t3lib_div::intInRange($params['size'],1),$params['autoSizeMax']) : $params['size'];
 			$selector = '<select size="'.$sSize.'"'.$this->pObj->insertDefStyle('group').' multiple="multiple" name="'.$fName.'_list" '.$onFocus.$params['style'].'>'.implode('',$opt).'</select>';
 		}
 
@@ -521,14 +839,26 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					'</a>';
 		}
 		if (!$params['dontShowMoveIcons'])	{
+			if ($sSize>=5)	{
+				$icons['L'][]='<a href="#" onclick="setFormValueManipulate(\''.$fName.'\',\'Top\'); return false;">'.
+						'<img'.t3lib_iconWorks::skinImg($this->pObj->backPath,'gfx/group_totop.gif','width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->pObj->getLL('l_move_to_top')).' />'.
+						'</a>';
+			}
 			$icons['L'][]='<a href="#" onclick="setFormValueManipulate(\''.$fName.'\',\'Up\'); return false;">'.
-					'<img'.t3lib_iconWorks::skinImg($this->pObj->backPath,'gfx/group_totop.gif','width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->pObj->getLL('l_move_to_top')).' />'.
+					'<img'.t3lib_iconWorks::skinImg($this->pObj->backPath,'gfx/up.gif','width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->pObj->getLL('l_move_up')).' />'.
 					'</a>';
+			$icons['L'][]='<a href="#" onclick="setFormValueManipulate(\''.$fName.'\',\'Down\'); return false;">'.
+					'<img'.t3lib_iconWorks::skinImg($this->pObj->backPath,'gfx/down.gif','width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->pObj->getLL('l_move_down')).' />'.
+					'</a>';
+			if ($sSize>=5)	{
+				$icons['L'][]='<a href="#" onclick="setFormValueManipulate(\''.$fName.'\',\'Bottom\'); return false;">'.
+						'<img'.t3lib_iconWorks::skinImg($this->pObj->backPath,'gfx/group_tobottom.gif','width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->pObj->getLL('l_move_to_bottom')).' />'.
+						'</a>';
+			}
 		}
 
 		$clipElements = $this->pObj->getClipboardElements($allowed,$mode);
 		if (count($clipElements))	{
-debug($clipElements);
 			$aOnClick = '';
 #			$counter = 0;
 			foreach($clipElements as $elValue)	{
@@ -584,12 +914,12 @@ debug($clipElements);
 
 		return $str;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 
 
 	/**********************************************************
@@ -597,7 +927,7 @@ debug($clipElements);
 	 * Rendering of TCEform fields for private usage for tx_dam table
 	 *
 	 ************************************************************/
-	
+
 
 	/**
 	 * [Describe function...]
@@ -614,7 +944,7 @@ debug($clipElements);
 		# $select=$fobj->getSingleField_typeSelect ($PA['table'],$PA['field'],$row,$PA);
 
 		$icon = tx_dam_div::mediatypeIcon($row);
-		
+
 		$itemOut='
 			<table border="0" cellpadding="0" cellspacing="0">
 				<tr>
@@ -712,7 +1042,8 @@ debug($clipElements);
 		$itemOut='';
 #debug($PA);
 
-$filePath = preg_replace('/\/$/','',$row['file_path']);
+
+		$absFile = tx_dam_div::getAbsPath($row['file_path']).$row['file_name'];
 
 		if ($row['media_type'] == 2 OR $row['media_type'] == 7
 			 OR $row['file_type'] == 'pdf'
@@ -720,16 +1051,15 @@ $filePath = preg_replace('/\/$/','',$row['file_path']);
 			 OR $row['file_type'] == 'eps'
 			 ) {
 			if (!$PA['itemFormElValue'] && $row['file_name']) {
-				$rowCopy=array();
-				$rowCopy['file_name'] = $row['file_name'];
-				$itemOut = '<div style="margin:4px;margin-right:10px;padding:8px;background-color:#fff;border:solid #888 1px;">'.t3lib_BEfunc::thumbCode($rowCopy,$PA['table'],'file_name',$fobj->backPath,'thumbs.php',$filePath,0,' align="middle" style="border:solid 1px #ccc;"',160).'</div>';
+				$itemOut = '<div style="margin:4px;margin-right:10px;padding:8px;background-color:#fff;border:solid #888 1px;">'.
+				t3lib_BEfunc::getThumbNail('thumbs.php', $absFile,' align="middle" style="border:solid 1px #ccc;"',160).
+				'</div>';
 			}
 #TODO ???
 			if ($itemValue = $PA['itemFormElValue']) {
-
-				$rowCopy = array();
-				$rowCopy[$config['field']] = $itemValue;
-				$itemOut = '<div style="margin:4px;padding:2px;">'.t3lib_BEfunc::thumbCode($rowCopy,$PA['table'],$PA['field'],$fobj->backPath,'thumbs.php',$filePath,0,' align=middle').$itemValue.'</div>';
+				$itemOut = '<div style="margin:4px;padding:2px;">'.
+				t3lib_BEfunc::getThumbNail('thumbs.php', $absFile,' align="middle"',56).
+				$itemValue.'</div>';
 			} elseif (!$itemOut) {
 				$itemOut = 'no thumbnail';
 			}
@@ -772,8 +1102,8 @@ $filePath = preg_replace('/\/$/','',$row['file_path']);
 
 		return $out;
 	}
-	
-	
+
+
 	/**
 	 * [Describe function...]
 	 * 
@@ -878,7 +1208,7 @@ $filePath = preg_replace('/\/$/','',$row['file_path']);
 			if (count($rows))	return $rows;
 		}
 	}
-		
+
 
 }
 

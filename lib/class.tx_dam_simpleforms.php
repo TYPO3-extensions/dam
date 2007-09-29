@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -62,6 +62,44 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 
 	var $tx_dam_fixedFields = array();
 
+	var $savedGroupData = '';
+
+	function setVirtualTable($virtual, $existant) {
+		global $BE_USER, $TCA;
+
+			// fake table - to be safe
+		t3lib_div::loadTCA($existant);
+		$TCA[$virtual] = $TCA[$existant];
+
+		$this->savedGroupData = $BE_USER->groupData;
+
+		$checkFields = array('explicit_allowdeny', 'tables_select', 'tables_modify', 'non_exclude_fields');
+		foreach ($checkFields as $key) {
+			$addList = '';
+			$checkList = t3lib_div::trimExplode(',', $BE_USER->groupData[$key], 1);
+			foreach ($checkList as $val) {
+				list($table,$field) = explode(':', $val, 2);
+
+				if($val==$existant) {
+					$addList.= ','.$virtual;
+				} elseif($table==$existant AND $field) {
+					$addList.= ','.$virtual.':'.$field;
+				}
+			}
+			$BE_USER->groupData[$key] .= $addList;
+		}
+
+	}
+
+
+	function removeVirtualTable($virtual) {
+		global $BE_USER, $TCA;
+
+		$BE_USER->groupData = $this->savedGroupData;
+		unset($TCA[$virtual]);
+	}
+
+
 	/**
 	 * Initialize various internal variables.
 	 * 
@@ -82,14 +120,15 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 		$this->edit_docModuleUpload = FALSE;
 	}
 
+#TODO $setOrigDesign used???
 	/**
 	 * [Describe function...]
 	 * 
 	 * @return	[type]		...
 	 */
-	function setNewBEDesign($enableCheckboxes=TRUE)	{
+	function setNewBEDesign($enableCheckboxes=true)	{
 		global $BACK_PATH;
-		
+
 		parent::setNewBEDesign();
 
 		$this->totalWrap='<table border="0" cellpadding="0" cellspacing="0" width="50%">|</table>';
@@ -99,7 +138,7 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 			$_FIELD_SETFIXED = '###FIELD_SETFIXED###';
 			$_BGCOLOR_HEAD = ' ###BGCOLOR_HEAD###';
 		}
-			
+
 		$this->fieldTemplate = '
 			<tr ###CLASSATTR_2###>
 				<td>###FIELD_HELP_ICON###</td>
@@ -114,21 +153,21 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 			</tr>
 			<tr>
 				<td colspan="2"><img src="'.$BACK_PATH.'clear.gif" width="1" height="4" alt="" /></td>
-			</tr>';		
-			
+			</tr>';
+
 
 		$this->palFieldTemplate = '
 			<tr ###CLASSATTR_1###>
 				<td>&nbsp;</td>
 				<td nowrap="nowrap" valign="top">###FIELD_PALETTE###</td>
 			</tr>';
-			
+
 		$this->palFieldTemplateHeader = '
 			<tr ###CLASSATTR_2###>
 				<td>&nbsp;</td>
 				<td nowrap="nowrap" valign="top"><strong>###FIELD_HEADER###</strong></td>
-			</tr>';		
-			
+			</tr>';
+
 		$this->sectionWrap = '
 			<tr>
 				<td colspan="2"><img src="clear.gif" width="1" height="###SPACE_BEFORE###" alt="" /></td>
@@ -136,10 +175,21 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 			<tr>
 				<td colspan="2"><table ###TABLE_ATTRIBS###>###CONTENT###</table></td>
 			</tr>
-			';			
-			
-			
+			';
+
+
 	}
+
+
+	/**
+	 * [Describe function...]
+	 * 
+	 * @return	[type]		...
+	 */
+	function setNewBEDesignOrig()	{
+		parent::setNewBEDesign();
+	}
+
 
 	/**
 	 * add own markers for output
@@ -196,10 +246,14 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	 * @param	[type]		$$tca: ...
 	 * @return	[type]		...
 	 */
-	function setNonEditable(&$tca) {
+	function setNonEditable(&$tca, $columnsExclude='') {
+
+		$columnsExclude = t3lib_div::trimExplode(',', $columnsExclude, 1);
 		foreach($tca['columns'] as $field => $config) {
-			$tca['columns'][$field]['config']['type'] = 'none';
-			$tca['columns'][$field]['config']['size'] = max(5,$tca['columns'][$field]['config']['size']);
+			if(!in_array($field, $columnsExclude)) {
+				$tca['columns'][$field]['config']['type'] = 'none';
+				$tca['columns'][$field]['config']['size'] = max(5,$tca['columns'][$field]['config']['size']);
+			}
 		}
 	}
 	/**
@@ -228,7 +282,7 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	}
 
 	// ------------------------------------------------------------------
-	
+
 	function setTSconfig($table,$row,$field='')	{
 
 		$mainKey = $table.':'.$row['uid'];
@@ -258,8 +312,8 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 #			$this->cache_getTSCpid[$key] = t3lib_BEfunc::getTSCpid($table,$uid,$pid);
 		}
 		return $this->cache_getTSCpid[$key];
-	}	
-	
+	}
+
 }
 
 

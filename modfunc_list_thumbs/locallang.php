@@ -19,7 +19,7 @@ $LOCAL_LANG = Array (
 	'de' => Array (
 		'tx_dam_list_thumbs.title' => 'Vorschaubilder',
 		'tx_dam_list_thumbs.bigThumb' => 'Große Vorschaubilder',
-		'tx_dam_list_thumbs.showTitle' => 'Zeige Title',
+		'tx_dam_list_thumbs.showTitle' => 'Zeige Titel',
 		'tx_dam_list_thumbs.showInfo' => 'Zeige Infos',
 		'tx_dam_list_thumbs.showIcons' => 'Bearbeitungs-Optionen',
 

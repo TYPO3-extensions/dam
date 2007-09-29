@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -79,18 +79,6 @@ $BE_USER->modAccess($MCONF,1);
 class tx_dam_mod_list extends tx_dam_SCbase {
 
 
-	/**
-	 * Initializes the backend module
-	 * 
-	 * @return	void		
-	 */
-	function init()	{
-		parent::init();
-
-
-		$this->initDB();	
-	}
-
 
 	/**
 	 * Main function of the module. Write the content to $this->content
@@ -100,7 +88,7 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 	function main()	{
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
 
-		
+
 		//
 		// Initialize the template object
 		//
@@ -115,7 +103,7 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		$this->doc->bodyTagAdditions = $CMparts[1];
 		$this->doc->JScode.= $CMparts[0];
 		$this->doc->postCode.= $CMparts[2];
-			
+
 #debug($HTTP_GET_VARS, '$HTTP_GET_VARS', __LINE__, __FILE__);
 #debug(t3lib_div::_GET(), '_GET()', __LINE__, __FILE__);
 #debug($HTTP_POST_VARS, '$HTTP_POST_VARS', __LINE__, __FILE__);
@@ -148,19 +136,19 @@ $access = TRUE;
 
 			$this->sl->initSelection_getStored_mergeSubmitted();
 
-			
-			
+
+
 			//
 			// Output page header
 			//
 
-			$this->doc->form='<form action="'.t3lib_div::linkThisScript($this->addParams).'" method="POST" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->doc->form='<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="POST" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 				// JavaScript
 			$this->doc->JScodeArray['jumpToUrl'] = '
 				var script_ended = 0;
 				var changed = 0;
-				
+
 				function jumpToUrl(URL)	{
 					document.location = URL;
 				}
@@ -181,33 +169,33 @@ $access = TRUE;
 			//
 			// Output tabmenu if not a single function was forced
 			//
-			
+
 			if (!$this->forcedFunction AND count($this->MOD_MENU['function'])>1) {
 #TODO				$this->content.= $this->doc->section('',$this->doc->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
 				$this->content.= $this->doc->section('',$this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
 			}
 
 			//
-			// Call submodule function  
+			// Call submodule function
 			//
-			
+
 			$this->extObjContent();
-			
-			
+
+
 			//
 			// output footer: search box, options, store control, ....
 			//
-				
+
 			$this->content.= $this->doc->spacer(10);
 			$this->content.= $this->guiItems_getOutput('footer');
-		
-							
+
+
 			// ShortCut
 			if ($BE_USER->mayMakeShortcut())	{
 #TODO
 				$this->content.= $this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
 			}
-			
+
 			$this->content.= $this->doc->spacer(10);
 
 
@@ -258,7 +246,7 @@ while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkExtObj();	// Checking for first level external objects
 
 // Repeat Include files! - if any files has been added by second-level extensions
-reset($SOBE->include_once);	
+reset($SOBE->include_once);
 while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkSubExtObj();	// Checking second level external objects
 

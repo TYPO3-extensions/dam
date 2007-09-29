@@ -13,8 +13,28 @@ if (!defined ('PATH_txdam_rel')) {
 }
 
 
-	// field templates for usage in other tables to link media records
-include_once(PATH_txdam.'tca_media_field.inc');
+
+
+$tempColumns = Array (
+	'tx_dam_mountpoints' => Array (
+		'exclude' => 1,
+		'label' => 'LLL:EXT:dam/locallang_db.php:label.tx_dam_mountpoints',
+		'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['mountpoints_config'],
+	),
+);
+
+
+t3lib_div::loadTCA('be_groups');
+t3lib_extMgm::addTCAcolumns('be_groups',$tempColumns,1);
+t3lib_extMgm::addToAllTCAtypes('be_groups','tx_dam_mountpoints','','after:file_mountpoints');
+
+
+t3lib_div::loadTCA('be_users');
+t3lib_extMgm::addTCAcolumns('be_users',$tempColumns,1);
+t3lib_extMgm::addToAllTCAtypes('be_users','tx_dam_mountpoints','','after:fileoper_perms');
+
+
+
 
 
 if (TYPO3_MODE=='BE')	{
@@ -69,6 +89,16 @@ if (TYPO3_MODE=='BE')	{
 
 
 
+	t3lib_extMgm::addModule('txdamM1','txdamMtools','',PATH_txdam.'mod_tools/');
+
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_txdamMtools',
+		'tx_dam_tools_filerelcheck',
+		PATH_txdam.'modfunc_tools_filerelcheck/class.tx_dam_tools_filerelcheck.php',
+		'LLL:EXT:dam/modfunc_tools_filerelcheck/locallang.php:tx_dam_tools_filerelcheck.title'
+	);
+
+
 		// command modules (invisible)
 	t3lib_extMgm::addModule('txdamM1','cmd','',PATH_txdam.'mod_cmd/');
 
@@ -99,7 +129,6 @@ if (TYPO3_MODE=='BE')	{
 	);
 
 
-
 		// add context menu
 	$GLOBALS['TBE_MODULES_EXT']['xMOD_alt_clickmenu']['extendCMclasses'][]=array(
 		'name' => 'tx_dam_cm1',
@@ -108,8 +137,8 @@ if (TYPO3_MODE=='BE')	{
 
 
 		// media folder type and icon
-	$ICON_TYPES['dam'] = Array('icon' => PATH_txdam_rel.'modules_dam.gif');
-	$TCA['pages']['columns']['module']['config']['items'][] = Array('Mediabase', 'dam');
+	$ICON_TYPES['dam'] = array('icon' => PATH_txdam_rel.'modules_dam.gif');
+	$TCA['pages']['columns']['module']['config']['items'][] = array('Mediabase', 'dam');
 
 
 
@@ -134,8 +163,8 @@ $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamStrSearch'] = 'EXT:
 
 t3lib_extMgm::allowTableOnStandardPages('tx_dam');
 
-$TCA['tx_dam'] = Array (
-	'ctrl' => Array (
+$TCA['tx_dam'] = array (
+	'ctrl' => array (
 		'title' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
@@ -145,14 +174,25 @@ $TCA['tx_dam'] = Array (
 		'sortby' => 'sorting',
 		'default_sortby' => 'ORDER BY sorting,title',
 		'delete' => 'deleted',
-		'enablecolumns' => Array (
+
+		'versioning' => false,
+		'copyAfterDuplFields' => 'sys_language_uid',
+		'useColumnsForDefaultValues' => 'sys_language_uid',
+		'transOrigPointerField' => 'l18n_parent',
+		'transOrigDiffSourceField' => 'l18n_diffsource',
+		'languageField' => 'sys_language_uid',
+
+
+//		"requestUpdate" => "category",
+		'enablecolumns' => array (
 			'disabled' => 'hidden',
 			'starttime' => 'starttime',
 			'endtime' => 'endtime',
 			'fe_group' => 'fe_group',
 		),
+		'dividers2tabs' => '1',
 		'typeicon_column' => 'media_type',
-		'typeicons' => Array (
+		'typeicons' => array (
 			'0' => PATH_txdam_rel.'i/18/mtype_undefined.gif',
 			'1' => PATH_txdam_rel.'i/18/mtype_text.gif',
 			'2' => PATH_txdam_rel.'i/18/mtype_image.gif',
@@ -167,38 +207,40 @@ $TCA['tx_dam'] = Array (
 			'11' => PATH_txdam_rel.'i/18/mtype_software.gif',
 			'12' => PATH_txdam_rel.'i/18/mtype_application.gif',
 		),
-		/*
-$txdamTypes['media2Codes'] = array (
-	'undefined' => '0',
-	'text' => '1',
-	'image' => '2',
-	'audio' => '3',
-	'video' => '4',
-	'interactive' => '5',
-	'service' => '6',
-	'font' => '7',
-	'model' => '8',
-	'dataset' => '9',
-	'collection' => '10',
-	'software' => '11',
-	'application' => '12',
-);
-*/
+
+//$txdamTypes['media2Codes'] = array (
+//	'undefined' => '0',
+//	'text' => '1',
+//	'image' => '2',
+//	'audio' => '3',
+//	'video' => '4',
+//	'interactive' => '5',
+//	'service' => '6',
+//	'font' => '7',
+//	'model' => '8',
+//	'dataset' => '9',
+//	'collection' => '10',
+//	'software' => '11',
+//	'application' => '12',
+//);
+
 		'dynamicConfigFile' => PATH_txdam.'tca.php',
 		'iconfile' => PATH_txdam_rel.'icon_tx_dam.gif',
 	),
-	'feInterface' => Array (
+	'feInterface' => array (
 		'fe_admin_fieldList' => 'hidden, starttime, endtime, fe_group, media_type, title, file_type',
 	),
-	'txdamInterface' => Array (
+	'txdamInterface' => array (
 		'index_fieldList' => 'title,keywords,description,file_orig_location,file_orig_loc_desc,ident,creator,publisher,copyright,instructions,date_cr,date_mod,loc_desc,loc_country,loc_city,language,category',
+		'info_fieldList_exclude' => 'category',
+		'info_fieldList_isNonEditable' => 'media_type,thumb,file_usage',
 	),
 );
 
 t3lib_extMgm::allowTableOnStandardPages('tx_dam_cat');
 
-$TCA['tx_dam_cat'] = Array (
-	'ctrl' => Array (
+$TCA['tx_dam_cat'] = array (
+	'ctrl' => array (
 		'title' => 'LLL:EXT:dam/locallang_db.php:tx_dam_cat_item',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
@@ -208,17 +250,16 @@ $TCA['tx_dam_cat'] = Array (
 		'default_sortby' => 'ORDER BY sorting,title',
 		'delete' => 'deleted',
 		'treeParentField' => 'parent_id',
-		'enablecolumns' => Array (
+		'enablecolumns' => array (
 			'disabled' => 'hidden',
 			'fe_group' => 'fe_group',
 		),
 		'dynamicConfigFile' => PATH_txdam.'tca.php',
 		'iconfile' => PATH_txdam_rel.'icon_tx_dam_cat.gif',
 	),
-	'feInterface' => Array (
+	'feInterface' => array (
 		'fe_admin_fieldList' => 'hidden, fe_group, title',
 	)
 );
-
 
 ?>

@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -98,9 +98,9 @@ require_once(PATH_t3lib.'class.t3lib_foldertree.php');;
 
 require_once(PATH_txdam.'lib/class.tx_dam_div.php');
 require_once(PATH_txdam.'lib/class.tx_dam_selprocbase.php');
- 
- 
- 
+
+
+
 /**
  * folder tree class
  * 
@@ -110,22 +110,29 @@ require_once(PATH_txdam.'lib/class.tx_dam_selprocbase.php');
  */
 class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 
+	var $isTreeViewClass = true;
+
+	var $isTCEFormsSelectClass = false;
+
+	var $supportMounts = false;	// done automatically
+
+
 	/**
 	 * element browser mode
 	 */
-	var $modeEB = false;
-	
+	var $mode = 'browse';
+
 	/**
 	 * enables selection icons: + = -
 	 */	
 	var $modeSelIcons = true;
-	
+
 	var $deselectValue = 0;
-	
+
+
+
 	function tx_dam_stdselectionFolder()	{
-		
-		$this->isTreeViewClass = TRUE;
-		
+
 		$this->title='Folder tree';
 		$this->treeName='txdamFolder';
 		$this->domIdPrefix=$this->treeName;
@@ -163,9 +170,9 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	 * @return	[type]		...
 	 */
 	function PM_ATagWrap($icon,$cmd,$bMark='')	{
-		if ($this->modeEB) {
+		if ($this->mode=='elbrowser') {
 			return $this->eb_PM_ATagWrap($icon,$cmd,$bMark);
-		} else {		
+		} else {
 			if ($bMark)	{
 				$anchor = '#'.$bMark;
 				$name=' name="'.$bMark.'"';
@@ -187,31 +194,36 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	 */
 	function wrapTitle($title,$row)	{
 		global $BACK_PATH;
-		
-		if ($this->modeEB) {
+
+		if ($this->mode=='elbrowser') {
 			return $this->eb_wrapTitle($title,$row);
+
+		} elseif ($this->mode=='tceformsSelect') {
+			return $this->tceformsSelect_wrapTitle($title,$row);
+
 		} else {
 			$out='';
 			$extra = '';
-	
+
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row).'\',this);';
 			$out .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a> ';
-	
+
 			if (!t3lib_div::_GP('folderOnly') AND $this->modeSelIcons) {
 				$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
 				$extra .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/plus.gif"  style="margin-left:2px;" width="8" height="11" border="0" alt="" /></a>';
-	
+
 				$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'AND').'\',this,\''.$this->treeName.'\');';
 				$extra .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/equals.gif" style="margin-left:6px;" width="8" height="11" border="0" alt="" /></a>';
-	
+
 				$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
 				$extra .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/minus.gif" style="margin-left:6px;margin-right:2px;" width="8" height="11" border="0" alt="" /></a>';
-	
+
 				$extra = ' &nbsp;<span class="txdam-editbar">'.$extra.'</span>';
 			}
 			return $out.$extra;
 		}
 	}
+
 
 	/**
 	 * [Describe function...]
@@ -220,19 +232,26 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	 * @return	[type]		...
 	 */
 	function printTree($treeArr='')	{
-		if($this->modeEB) {
+
+		if($this->mode=='elbrowser') {
 			return $this->eb_printTree($treeArr);
 		} else {
 			return parent::printTree($treeArr);
-		}	
+		}
 	}
-	
+
+	function setMounts($mountpoints) {
+//		if (is_array($mountpoints)) {
+//			$this->MOUNTS = $mountpoints;
+//		}
+	}
+
 	/********************************
 	 *
 	 * DAM specific functions
 	 *
 	 ********************************/
-	 
+
 	/**
 	 * [Describe function...]
 	 * 
@@ -241,7 +260,7 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	function dam_defaultIcon()	{
 		return $this->iconPath.$this->iconName;
 	}
-	
+
 	/**
 	 * Returns the title for the tree
 	 * 
@@ -259,17 +278,17 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	function dam_treeName()	{
 		return $this->treeName;
 	}
-	
+
 	/**
 	 * Returns the title of an item
 	 * 
 	 * @param	[type]		$id: ...
 	 * @return	string		
 	 */
-	function dam_itemTitle($id)	{	
+	function dam_itemTitle($id)	{
 		return tx_dam_div::getRelPath ($id);
 	}
-		
+
 	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
 	 * Called from DAM
@@ -289,19 +308,20 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 			$query.= ' NOT';
 		}
 		$query.= " LIKE BINARY '".tx_dam_div::getRelPath ($id)."%'";
-		
+
 		return array($queryType,$query);
 	}
-	
-	
+
+
+
 
 	/********************************
 	 *
 	 * element browser specific functions
 	 *
 	 ********************************/
-	 
-	
+
+
 	/**
 	 * [Describe function...]
 	 * 
@@ -311,7 +331,7 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	 */
 	function eb_wrapTitle($title,$row)	{
 		global $SOBE;
-		
+
 #		$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.'&expandFolder='.rawurlencode($row['path']).'\');';
 		$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.$this->getJumpToParam($row).'\');';
 		return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
@@ -333,7 +353,7 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 		$aOnClick = 'return jumpToUrl(\''.$this->script.'?PM='.$cmd.'\',\''.$anchor.'\');';
 		return '<a href="#"'.$name.' onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 	}
-				
+
 	/**
 	 * Create the folder navigation tree in HTML
 	 * 
@@ -342,14 +362,14 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 	 */
 	function eb_printTree($treeArr='')	{
 		global $SOBE, $BE_USER;
-		
-		$titleLen=intval($BE_USER->uc['titleLen']);	
-		
+
+		$titleLen=intval($BE_USER->uc['titleLen']);
+
 		if (!is_array($treeArr))	$treeArr=$this->tree;
-		
+
 		$out='';
 		$c=0;
-		
+
 			// Preparing the current-path string (if found in the listing we will see a red blinking arrow).
 		if (!$SOBE->curUrlInfo['value'])	{
 			$cmpPath='';
@@ -358,12 +378,12 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 		} else {
 			$cmpPath=PATH_site.$SOBE->curUrlInfo['info'];
 		}
-		
+
 			// Traverse rows for the tree and print them into table rows:
 		foreach($treeArr as $k => $v)	{
 			$c++;
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
-			
+
 				// Creating blinking arrow, if applicable:
 			if ($SOBE->curUrlInfo['act']=='file' && $cmpPath==$v['row']['path'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg('','gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
@@ -372,9 +392,10 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 				$arrCol='<td></td>';
 			}
 				// Create arrow-bullet for file listing (if folder path is linkable):
-			$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.'&expandFolder='.rawurlencode($v['row']['path']).'\');';
+			#$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.'&expandFolder='.rawurlencode($v['row']['path']).'\');';
+			$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.$this->getJumpToParam($v['row']).'\');';
 			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg('','gfx/ol/arrowbullet.gif','width="18" height="16"').' alt="" /></a>' : '';
-			
+
 				// Put table row with folder together:
 			$out.='
 				<tr class="'.$bgColorClass.'">
@@ -383,9 +404,9 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 					<td width="1%">'.$cEbullet.'</td>
 				</tr>';
 		}
-		
+
 		$out='
-		
+
 			<!--
 				Folder tree:
 			-->
@@ -393,8 +414,8 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 				'.$out.'
 			</table>';
 		return $out;
-	}	
-	
+	}
+
 	/**
 	 * Returns true if the input "record" contains a folder which can be linked.
 	 * 
@@ -405,10 +426,10 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
 		$webpath=t3lib_BEfunc::getPathType_web_nonweb($v['path']);	// Checking, if the input path is a web-path.
 		if (strstr($v['path'],'_recycler_') || strstr($v['path'],'_temp_') || $webpath!='web')	{
 			return 0;
-		} 
+		}
 		return 1;
-	}	
-	
+	}
+
 }
 
 
@@ -424,25 +445,39 @@ class tx_dam_stdselectionFolder extends t3lib_folderTree  {
  * @subpackage tx_dam
  */
 class tx_dam_stdselectionCategory extends tx_dam_browseTree {
-	
+
+	var $isTCEFormsSelectClass = true;
+
+	var $supportMounts = true;
+
 	function tx_dam_stdselectionCategory()	{
 		global $LANG, $BACK_PATH;
 
-		$this->isTreeViewClass = TRUE;
-		
-		$this->title=$LANG->sL('LLL:EXT:dam/lib/locallang.php:categories',1);
-		$this->treeName='txdamCat';
-		$this->domIdPrefix=$this->treeName;
-		$this->parentField='parent_id';
+		$this->title = $LANG->sL('LLL:EXT:dam/lib/locallang.php:categories',1);
+		$this->treeName = 'txdamCat';
+		$this->domIdPrefix = $this->treeName;
+
 		$this->table='tx_dam_cat';
+		$this->parentField = $GLOBALS['TCA'][$this->table]['ctrl']['treeParentField'];
+		$this->parentField = 'parent_id';
+		$this->typeField = $GLOBALS['TCA'][$this->table]['ctrl']['type'];
+
 		$this->iconName = 'cat.gif';
 		$this->iconPath = $BACK_PATH.PATH_txdam_rel.'i/';
-		$this->clause=' AND NOT deleted ORDER BY sorting,title';
+		$this->rootIcon = $BACK_PATH.PATH_txdam_rel.'i/catfolder.gif';
+
 		$this->fieldArray = Array('uid','title');
+		if($this->parentField) $this->fieldArray[] = $this->parentField;
+		if($this->typeField) $this->fieldArray[] = $this->typeField;
 		$this->defaultList = 'uid,pid,tstamp,sorting';
+
+		$this->clause = ' AND deleted=0';
+		$this->orderBy = 'sorting,title';
+
 		$this->ext_IconMode = '1'; // no context menu on icons
 	}
-	
+
+
 	/********************************
 	 *
 	 * DAM specific functions
@@ -464,8 +499,8 @@ class tx_dam_stdselectionCategory extends tx_dam_browseTree {
 	 */
 	function dam_selectProc($queryType, $operator, $cat, $id, $value, &$damObj)      {
 #		$query= 'tx_dam_mm_cat.uid_foreign'.$operator.intval($id);
-#		$damObj->qg->queryAddCategoryJoin();
-		
+#		$damObj->qg->addMMJoin('tx_dam_mm_cat');
+
 		$catUidList = tx_dam_db::uniqueList(intval($id), tx_dam_db::getSubRecordsIdList(intval($id),99,'tx_dam_cat'));
 		if ($operator=='!=')	{
 			$query= 'tx_dam_mm_cat.uid_foreign NOT IN ('.$catUidList.')';
@@ -473,8 +508,8 @@ class tx_dam_stdselectionCategory extends tx_dam_browseTree {
 			$query= 'tx_dam_mm_cat.uid_foreign IN ('.$catUidList.')';
 		}
 
-		$damObj->qg->queryAddCategoryJoin();
-		
+		$damObj->qg->addMMJoin('tx_dam_mm_cat');
+
 		return array($queryType,$query);
 	}
 }
@@ -493,16 +528,19 @@ class tx_dam_stdselectionCategory extends tx_dam_browseTree {
  */
 class tx_dam_stdselectionMeTypes extends tx_dam_browseTree {
 
+	var $isTCEFormsSelectClass = true;
+
+	var $supportMounts = 'rootOnly';
+
 	function tx_dam_stdselectionMeTypes()	{
 		global $LANG, $BACK_PATH, $currentTypes;
 
-		$this->isTreeViewClass = TRUE;
-		
 		$this->title=$LANG->sL('LLL:EXT:dam/lib/locallang.php:mediaTypes',1);
 		$this->treeName='txdamMedia';
 		$this->domIdPrefix=$this->treeName;
 		$this->iconName = 'mediatype.gif';
 		$this->iconPath = $BACK_PATH.PATH_txdam_rel.'i/';
+		$this->rootIcon = $BACK_PATH.PATH_txdam_rel.'i/mediafolder.gif';
 		$this->ext_IconMode = '1'; // no context menu on icons
 
 		$this->table='tx_dam_metypes_avail';
@@ -540,18 +578,8 @@ class tx_dam_stdselectionMeTypes extends tx_dam_browseTree {
 		return $title ? $title : $row['title'];
 	}
 
-	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$rec: ...
-	 * @return	[type]		...
-	 */
-	function getRootIcon($rec) {
-		global $BACK_PATH;
-		return $this->wrapIcon('<img src="'.$BACK_PATH.PATH_txdam_rel.'i/mediafolder.gif" width="18" height="16" align="top" alt="" />',$rec);
-	}
 
-	
+
 	/********************************
 	 *
 	 * DAM specific functions
@@ -577,7 +605,7 @@ class tx_dam_stdselectionMeTypes extends tx_dam_browseTree {
 		} else {
 			$query= 'tx_dam.file_type'.$operator."'".$id."'";
 		}
-		
+
 		return array($queryType,$query);
 	}
 }
@@ -587,24 +615,26 @@ class tx_dam_stdselectionMeTypes extends tx_dam_browseTree {
 	 * 
 	 */
 class tx_dam_stringSearch extends tx_dam_selProcBase {
-	
+
 	function tx_dam_stringSearch()	{
 		global $LANG, $BACK_PATH;
 
 		$this->isTreeViewClass = FALSE;
 		$this->isPureSelectionClass = TRUE;
-		
+
+		$this->supportMounts = false;
+
 		$this->deselectValue = '';
-		
+
 		$this->title = $LANG->sL('LLL:EXT:lang/locallang_core.php:labels.enterSearchString',1);
 		$this->treeName = 'txdamStrSearch';
-		
+
 		$this->table = 'tx_dam';
 
 		$this->iconName = 'mediatype.gif';
 		$this->iconPath = $BACK_PATH.PATH_txdam_rel.'i/';
 
-	}	
+	}
 
 	/**
 	 * Returns the title of an item
@@ -613,7 +643,7 @@ class tx_dam_stringSearch extends tx_dam_selProcBase {
 	 * @param	string		The select value (true/false,...)
 	 * @return	string		
 	 */
-	function dam_itemTitle($id, $value)	{	
+	function dam_itemTitle($id, $value)	{
 		return $value;
 	}
 
@@ -631,49 +661,11 @@ class tx_dam_stringSearch extends tx_dam_selProcBase {
 	 * @see tx_dam_SCbase::getWhereClausePart()
 	 */
 	function dam_selectProc($queryType, $operator, $cat, $id, $value, &$damObj)      {
-		$query = $this->getSearchWhereClause($value);
-		
-		return array('WHERE',$query);
+		$query = tx_dam_querygen::makeSearchQueryPart('tx_dam',$value);
+		return array('WHERE','AND '.$query);
 	}
 
-	/**
-	 * Creates part of query for searching after a word ($this->searchString) fields in input table
-	 * 
-	 * @param	string		Table, in which the fields are being searched.
-	 * @return	string		Returns part of WHERE-clause for searching, if applicable.
-	 */
-	function getSearchWhereClause($searchString)	{
-		global $TCA;
 
-		$table = $this->table;
-		
-			// Make query, only if table is valid and a search string is actually defined:
-		if ($TCA[$table] && $searchString)	{
-
-				// Loading full table description - we need to traverse fields:
-			t3lib_div::loadTCA($table);
-
-				// Initialize field array:
-			$sfields=array();
-			$sfields[]='uid';	// Adding "uid" by default.
-
-				// Traverse the configured columns and add all columns that can be searched:
-			foreach($TCA[$table]['columns'] as $fieldName => $info)	{
-				if ($info['config']['type']=='text' || ($info['config']['type']=='input' && !ereg('date|time|int',$info['config']['eval'])))	{
-					$sfields[]=$fieldName;
-				}
-			}
-
-				// If search-fields were defined (and there always are) we create the query:
-			if (count($sfields))	{
-				$like=' LIKE "%'.$GLOBALS['TYPO3_DB']->quoteStr($searchString, $table).'%"';		// Free-text searching...
-				$queryPart = ' AND ('.implode($like.' OR ',$sfields).$like.')';
-
-					// Return query:
-				return $queryPart;
-			}
-		}
-	}
 
 }
 
@@ -718,7 +710,7 @@ class tx_dam_statusTree extends txdamBrowseTree {
 
 	function txdamStatusTree()	{
 		global $BACK_PATH;
-		
+
 		$this->title='Status';
 		$this->table='';
 		$this->treeName='txdamStatus';
@@ -735,7 +727,7 @@ class tx_dam_statusTree extends txdamBrowseTree {
 		$this->setDataFromArray($data,true);
 	}
 
-	f_unction getRootIcon($rec) {
+	function getRootIcon($rec) {
 		global $BACK_PATH;
 		return $this->wrapIcon('<img src="'.$BACK_PATH.PATH_txdam_rel.'i/statusfolder.gif" width="18" height="16" align="top" alt="" />',$rec);
 	}

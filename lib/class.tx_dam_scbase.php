@@ -1,16 +1,16 @@
 <?php
 /***************************************************************
 *  Copyright notice
-*  
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
-*  This script is part of the Typo3 project. The Typo3 project is 
+*  This script is part of the Typo3 project. The Typo3 project is
 *  free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
 *  the Free Software Foundation; either version 2 of the License, or
 *  (at your option) any later version.
-* 
+*
 *  The GNU General Public License can be found at
 *  http://www.gnu.org/copyleft/gpl.html.
 *
@@ -37,7 +37,6 @@
  *  116: class tx_dam_SCbase extends t3lib_SCbase 
  *  212:     function init()	
  *  257:     function menuConfig()	
- *  298:     function initDB() 
  *  314:     function getSelectionQueryParts($count=false) 
  *  326:     function execSelectionQuery($count=false) 
  *  344:     function prepareSelectionQuery($count=false) 
@@ -104,6 +103,7 @@ require_once(PATH_txdam.'lib/class.tx_dam_div.php');
 
 $LANG->includeLLFile('EXT:dam/lib/locallang.php');
 
+
 /**
  * Parent class for 'ScriptClasses' in DAM backend modules.
  * See DAM modules for examples.
@@ -116,15 +116,15 @@ $LANG->includeLLFile('EXT:dam/lib/locallang.php');
 class tx_dam_SCbase extends t3lib_SCbase {
 
 	/**
-	 * Selection onbect
+	 * Selection object
 	 */	
 	var $sl;
 
 	/**
-	 * Query generator onbect
+	 * Query generator object
 	 */	
 	var $qg;
-	
+
 	/**
 	 * selection counter and pointers
 	 */
@@ -132,7 +132,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	var $resultsPerPage;
 	var $firstItemNum;
 	var $lastItemNum;
-	
+
 	/**
 	 * Current SQL result
 	 */
@@ -146,17 +146,17 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * This is the current path for the file module
 	 */
 	var $path='';
-	
+
 	/**
 	 * This is the current path of the file mount
 	 * $fullpath = $path_mount.$path should be valid all the time
 	 */
 	var $path_mount='';
-	
+
 	/**
 	 * This is the current file mount key
 	 */
-	var $fmountID='';	
+	var $fmountID='';
 
 
 
@@ -177,7 +177,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * storage object
 	 */
 	var $store;
-	
+
 	/**
 	 * last storage message
 	 */
@@ -189,12 +189,12 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * Items to output before module output
 	 */
 	var $guiItems_header = array();
-	
+
 	/**
 	 * Items to output after module output
 	 */
-	var $guiItems_footer = array();	
-	
+	var $guiItems_footer = array();
+
 	/**
 	 * Configuration parameters for output items
 	 */	
@@ -203,9 +203,15 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 
 	/**
+	 * Command icons that shouldn't be displayed
+	 */
+	var $guiCmdIconsDeny = array();
+
+
+	/**
 	 * Array of HTML which will be print as options form
 	 */
-	var $modOptions = array();	
+	var $modOptions = array();
 
 
 	/**
@@ -230,36 +236,37 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	void		
 	 */
 	function init()	{
-		global $TYPO3_CONF_VARS;
-		
-		
+		global $TYPO3_CONF_VARS, $FILEMOUNTS;
+
+
 		parent::init();
-		
-			
+
+
 		//
 		// Get current folder
 		//
-				
+
 			// tx_dam_folder could be set by GP or stored in module conf
 		$SET = t3lib_div::_GP('SET');
 		$this->path = $this->MOD_SETTINGS['tx_dam_folder'];
-		
+
 			// check if tx_dam_folder was set by GP which takes precedence, if not use command sent by navframe
 			// order: GP (script), SLCMD (navframe), MOD_SETTINGS (stored)
-		$CMD = t3lib_div::_GP('SLCMD');
-		if (!$SET['tx_dam_folder'] AND is_array($CMD['SELECT']['txdamFolder'])) {
+		$CMD = t3lib_div::GParrayMerged('SLCMD');
+		if (!$SET['tx_dam_folder'] AND is_array($CMD['SELECT']) AND is_array($CMD['SELECT']['txdamFolder'])) {
 			$this->path = tx_dam_div::getRelPath(key($CMD['SELECT']['txdamFolder']));
-			$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');	
-		}	
-		
-			
+		}
+		$this->checkOrSetPath();
+		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
+
+
 		//
 		// Detect and set forced single function and set params
 		//
-			
+
 			// remove selection command from any params
 		$this->addParams['SLCMD'] = '';
-		
+
 			// forced a module function?
 		$forcedFunction = t3lib_div::_GP('forcedFunction');
 		if ($this->MOD_MENU['function'][$forcedFunction]) {
@@ -267,33 +274,34 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->addParams['forcedFunction'] = $this->forcedFunction;
 			$this->handleExternalFunctionValue('function', $this->forcedFunction);
 		}
-				
+
 
 		//
 		// Init selection
 		//
-					
+
 		list($this->defaultPid,$this->defaultFolder,$this->folderList) = tx_dam_db::initDAMFolders();
 
 			// initializes the query generator object
 		$this->qg = t3lib_div::makeInstance('tx_dam_querygen');
-		$this->qg->init();
+		$this->qg->initBESelect('tx_dam', $this->folderList);
+		$this->addFilemountsToQuerygen();
 
-		
+
+
 			// initializes the selection object
 		$this->sl = t3lib_div::makeInstance('tx_dam_selection');
-		$this->sl->init($this);
-		$this->sl->table = 'tx_dam';
+		$this->sl->init($this, $this);
 		$this->sl->store_MOD_SETTINGS = 'tx_dam_select';
 		$this->sl->selectionClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'];
 		$this->sl->paramPrefix = 'tx_dam';
-		
-		
-//debug($this->MCONF, 'MCONF');	
-//debug($this->MOD_MENU, 'MOD_MENU');	
-//debug($this->MOD_SETTINGS, 'MOD_SETTINGS');	
-//debug($GLOBALS['HTTP_GET_VARS'], 'HTTP_GET_VARS');	
-//debug($GLOBALS['HTTP_POST_VARS'], 'HTTP_POST_VARS');	
+
+
+//debug($this->MCONF, 'MCONF');
+//debug($this->MOD_MENU, 'MOD_MENU');
+//debug($this->MOD_SETTINGS, 'MOD_SETTINGS');
+//debug($GLOBALS['HTTP_GET_VARS'], 'HTTP_GET_VARS');
+//debug($GLOBALS['HTTP_POST_VARS'], 'HTTP_POST_VARS');
 	}
 
 
@@ -310,14 +318,14 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			array(
 				'tx_dam_select' => '',	// the current selection
 				'tx_dam_select_undo' => '',	// undo data to revert selection changes
-				
+
 				'tx_dam_folder' => '',	// current folder for file operation
 
-				'tx_dam_select_storedSettings' => '',	// t3lib_modsettings 
+				'tx_dam_select_storedSettings' => '',	// t3lib_modsettings
 
 				'tx_damindex_indexSetup' => '',
 				'tx_damindex_storedSettings' => '',
-				
+
 				'tx_dam_resultPointer' => '',
 				'tx_dam_resultsPerPage' => array(
 						20 => '20',
@@ -340,21 +348,20 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 *
 	 ********************************/
 
-#TODO remove and use init() ?
-	/**
-	 * Init the db object and initialize the querygen select definition array for BE usage.
-	 * 
-	 * @return	void		
-	 */
-	function initDB() {
-		if(!is_object($this->db)) {
-			$this->db = t3lib_div::makeInstance('tx_dam_db');
+
+	function addFilemountsToQuerygen() {
+			// init filemounts
+		if(!$GLOBALS['BE_USER']->user['admin'] AND count($GLOBALS['FILEMOUNTS'])){
+			$whereArr = array();
+			foreach($GLOBALS['FILEMOUNTS'] as $mount){
+				$whereArr[] = "tx_dam.file_path LIKE BINARY '".$GLOBALS['TYPO3_DB']->quoteStr(tx_dam_div::getRelPath($mount['path']), 'tx_dam')."%'";
+			}
+			$where = implode(' OR ', $whereArr);
+			$where = $where ? '('.$where.')' : '';
+			$this->qg->addWhere($where, 'AND', 'tx_dam.FILEMOUNTS');
 		}
-		if(!is_object($this->qg)) {
-			$this->qg = t3lib_div::makeInstance('tx_dam_querygen');
-		}
-		$this->qg->initBESelect($this->folderList);
 	}
+
 
 	/**
 	 * Generates the query from the db select array.
@@ -367,7 +374,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$query = $this->qg->getQueryParts();
 		return $query;
 	}
-	
+
 	/**
 	 * Executes the query from the db select array.
 	 * 
@@ -375,10 +382,31 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		query
 	 */
 	function execSelectionQuery($count=FALSE, $select='') {
+
+		if(!$this->sl->hasSelection() AND !$select) {
+			$this->resCountAll = 0;
+			$this->res = false;
+			return $this->res;
+
+		}
+
 		$this->prepareSelectionQuery($count);
 		$queryArr = $this->qg->getQueryParts();
 		if ($select) {
 			$queryArr['SELECT'] = $select;
+		}
+
+		if (!$count AND $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['devel']) {
+			t3lib_div::debug($queryArr,'$queryArr');
+			$query = $GLOBALS['TYPO3_DB']->SELECTquery(
+						$queryArr['SELECT'],
+						$queryArr['FROM'],
+						$queryArr['WHERE'],
+						$queryArr['GROUPBY'],
+						$queryArr['ORDERBY'],
+						$queryArr['LIMIT']
+					);
+			t3lib_div::debug($query,'$query');
 		}
 
 		$this->res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
@@ -387,8 +415,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			list($this->resCountAll) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
 		}
 		return $this->res;
-	}	
-	
+	}
+
 	/**
 	 * Generates the query from the db select array.
 	 * 
@@ -396,26 +424,18 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		query
 	 */
 	function prepareSelectionQuery($count=false) {
-		if($count) {
-			$this->qg->query['FROM']['COUNT'] = 'tx_dam.uid';
-			#$this->qg->query['FROM']['COUNT'] = 'tx_dam.uid';
-			#$this->qg->query['GROUPBY']['COUNT'] = 'tx_dam.uid';
-		} else {
-			unset($this->qg->query['FROM']['COUNT']);
-
-			#$this->qg->query['FROM']['uid'] = 'tx_dam.uid';
-			#$this->qg->query['GROUPBY']['tx_dam.uid'] = 'tx_dam.uid';
-			#$this->qg->query['GROUPBY']['test'] = 'tx_dam_mm_cat.uid_foreign';
-		}
+		$this->qg->setCount($count);
 	}
-	
+
 	/**
 	 * Adds the current selection to the db select array..
 	 * 
 	 * @return	void		
 	 */
 	function addSelectionToQuery () {
-		$this->qg->queryAddWhere($this->sl->getSelectionWhereClauseArray());
+		if($this->sl->hasSelection()) {
+			$this->qg->mergeWhere($this->sl->getSelectionWhereClauseArray());
+		}
 	}
 
 
@@ -432,7 +452,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$limit=$this->resultsPerPage;
 			$begin=$this->pointer*$this->resultsPerPage;
 		}
-		$this->qg->query['LIMIT'][] = (intval($begin)?$begin.',':'').$limit;
+		$this->qg->addLimit ($limit, $begin);
 	}
 
 
@@ -460,13 +480,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->resultsPerPage = $this->MOD_SETTINGS['tx_dam_resultsPerPage'];
 		$this->firstItemNum = $this->pointer*$this->resultsPerPage+1;
 		$this->lastItemNum = min($this->firstItemNum+$this->resultsPerPage-1,$this->resCountAll);
-		
+
 		#debug($this->resCountAll,'resCountAll');
 		#debug($this->pointer,'pointer');
 		#debug($this->resultsPerPage,'resultsPerPage');
 		#debug($this->firstItemNum,'firstItemNum');
 		#debug($this->lastItemNum,'lastItemNum');
-	
+
 		if($this->resCountAll AND ($this->firstItemNum>$this->resCountAll)) {
 			$this->MOD_SETTINGS['tx_dam_resultPointer'] = max($this->MOD_SETTINGS['tx_dam_resultPointer']-1,0);
 			$this->setSelectionCounter();
@@ -485,8 +505,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 ********************************/
 
 
-	
-	
+
+
 	/**
 	 * my
 	 * shows an info bar about the current selection
@@ -513,6 +533,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$part = ($part+1).'-'.min($this->resCountAll,($part+$this->resultsPerPage));
 				$content = sprintf($LANG->getLL('recordsFromSelection'),$part,$this->resCountAll);
 			}
+		} elseif(!$this->sl->hasSelection()) {
+			$content = $LANG->getLL('noSelection');
 		} else {
 			$content = $LANG->getLL('noRecordsInSelection');
 		}
@@ -548,9 +570,19 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$content = $this->getResultInfo();
 #TODO
 		$showPerPage = $showPerPage ? $showPerPage : $LANG->getLL('recordsPerPage');
-		$menu = t3lib_BEfunc::getFuncMenu(0,'SET[tx_dam_resultsPerPage]',$this->MOD_SETTINGS['tx_dam_resultsPerPage'],$this->MOD_MENU['tx_dam_resultsPerPage']);
+		$menu = t3lib_BEfunc::getFuncMenu($this->addParams,'SET[tx_dam_resultsPerPage]',$this->MOD_SETTINGS['tx_dam_resultsPerPage'],$this->MOD_MENU['tx_dam_resultsPerPage']);
 
 		return $this->getHeaderBar($content, sprintf($showPerPage,$menu));
+	}
+
+	/**
+	 * shows a result information
+	 * 
+	 * @return	string		
+	 */
+	function getResultInfoHeader() {
+		$content = $this->getResultInfo();
+		return $this->getHeaderBar($content);
 	}
 
 	/**
@@ -562,13 +594,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	function getHeaderBar($content, $options='') {
 		$content = $options ? $this->doc->funcMenu($content,$options) : $content;
-#TODO		
+#TODO
 		$bgColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
 		$this->doc->inDocStylesArray['getHeaderBar'] = '				div.infobar {background-color:'.$bgColor.'; padding: 2px 5px 2px 5px; }';
-		
+
 		return '<div class="infobar">'.$content.'</div>';
 	}
-	
+
 	/**
 	 * Returns a results browser. This means a bar of page numbers plus a "previous" and "next" link.
 	 * Using $this->pointer as pointer to the page to display
@@ -593,21 +625,21 @@ $alwaysPrev=1;
 		if ($alwaysPrev>=0)	{
 			if ($pointer>0)	{
 				$links[]='<td class="browsebox-Cell" nowrap="nowrap"><p>'.
-				'<a href="'.t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($pointer-1?$pointer-1:''))).'">'.htmlspecialchars('<').'</a>'.
+				'<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($pointer-1?$pointer-1:'')))).'">'.htmlspecialchars('<').'</a>'.
 				'</p></td>';
 			} elseif ($alwaysPrev)	{
 				$links[]='<td class="browsebox-Cell" nowrap="nowrap"><p>'.htmlspecialchars('<').'</p></td>';
 			}
 		}
-		
+
 		for($a=0;$a<$max;$a++)	{
 			$links[]='<td '.($pointer==$a?'class="browsebox-SCell"':'class="browsebox-Cell"').' nowrap="nowrap"><p>'.
-				'<a href="'.t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>((string)$a))).'">'.htmlspecialchars($a+1).'</a>'.
+				'<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>((string)$a)))).'">'.htmlspecialchars($a+1).'</a>'.
 				'</p></td>';
 		}
 		if ($pointer<ceil($count/$results_at_a_time)-1)	{
 			$links[]='<td class="browsebox-Cell" nowrap="nowrap"><p>'.
-				'<a href="'.t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>$pointer+1)).'">'.htmlspecialchars('>').'</a>'.
+				'<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>$pointer+1))).'">'.htmlspecialchars('>').'</a>'.
 				'</p></td>';
 		} elseif ($alwaysPrev)	{
 				$links[]='<td class="browsebox-Cell" nowrap="nowrap"><p>'.htmlspecialchars('>').'</p></td>';
@@ -644,7 +676,7 @@ $alwaysPrev=1;
 	 */
 	function getStoreControl()	{
 		$content = '';
-		
+
 		if(is_object($this->store)) {
 			$content.= $this->doc->spacer(15);
 				// store control
@@ -652,7 +684,7 @@ $alwaysPrev=1;
 		}
 		return $content;
 	}
-			
+
 	/**
 	 * Creates the search box
 	 * 
@@ -666,7 +698,7 @@ $alwaysPrev=1;
 			// Setting form-elements, if applicable:
 		$formElements=array('','');
 		if ($useFormTag)	{
-			$formAction = $formAction ? $formAction : t3lib_div::linkThisScript($this->addParams);
+			$formAction = $formAction ? $formAction : $this->linkThisScriptSel($this->addParams);
 			$formElements=array('<form action="'.htmlspecialchars($formAction).'" method="post">','</form>');
 		}
 
@@ -687,7 +719,7 @@ $alwaysPrev=1;
 #		$content.=t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'list_searchbox', $GLOBALS['BACK_PATH'],'|<br/>');
 		return $content;
 	}
-	
+
 
 
 	/**
@@ -701,21 +733,21 @@ $alwaysPrev=1;
 	 */
 	function getDia($row, $diaSize=115, $diaMargin=10, $showElements='', $onClick=NULL, $makeIcon=TRUE) {
 		global $SOBE;
-		
+
 		if(!is_array($showElements)) {
 			$showElements = t3lib_div::trimExplode(',',$showElements,1);
 		}
-		
-		
+
+
 			// extra CSS code for HTML header
 		if(!isset($this->doc->inDocStylesArray['tx_dam_SCbase_dia'])) {
 			$SOBE->doc->inDocStylesArray['tx_dam_SCbase_dia'] = tx_dam_SCbase::getDiaStyles($diaSize, $diaMargin);
 		}
-		
-#TODO		
+
+#TODO
 		$iconBgColor = t3lib_div::modifyHTMLcolor($SOBE->doc->bgColor,-10,-10,-10);
 		$titleLen = ceil( (30*($diaSize-$diaMargin))/(200-$diaMargin) );
-		
+
 		$hpixels = $row['hpixels'];
 		$vpixels = $row['vpixels'];
 
@@ -776,7 +808,7 @@ $alwaysPrev=1;
 			$iconArr[] = tx_dam_SCbase::btn_editRec_inNewWindow('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
 			$iconArr[] = tx_dam_SCbase::icon_infoRec('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
 			$iconArr[] = tx_dam_SCbase::btn_removeRecFromSel('tx_dam', $row['uid'], 'style="margin-left:3px;margin-right:3px;"');
-			
+
 			$icons = '<div style="margin:3px;">'.implode('<span style="width:40px;"></span>', $iconArr).'</div>';
 		}
 
@@ -784,8 +816,8 @@ $alwaysPrev=1;
 		<table class="txdam-dia" cellspacing="0" cellpadding="0" border="0">
 		<tr><td><span><span class="txdam-dia">'.$thumb.'</span></td></tr>
 		'. ( ($descr.$icons) ? '<tr><td align="center" bgcolor="'.$iconBgColor.'">'.$descr.$icons.'</td></tr>' : '').'
-		</table> ';		
-				
+		</table> ';
+
 		return $diaCode;
 	}
 
@@ -839,11 +871,11 @@ $alwaysPrev=1;
 				height:'.($diaSize-$diaMargin-$diaMargin).'px;
 				vertical-align:middle;
 			}
-			';		
+			';
 		return $styles;
 	}
-	
-	
+
+
 	/********************************
 	 *
 	 * GUI options
@@ -852,7 +884,7 @@ $alwaysPrev=1;
 
 
 
-	
+
 	/**
 	 * Creates the options form
 	 * 
@@ -860,7 +892,7 @@ $alwaysPrev=1;
 	 */
 	function getOptions() {
 		global $LANG;
-	
+
 		if (count($this->modOptions)) {
 			return $this->doc->spacer(15).$this->doc->section($LANG->getLL('options').':',implode('<br />',$this->modOptions),0,0);
 		}
@@ -877,16 +909,16 @@ $alwaysPrev=1;
 	 */
 	function addOption($type, $paramName, $description, $items=array()) {
 		switch ($type) {
-		case 'funcCheck':		
+		case 'funcCheck':
 			$this->modOptions[$paramName] = t3lib_BEfunc::getFuncCheck($this->addParams,'SET['.$paramName.']',$this->MOD_SETTINGS[$paramName]).' '.$description;
 		break;
-		case 'funcInput':		
+		case 'funcInput':
 			$this->modOptions[$paramName] = $description.' '.t3lib_BEfunc::getFuncInput($this->addParams,'SET['.$paramName.']',$this->MOD_SETTINGS[$paramName]);
 		break;
-		case 'funcMenu':		
+		case 'funcMenu':
 			$this->modOptions[$paramName] = $description.' '.t3lib_BEfunc::getFuncMenu($this->addParams,'SET['.$paramName.']',$this->MOD_SETTINGS[$paramName], $items);
 		break;
-		case 'html':		
+		case 'html':
 			$this->modOptions[$paramName] = $description;
 		break;
 		}
@@ -911,14 +943,15 @@ $alwaysPrev=1;
 	 */
 	function getCurrentSelectionBox($showElements='box,btn_revert') { // $showElements has no function for now
 		global $LANG, $SOBE, $BACK_PATH;
-		
+
 		$headBbgColor=' bgColor="'.$SOBE->doc->bgColor6.'"';
 		$rowBbgColor=' bgColor="'.t3lib_div::modifyHTMLColor($GLOBALS['SOBE']->doc->bgColor4,+10,+10,+10).'"';
-		
+
 		$rows=array();
+		$lastHeader = '';
 		foreach (array('SELECT','OR','AND','NOT','DESELECT_ID','SEARCH') as $queryType) {
 			if(is_array($this->sl->sel[$queryType])) {
-				
+
 				switch($queryType) {
 					case 'SELECT':
 					case 'OR':
@@ -929,13 +962,13 @@ $alwaysPrev=1;
 						$lastHeader='SELECT';
 						$rows=$this->getCurrentSelectionBoxItems($queryType, $rows);
 					break;
-					
+
 					case 'AND':
 						$rows[]='<td'.$headBbgColor.' colspan="3"><strong><img src="'.$BACK_PATH.PATH_txdam_rel.'i/equals_16.gif" width="12" height="16" border="0" align="top" alt="" /> &nbsp;'.
 						$LANG->getLL('selPlus').'</strong></td>';
 						$rows=$this->getCurrentSelectionBoxItems($queryType, $rows);
 					break;
-					
+
 					case 'NOT':
 					case 'DESELECT_ID':
 						if($lastHeader!='NOT') {
@@ -945,7 +978,7 @@ $alwaysPrev=1;
 						$lastHeader='NOT';
 						$rows=$this->getCurrentSelectionBoxItems($queryType, $rows);
 					break;
-					
+
 					case 'SEARCH':
 						$rows[]='<td'.$headBbgColor.' colspan="3"><strong> '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.search',1).'</strong></td>';
 						$rows=$this->getCurrentSelectionBoxItems($queryType, $rows);
@@ -957,10 +990,10 @@ $alwaysPrev=1;
 					break;
 				}
 			}
-		}	
-		#$rawOutput=t3lib_div::view_array($this->sl->sel);	
+		}
+		#$rawOutput=t3lib_div::view_array($this->sl->sel);
 		return '<br/><table cellspacing="1" cellpadding="2" border="0" width="100%"><tr'.$rowBbgColor.'>'.implode('</tr><tr'.$rowBbgColor.'>',$rows).'</tr></table>'.$rawOutput.'<br /><input type="submit" value="'.$LANG->getLL('revertSelection').'" name="'.$this->sl->paramPrefix.'_undo" \>';
-		
+
 	}
 
 	/**
@@ -975,7 +1008,7 @@ $alwaysPrev=1;
 		static $selClasses=array();
 
 		$sel = $this->sl->sel;
-	
+
 		foreach ($sel[$queryType] as $cat => $items) {
 			if(is_array($items)) {
 				foreach($items as $id => $value) {
@@ -988,33 +1021,33 @@ $alwaysPrev=1;
 								$selClasses[$cat] = &$obj;
 							}
 						}
-						if (is_object($selClasses[$cat])) {									
+						if (is_object($selClasses[$cat])) {
 							$categoryTitle = $selClasses[$cat]->dam_treeTitle();
 							$itemTitle = $selClasses[$cat]->dam_itemTitle($id, $value);
 							$deselectValue = $selClasses[$cat]->deselectValue;
-							
+
 							// DESELECT_ID
 						} elseif($cat=='tx_dam') {
 
-#TODO move this into TBE_MODULES_EXT['txdam']['addSelectionClasses']							
+#TODO move this into TBE_MODULES_EXT['txdam']['addSelectionClasses']
 							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,title,file_type,media_type', 'tx_dam', 'uid='.$id);
-							
+
 							while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 								$iconfile = t3lib_iconWorks::getIcon('tx_dam',$row);
 								$titletext = t3lib_BEfunc::getRecordIconAltText($row,'tx_dam');
-								$theIcon = '<img src="'.$BACK_PATH.$iconfile.'" width="18" height="16" border="0" title="'.$titletext.'" alt="" />';				
+								$theIcon = '<img src="'.$BACK_PATH.$iconfile.'" width="18" height="16" border="0" title="'.$titletext.'" alt="" />';
 
 								$categoryTitle = $theIcon;
 								$itemTitle = htmlspecialchars(t3lib_div::fixed_lgd($row['title'],25));
 							}
-							
+
 						}
 
-						if($categoryTitle) {
-							$params = array('SLCMD['.$queryType.']['.$cat.']['.$id.']' => $deselectValue);
-							$actionIcon='<a href="'.t3lib_div::linkThisScript($params).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/button_remove.gif" width="11" height="10" border="0" title="'.$LANG->getLL('remove').'" align="top" alt="" /></a>';
-								
-							$rows[] = '<td>'.$actionIcon.'</td><td nowrap="nowrap">'.$categoryTitle.'</td><td width="70%">'.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
+						if(!((string)$categoryTitle=='')) {
+							$params = array('SLCMD['.$queryType.']['.$cat.']['.(string)$id.']' => $deselectValue);
+							$actionIcon='<a href="'.htmlspecialchars($this->linkThisScriptSel($params)).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/button_remove.gif" width="11" height="10" border="0" title="'.$LANG->getLL('remove').'" align="top" alt="" /></a>';
+
+							$rows[] = '<td width="1%">'.$actionIcon.'</td><td nowrap="nowrap">'.$categoryTitle.'</td><td width="70%">'.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
 						}
 
 					}
@@ -1025,7 +1058,22 @@ $alwaysPrev=1;
 		return $rows;
 	}
 
+	/**
+	 * Returns the link-url to the current script.
+	 * In $getParams you can set associative keys corresponding to the GET-vars you wish to add to the URL.
+	 *
+	 * @param	array		Array of GET parameters to include
+	 * @return	string
+	 */
+	function linkThisScriptSel($getParams=array())	{
 
+		$parts = t3lib_div::getIndpEnv('SCRIPT_NAME');
+		$params = t3lib_div::_GET();
+		$params = t3lib_div::array_merge_recursive_overrule($params, $getParams);
+		$pString = t3lib_div::implodeArrayForUrl('',$params,$str='',$skipBlank=0,$rawurlencodeParamName=true);
+
+		return $pString ? $parts.'?'.ereg_replace('^&','',$pString) : $parts;
+	}
 
 
 	/********************************
@@ -1054,7 +1102,7 @@ $alwaysPrev=1;
 			case 'group':	$iconfile = 'gfx/i/_icon_ftp_group.gif';	break;
 			default:		$iconfile = 'gfx/i/_icon_ftp.gif';	break;
 		}
-		
+
 		$shortPath = tx_dam_div::getRelPath($path, $fmountArr['path']);
 
 		if ($browsable) {
@@ -1072,18 +1120,20 @@ $alwaysPrev=1;
 		$allowedIcons = is_null($allowedIcons) ? ('up,refresh,popup,'.implode(',', array_keys($extraIconArr))) : $allowedIcons;
 		$allowedIcons = is_array($allowedIcons) ? $allowedIcons : t3lib_div::trimExplode(',',$allowedIcons,TRUE);
 
+		$allowedIcons = array_diff($allowedIcons, $this->guiCmdIconsDeny);
+
 			// folder up button
 		if ($browsable AND in_array('up', $allowedIcons) AND $shortPath)	{
 			$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/folder_up.gif','width="18" height="16"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.upOneLevel',1).'" class="absmiddle" alt="" />';
 			$cmdIcons['up'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_folder]' => $this->getParentFolder($path)))).'">'.$icon.'</a>';
 		}
-		
+
 			// refresh button
 		if ($browsable AND in_array('refresh', $allowedIcons)) {
 			$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.reload',1).'" class="absmiddle" alt="" />';
 			$cmdIcons['refresh'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript()).'">'.$icon.'</a>';
 		}
-		
+
 		if ($browsable AND in_array('popup', $allowedIcons)) {
 				// open in new window button
 			if (!$this->forcedFunction) {
@@ -1094,16 +1144,16 @@ $alwaysPrev=1;
 		if ($extraIconArr['funcMenu']) {
 				$cmdIconRight['funcMenu'] = $extraIconArr['funcMenu'];
 				unset($extraIconArr['funcMenu']);
-		}		
-			
+		}
+
 		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $extraIconArr);
 		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $cmdIconRight);
-		
+
 		return $this->getHeaderBar($fileheader, implode('&nbsp;',$cmdIcons));
 	}
 
 
-	
+
 	/**
 	 * Creates a browsable file/folder list
 	 * 
@@ -1115,14 +1165,14 @@ $alwaysPrev=1;
 		$filelist = t3lib_div::makeInstance('tx_dam_fileList');
 		$filelist->folderParam = $folderParam;
 		$content = $filelist->getBrowseableFolderList($path);
-		
+
 		$cnBgColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor3,-5,-5,-5);
 		$content = '<div style="width:100%;background-color:'.$cnBgColor.'">'.$content.'</div>';
 		return $content;
-	}	
+	}
 
 
-	
+
 	/********************************
 	 *
 	 * helper
@@ -1140,7 +1190,7 @@ $alwaysPrev=1;
 		$pathInfo = t3lib_div::split_fileref(preg_replace('#/$#', '', $path));
 		return  $pathInfo['path'];
 	}
-		
+
 	/**
 	 * Returns a path with links to browse to directly to the path
 	 * 
@@ -1180,9 +1230,36 @@ $alwaysPrev=1;
 	 	$newPathArr = array_reverse($newPathArr);
 
 		return  implode('/', $newPathArr);
-	}	
-	
+	}
 
+	/**
+	 * Checks if $this->path is a path under one of the filemounts
+	 *
+	 * @return	void
+	 * @see init()
+	 */
+	function checkOrSetPath()	{
+		global $FILEMOUNTS;
+
+		if (!$this->path) {
+			reset($FILEMOUNTS);
+			$fmount = current($FILEMOUNTS);
+			$path = $fmount['path'];
+		} else {
+			$path = tx_dam_div::getAbsPath($this->path);
+		}
+
+		if ($path && t3lib_div::validPathStr($path) && is_array($FILEMOUNTS))	{
+			foreach($FILEMOUNTS as $val)	{
+				if (t3lib_div::isFirstPartOfStr($path,$val['path']))	{
+
+					$this->path = tx_dam_div::getRelPath($path);
+					return;
+				}
+			}
+		}
+		$this->path = '';
+	}
 
 
 	/********************************
@@ -1190,10 +1267,10 @@ $alwaysPrev=1;
 	 * GUI buttons and icons
 	 *
 	 ********************************/	
-	
 
 
-	
+
+
 	/**
 	 * Button: open module in new window
 	 * 
@@ -1203,14 +1280,14 @@ $alwaysPrev=1;
 	 */
 	function btn_openMod_inNewWindow($function_name=NULL, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
-		
+
 		$name = is_null($function_name) ? $this->MOD_SETTINGS['function'] : $function_name;
 		if (!$name) return;
 		$onClick = 'vHWin=window.open(\''.t3lib_div::linkThisScript(array('forcedFunction' => $name)).'\',\''.$name.'\',\''.($BE_USER->uc['edit_wideDocument']?'width=670,height=550':'width=600,height=550').',status=0,menubar=0,scrollbars=1,resizable=1\');vHWin.focus();return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
 					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/open_in_new_window.gif','width="19" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.openInNewWindow',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
-					'</a>';		
-		
+					'</a>';
+
 		return $content;
 	}
 
@@ -1232,8 +1309,8 @@ $alwaysPrev=1;
 		$onClick = 'vHWin=window.open(\''.t3lib_div::linkThisUrl($BACK_PATH.'alt_doc.php',$params).'\',\''.md5(t3lib_div::getIndpEnv('TYPO3_REQUEST_SCRIPT')).'\',\''.($BE_USER->uc['edit_wideDocument']?'width=670,height=550':'width=600,height=550').',status=0,menubar=0,scrollbars=1,resizable=1\');vHWin.focus();return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
 					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/open_in_new_window.gif','width="19" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.openInNewWindow',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
-					'</a>';		
-		
+					'</a>';
+
 		return $content;
 	}
 
@@ -1249,10 +1326,10 @@ $alwaysPrev=1;
 		global $LANG, $BACK_PATH;
 
 		$params = array('SLCMD[DESELECT_ID]['.$table.']['.$uid.']' => '1');
-		$content = '<a href="'.t3lib_div::linkThisScript($params).'">'.
-					'<img src="'.$BACK_PATH.PATH_txdam_rel.'i/button_deselect.gif" width=11 height=10 border="0" title="'.$LANG->getLL('deselect').'" class="absmiddle" '.$addAttrib.' alt="" />'.
+		$content = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript($params)).'">'.
+					'<img src="'.$BACK_PATH.PATH_txdam_rel.'i/button_deselect.gif" width="11" height="10" border="0" title="'.$LANG->getLL('deselect').'" class="absmiddle" '.$addAttrib.' alt="" />'.
 					'</a>';
-					
+
 		return $content;
 	}
 
@@ -1274,8 +1351,8 @@ $alwaysPrev=1;
 		$onClick = t3lib_BEfunc::editOnClick($params,$BACK_PATH,t3lib_div::getIndpEnv('REQUEST_URI'),1);
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
 					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/edit2.gif','width="11" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:edit',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
-					'</a>';		
-		
+					'</a>';
+
 		return $content;
 	}
 
@@ -1296,11 +1373,11 @@ $alwaysPrev=1;
 		$onClick = 'top.launchView(\''.$table.'\','.$uid.',\''.$BACK_PATH.'\');return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
 					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif"','width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
-					'</a>';		
-		
+					'</a>';
+
 		return $content;
-	}	
-	
+	}
+
 	/**
 	 * Button: go back
 	 * 
@@ -1319,14 +1396,14 @@ $alwaysPrev=1;
 
 		$content = '<a href="'.htmlspecialchars($url).'" class="typo3-goBack">'.
 					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/goback.gif"','width="14" height="14"').' class="absmiddle" alt="" /> Go back'.
-					'</a>';		
-		
+					'</a>';
+
 		return $content;
-	}	
-	
+	}
 
 
-    /**
+
+	/**
 	 * Wraps an edit link around a string.
 	 * Creates a page module link for pages, edit link for other tables.
 	 * 
@@ -1335,17 +1412,17 @@ $alwaysPrev=1;
 	 * @param	integer		uid of the record
 	 * @return	string		Rendered link
 	 */
-    function wrapLink_edit($str, $refTable, $id)    {
-        global $BACK_PATH, $BE_USER;
+	function wrapLink_edit($str, $refTable, $id)    {
+		global $BACK_PATH, $BE_USER;
 
-        if($refTable=='pages') {
-            $onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
-        } else {
-            $params = '&edit['.$refTable.']['.$id.']=edit';
-            $onClick = t3lib_BEfunc::editOnClick($params, $BACK_PATH);
-        }
-        return '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$str.'</a>';
-    }
+		if($refTable=='pages') {
+			$onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
+		} else {
+			$params = '&edit['.$refTable.']['.$id.']=edit';
+			$onClick = t3lib_BEfunc::editOnClick($params, $BACK_PATH);
+		}
+		return '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$str.'</a>';
+	}
 
 
 	/********************************
@@ -1353,7 +1430,7 @@ $alwaysPrev=1;
 	 * GUI registry
 	 *
 	 ********************************/	
-	
+
 
 	/**
 	 * Call a user func with variable parameter list
@@ -1374,7 +1451,7 @@ $alwaysPrev=1;
 		}
 	}
 
-	
+
 	/**
 	 * Call a gui function
 	 * 
@@ -1393,9 +1470,9 @@ $alwaysPrev=1;
 			$func = $func;
 		}
 		$arg_list = array($func, &$obj);
-		
+
 		$prefix = is_object($obj) ? get_class($obj).'>' : '';
-		
+
 		if (is_array($this->guiItems_params_override[$prefix.$func])) {
 			$arg_list = $arg_list + $this->guiItems_params_override[$prefix.$func];
 		} elseif (is_array($this->guiItems_params[$prefix.$func])) {
@@ -1403,7 +1480,7 @@ $alwaysPrev=1;
 		}
 
 		return call_user_func_array(array($this, 'callUserFunction'), $arg_list);
-	}	
+	}
 
 
 
@@ -1425,7 +1502,7 @@ $alwaysPrev=1;
 			if(!is_array($this->$type)) return;
 			$itemListArr = array_keys($this->$type);
 		}
-	
+
 		$out = '';
 		foreach ($itemListArr as $item) {
 			$content = $this->guiItems_callFunc($item);
@@ -1433,7 +1510,7 @@ $alwaysPrev=1;
 		}
 		return $out;
 	}
-	
+
 	/**
 	 * Clears all registered gui items
 	 * 
@@ -1445,7 +1522,7 @@ $alwaysPrev=1;
 		if(!is_array($this->$type)) return;
 		$this->$type = array();
 	}
-			
+
 	/**
 	 * Register a gui function
 	 * 
@@ -1465,14 +1542,14 @@ $alwaysPrev=1;
 			$obj = NULL;
 			$func = $func;
 		}
-		
+
 		$prefix = is_object($obj) ? get_class($obj).'>' : '';
 
 
 		$type = 'guiItems_'.$type;
 		if(!is_array($this->$type)) return;
 		$itemArr = &$this->$type;
-		
+
 		$argArr = is_array($argArr) ? $argArr : array();
 		$this->guiItems_params[$prefix.$func] = $argArr;
 
@@ -1481,16 +1558,16 @@ $alwaysPrev=1;
 
 		$pointer = count($itemArr);
 		if($position) {
-		
+
 			$posArr = t3lib_div::trimExplode(',', $position, 1);
 			foreach($posArr as $pos) {
 				list($place,$itemEntry) = t3lib_div::trimExplode(':', $pos, 1);
-	
+
 					// bottom
 				$pointer = count($itemArr);
-				
+
 				$found=FALSE;
-					
+
 				if ($place) {
 					switch(strtolower($place))	{
 						case 'after':
@@ -1508,7 +1585,7 @@ $alwaysPrev=1;
 									$p++;
 								}
 								if (!$found) break;
-								
+
 								if ($place=='before') {
 									$pointer--;
 								} elseif ($place=='after') {
@@ -1532,11 +1609,11 @@ $alwaysPrev=1;
 		$pointer=max(0,$pointer);
 		$itemsBefore = array_slice($itemArr, 0, ($pointer?$pointer:0));
 		$itemsAfter = array_slice($itemArr, $pointer);
-		$itemArr = $itemsBefore + $newItem + $itemsAfter;		
+		$itemArr = $itemsBefore + $newItem + $itemsAfter;
 
-	}	
+	}
 
-	
+
 	/**
 	 * Set (override) parameters for a registered  gui function
 	 * 
@@ -1556,7 +1633,7 @@ $alwaysPrev=1;
 		}
 		$prefix = is_object($obj) ? get_class($obj).'>' : '';
 		$this->guiItems_params[$prefix.$func] = $argArr;
-	}	
+	}
 
 
 
