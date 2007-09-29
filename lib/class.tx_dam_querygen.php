@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,34 +25,46 @@
  * Query generator
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Core
+ * @subpackage Lib
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   68: class tx_dam_querygen 
- *   83:     function tx_dam_querygen() 
+ *   82: class tx_dam_querygen
+ *  102:     function tx_dam_querygen()
  *
  *              SECTION: Initialize
- *  101:     function init() 
- *  129:     function initBESelect($pidList='') 
- *  142:     function initFESelect() 
+ *  122:     function init($table='')
+ *  156:     function initBESelect($table='', $pidList='')
+ *  175:     function initFESelect($table='', $pidList='')
  *
  *              SECTION: Modify query definition
- *  173:     function queryAddMM($mm_table='tx_dam_mm_cat',$foreign_table='tx_dam_cat',$local_table='tx_dam')	
- *  192:     function queryAddCategoryJoin($mmtable='tx_dam_mm_cat')	
- *  206:     function queryAddWhere($where,$key='')	
+ *  196:     function setCount($count=false)
+ *  212:     function addSelectFields($fields='*', $table='')
+ *  225:     function addPidList($pidList='', $table='')
+ *  239:     function addEnableFields($table='')
+ *  251:     function addOrderBy ($orderBy, $table='')
+ *  264:     function addLimit ($limit, $begin='')
+ *  279:     function addWhere($where, $type='WHERE', $key='')
+ *  298:     function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')
+ *  320:     function addMMJoin($mmtable, $local_table='')
+ *  333:     function mergeWhere($where)
  *
  *              SECTION: Create query from definition
- *  229:     function getQuery() 
- *  250:     function getQueryParts() 
+ *  354:     function getQuery()
+ *  375:     function getQueryParts()
  *
- * TOTAL FUNCTIONS: 9
- * (This index is automatically created/updated by the extension "extdeveval")
+ *              SECTION: helper functions
+ *  497:     function makeSearchQueryPart($table, $searchString)
+ *  536:     function compileFieldList($table, $fields)
+ *  562:     function enableFields($table='')
+ *
+ * TOTAL FUNCTIONS: 19
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -60,10 +72,12 @@
 
 /**
  * Generates SQL queries
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * The class generates a SQL query from a definition stored in an array.
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Core
+ * @subpackage Lib
  */
 class tx_dam_querygen {
 
@@ -73,17 +87,22 @@ class tx_dam_querygen {
 	 */
 	var $query = array();
 
-
+	/**
+	 * Main table to select from
+	 */
 	var $table = 'tx_dam';
 
+
+
 	/**
-	 * Initialize the object
-	 * 
-	 * @return	void		
+	 * Constructor
+	 *
+	 * @return	void
 	 */
 	function tx_dam_querygen() {
 		$this->init();
 	}
+
 
 
 
@@ -96,8 +115,9 @@ class tx_dam_querygen {
 
 	/**
 	 * Initialize the db select definition array.
-	 * 
-	 * @return	void		
+	 *
+	 * @param	string		$table Table name
+	 * @return	void
 	 */
 	function init($table='') {
 
@@ -107,20 +127,20 @@ class tx_dam_querygen {
 
 		$this->query = array(
 			'DISTINCT' => true,
-			'SELECT' => array (),
-			'FROM' => array (),
-			'LEFT_JOIN' => array (),
-			'MM' => array (),
+			'SELECT' => array(),
+			'FROM' => array(),
+			'LEFT_JOIN' => array(),
+			'MM' => array(),
 			'WHERE' => array(
 				'WHERE' => array(), // self defined
 				'AND' => array(), // ...
 				'OR' => array(), // ...
 				'NOT' => array(), // ...
 			),
-			'enableFields' => array (),
-			'GROUPBY' => array (),
-			'ORDERBY' => array (),
-			'LIMIT' => array (),
+			'enableFields' => array(),
+			'GROUPBY' => array(),
+			'ORDERBY' => array(),
+			'LIMIT' => array(),
 		);
 		$this->addSelectFields();
 	}
@@ -128,26 +148,34 @@ class tx_dam_querygen {
 
 	/**
 	 * Init the db select array for BE usage.
-	 * 
-	 * @param	[type]		$pidList: ...
-	 * @return	void		
+	 *
+	 * @param	string		$table Table name
+	 * @param	string		$pidList Comma list of pid to select from
+	 * @return	void
 	 */
 	function initBESelect($table='', $pidList='') {
 		$this->init($table);
 		if ($pidList) {
-			$this->query['WHERE']['WHERE'][$this->table.'.pid'] = 'AND '.$this->table.'.pid IN ('.$pidList.')';
+			$this->query['WHERE']['WHERE'][$this->table.'.pid'] = 'AND '.$this->table.'.pid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($pidList).')';
 		}
 		$this->query['enableFields'][$this->table] = $this->enableFields();
 		$this->addSelectFields();
+
+		$this->mode = 'BE';
 	}
+
 
 	/**
 	 * Init the db select array for FE usage.
-	 * 
-	 * @return	void		
+	 *
+	 * @param	string		$table Table name
+	 * @param	string		$pidList Comma list of pid to select from
+	 * @return	void
 	 */
 	function initFESelect($table='', $pidList='') {
 		$this->initBESelect($table='', $pidList='');
+
+		$this->mode = 'FE';
 	}
 
 
@@ -158,11 +186,12 @@ class tx_dam_querygen {
 	 *
 	 ***************************************/
 
+
 	/**
-	 * 
-	 * 
-	 * @param	[type]		$count: ...
-	 * @return	string		query
+	 * Add/Remove COUNT query part
+	 *
+	 * @param	boolean		$count If set a COUNT query part will be added
+	 * @return	void
 	 */
 	function setCount($count=false) {
 		if($count) {
@@ -172,82 +201,101 @@ class tx_dam_querygen {
 		}
 	}
 
+
 	/**
-	 * defines the main table
-	 * 
-	 * @return	void		
+	 * Add/Defines fields to select
+	 *
+	 * @param	string		$fields Field list
+	 * @param	string		$table Table name. Default $this->table
+	 * @return	void
 	 */
 	function addSelectFields($fields='*', $table='') {
-		$table = $table ? $table :$this->table;
+		$table = $table ? $table : $this->table;
 		$this->query['FROM'][$table] = $this->compileFieldList($table, $fields);
 	}
 
+
 	/**
-	 * 
-	 * 
-	 * @param	[type]		$pidList: ...
-	 * @return	void		
+	 * Add/Defines pid's to select from
+	 *
+	 * @param	string		$pidList Comma list of pid to select from
+	 * @param	string		$table Table name. Default $this->table
+	 * @return	void
 	 */
 	function addPidList($pidList='', $table='') {
 		if ($pidList) {
 			$table = $table ? $table :$this->table;
-			$this->query['WHERE']['WHERE'][$table.'.pidList'] = 'AND '.$table.'.pid IN ('.$pidList.')';
+			$this->query['WHERE']['WHERE'][$table.'.pidList'] = 'AND '.$table.'.pid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($pidList).')';
 		}
 	}
 
+
 	/**
-	 * Init the db select array for FE usage.
-	 * 
-	 * @return	void		
+	 * Adds enable fields to the query
+	 *
+	 * @param	string		$table Table name. Default $this->table
+	 * @return	void
 	 */
 	function addEnableFields($table='') {
 		$table = $table ? $table :$this->table;
 		$this->query['enableFields'][$table] = $this->enableFields($table);
 	}
 
+
 	/**
 	 * Adds a LIMIT to the db select array.
-	 * 
-	 * @param	[type]		$limit: ...
-	 * @param	[type]		$begin: ...
-	 * @return	void		
+	 *
+	 * @param	integer		$limit: ...
+	 * @return	void
+	 */
+	function addOrderBy ($orderBy, $table='') {
+		$table = $table ? $table :$this->table;
+		$this->query['ORDERBY'][$table] = $orderBy;
+	}
+
+
+	/**
+	 * Adds a LIMIT to the db select array.
+	 *
+	 * @param	integer		$limit: ...
+	 * @param	integer		$begin: ...
+	 * @return	void
 	 */
 	function addLimit ($limit, $begin='') {
-
 		if($limit) {
 			$this->query['LIMIT'] = array((intval($begin)?$begin.',':'').$limit);
-#TODO ??			$this->query['LIMIT'][] = (intval($begin)?$begin.',':'').$limit;
 		}
 	}
 
 
 	/**
 	 * Add a WHERE definition to the select array.
-	 * 
-	 * @params mixed 	string. Where clause.
-	 * @params string 	type: ADD, OR, NOT. Default: WHERE
-	 * @params string 	key to be used for the select array. If empty a md5 hash will be generated from the where clause.
-	 * @return	void		
+	 *
+	 * @param	mixed		$where string or array. Where clause(s).
+	 * @param	string		$type type: AND, OR, NOT. Default: WHERE
+	 * @param	string		$key key to be used for the select array. If empty a md5 hash will be generated from the where clause.
+	 * @return	void
 	 */
 	function addWhere($where, $type='WHERE', $key='')	{
 		if(is_array($where)) {
 			$this->query['WHERE'] = t3lib_div::array_merge_recursive_overrule($this->query['WHERE'], $where);
 		} else {
-			$key = $key ? $key : md5($key);
+			$key = $key ? $key : md5($where);
 			$this->query['WHERE'][$type][$key] = $where;
 		}
 	}
 
+
 	/**
 	 * Add a mm table to the select array.
 	 * The where clause have to be added separately.
-	 * 
-	 * @params string 	mm table. Default: 'tx_dam_mm_cat'
-	 * @params string 	foreign table. Default: 'tx_dam_cat'
-	 * @params string 	local table. Default: 'tx_dam'
-	 * @return	void		
+	 *
+	 * @param	string		$mm_table mm table. Default: 'tx_dam_mm_cat'
+	 * @param	string		$foreign_table foreign table. Default: 'tx_dam_cat'
+	 * @param	string		$local_table local table. Default: 'tx_dam'
+	 * @return	void
 	 */
-	function queryAddMM($mm_table='tx_dam_mm_cat',$foreign_table='tx_dam_cat',$local_table='tx_dam')	{
+	function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')	{
 		$local_table = $local_table ? $local_table : $this->table;
 		$key = $local_table.'.'.$mm_table.'.'.$foreign_table;
 		#$this->query['MM'][$key] = $local_table.','.$mm_table.($foreign_table?','.$foreign_table:'');
@@ -261,11 +309,13 @@ class tx_dam_querygen {
 		$this->query['WHERE']['AND'][$key] = $local_table.'.uid='.$mm_table.'.uid_local'.($foreign_table?' AND '.$foreign_table.'.uid='.$mm_table.'.uid_foreign ':'');
 	}
 
+
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$mmtable: ...
-	 * @return	[type]		...
+	 * Adds a JOIN with a MM table to the query
+	 *
+	 * @param	string		$mm_table MM table
+	 * @param	string		$local_table Local table. Default $this->table
+	 * @return	void
 	 */
 	function addMMJoin($mmtable, $local_table='')	{
 		$local_table = $local_table ? $local_table : $this->table;
@@ -273,11 +323,12 @@ class tx_dam_querygen {
 		$this->query['LEFT_JOIN'][$mmtable] = $local_table.'.uid='.$mmtable.'.uid_local';
 	}
 
+
 	/**
 	 * Merge a WHERE definition array to the select WHERE array part.
-	 * 
-	 * @params mixed 	array. Where clause(s).
-	 * @return	void		
+	 *
+	 * @param	array		$where Where clause(s).
+	 * @return	void
 	 */
 	function mergeWhere($where)	{
 		if(is_array($where)) {
@@ -286,21 +337,6 @@ class tx_dam_querygen {
 	}
 
 
-	/***************************************
-	 *
-	 *	 compatibility
-	 *
-	 ***************************************/
-
-	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$mmtable: ...
-	 * @return	[type]		...
-	 */
-	function queryAddCategoryJoin($mmtable='tx_dam_mm_cat', $local_table='')	{
-		$this->addMMJoin($mmtable, $local_table);
-	}
 
 
 	/***************************************
@@ -312,7 +348,7 @@ class tx_dam_querygen {
 
 	/**
 	 * Generates the query from the select array.
-	 * 
+	 *
 	 * @return	string		the query
 	 */
 	function getQuery() {
@@ -333,7 +369,7 @@ class tx_dam_querygen {
 
 	/**
 	 * Generates the query from the select array.
-	 * 
+	 *
 	 * @return	array		array of query parts
 	 */
 	function getQueryParts() {
@@ -378,7 +414,7 @@ class tx_dam_querygen {
 			}
 
 				// tables
-			$queryParts['FROM'].= ' '.implode (',',array_keys($select['FROM'])+array_keys($select['MM']));
+			$queryParts['FROM'].= ' '.implode (',',array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM']))));
 
 
 			//
@@ -406,8 +442,7 @@ class tx_dam_querygen {
 				if(is_array($items) AND count($items)) {
 					switch($operator) {
 						case 'NOT':
-							#$query[] = 'AND NOT ('.implode (' OR ',$items).')';
-							#$query[] = 'AND NOT '.implode(' AND NOT ',$items);
+								// the items have already the right operator in it the make a NOT where clause
 							$query[] = 'AND '.implode(' AND ',$items);
 						break;
 						case 'AND':
@@ -439,9 +474,10 @@ class tx_dam_querygen {
 			}
 		}
 
-		#debug($queryParts,'$queryParts', __LINE__, __FILE__);
 		return $queryParts;
 	}
+
+
 
 
 	/***************************************
@@ -451,10 +487,9 @@ class tx_dam_querygen {
 	 ***************************************/
 
 
-
 	/**
 	 * Creates part of query for searching after a word ($this->searchString) fields in input table
-	 * 
+	 *
 	 * @param	string		Table, in which the fields are being searched.
 	 * @param	string		search string
 	 * @return	string		Returns part of WHERE-clause for searching, if applicable.
@@ -481,7 +516,7 @@ class tx_dam_querygen {
 
 				// If search-fields were defined (and there always are) we create the query:
 			if (count($sfields))	{
-				$like=' LIKE "%'.$GLOBALS['TYPO3_DB']->quoteStr($searchString, $table).'%"';		// Free-text searching...
+				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$searchString.'%', $table);		// Free-text searching...
 				$queryPart = '('.implode($like.' OR ',$sfields).$like.')';
 
 					// Return query:
@@ -490,11 +525,12 @@ class tx_dam_querygen {
 		}
 	}
 
+
 	/**
 	 * Returns field list with table name prepended
-	 * 
-	 * @param	mixed		Field list as array or comma list as string
-	 * @param	string		Table name
+	 *
+	 * @param	string		$table Table name
+	 * @param	mixed		$fields Field list as array or comma list as string
 	 * @return	string		Comma list of fields with table name prepended
 	 */
 	function compileFieldList($table, $fields) {
@@ -513,23 +549,22 @@ class tx_dam_querygen {
 	}
 
 
-#TODO
+
 	/**
 	 * Returns a part of a WHERE clause which will filter out records with start/end times or hidden/fe_groups fields set to values that should de-select them according to the current time, preview settings or user login. Definitely a frontend function.
 	 * THIS IS A VERY IMPORTANT FUNCTION: Basically you must add the output from this function for EVERY select query you create for selecting records of tables in your own applications - thus they will always be filtered according to the "enablefields" configured in TCA
 	 * Simply calls t3lib_pageSelect::enableFields() BUT will send the show_hidden flag along! This means this function will work in conjunction with the preview facilities of the frontend engine/Admin Panel.
 	 *
 	 * @param	string		The table for which to get the where clause
-	 * @return	string		The part of the where clause on the form " AND NOT [fieldname] AND ...". Eg. " AND NOT hidden AND starttime < 123345567"
+	 * @return	string		The part of the where clause on the form " AND NOT [fieldname] AND ...". Eg. " AND hidden=0 AND starttime < 123345567"
 	 * @see t3lib_pageSelect::enableFields()
 	 */
 	function enableFields($table='')	{
 		$table = $table ? $table : $this->table;
 
-		if (is_object($GLOBALS['TSFE'])) {
+		if ($this->mode == 'FE' AND is_object($GLOBALS['TSFE'])) {
 			return $GLOBALS['TSFE']->sys_page->enableFields($table);
 		} else {
-			# return t3lib_BEfunc::BEenableFields($table).t3lib_BEfunc::deleteClause($table);
 			return t3lib_BEfunc::deleteClause($table);
 		}
 	}

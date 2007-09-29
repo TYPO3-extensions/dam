@@ -4,7 +4,6 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 /* TODO
 
 file_status
-download name
 
 */
 
@@ -12,34 +11,37 @@ download name
 
 
 
-$TCA['tx_dam'] = Array (
+$TCA['tx_dam'] = array(
 	'ctrl' => $TCA['tx_dam']['ctrl'],
-	'interface' => Array (
-		'showRecordFieldList' => 'hidden,starttime,endtime,fe_group,media_type,title,file_type'
+	'interface' => array(
+		'showRecordFieldList' => 'hidden,starttime,endtime,fe_group,media_type,title,file_type',
+// TODO clean this list or remove
+		'excludeFieldList' => 'active,t3ver_label', // non-standard - will hide fields from field selector box in list module
 	),
 	'feInterface' => $TCA['tx_dam']['feInterface'],
 	'txdamInterface' => $TCA['tx_dam']['txdamInterface'],
-	'columns' => Array (
-		'hidden' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.hidden',
-			'config' => Array (
+	'columns' => array(
+		'hidden' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array(
 				'type' => 'check',
 				'default' => '0'
 			)
 		),
-		'active' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.hidden',
-			'config' => Array (
-				'type' => 'check',
-				'default' => '0'
-			)
-		),
-		'starttime' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.starttime',
-			'config' => Array (
+// TODO remove active field?
+//		'active' => array(
+//			'exclude' => '1',
+//			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+//			'config' => array(
+//				'type' => 'check',
+//				'default' => '0'
+//			)
+//		),
+		'starttime' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.starttime',
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -48,90 +50,142 @@ $TCA['tx_dam'] = Array (
 				'checkbox' => '0'
 			)
 		),
-		'endtime' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.endtime',
-			'config' => Array (
+		'endtime' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.endtime',
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
 				'eval' => 'date',
 				'checkbox' => '0',
 				'default' => '0',
-				'range' => Array (
+				'range' => array(
 					'upper' => mktime(0,0,0,12,31,2020),
 					'lower' => mktime(0,0,0,date('m')-1,date('d'),date('Y'))
 				)
 			)
 		),
-		'fe_group' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.fe_group',
-			'config' => Array (
+		'fe_group' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.fe_group',
+			'config' => array(
 				'type' => 'select',
-				'items' => Array (
-					Array('', 0),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.hide_at_login', -1),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.any_login', -2),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.usergroups', '--div--')
+				'items' => array(
+					array('', 0),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.hide_at_login', -1),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.any_login', -2),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.usergroups', '--div--')
 				),
 				'foreign_table' => 'fe_groups'
 			)
 		),
-	/*
-$txdamTypes['media2Codes'] = array (
-	'undefined' => '0',
-	'text' => '1',
-	'image' => '2',
-	'audio' => '3',
-	'video' => '4',
-	'interactive' => '5',
-	'service' => '6',
-	'font' => '7',
-	'model' => '8',
-	'dataset' => '9',
-	'collection' => '10',
-	'software' => '11',
-	'application' => '12',
-);
-*/
 
-		'media_type' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.media_type',
-			'config' => Array (
-				'type' => 'user',
-				// 'type' => 'select',
-				'items' => Array (
-					Array('LLL:EXT:dam/locallang_db.php:media_type.text', '1'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.image', '2'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.audio', '3'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.video', '4'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.dataset', '9'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.interactive', '5'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.software', '11'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.model', '8'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.font', '7'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.collection', '10'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.service', '6'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.application', '12'),
-					Array('LLL:EXT:dam/locallang_db.php:media_type.undefined', '0'),
-				),
 
-				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_mediaType',
-				'noTableWrapping' => TRUE,
+		/*
+		 * LANGUAGE
+		 */
+		'sys_language_uid' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
+			'config' => array(
+				'type' => 'select',
+				'foreign_table' => 'sys_language',
+				'foreign_table_where' => 'ORDER BY sys_language.title',
+				'items' => array(
+					array('LLL:EXT:lang/locallang_general.xml:LGL.allLanguages',-1),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.default_value',0)
+				)
 			)
 		),
-		'title' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.title',
-			'config' => Array (
+		'l18n_parent' => array(
+			'displayCond' => 'FIELD:sys_language_uid:>:0',
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
+			'config' => array(
+				'type' => 'select',
+				'items' => array(
+					array('', 0),
+				),
+				'foreign_table' => 'tx_dam',
+				'foreign_table_where' => 'AND tx_dam.uid=###REC_FIELD_l18n_parent### AND tx_dam.sys_language_uid IN (-1,0)',
+				'wizards' => array(
+					'_PADDING' => 2,
+					'_VERTICAL' => 1,
+
+					'edit' => array(
+							'type' => 'popup',
+							'title' => 'edit default language version of this record ',
+							'script' => 'wizard_edit.php',
+							'popup_onlyOpenIfSelected' => 1,
+							'icon' => 'edit2.gif',
+							'JSopenParams' => 'height=600,width=700,status=0,menubar=0,scrollbars=1,resizable=1',
+					),
+				),
+			)
+		),
+		'l18n_diffsource' => array(
+			'config'=>array(
+				'type'=>'passthrough')
+		),
+
+
+		/*
+		 * VERSIONING
+		 */
+		't3ver_label' => array(
+			'displayCond' => 'EXT:version:LOADED:true',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.versionLabel',
+			'config' => array(
+				'type' => 'input',
+				'size' => '30',
+				'max' => '30',
+			)
+		),
+
+
+
+		/*
+		 * TITLE ...
+		 */
+
+		'media_type' => array(
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.media_type',
+			'config' => array(
+				'type' => 'select',
+				'items' => array(
+					array('LLL:EXT:dam/locallang_db.xml:media_type.text', '1'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.image', '2'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.audio', '3'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.video', '4'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.dataset', '9'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.interactive', '5'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.software', '11'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.model', '8'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.font', '7'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.collection', '10'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.service', '6'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.application', '12'),
+					array('LLL:EXT:dam/locallang_db.xml:media_type.undefined', '0'),
+				),
+
+				'form_type' => 'user',
+				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_mediaType',
+				'noTableWrapping' => TRUE,
+				'readOnly' => true,
+			)
+		),
+		'title' => array(
+			'exclude' => '1',
+			'l10n_mode' => '',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.title',
+			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 				'eval' => 'required',
-#				'type' => 'user',
-#				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_title',
-#				'noTableWrapping' => TRUE,
 			)
 		),
 
@@ -139,41 +193,50 @@ $txdamTypes['media2Codes'] = array (
 		 * FILE ###########################################
 		 */
 
-		'file_name' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_name',
-			'config' => Array (
-				'type' => 'none',
+		'file_name' => array(
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
 				'size' => '15',
 				'max' => '100',
 				'eval' => 'required',
 			)
 		),
-		'file_path' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_path',
-			'config' => Array (
-				'type' => 'none',
+		'file_path' => array(
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
 				'size' => '25',
 				'max' => '100',
 				'eval' => 'required',
 			)
 		),
-		'file_dl_name' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_dl_name',
-			'config' => Array (
+		'file_dl_name' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_dl_name',
+			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 				'max' => '100',
 				'eval' => 'trim',
 			)
 		),
-		'file_type' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_type',
-			'config' => Array (
-				'type' => 'none',
+		'file_type' => array(
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_type',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
 				'size' => '4',
 				'max' => '4',
 				'eval' => 'required,trim',
@@ -181,32 +244,41 @@ $txdamTypes['media2Codes'] = array (
 		),
 
 
-		'file_type_version' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_type_version',
+		'file_type_version' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_type_version',
 			'exclude' => '0',
-			'config' => Array (
-				'type' => 'none',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
 				'size' => '6',
 				'max' => '9',
 				'eval' => 'trim',
 				'default' => ''
 			)
 		),
-		'file_size' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_size',
+		'file_size' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_size',
 			'exclude' => '0',
-			'config' => Array (
-				'type' => 'none',
-				'size' => '6',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
+				'format' => 'filesize',
+				'size' => '10',
 				'max' => '20',
 				'eval' => 'int',
 				'default' => '0'
 			)
 		),
-		'file_orig_location' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_orig_location',
-			'exclude' => '0',
-			'config' => Array (
+		'file_orig_location' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_orig_location',
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '45',
 				'max' => '255',
@@ -214,10 +286,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'file_orig_loc_desc' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_orig_loc_desc',
-			'exclude' => '0',
-			'config' => Array (
+		'file_orig_loc_desc' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_orig_loc_desc',
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '45',
 				'max' => '45',
@@ -225,22 +299,30 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'file_creator' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_creator',
+
+		'file_creator' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_creator',
 			'exclude' => '0',
-			'config' => Array (
-				'type' => 'none',
-				'size' => '15',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
+				'size' => '30',
 				'max' => '45',
 				'eval' => 'trim',
 				'default' => ''
 			)
 		),
-		'file_mime_type' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_mime_type',
+
+		'file_mime_type' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_mime_type',
 			'exclude' => '0',
-			'config' => Array (
-				'type' => 'none',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
 				'form_type' => 'user',
 				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_file_mime_type',
 				'size' => '20',
@@ -249,11 +331,15 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'file_mime_subtype' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_mime_subtype',
+
+		'file_mime_subtype' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_mime_subtype',
 			'exclude' => '0',
-			'config' => Array (
-				'type' => 'none',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
+				'type' => 'input',
+				'readOnly' => true,
 				'size' => '20',
 				'max' => '45',
 				'eval' => 'trim',
@@ -261,23 +347,30 @@ $txdamTypes['media2Codes'] = array (
 			)
 		),
 
-		'file_ctime' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_ctime',
+		'file_ctime' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_ctime',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
-				'readonly' => '1',
+				'readOnly' => true,
+				'format' => 'datetime',
 				'size' => '11',
 				'max' => '20',
 				'eval' => 'datetime',
 				'default' => '0',
 			)
 		),
-		'file_mtime' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_mtime',
+		'file_mtime' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_mtime',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
+				'readOnly' => true,
+				'format' => 'datetime',
 				'size' => '11',
 				'max' => '20',
 				'eval' => 'datetime',
@@ -285,11 +378,12 @@ $txdamTypes['media2Codes'] = array (
 			)
 		),
 
-
-		'file_usage' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.file_usage',
+		'file_usage' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_usage',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'hideDiff',
+			'config' => array(
 				'type' => 'user',
 				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_fileUsage',
 				'noTableWrapping' => TRUE,
@@ -297,41 +391,18 @@ $txdamTypes['media2Codes'] = array (
 		),
 
 
-		/*
-		 * THUMB ###########################################
-		 */
-
-		'thumb' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.thumb',
-			'exclude' => '0',
-			'config' => Array (
-				'type' => 'user',
-				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_thumb',
-				'noTableWrapping' => TRUE,
-			)
-		),
-		'thumb_path' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.thumb_path',
-			'exclude' => '0',
-			'config' => Array (
-				'type' => 'input',
-				'size' => '40',
-				'max' => '255',
-				'eval' => '',
-				'default' => ''
-			)
-		),
-
 
 
 		/*
 		 * COPYRIGHT ###########################################
 		 */
 
-		'ident' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.ident',
+		'ident' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.ident',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '15',
 				'max' => '45',
@@ -339,10 +410,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'creator' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.creator',
+		'creator' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.creator',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '35',
 				'max' => '45',
@@ -350,10 +423,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'publisher' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.publisher',
+		'publisher' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.publisher',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '35',
 				'max' => '45',
@@ -361,10 +436,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'copyright' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.copyright',
+		'copyright' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.copyright',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '35',
 				'max' => '45',
@@ -378,47 +455,72 @@ $txdamTypes['media2Codes'] = array (
 		 * META DESCRIPTION ###########################################
 		 */
 
-		'keywords' => Array (
+		'keywords' => array(
 			'exclude' => '1',
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.keywords',
-			'config' => Array (
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.keywords',
+			'config' => array(
 				'type' => 'input',
 				'size' => '45',
-				'eval' => 'trim'
+				'eval' => 'trim',
+				'appendType' => 'comma'
 			)
 		),
-		'description' => Array (
+		'description' => array(
 			'exclude' => '1',
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.description',
-			'config' => Array (
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.description',
+			'config' => array(
 				'type' => 'text',
-				'cols' => '40',
+				'cols' => '45',
 				'rows' => '3'
 			)
 		),
-		'instructions' => Array (
+		'caption' => array(
 			'exclude' => '1',
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.instructions',
-			'config' => Array (
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.caption',
+			'config' => array(
 				'type' => 'text',
-				'cols' => '40',
+				'cols' => '45',
+				'rows' => '3'
+			)
+		),
+		'alt_text' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.alt_text',
+			'config' => array(
+				'type' => 'input',
+				'size' => '45',
+				'max' => '255',
+				'eval' => 'trim',
+				'default' => ''
+			)
+		),
+		'instructions' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.instructions',
+			'config' => array(
+				'type' => 'text',
+				'cols' => '45',
 				'rows' => '2'
 			)
 		),
-		'abstract' => Array (
+		'abstract' => array(
 			'exclude' => '1',
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.abstract',
-			'config' => Array (
-				'type' => 'none',
-				'cols' => '40',
+			'l10n_mode' => 'hideDiff',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.abstract',
+			'config' => array(
+				'type' => 'text',
+				'readOnly' => true,
+				'cols' => '45',
 				'rows' => '3',
 				'eval' => 'trim',
 			)
 		),
-		'date_cr' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.date_cr',
+		'date_cr' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_cr',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -426,10 +528,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => '0',
 			)
 		),
-		'date_mod' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.date_mod',
+		'date_mod' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_mod',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -437,10 +541,11 @@ $txdamTypes['media2Codes'] = array (
 				'default' => '0',
 			)
 		),
-		'loc_desc' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.loc_desc',
+		'loc_desc' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.loc_desc',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => '',
+			'config' => array(
 				'type' => 'input',
 				'size' => '45',
 				'max' => '45',
@@ -448,18 +553,20 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'loc_country' => Array (
+		'loc_country' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.loc_country',
-			'config' => Array (
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.loc_country',
+			'config' => array(
 				'type' => 'select',
-				'items' => Array (
-					Array('',0),
+				'items' => array(
+					array('',0),
 				),
 //				'foreign_table' => 'static_countries',
 //				'rootLevel' => '1',
 				'itemsProcFunc' => 'tx_staticinfotables_div->selectItemsTCA',
-				'itemsProcFunc_config' => array (
+				'itemsProcFunc_config' => array(
 					'table' => 'static_countries',
 					'indexField' => 'cn_iso_3',
 					'prependHotlist' => 1,
@@ -476,10 +583,11 @@ $txdamTypes['media2Codes'] = array (
 			)
 		),
 
-		'loc_city' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.loc_city',
+		'loc_city' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.loc_city',
 			'exclude' => '0',
-			'config' => Array (
+			'l10n_mode' => '',
+			'config' => array(
 				'type' => 'input',
 				'size' => '15',
 				'max' => '45',
@@ -487,19 +595,21 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'language' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.language',
+		'language' => array(
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.language',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'select',
-				'items' => Array (
-					Array('',''),
+				'items' => array(
+					array('',''),
 				),
 				'size' => '1',
 				'maxitems' => '1',
 				'default' => '',
 				'itemsProcFunc' => 'tx_staticinfotables_div->selectItemsTCA',
-				'itemsProcFunc_config' => array (
+				'itemsProcFunc_config' => array(
 					'table' => 'static_languages',
 					'indexField' => 'lg_iso_2',
 					'prependHotlist' => 1,
@@ -512,13 +622,15 @@ $txdamTypes['media2Codes'] = array (
 
 
 		/*
-		 * TECHNICAL ###########################################
+		 * METRICS ###########################################
 		 */
 
-		'hres' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.hres',
+		'hres' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.hres',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -526,10 +638,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => '0'
 			)
 		),
-		'vres' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.vres',
+		'vres' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.vres',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -537,10 +651,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => '0'
 			)
 		),
-		'hpixels' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.hpixels',
+		'hpixels' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.hpixels',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -548,10 +664,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => '0'
 			)
 		),
-		'vpixels' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.vpixels',
+		'vpixels' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.vpixels',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '20',
@@ -559,27 +677,31 @@ $txdamTypes['media2Codes'] = array (
 				'default' => '0'
 			)
 		),
-		'color_space' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.color_space',
+		'color_space' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.color_space',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'select',
-				'items' => Array (
-					Array('', ''),
-					Array('RGB', 'RGB'),
-					Array('sRGB', 'sRGB'),
-					Array('CMYK', 'CMYK'),
-					Array('CMY', 'CMY'),
-					Array('YUV', 'YUV'),
-					Array('indexed', 'indx'),
+				'items' => array(
+					array('', ''),
+					array('RGB', 'RGB'),
+					array('sRGB', 'sRGB'),
+					array('CMYK', 'CMYK'),
+					array('CMY', 'CMY'),
+					array('YUV', 'YUV'),
+					array('indexed', 'indx'),
 				),
 				'default' => ''
 			)
 		),
-		'width' => Array (
-				'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.width',
+		'width' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.width',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '',
@@ -587,10 +709,12 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'height' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.height',
+		'height' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.height',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '8',
 				'max' => '',
@@ -598,44 +722,49 @@ $txdamTypes['media2Codes'] = array (
 				'default' => ''
 			)
 		),
-		'height_unit' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.height_unit',
+		'height_unit' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.height_unit',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'select',
-				'items' => Array (
-					Array('', ''),
-					Array('px', 'px'),
-					Array('mm', 'mm'),
-					Array('cm', 'cm'),
-					Array('m', 'm'),
-					Array('p', 'p'),
+				'items' => array(
+					array('', ''),
+					array('px', 'px'),
+					array('mm', 'mm'),
+					array('cm', 'cm'),
+					array('m', 'm'),
+					array('p', 'p'),
 				),
 				'default' => ''
 			)
 		),
-		'pages' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.pages',
+		'pages' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.pages',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '0',
-			'config' => Array (
+			'config' => array(
 				'type' => 'input',
 				'size' => '5',
 				'max' => '20',
 				'eval' => 'int',
 				'default' => '0'
 			)
-		) ,
+		),
 
-
-
-		'meta' => Array (
+		'meta' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.meta',
 			'exclude' => '1',
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.meta',
-			'config' => Array (
-				'type' => 'none',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => array(
+				'type' => 'user',
+				'readOnly' => true,
 				'form_type' => 'user',
-				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->getSingleField_meta',
-				'cols' => '40',
+				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_meta',
+				'cols' => '45',
 				'rows' => '40',
 			)
 		),
@@ -644,196 +773,155 @@ $txdamTypes['media2Codes'] = array (
 		 * CATEGORY
 		 */
 
-		'category' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_field'],
+#		'category' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_field'],
+		'category' => array (
+			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.category',
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config'],
+		),
 
-
-		'sys_language_uid' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.language',
-			'config' => Array (
-				'type' => 'select',
-				'foreign_table' => 'sys_language',
-				'foreign_table_where' => 'ORDER BY sys_language.title',
-				'items' => Array(
-					Array('LLL:EXT:lang/locallang_general.php:LGL.allLanguages',-1),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.default_value',0)
-				)
+// TODO group handling
+		'parent_id' => array(
+			'label' => 'parent_id',
+			'exclude' => '1',
+			'l10n_mode' => 'exclude',
+			'config' => array(
+				'type'=>'passthrough',
+//				'type' => 'input',
+//				'size' => '8',
+//				'max' => '',
+//				'eval' => '',
+				'default' => ''
 			)
 		),
-		'l18n_parent' => Array (
-			'displayCond' => 'FIELD:sys_language_uid:>:0',
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.l18n_parent',
-			'config' => Array (
-				'type' => 'select',
-				'items' => Array (
-					Array('', 0),
-				),
-				'foreign_table' => 'tx_dam',
-				'foreign_table_where' => 'AND tx_dam.uid=###REC_FIELD_l18n_parent### AND tx_dam.sys_language_uid IN (-1,0)',
-				'wizards' => Array(
-					'_PADDING' => 2,
-					'_VERTICAL' => 1,
 
-					'edit' => Array(
-							'type' => 'popup',
-							'title' => 'edit default language version of this record ',
-							'script' => 'wizard_edit.php',
-							'popup_onlyOpenIfSelected' => 1,
-							'icon' => 'edit2.gif',
-							'JSopenParams' => 'height=600,width=700,status=0,menubar=0,scrollbars=1,resizable=1',
-					),
-				),
-			)
-		),
-		'l18n_diffsource' => Array('config'=>array('type'=>'passthrough')),
-		't3ver_label' => Array (
-			'displayCond' => 'EXT:version:LOADED:true',
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.versionLabel',
-			'config' => Array (
-				'type' => 'input',
-				'size' => '30',
-				'max' => '30',
-			)
-		),
 
 	),
-	/*
-$txdamTypes['media2Codes'] = array (
-	'undefined' => '0',
-	'text' => '1',
-	'image' => '2',
-	'audio' => '3',
-	'video' => '4',
-	'interactive' => '5',
-	'service' => '6',
-	'font' => '7',
-	'model' => '8',
-	'dataset' => '9',
-	'collection' => '10',
-	'software' => '11',
-	'application' => '12',
-);
-*/
-	'types' => Array (
-	),
-	'palettes' => Array (
-		'1' => Array('showitem' => 'hidden,starttime, endtime, fe_group', 'canNotCollapse' => '1'),
 
-		'3' => Array('showitem' => 'loc_desc', 'canNotCollapse' => '1'),
-		'4' => Array('showitem' => 'hpixels,vpixels', 'canNotCollapse' => '1'),
-		'5' => Array('showitem' => 'loc_country,loc_city', 'canNotCollapse' => '1'),
-		'6' => Array('showitem' => 'file_name,file_path', 'canNotCollapse' => '1'),
-		'7' => Array('showitem' => 'file_size,file_type,file_mime_type', 'canNotCollapse' => '1'),
-		'8' => Array('showitem' => 'file_ctime,file_mtime', 'canNotCollapse' => '1'),
-		'9' => Array('showitem' => 'creator,publisher', 'canNotCollapse' => '1'),
-		'10' => Array('showitem' => 'width,height,height_unit', 'canNotCollapse' => '1'),
-		'11' => Array('showitem' => 'thumb,thumb_path'),
-		'12' => Array('showitem' => 'file_creator,file_type_version', 'canNotCollapse' => '1'),
-		'13' => Array('showitem' => 'date_cr,date_mod', 'canNotCollapse' => '1'),
-		'14' => Array('showitem' => 'hres,vres', 'canNotCollapse' => '1'),
+	'types' => array(
+	),
+
+	'palettes' => array(
+		'1' => array('showitem' => 'hidden,starttime, endtime, fe_group', 'canNotCollapse' => '1'),
+
+		'3' => array('showitem' => 'loc_desc', 'canNotCollapse' => '1'),
+		'4' => array('showitem' => 'hpixels,vpixels', 'canNotCollapse' => '1'),
+		'5' => array('showitem' => 'loc_country,loc_city', 'canNotCollapse' => '1'),
+		'6' => array('showitem' => 'file_name,file_path', 'canNotCollapse' => '1'),
+		'7' => array('showitem' => 'file_size,file_type,file_mime_type', 'canNotCollapse' => '1'),
+		'8' => array('showitem' => 'file_ctime,file_mtime', 'canNotCollapse' => '1'),
+		'9' => array('showitem' => 'creator,publisher', 'canNotCollapse' => '1'),
+		'10' => array('showitem' => 'width,height,height_unit', 'canNotCollapse' => '1'),
+		'12' => array('showitem' => 'file_creator,file_type_version', 'canNotCollapse' => '1'),
+		'13' => array('showitem' => 'date_cr,date_mod', 'canNotCollapse' => '1'),
+		'14' => array('showitem' => 'hres,vres', 'canNotCollapse' => '1'),
 	)
 );
 
-$tx_dam_header = '--div--;LLL:EXT:dam/locallang_db.php:tx_dam_item.div_overview, media_type;;;;3-3-3, thumb, ';
+$tx_dam_header = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_overview, media_type;;;;3-3-3, thumb, ';
 
 
-$tx_dam_descr = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr_abstract = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr_txt = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, language, pages, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr_img = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.loc_pheader;5;;, --palette--;;3;;, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.date_pheader;13;;, ';
+#$tx_dam_descr = 'title;;;;3-3-3,       l18n_parent,sys_language_uid,              keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
+$tx_dam_descr = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
+$tx_dam_descr_abstract = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
+$tx_dam_descr_txt = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, language, pages, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
+$tx_dam_descr_img = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.loc_pheader;5;;, --palette--;;3;;, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
 
-$tx_dam_metrics_img = '--div--;LLL:EXT:dam/locallang_db.php:tx_dam_item.div_metrics, color_space;;;;4-4-4, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.metrics;4, --palette--;;10;;, --palette--;;14;;, ';
-$tx_dam_metrics_txt = '--div--;LLL:EXT:dam/locallang_db.php:tx_dam_item.div_metrics, --palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.metrics;10;;4-4-4, ';
+$tx_dam_metrics_img = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_metrics, color_space;;;;4-4-4, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics;4, --palette--;;10;;, --palette--;;14;;, ';
+$tx_dam_metrics_txt = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_metrics, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics;10;;4-4-4, ';
 
-$tx_dam_file = '--palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.file_pheader;6;;3-3-3, --palette--;;7;;, --palette--;;8;;, --palette--;;12;;, file_dl_name, file_orig_location;;;;, file_orig_loc_desc, ';
+$tx_dam_file = '--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_pheader;6;;3-3-3, --palette--;;7;;, --palette--;;8;;, --palette--;;12;;, file_orig_location;;;;, file_orig_loc_desc, ';
 
-$tx_dam_copyright = '--div--;LLL:EXT:dam/locallang_db.php:tx_dam_item.div_copyright, creator;;;;3-3-3, publisher, copyright, ident, ';
+$tx_dam_copyright = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_copyright, creator;;;;3-3-3, publisher, copyright, ident, ';
 $tx_dam_category = 'category;;;;4-4-4, ';
 
-$tx_dam_frontend = '--palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.frontend_pheader;1;;1-1-1, ';
+$tx_dam_frontend = '--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.frontend_pheader;1;;1-1-1, caption, alt_text, file_dl_name, ';
 
-$tx_dam_usage = '--div--;LLL:EXT:dam/locallang_db.php:tx_dam_item.div_usage, instructions;;;;3-3-3, file_usage, ';
+$tx_dam_usage = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_usage, instructions;;;;3-3-3, file_usage, ';
 
 
-$tx_dam_footer = $tx_dam_category.$tx_dam_frontend;
-$tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.php:tx_dam_item.div_extraMeta, meta,';
-#TODO $tx_dam_meta.= '--div--;[Div], l18n_parent,sys_language_uid,t3ver_label,';
+$tx_dam_footer = $tx_dam_category;
 
-$TCA['tx_dam']['types'] = Array (
+$tx_dam_common = $tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage;
+
+$tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_extraMeta, meta,';
+// for testing languages: $tx_dam_meta.= '--div--;[Div], sys_language_uid,l18n_parent,';
+
+$TCA['tx_dam']['types'] = array(
 	/* undefined */
-	'0' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'0' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* text */
-	'1' => Array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'1' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
 	/* image */
-	'2' => Array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'2' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
 	/* audio */
-	'3' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'3' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* video */
-	'4' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'4' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* interactive */
-	'5' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'5' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* service */
-	'6' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'6' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* font */
-	'7' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'7' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* model */
-	'8' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'8' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* dataset */
-	'9' => Array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'9' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_common),
 	/* collection */
-	'10' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'10' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* software */
-	'11' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'11' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 	/* application */
-	'12' => Array('showitem' => $tx_dam_header.$tx_dam_descr.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'12' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
 );
 
-#t3lib_extMgm::addTCAcolumns('tx_dam',$tempCatalogSelector,1);
 
-$TCA['tx_dam_cat'] = Array (
+
+$TCA['tx_dam_cat'] = array(
 	'ctrl' => $TCA['tx_dam_cat']['ctrl'],
-	'interface' => Array (
-		'showRecordFieldList' => 'hidden,fe_group,title'
+	'interface' => array(
+		'showRecordFieldList' => 'hidden,fe_group,title',
 	),
 	'feInterface' => $TCA['tx_dam_cat']['feInterface'],
 
-	'columns' => Array (
-		'hidden' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.hidden',
-			'config' => Array (
+	'columns' => array(
+		'hidden' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array(
 				'type' => 'check',
 				'default' => '1'
 			)
 		),
-		'fe_group' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.fe_group',
-			'config' => Array (
+		'fe_group' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.fe_group',
+			'config' => array(
 				'type' => 'select',
-				'items' => Array (
-					Array('', 0),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.hide_at_login', -1),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.any_login', -2),
-					Array('LLL:EXT:lang/locallang_general.php:LGL.usergroups', '--div--')
+				'items' => array(
+					array('', 0),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.hide_at_login', -1),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.any_login', -2),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.usergroups', '--div--')
 				),
 				'foreign_table' => 'fe_groups'
 			)
 		),
-		'title' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.title',
-			'config' => Array (
+		'title' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.title',
+			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 				'eval' => 'required',
 			)
 		),
-		'nav_title' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:cms/locallang_tca.php:pages.nav_title',
-			'config' => Array (
+		'nav_title' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:cms/locallang_tca.xml:pages.nav_title',
+			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 				'max' => '256',
@@ -841,38 +929,38 @@ $TCA['tx_dam_cat'] = Array (
 				'eval' => 'trim'
 			)
 		),
-		'subtitle' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:cms/locallang_tca.php:pages.subtitle',
-			'config' => Array (
+		'subtitle' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:cms/locallang_tca.xml:pages.subtitle',
+			'config' => array(
 				'type' => 'input',
 				'size' => '30',
 				'max' => '256',
 				'eval' => ''
 			)
 		),
-		'keywords' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.keywords',
-			'config' => Array (
+		'keywords' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.keywords',
+			'config' => array(
 				'type' => 'text',
-				'cols' => '40',
+				'cols' => '45',
 				'rows' => '3'
 			)
 		),
-		'description' => Array (
-			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.description',
-			'config' => Array (
+		'description' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.description',
+			'config' => array(
 				'type' => 'input',
 				'size' => '40',
 				'eval' => 'trim'
 			)
 		),
 /*
-		'parent_id' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_cat_item.parent_id',
-			'config' => Array (
+		'parent_id' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_cat_item.parent_id',
+			'config' => array(
 				'type' => 'group',
 				'internal_type' => 'db',
 				'allowed' => 'tx_dam_cat',
@@ -883,23 +971,124 @@ $TCA['tx_dam_cat'] = Array (
 			)
 		),
 */
-		'parent_id' => Array (
-			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_cat_item.parent_id',
+		'parent_id' => array(
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_cat_item.parent_id',
 			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['category_config'],
 		),
 
 
 
 	),
-	'types' => Array (
-		'1' => Array (
-			'showitem' => 'title,subtitle,nav_title,description,keywords,parent_id,--palette--;LLL:EXT:dam/locallang_db.php:tx_dam_item.frontend_pheader;1;;1-1-1'
+	'types' => array(
+		'1' => array(
+			'showitem' => 'title,subtitle,nav_title,description,keywords,parent_id,--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.frontend_pheader;1;;1-1-1'
 		)
 	),
-	'palettes' => Array (
-		'1' => Array('showitem' => 'hidden,fe_group'),
+	'palettes' => array(
+		'1' => array('showitem' => 'hidden,fe_group'),
 	)
 
 );
 
+
+
+
+
+$TCA['tx_dam_selection'] = array(
+	'ctrl' => $TCA['tx_dam_selection']['ctrl'],
+	'interface' => array(
+		'showRecordFieldList' => 'hidden,starttime,endtime,fe_group,type,title,definition'
+	),
+	'feInterface' => $TCA['tx_dam_selection']['feInterface'],
+	'columns' => array(
+		'hidden' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array(
+				'type' => 'check',
+				'default' => '0'
+			)
+		),
+		'starttime' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.starttime',
+			'config' => array(
+				'type' => 'input',
+				'size' => '8',
+				'max' => '20',
+				'eval' => 'date',
+				'default' => '0',
+				'checkbox' => '0'
+			)
+		),
+		'endtime' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.endtime',
+			'config' => array(
+				'type' => 'input',
+				'size' => '8',
+				'max' => '20',
+				'eval' => 'date',
+				'checkbox' => '0',
+				'default' => '0',
+				'range' => array(
+					'upper' => mktime(0,0,0,12,31,2020),
+					'lower' => mktime(0,0,0,date('m')-1,date('d'),date('Y'))
+				)
+			)
+		),
+		'fe_group' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.fe_group',
+			'config' => array(
+				'type' => 'select',
+				'items' => array(
+					array('', 0),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.hide_at_login', -1),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.any_login', -2),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.usergroups', '--div--')
+				),
+				'foreign_table' => 'fe_groups'
+			)
+		),
+		'type' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_selection.type',
+			'config' => array(
+				'type' => 'select',
+				'items' => array(
+					array('LLL:EXT:dam/locallang_db.xml:tx_dam_selection.type.I.0', '0'),
+					array('LLL:EXT:dam/locallang_db.xml:tx_dam_selection.type.I.1', '1'),
+				),
+				'size' => 1,
+				'maxitems' => 1,
+			)
+		),
+		'title' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.title',
+			'config' => array(
+				'type' => 'input',
+				'size' => '30',
+				'eval' => 'required',
+			)
+		),
+		'definition' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_selection.definition',
+			'config' => array(
+				'type' => 'text',
+				'wrap' => 'OFF',
+				'cols' => '30',
+				'rows' => '5',
+			)
+		),
+	),
+	'types' => array(
+		'0' => array('showitem' => 'hidden;;1;;1-1-1, type, title;;;;2-2-2, definition;;;;3-3-3')
+	),
+	'palettes' => array(
+		'1' => array('showitem' => 'starttime, endtime, fe_group')
+	)
+);
 ?>

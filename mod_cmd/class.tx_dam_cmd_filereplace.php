@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,22 +25,29 @@
  * Command module 'file replace'
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-ModCmd
+ * @subpackage File
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
-
  *
- * TOTAL FUNCTIONS: 3
- * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ *   64: class tx_dam_cmd_filereplace extends t3lib_extobjbase
+ *   75:     function head()
+ *  101:     function main()
+ *  158:     function uploadForm()
+ *  193:     function replaceFile()
+ *
+ * TOTAL FUNCTIONS: 4
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
 
 
+require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
@@ -50,9 +57,9 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 /**
  * Class for the file replace command
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-ModCmd
+ * @subpackage File
  */
 class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
@@ -62,23 +69,25 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 	/**
 	 * Do some init things and set some things in HTML header
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function head() {
-		global $SOBE, $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
+		global  $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
 
 
-		$SOBE->pageTitle = $LANG->getLL('tx_dam_cmd_filereplace.title');
+		$GLOBALS['SOBE']->pageTitle = $LANG->getLL('tx_dam_cmd_filereplace.title');
 
 		$id = FALSE;
 		if(is_array($this->pObj->data['upload'])) {
 			$id = intval(key($this->pObj->data['upload']));
 		}
-		$id = $id ? $id : intval(t3lib_div::_GP('id'));
-		if ($id) {
+		$id = $id ? $id : t3lib_div::_GP('id');
+		if (t3lib_div::testInt($id)) {
 			$row = t3lib_BEfunc::getRecord('tx_dam', $id);
 			$this->rec = $row;
+		} else {
+			$this->rec = tx_dam::meta_getDataForFile($id);
 		}
 
 
@@ -90,7 +99,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function main()	{
-		global $SOBE, $LANG;
+		global  $LANG;
 
 			// Make page header:
 		$content='';
@@ -109,21 +118,21 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 			}
 
-			$content.= tx_dam_div::getDAMRecordInfo($this->rec);
+			$content.= tx_dam_guiFunc::getRecordInfoHeader($this->rec);
 			$content.= '<br />';
 
 
 				// output error message
 			if($error) {
-				$content.= $SOBE->doc->section('Error',htmlspecialchars($error),0,1,2);
-				$content.= $SOBE->doc->spacer(15);
+				$content.= $GLOBALS['SOBE']->doc->section('Error',htmlspecialchars($error),0,1,2);
+				$content.= $GLOBALS['SOBE']->doc->spacer(15);
 			}
 
 
 				// Making the formfields for renaming:
 			$code = $this->uploadForm();
 				// Add the HTML as a section:
-			$content.= $SOBE->doc->section('',$code);
+			$content.= $GLOBALS['SOBE']->doc->section('',$code);
 
 		} else {
 
@@ -143,14 +152,14 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 	/**
 	 * Rendering the upload file form fields
-	 * 
+	 *
 	 * @return	string		HTML content
 	 */
 	function uploadForm()	{
 		global $BACK_PATH, $LANG, $FILEMOUNTS;
 
 		$id = $this->rec['uid'];
-		$path = tx_dam_div::getAbsPath($this->rec['file_path']);
+		$path = tx_dam::path_makeAbsolute($this->rec['file_path']);
 
 		$content = '';
 
@@ -166,8 +175,8 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 			// Making submit button:
 		$content.= '
 			<div id="c-submit">
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:file_upload.php.submit',1).'" />
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.cancel',1).'" onclick="jumpBack(); return false;" />
+				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.submit',1).'" />
+				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />
 				<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->returnUrl).'" />
 			</div>
 		';
@@ -178,9 +187,9 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 	/**
 	 * Rename the file and process DB update
-	 * 
+	 *
 	 * @return	void
-	 */	
+	 */
 	function replaceFile() {
 		$error = FALSE;
 
@@ -189,7 +198,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 		$file->init();
 
 #
-#TODO overwrite only orig file not others
+// TODO overwrite only orig file not others
 #
 
 			// allow overwrite
@@ -229,11 +238,11 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 						if ($org_filename != $new_filename) {
 							$fields_values['file_dl_name'] = $new_filename;
 							if($row['file_name']) {
-								unlink(tx_dam_div::getAbsPath($row['file_path']).$row['file_name']);
+								unlink(tx_dam::path_makeAbsolute($row['file_path']).$row['file_name']);
 							}
 						}
 
-#TODO tcemain or tx_dam_db
+// TODO tcemain or tx_dam_db
 						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);
 
 						$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);

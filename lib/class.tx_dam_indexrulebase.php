@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,39 +25,39 @@
  * Base class for index rule plugins for the DAM.
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Component
+ * @subpackage BaseClass
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   62: class tx_dam_indexRuleBase 
- *   85:     function getTitle()	
- *   94:     function getDescription()	
- *  103:     function getOptionsForm()	
- *  112:     function processOptionsForm()	
- *  121:     function getOptionsInfo()	
- *  130:     function preIndexing()	
- *  138:     function postIndexing()	
- *  144:     function processMeta($meta, $absFile)	
- *  155:     function postProcessMeta($meta, $absFile)	
- *  160:     function getEnabledIcon() 
+ *   62: class tx_dam_indexRuleBase
+ *   85:     function getTitle()
+ *   94:     function getDescription()
+ *  103:     function getOptionsForm()
+ *  113:     function processOptionsForm()
+ *  122:     function getOptionsInfo()
+ *  132:     function preIndexing()
+ *  148:     function postIndexing($indexedList=array())
+ *  162:     function processMeta($meta, $absFile)
+ *  173:     function postProcessMeta($meta, $absFile)
+ *  181:     function getEnabledIcon()
  *
  * TOTAL FUNCTIONS: 10
- * (This index is automatically created/updated by the extension "extdeveval")
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
 
 /**
  * Base class for index rule plugins for the DAM
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Component
+ * @subpackage BaseClass
  */
 class tx_dam_indexRuleBase {
 
@@ -71,100 +71,113 @@ class tx_dam_indexRuleBase {
 	 *	var $setup = array(
 	 *		'enabled' => true,
 	 *		'shy' => true,
-	 *		);	 
+	 *		);
 	 */
 	var $setup = array();
 
 
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Returns the title of the index rule
+	 *
+	 * @return	string	Title
 	 */
 	function getTitle()	{
 		return 'No title';
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Returns the description of the index rule
+	 *
+	 * @return	string	Description
 	 */
 	function getDescription()	{
 		return '';
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Returns the options form
+	 *
+	 * @return	string	HTML content
 	 */
 	function getOptionsForm()	{
 		return '';
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Can be used to process the form values.
+	 * Results have to be stored in $this->setup.
+	 *
+	 * @return	void
 	 */
 	function processOptionsForm()	{
-		return '';
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Returns some information what options are selected.
+	 * This is for user feedback.
+	 *
+	 * @return	string	HTML content
 	 */
 	function getOptionsInfo()	{
 		return '';
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Will be called before the indexing.
+	 * Can be used to initialize things
+	 *
+	 * @return	void
 	 */
 	function preIndexing()	{
 	}
 
+
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param array List of meta record uid's of newly indexed files
-	 * @return	[type]		...
+	 * Will be called after the indexing.
+	 *
+	 *	$indexedList[] = array(
+	 *		'uid' => $meta['fields']['uid'],
+	 *		'title' => $meta['fields']['title'],
+	 *		'reindexed' => $meta['reindexed'],
+	 *		);
+	 *
+	 * @param	array		List of meta record uid's of newly indexed files
+	 * @return	void
 	 */
 	function postIndexing($indexedList=array())	{
-/*
-					$indexedList[] = array(
-						'uid' => $meta['fields']['uid'],
-						'title' => $meta['fields']['title'],
-						'reindexed' => $meta['reindexed'],
-						);
-*/
+
 	}
 
 
 /* 	will be called if exists
 
+	/ **
+	 * For processing the meta data BEFORE the index is written
+	 *
+	 * @param	array		$meta Meta data array
+	 * @param	string		$absFile Filename
+	 * @return	array Processed meta data array
+	 * /
 	function processMeta($meta, $absFile)	{
 		return $meta;
 	}
 
 	/ **
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$meta: ...
-	 * @param	[type]		$absFile: ...
-	 * @return	[type]		...
+	 * For processing the meta data AFTER the index was written
+	 *
+	 * @param	array		$meta Meta data array
+	 * @param	string		$absFile Filename
+	 * @return	array Processed meta data array
 	 * /
 	function postProcessMeta($meta, $absFile)	{
 		return $meta;
 	}
 */
 
+	/**
+	 * @access private
+	 */
 	function getEnabledIcon() {
 		return '&bull;&nbsp;';
 	}

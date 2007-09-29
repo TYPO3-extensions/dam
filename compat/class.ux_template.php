@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2005 Kasper Skaarhoj (kasperYYYY@typo3.com)
+*  (c) 1999-2006 Kasper Skaarhoj (kasperYYYY@typo3.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -27,19 +27,35 @@
 /**
  * Contains class with layout/output function for TYPO3 Backend Scripts
  *
- * $Id: template.php,v 1.41 2005/04/13 23:12:00 mundaun Exp $
+ * $Id: class.ux_template.php,v 1.1 2005/07/26 07:56:04 cvsrene Exp $
  * Revised for TYPO3 3.6 2/2003 by Kasper Skaarhoj
  * XHTML-trans compliant
  *
  * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @ignore
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
-
  *
- * TOTAL FUNCTIONS: 49
- * (This index is automatically created/updated by the extension "extdeveval")
+ *
+ *   93: class ux_template extends template
+ *  102:     function getDynTabMenuJScode()
+ *
+ *
+ *  201: class ux_bigDoc extends ux_template
+ *
+ *
+ *  210: class ux_noDoc extends ux_template
+ *
+ *
+ *  219: class ux_smallDoc extends ux_template
+ *
+ *
+ *  228: class ux_mediumDoc extends ux_template
+ *
+ * TOTAL FUNCTIONS: 1
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -72,6 +88,7 @@ if (!defined('TYPO3_MODE'))	die("Can't include this file directly.");
  * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
  * @package TYPO3
  * @subpackage core
+ * @ignore
  */
 class ux_template extends template {
 

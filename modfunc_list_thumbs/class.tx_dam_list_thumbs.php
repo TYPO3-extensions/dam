@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,37 +25,36 @@
  * Module extension (addition to function menu) 'thumbs' for the 'Media>List' module.
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage list
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   60: class tx_dam_list_thumbs extends t3lib_extobjbase 
- *   71:     function modMenu()    
- *   87:     function head() 
- *  146:     function main()    
- *  211:     function getDia($row) 
- *  297:     function thumbnail($theFile,$uploaddir,$size='',$title='', $tparams='',$abs=0,$backPath='')	
+ *   59: class tx_dam_list_thumbs extends t3lib_extobjbase
+ *   69:     function modMenu()
+ *   85:     function head()
+ *  117:     function main()
  *
- * TOTAL FUNCTIONS: 5
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
+require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 
 
 /**
  * Module extension  'Media>List>Thumbnail'
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage list
  */
 class tx_dam_list_thumbs extends t3lib_extobjbase {
 
@@ -64,13 +63,13 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 	/**
 	 * Function menu initialization
-	 * 
+	 *
 	 * @return	array		Menu array
 	 */
 	function modMenu()    {
 		global $LANG;
 
-		return array (
+		return array(
 			'tx_dam_list_thumbs_bigThumb' => '',
 			'tx_dam_list_thumbs_showTitle' => '',
 			'tx_dam_list_thumbs_showInfo' => '',
@@ -80,8 +79,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 	/**
 	 * Do some init things and set some styles in HTML header
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function head() {
 		global $LANG;
@@ -90,13 +89,13 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		// Init gui items and ...
 		//
 
-		$this->pObj->guiItems_registerFunc('getResultInfoBar', 'header');
-		$this->pObj->guiItems_registerFunc('getResultBrowser', 'header');
+		$this->pObj->guiItems->registerFunc('getResultInfoBar', 'header');
+#		$this->pObj->guiItems->registerFunc('getResultBrowser', 'header');
 
-		$this->pObj->guiItems_registerFunc('getResultBrowser', 'footer');
-		$this->pObj->guiItems_registerFunc('getSearchBox', 'footer');
-		$this->pObj->guiItems_registerFunc('getOptions', 'footer');
-		$this->pObj->guiItems_registerFunc('getStoreControl', 'footer');
+#		$this->pObj->guiItems->registerFunc('getResultBrowser', 'footer');
+		$this->pObj->guiItems->registerFunc('getSearchBox', 'footer');
+		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
+		$this->pObj->guiItems->registerFunc('getStoreControl', 'footer');
 
 			// add some options
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_thumbs_bigThumb', $LANG->getLL('tx_dam_list_thumbs.bigThumb'));
@@ -112,11 +111,11 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 	/**
 	 * Main function
-	 * 
+	 *
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $SOBE,$BE_USER,$LANG,$BACK_PATH;
+		global $BE_USER,$LANG,$BACK_PATH;
 
 		$content = '';
 
@@ -124,16 +123,15 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		// Use the current selection to create a query and count selected records
 		//
 
-		$this->pObj->addSelectionToQuery();
-		$this->pObj->execSelectionQuery(TRUE);
-		$this->pObj->setSelectionCounter();
+		$this->pObj->selection->addSelectionToQuery();
+		$this->pObj->selection->execSelectionQuery(TRUE);
 
 
 		//
 		// output header: info bar, result browser, ....
 		//
 
-		$content.= $this->pObj->guiItems_getOutput('header');
+		$content.= $this->pObj->guiItems->getOutput('header');
 		$content.= $this->pObj->doc->spacer(10);
 
 
@@ -142,11 +140,11 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		//
 
 			// any records found?
-		if($this->pObj->resCountAll) {
+		if($this->pObj->selection->pointer->countTotal) {
 
 				// limit query for browsing
-			$this->pObj->addLimitToQuery();
-			$this->pObj->execSelectionQuery();
+			$this->pObj->selection->addLimitToQuery();
+			$this->pObj->selection->execSelectionQuery();
 
 			$showElements = array();
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showTitle']) {
@@ -160,12 +158,12 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			}
 
 				// extra CSS code for HTML header
-			$this->pObj->doc->inDocStylesArray['tx_dam_SCbase_dia'] = $this->pObj->getDiaStyles($this->diaSize, $this->diaMargin, 5);
+			$this->pObj->doc->inDocStylesArray['tx_dam_SCbase_dia'] = tx_dam_guiFunc::getDiaStyles($this->diaSize, $this->diaMargin, 5);
 
 			$code = '';
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->pObj->res)) {
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->pObj->selection->res)) {
 				$onClick = $this->pObj->doc->wrapClickMenuOnIcon('', 'tx_dam', $row['uid'], $listFr=1,$addParams='',$enDisItems='', $returnOnClick=TRUE);
-				$code.= $this->pObj->getDia($row, $this->diaSize, $this->diaMargin, $showElements, $onClick);
+				$code.= tx_dam_guiFunc::getDia($row, $this->diaSize, $this->diaMargin, $showElements, $onClick);
 			}
 
 			$content.= $this->pObj->doc->spacer(5);

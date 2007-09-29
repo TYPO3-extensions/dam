@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,26 +25,27 @@
  * Show available index services.
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-BeLib
+ * @subpackage GUI
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   61: class tx_dam_svlist 
- *   87:     function tx_dam_svlist()	
- *  106:     function serviceTypeList_loaded()	
- *  164:     function serviceListRowHeader($type, $bgColor,$cells,$import=0)	
- *  190:     function serviceListRow($type,$eKey,$eConf,$info,$cells,$bgColor="",$inst_list=array(),$import=0,$altLinkUrl='')	
- *  246:     function wrapEmail($str,$email)	
- *  261:     function getExtPath($extKey,$conf)	
- *  277:     function includeEMCONF($path,$_EXTKEY)	
+ *   62: class tx_dam_svlist
+ *   88:     function tx_dam_svlist()
+ *  107:     function serviceTypeList_loaded()
+ *  165:     function serviceListRowHeader($type, $bgColor,$cells,$import=0)
+ *  191:     function serviceListRow($type,$eKey,$eConf,$info,$cells,$bgColor="",$inst_list=array(),$import=0,$altLinkUrl='')
+ *  244:     function showSearchPaths()
+ *  272:     function wrapEmail($str,$email)
+ *  287:     function getExtPath($extKey,$conf)
+ *  303:     function includeEMCONF($path,$_EXTKEY)
  *
- * TOTAL FUNCTIONS: 7
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 8
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -53,44 +54,44 @@
 /**
  * Show available index services.
  * This includes some code from the EM
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-BeLib
+ * @subpackage GUI
  */
 class tx_dam_svlist {
 
 	var $pObj;
 
-	var $typePaths = Array();
-	var $typeBackPaths = Array();
+	var $typePaths = array();
+	var $typeBackPaths = array();
 
-	var $typeRelPaths = Array (
+	var $typeRelPaths = array(
 		'S' => 'sysext/',
 		'G' => 'ext/',
 		'L' => '../typo3conf/ext/',
 	);
 
-	var $svDef = array (
-		'metaExtract' => array (
+	var $svDef = array(
+		'metaExtract' => array(
 			'desc' => 'Read meta data from files.',
 			),
-		'textExtract' => array (
+		'textExtract' => array(
 			'desc' => 'Extract pure text out of files like doc, pdf, rtf, ...',
 			),
-		'textLang' => array (
+		'textLang' => array(
 			'desc' => 'Detects languages by example text.',
 			),
 	);
 
 
 	function tx_dam_svlist()	{
-		$this->typePaths = Array (
-			'S' => TYPO3_mainDir."sysext/",
-			'G' => TYPO3_mainDir."ext/",
+		$this->typePaths = array(
+			'S' => TYPO3_mainDir.'sysext/',
+			'G' => TYPO3_mainDir.'ext/',
 			'L' => 'typo3conf/ext/'
 		);
-		$this->typeBackPaths = Array (
+		$this->typeBackPaths = array(
 			'S' => '../../../',
 			'G' => '../../../',
 			'L' => '../../../../'.TYPO3_mainDir
@@ -100,8 +101,8 @@ class tx_dam_svlist {
 
 	/**
 	 * Listing of loaded (installed) services types
-	 * 
-	 * @return	[type]		...
+	 *
+	 * @return	string HTML content
 	 */
 	function serviceTypeList_loaded()	{
 		global $T3_SERVICES, $TYPO3_LOADED_EXT;
@@ -115,7 +116,7 @@ class tx_dam_svlist {
 			foreach($this->svDef as $serviceType => $def)	{
 
 				$lines[]='<tr><td colspan='.(6).'><br /></td></tr>';
-				$lines[]=$this->serviceListRowHeader($modType,' bgColor="'.$this->pObj->doc->bgColor5.'"','');
+				$lines[]=$this->serviceListRowHeader($modType, $this->pObj->doc->bgColor5,'');
 
 				if(is_array($T3_SERVICES[$serviceType])) {
 						// just get one to display service type
@@ -139,7 +140,7 @@ class tx_dam_svlist {
 					}
 				} else {
 					$info['sv']['serviceType'] = $serviceType;
-					$lines[]=$this->serviceListRow($modType,$dummy,$dummy,$info,'');
+					$lines[]=$this->serviceListRow($modType,$dummy='',$dummy='',$info,'');
 					$lines[]='<tr bgColor="'.$this->pObj->doc->bgColor4.'"><td>&nbsp;</td><td colspan='.(5).'>No service of this type available.</td></tr>';
 				}
 			}
@@ -154,12 +155,12 @@ class tx_dam_svlist {
 
 	/**
 	 * Prints the header row for the various listings
-	 * 
-	 * @param	[type]		$type: ...
-	 * @param	[type]		$bgColor: ...
-	 * @param	[type]		$cells: ...
-	 * @param	[type]		$import: ...
-	 * @return	[type]		...
+	 *
+	 * @param	string		$type: ... unused
+	 * @param	string		$bgColor: ...
+	 * @param	array		$cells: ...
+	 * @param	boolean		$import: ... unused
+	 * @return	string HTML content
 	 */
 	function serviceListRowHeader($type, $bgColor,$cells,$import=0)	{
 
@@ -170,29 +171,28 @@ class tx_dam_svlist {
 		$cells[]='<td><strong>External:</strong></td>';
 		$cells[]='<td><strong>Avail.:</strong></td>';
 
-		return '<tr'.$bgColor.'>'.implode('',$cells).'</tr>';
+		return '<tr bgColor="'.$bgColor.'">'.implode('',$cells).'</tr>';
 	}
 
 	/**
 	 * Prints a row with data for the various service listings
-	 * 
-	 * @param	[type]		$type: ...
-	 * @param	[type]		$eKey: ...
-	 * @param	[type]		$eConf: ...
-	 * @param	[type]		$info: ...
-	 * @param	[type]		$cells: ...
-	 * @param	[type]		$bgColor: ...
-	 * @param	[type]		$inst_list: ...
-	 * @param	[type]		$import: ...
-	 * @param	[type]		$altLinkUrl: ...
-	 * @return	[type]		...
+	 *
+	 * @param	string		$type: ...
+	 * @param	string		$eKey: ...
+	 * @param	string		$eConf: ... unused
+	 * @param	array		$info: ...
+	 * @param	array		$cells: ...
+	 * @param	string		$bgColor: ...
+	 * @param	array		$inst_list: ...
+	 * @param	boolean		$import: ...
+	 * @param	string		$altLinkUrl: ...
+	 * @return	string HTML content
 	 */
 	function serviceListRow($type,$eKey,$eConf,$info,$cells,$bgColor="",$inst_list=array(),$import=0,$altLinkUrl='')	{
 
 		$svKey = $info['sv']['serviceKey'];
 
 		$imgInfo = @getImageSize($this->getExtPath($eKey,$info).'/ext_icon.gif');
-		# $style = t3lib_extMgm::isLoaded($eKey) ? '' : ' style="color:#666666;"';
 
 		if (is_array($imgInfo))	{
 			$extIcon='<td valign="top"><img src="'.$GLOBALS['BACK_PATH'].$this->typeRelPaths[$info['type']].$eKey.'/ext_icon.gif'.'" '.$imgInfo[3].'></td>';
@@ -233,10 +233,14 @@ class tx_dam_svlist {
 
 
 		$bgColor = ' bgColor="'.($bgColor?$bgColor:$this->pObj->doc->bgColor4).'"';
-		return '<tr'.$bgColor.$style.'>'.implode('',$cells).'</tr>';
+		return '<tr'.$bgColor.'>'.implode('',$cells).'</tr>';
 	}
 
-
+	/**
+	 * Display paths where binaries are searched for
+	 *
+	 * @return	string HTML content
+	 */
 	function showSearchPaths() {
 
 		if(is_callable(array('t3lib_exec','getPaths'))) { // v 3.8
@@ -259,11 +263,11 @@ class tx_dam_svlist {
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$str: ...
-	 * @param	[type]		$email: ...
-	 * @return	[type]		...
+	 * Wraps an email into an A tag
+	 *
+	 * @param	string		$str Label to be wrapped
+	 * @param	string		$email Email address
+	 * @return	string HTML content
 	 */
 	function wrapEmail($str,$email)	{
 		if ($email)	{
@@ -275,10 +279,10 @@ class tx_dam_svlist {
 
 	/**
 	 * Returns the path of an available extension based on "type" (SGL)
-	 * 
-	 * @param	[type]		$extKey: ...
-	 * @param	[type]		$conf: ...
-	 * @return	[type]		...
+	 *
+	 * @param	string		$extKey: ...
+	 * @param	array		$conf: ...
+	 * @return	boolean
 	 */
 	function getExtPath($extKey,$conf)	{
 		$typeP = $this->typePaths[$conf['type']];
@@ -291,12 +295,13 @@ class tx_dam_svlist {
 
 	/**
 	 * Returns the $EM_CONF array from an extensions ext_emconf.php file
-	 * 
-	 * @param	[type]		$path: ...
-	 * @param	[type]		$_EXTKEY: ...
-	 * @return	[type]		...
+	 *
+	 * @param	string		$path: ...
+	 * @param	string		$_EXTKEY: ...
+	 * @return	array		$EM_CONF array
 	 */
 	function includeEMCONF($path,$_EXTKEY)	{
+		$EM_CONF = array();
 		include($path);
 		return $EM_CONF[$_EXTKEY];
 	}
