@@ -1,3 +1,7 @@
+2007-09-29  Michael Stucki  <michael@typo3.org>
+
+	* Takeover by the DAM development team
+
 07-03-26 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: typo in tx_dam_browse_media: t3lib_div::trimeExplode()
