@@ -118,20 +118,7 @@ class tx_dam_db {
 
 		$select_fields = $select_fields ? $select_fields : tx_dam_db::getMetaInfoFieldList();
 
-		$whereClauses = is_array($whereClauses) ? $whereClauses : array('where' => (preg_replace('^AND ', trim($whereClauses))));
-
-		$where = array();
-		if (!isset($whereClauses['deleted']) AND !isset($whereClauses['enableFields'])) {
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam');
-		}
-		if (!isset($whereClauses['pidList'])) {
-			$where['pidList'] = 'tx_dam.pid IN ('.tx_dam_db::getPidList().')';
-		}
-		$where = array_merge($where, $whereClauses);
-
-		while ($key = array_search('', $where)) {
-			unset ($where[$key]);
-		}
+		$where = tx_dam_db::fillWhereClauseArray($whereClauses);
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 												$select_fields,
@@ -157,7 +144,30 @@ class tx_dam_db {
 	}
 
 
+	/**
+	 * Fille a where clase array with default values
+	 *
+	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields' or 'pidList') or a single one as string.
+	 * @return	array		WHERE clauses as array
+	 */
+	 function fillWhereClauseArray($whereClauses=array()) {
+		$whereClauses = is_array($whereClauses) ? $whereClauses : array('where' => (preg_replace('^AND ', trim($whereClauses))));
 
+		$where = array();
+		if (!isset($whereClauses['deleted']) AND !isset($whereClauses['enableFields'])) {
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam');
+		}
+		if (!isset($whereClauses['pidList'])) {
+			$where['pidList'] = 'tx_dam.pid IN ('.tx_dam_db::getPidList().')';
+		}
+		$where = array_merge($where, $whereClauses);
+
+		while ($key = array_search('', $where)) {
+			unset ($where[$key]);
+		}
+
+		return $where;
+	 }
 
 
 	/***************************************
@@ -228,6 +238,9 @@ class tx_dam_db {
 
 			if ($id = $tce->substNEWwithIDs[$id]) {
 
+					// set uid again - needed for hook
+				$meta['uid'] = $id;
+
 					// hook
 				if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses']))	{
 					foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses'] as $classKey => $classRef)	{
@@ -245,6 +258,8 @@ class tx_dam_db {
 			}
 
 		} else {
+				// set uid again - needed for hook
+			$meta['uid'] = $id;
 
 					// hook
 			if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['dbTriggerClasses']))	{
@@ -555,7 +570,10 @@ class tx_dam_db {
 
 		$where = array();
 		if (!isset($whereClauses['deleted']) AND !isset($whereClauses['enableFields'])) {
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam');
+			$where['enableFields'] = tx_dam_db::enableFields($local_table);
+			if ($foreign_table) {
+				$where['enableFields'] .= ' AND '.tx_dam_db::enableFields($foreign_table);
+			}
 		}
 		$where = array_merge($where, $whereClauses);
 
@@ -674,33 +692,55 @@ class tx_dam_db {
 	 * Returns an array of meta data for a list of files from the uploads folder.
 	 * This can be used to get meta data for "uploads" files.
 	 *
-	 * @param mixed $fileList Comma list or array of files
-	 * @param string $uploadsPath Uploads path. If empty each file have to have a path prepended.
-	 * @return void
+	 * IMPORTANT
+	 * The meta data does NOT include data of the uploads file itself but a matching file which is placed in fileadmin/!
+	 *
+	 * @param 	mixed 		$fileList Comma list or array of files
+	 * @param 	string 		$uploadsPath Uploads path. If empty each file have to have a path prepended.
+	 * @param	string		$fields The fields to select. Needs to be prepended with table name: tx_dam.uid, tx_dam.title
+	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields') or a single one as string.
+	 * @return array
 	 */
-	function getMetaForUploads ($fileList, $uploadsPath='') {
+	function getMetaForUploads ($fileList, $uploadsPath='', $fields='', $whereClauses=array()) {
+
+		$select_fields = $fields ? $fields : 'tx_dam.*';
+		if (!isset($whereClauses['file_hash'])) {
+			$whereClauses['file_hash'] = 'tx_dam_file_tracking.file_hash=tx_dam.file_hash';
+		}
+
+		$uploadsPath = tx_dam::path_makeClean($uploadsPath);
 		$fileList = is_array($fileList) ? $fileList : explode(',', $fileList);
 
 		$files = array();
 		foreach ($fileList as $filepath) {
 
+			$filepath = $uploadsPath.$filepath;
 			$fileInfo = tx_dam::file_compileInfo($uploadsPath.$filepath);
 
 			if ($fileInfo['__exists']) {
-				$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-								'tx_dam.*',
-								'tx_dam_file_tracking,tx_dam',
-								'tx_dam_file_tracking.file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'], 'tx_dam_file_tracking').
-								' AND tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'], 'tx_dam_file_tracking').
-									' AND tx_dam_file_tracking.file_hash=tx_dam.file_hash'.
-									' AND '.tx_dam_db::deleteClause('tx_dam'),
-								'',
-								'',
-								1
-							);
-				$files[$filepath] = current($row);
+
+					// a file might be twice in fileadmin/
+					// this will just use the first found entry
+					// I can'T see how to detect which file (they are the same) has the right meta data for the uploads file
+
+				$whereClauses['file_name'] = 'tx_dam_file_tracking.file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'],'tx_dam_file_tracking');
+				$whereClauses['file_path'] = 'tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'],'tx_dam_file_tracking');
+
+				$where = tx_dam_db::fillWhereClauseArray($whereClauses);
+
+				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+														$select_fields,
+														'tx_dam, tx_dam_file_tracking',
+														implode(' AND ', $where),
+														'',
+														'',
+														'1'
+													);
+				reset ($rows);
+				$files[$filepath] = current($rows);
 			}
 		}
+
 		return $files;
 	}
 
@@ -745,14 +785,14 @@ class tx_dam_db {
 	 *		'uid_foreign' => $row['uid'],
 	 *	);
 	 *
-	 * @param 	string 		$uidList Uid list of txam records the references shall be fetched for
+	 * @param 	string 		$uidList Uid list of tx_dam records the references shall be fetched for
 	 * @param 	array 		$tableConf Unused/reserved
-	 * @param 	string 		$uploadsFolder
+	 * @param 	string 		$uploadsPath
 	 * @param	string		$orderBy: ...
 	 * @param	string		$limit: Default: 1000
 	 * @return array
 	 */
-	function getMediaUsageUploads($uidList, $tableConf='', $uploadsFolder='uploads/pics/', $orderBy='', $limit=1000) {
+	function getMediaUsageUploads($uidList, $tableConf='', $uploadsPath='uploads/pics/', $orderBy='', $limit=1000) {
 
 		$fields = $fields ? $fields : 'tx_dam_file_tracking.*';
 
@@ -763,8 +803,8 @@ class tx_dam_db {
 		$where = array();
 		$where[] = 'tx_dam.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($uidList).')';
 		$where[] = 'tx_dam_file_tracking.file_hash=tx_dam.file_hash';
-		if($uploadsFolder) {
-			$where[] = 'tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($uploadsFolder,'tx_dam_file_tracking');
+		if($uploadsPath) {
+			$where[] = 'tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($uploadsPath,'tx_dam_file_tracking');
 		}
 		$where = implode(' AND ', $where);
 		$rowsUploads = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
@@ -862,6 +902,15 @@ class tx_dam_db {
 	 */
 	function getPid () {
 		global $TYPO3_CONF_VARS;
+
+// TODO
+
+//use TS:
+//
+//  plugin.tx_dam.defaults {
+//  // The pid of the media folder. Needs to be set when multiple media folders exist
+//  pid =
+
 
 		static $pid = 0;
 

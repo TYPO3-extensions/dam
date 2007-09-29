@@ -292,7 +292,7 @@ class tx_dam_selectionQuery {
 	 */
 	function addFilemountsToQuerygen() {
 			// init filemounts
-		if(is_object($GLOBALS['BE_USER']) AND !$GLOBALS['BE_USER']->user['admin']) {
+		if(is_object($GLOBALS['BE_USER']) AND !$GLOBALS['BE_USER']->isAdmin()) {
 			if (count($GLOBALS['FILEMOUNTS'])){
 				$whereArr = array();
 				foreach($GLOBALS['FILEMOUNTS'] as $mount){

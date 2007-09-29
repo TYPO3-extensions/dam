@@ -316,14 +316,13 @@ $TCA['tx_dam'] = array(
 		'default_sortby' => 'ORDER BY title',
 		'delete' => 'deleted',
 
-		'versioning' => false,
-#		'versioning_followPages' => TRUE,
+		'versioningWS' => true,
 
-		'useColumnsForDefaultValues' => '',
 		'transOrigPointerField' => 'l18n_parent',
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		'languageField' => 'sys_language_uid',
 
+		'useColumnsForDefaultValues' => '',
 
 		'enablecolumns' => array(
 			'disabled' => 'hidden',
@@ -359,6 +358,7 @@ $TCA['tx_dam'] = array(
 	'txdamInterface' => array(
 		'index_fieldList' => 'title,keywords,description,caption,alt_text,file_orig_location,file_orig_loc_desc,ident,creator,publisher,copyright,instructions,date_cr,date_mod,loc_desc,loc_country,loc_city,language,category',
 		'info_fieldList_add' => '',
+// TODO ?
 		'xinfo_displayFields_exclude' => 'category',
 		'info_displayFields_isNonEditable' => 'media_type,thumb,file_usage',
 	),
@@ -379,6 +379,13 @@ $TCA['tx_dam_cat'] = array(
 		'default_sortby' => 'ORDER BY sorting,title',
 		'delete' => 'deleted',
 		'treeParentField' => 'parent_id',
+
+		'versioningWS' => true,
+
+		'transOrigPointerField' => 'l18n_parent',
+		'transOrigDiffSourceField' => 'l18n_diffsource',
+		'languageField' => 'sys_language_uid',
+
 		'enablecolumns' => array(
 			'disabled' => 'hidden',
 			'fe_group' => 'fe_group',

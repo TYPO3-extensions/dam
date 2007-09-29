@@ -1297,10 +1297,10 @@ return;
 		if ($this->clipObj->current=='normal')	{
 			$isSel = $this->clipObj->isSelected('_FILE', $md5);
 			$cells[]='<a href="'.htmlspecialchars($this->clipObj->selUrlFile($fullIdent,1,($isSel=='copy'))).'">'.
-						'<img'.t3lib_iconWorks::skinImg('', 'gfx/clip_copy'.($isSel=='copy'?'_h':'').'.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.copy',1).'" alt="" />'.
+						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_copy'.($isSel=='copy'?'_h':'').'.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.copy',1).'" alt="" />'.
 						'</a>';
 			$cells[]='<a href="'.htmlspecialchars($this->clipObj->selUrlFile($fullIdent,0,($isSel=='cut'))).'">'.
-						'<img'.t3lib_iconWorks::skinImg('', 'gfx/clip_cut'.($isSel=='cut'?'_h':'').'.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.cut',1).'" alt="" />'.
+						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_cut'.($isSel=='cut'?'_h':'').'.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.cut',1).'" alt="" />'.
 						'</a>';
 		} else {	// For numeric pads, add select checkboxes:
 			$n='_FILE|'.$md5;
@@ -1315,7 +1315,7 @@ return;
 		$elFromTable = $this->clipObj->elFromTable('_FILE');
 		if (@is_dir($fullIdent) AND count($elFromTable))	{
 			$cells[]='<a href="'.htmlspecialchars($this->clipObj->pasteUrl('_FILE', $fullIdent)).'" onclick="return '.htmlspecialchars($this->clipObj->confirmMsg('_FILE', $fullIdent, 'into', $elFromTable)).'">'.
-						'<img'.t3lib_iconWorks::skinImg('', 'gfx/clip_pasteinto.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_pasteInto',1).'" alt="" />'.
+						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_pasteinto.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_pasteInto',1).'" alt="" />'.
 						'</a>';
 		}
 
@@ -1339,14 +1339,14 @@ return;
 				$elFromTable = $this->clipObj->elFromTable($table);
 				if (count($elFromTable))	{
 					$cells[]='<a href="'.htmlspecialchars($this->clipObj->pasteUrl('_FILE', $this->path)).'" onclick="return '.htmlspecialchars($this->clipObj->confirmMsg('_FILE', $this->path, 'into', $elFromTable)).'">'.
-						'<img'.t3lib_iconWorks::skinImg('', 'gfx/clip_pasteafter.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_paste',1).'" alt="" /></a>';
+						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_pasteafter.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_paste',1).'" alt="" /></a>';
 				}
 				if ($this->clipObj->current!='normal' AND $this->pointer->countTotal)	{
-					$cells[] = $this->clipboard_linkHeaderIcon('<img'.t3lib_iconWorks::skinImg('', 'gfx/clip_copy.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_selectMarked',1).'" alt="" />', $table, 'setCB');
-					$cells[] = $this->clipboard_linkHeaderIcon('<img'.t3lib_iconWorks::skinImg('', 'gfx/garbage.gif', 'width="11" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_deleteMarked',1).'" alt="" />', $table, 'delete', $GLOBALS['LANG']->getLL('clip_deleteMarkedWarning'));
+					$cells[] = $this->clipboard_linkHeaderIcon('<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_copy.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_selectMarked',1).'" alt="" />', $table, 'setCB');
+					$cells[] = $this->clipboard_linkHeaderIcon('<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/garbage.gif', 'width="11" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_deleteMarked',1).'" alt="" />', $table, 'delete', $GLOBALS['LANG']->getLL('clip_deleteMarkedWarning'));
 					$onClick = 'checkOffCB(\''.implode(',', $this->CBnames).'\'); return false;';
 					$cells[]='<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-							'<img'.t3lib_iconWorks::skinImg('', 'gfx/clip_select.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_markRecords',1).'" alt="" />'.
+							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_select.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_markRecords',1).'" alt="" />'.
 							'</a>';
 				}
 

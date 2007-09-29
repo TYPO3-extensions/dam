@@ -1,6 +1,79 @@
+06-09-01 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: tx_dam_indexing. Locking should prevent double indexing from two concurrent processes
+	* Added: [Devel] tab in TCA when devel option is activated. Shows some extra fields.
+	* Change: removed compatibility XCLASSes for pre 4.0 versions
+	* Fix: tx_dam_batchprocess. Old stored data was used in batch processing when field was set empty
+	* Fix: tx_dam_list_list. Deleted translated records will not be displayed
+	* Fix #3636: tx_dam_tce_process. test intval($id) in processDatamap_postProcessFieldArray to work not with id='NEW'
+	* Fix #3438: tx_dam_db. Deleted records are displayed in "usage" tab of dam records
+	* Fix #3778: missing $this in function process() in file upload_status.php
+	* Fix #3453:  increased TCA file_path max value to 2553371
+	* Fix #3371, 3371: added missing backpath in class.tx_dam_browse_media.php, class.tx_dam_selectionFolder.php, ...
+	* Fix #3940:  category not assignable if title contains ' character -  added t3lib_div::slashJS() in tx_dam_tcefunc and tx_dam_selprocbase
+	* Fix: tx_dam::process_replaceFile(). reindexing works now
+
+06-08-31 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: updateMetaTrigger($meta) and insertMetaTrigger($meta) get uid now in meta record
+	* Added: tx_dam::_callProcessPostTrigger() and calls in all tx_dam::process_* functions to call a hook for post processing. See also tx_dam::register_fileTrigger()
+	* Added: hook in tx_dam_actioncall. see checkItemValid()
+	* Added: multi language support for categories (but not in tx_dam_selectionCategory)
+
+06-08-28 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: cleaned up tx_dam_db::getMetaForUploads()
+	* Added: tx_dam_db::fillWhereClauseArray()
+	* Added: tx_dam::meta_findDataForUploadsFile()
+	* Added: tx_dam::media_getForUploadsFile()
+
+06-08-23 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: workspaces fields and TCA stuff
+
+06-08-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: Element browser improvements. Small bug fixes. Possiblity to use current or stored selection.
+	* Change: made tx_dam_selectionCategory use for FE enableFields
+
+06-08-07 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added category element browser
+	* Added treelib/class.tx_dam_treelib_elementbrowser.php base class for  a element browser for trees.
+	* Added treelib/class.tx_dam_treelib_ebtreeview.php base class  for element browser trees
+
+06-08-01 and before Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: improved and fixed a lot of things in lib/tx_dam_*. Too much to list here. Often FE stuff is implemented.
+	* Change: tx_dam_browseTrees. Allow to set $this->selectionClasses array
+	* Change: improvements and fixes in tx_dam_db
+	* Change: improvements and fixes in tx_dam_filebrowser
+	* Change: tx_dam_guiFunc. Made usable for FE (not all). Added thumb functions and others. HTML attribute parameter can be arrays. ...
+	* Change: tx_dam_indexing. Added dataAppend processing.
+	* Change: tx_dam_listbase, tx_dam_list*. Added multiActions and enableBrowsing.Use guiFunc thumb functions. Misc small stuff.
+	* Change: tx_dam_querygen. Improved MM stuff in addMMJoin().  Added hasWhere(). Small fixes.
+	* Change: tx_dam_scbase. Added getMessageBox(). Removed 'DESELECT_ID' stuff.
+	* Change: tx_dam_selection. Decoupled from $GLOBALS['SOBE'], Removed 'DESELECT_ID'] stuff.
+	* Change: tx_dam_selectionQuery. Added $maxPages. Prepared for FE.
+	* Change: tx_dam_selStorage. Prepared for FE
+	* Change: tx_dam_tce_file. Added func_newfile() and func_edit(). Added tx_dam::notify_* calls
+	* Change: tx_dam_tceFunc. Added getSingleField_typeFolder(). dbFileIcons(): user defined mode can be set to be passed as param to the EB
+	* Change: tx_dam. Several improvements and fixes.
+	* Added: misc functions in tx_dam
+	* Added: tx_dam:: access_*()
+	* Added: tx_dam:: process_*()
+	* Added: tx_dam_tsfe:: initLangObject()
+ 	* Added: tx_dam_tcaFunc: Provide misc TCA functions for usage in own extension.
+
+
 06-07-19 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: added rawurlencode where needed
+	* Added: tx_dam_media. Works now. Needs still some work
+	* Change: rewrite/cleanup of command modules (mod_cmd/*)
+	* Added: new text file action. tx_dam::register_action ('tx_dam_action_newTextfile',...
+	* Added: new text file command module: tx_dam_cmd_filenew
+	* Added tx_dam::register_mediaTable(): Register a table that is related to a media folder and should be stored there.
 
 06-07-18 Rene Fritz  <r.fritz@colorcube.de>
 
@@ -9,9 +82,30 @@
 	* Change: set default hidden=0 for tx_dam_cat
 	* Change: removed 'required' for file_type field, so saving for unknown file types is possible
 
+06-06-06 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added folder element browser
+	* Added: register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
+	* Added constant PATH_txdam_siteRel
+	* Added default fields to tt_content: tx_dam_images, tx_dam_files, tx_dam_flexform
+	* Added default field tx_dam_flexform and txdam_addCTypeFlexFormValue() to have a default flexform field usable for CTypes (instead of plugins which have their own)
+	* Added: module tx_dam_tools_indexsetup. Moved from dam_cron extension with small changes. Needs to be improved
+	* Change: several small chages to components/tx_dam_actions_*
+	* Added selection_getItemIcon() to selection classes
+
 06-05-23 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: DBAL related fixes in tx_dam_db, tx_dam_sysfolder, tx_dam_querygen and dam_catedit
+	* Added: 'lost_records' and 'statistics' function to modfunc tx_dam_tools_indexupdate
+
+06-05-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: Moved 'remove from selection' function into own selection class: tx_dam::register_selection ('txdamRecords',  ...
+	* Added: plugin.tx_dam.defaults TS setup for FE usage - no real usage for now
+
+06-05-11 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: make use of the rewritten mmforeign extension. Added TCA field config option 'userFunc_checkValue' in tca_media_field.php
 
 06-05-6 Rene Fritz  <r.fritz@colorcube.de>
 

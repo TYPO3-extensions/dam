@@ -104,8 +104,8 @@ class tx_dam_tce_process {
 	 * status TXDAM_status_file_changed will be reset when record was edited
 	 */
 	function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $tce) {
-		if($table == 'tx_dam') {
-			if ($rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_dam', 'uid='.$id, '', '', 1, 'uid')) {
+		if($table == 'tx_dam' AND intval($id)) {
+			if ($rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_dam', 'uid='.intval($id), '', '', 1, 'uid')) {
 				$row = $rows[$id];
 				if ($row['file_status']==TXDAM_status_file_changed) {
 					$fieldArray['file_status'] = TXDAM_status_file_ok;

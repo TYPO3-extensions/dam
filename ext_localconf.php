@@ -104,16 +104,6 @@ tx_dam::register_fileIconPath(PATH_txdam.'i/18/');
 require_once(PATH_txdam.'tca_media_field.php');
 
 
-if(t3lib_div::int_from_ver(TYPO3_version) < t3lib_div::int_from_ver('4.0')) {
-	if (!defined('TYPO3_OS')) define('TYPO3_OS', stristr(PHP_OS,'win')&&!stristr(PHP_OS,'darwin')?'WIN':'');
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/class.alt_menu_functions.inc'] = PATH_txdam.'compat/class.ux_alt_menu_functions.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/template.php'] = PATH_txdam.'compat/class.ux_template.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/show_item.php'] = PATH_txdam.'compat/class.ux_SC_show_item.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/browse_links.php'] = PATH_txdam.'compat/class.ux_SC_browse_links.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/alt_doc.php'] = PATH_txdam.'compat/class.ux_SC_alt_doc.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_tceforms.php'] = PATH_txdam.'compat/class.ux_t3lib_tceforms.php';
-}
-
 
 	// register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
 $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_extfilefunc.php'] = PATH_txdam.'lib/class.tx_dam_tce_file.php';

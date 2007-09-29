@@ -311,8 +311,12 @@ class tx_dam_indexing {
 	 * @param	integer		page id
 	 * @return	void
 	 */
-	function setPID($pid)	{
-		$this->pid = $pid;
+	function setPID($pid=0)	{
+		if ($pid==0 AND !$this->pid) {
+			$this->pid = tx_dam_db::getPid();
+		} elseif ($pid) {
+			$this->pid = $pid;
+		}
 	}
 
 
@@ -394,7 +398,8 @@ class tx_dam_indexing {
 		$setup = is_array($setup) ? $setup : t3lib_div::xml2array($setup);
 
 			// do a simple check if the setup is a valid one
-		if(is_array($setup) AND isset($setup['pid']) AND is_array($setup['pathlist'])) {
+#		if(is_array($setup) AND isset($setup['pid']) AND is_array($setup['pathlist'])) {
+		if(is_array($setup)) {
 			$isValid = true;
 
 			$this->pid = $setup['pid'];
@@ -410,6 +415,12 @@ class tx_dam_indexing {
 			$this->collectMeta = $setup['collectMeta'];
 
 			$this->extraSetup = $setup['extraSetup'];
+
+			if (!is_array($this->ruleConf)) $this->ruleConf = array();
+			if (!is_array($this->dataPreset)) $this->dataPreset = array();
+			if (!is_array($this->dataPostset)) $this->dataPostset = array();
+			if (!is_array($this->dataAppend)) $this->dataAppend = array();
+
 		}
 		return $isValid;
 	}
@@ -579,28 +590,39 @@ class tx_dam_indexing {
 	}
 
 
+
+
+
 	/**
 	 * Indexing a single file.
 	 * Use indexUsingCurrentSetup() or indexFiles() instead.
 	 *
-	 * @param	string		$pathname: ...
+	 * @param	string		$pathname: file path
 	 * @param	integer		$crdate: timestamp of the index run
 	 * @param	integer		$pid: The sysfolder to store the meta data record
 	 * @param	mixed		$metaCallbackFunc Will be called to process the meta data
 	 * @param	mixed		$filePreprocessingCallbackFunc Will be called to allow preprocessing of the file before indexing
-	 * @param	array		$metaPreset: ...
+	 * @param	array		$metaPreset: Meta data preset. $meta['fields'] has the record data.
 	 * @return	array		Meta data array. $meta['fields'] has the record data.
 	 */
 	function indexFile($pathname, $crdate=0, $pid=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL, $metaPreset=array())	{
 		global $BE_USER;
+
+
+			// locks the indexing for the current file
+			// If the file is currently indexed this waits till the other process is finished.
+			// This means the indexing goes then
+		$lockId = $this->lock($pathname);
+
 
 		$pid = is_null($pid) ? $this->pid : $pid;
 
 		if ($filePreprocessingCallbackFunc) {
 			call_user_func ($filePreprocessingCallbackFunc, 'filePreprocessing', $pathname, $this);
 		}
+
 // might be possible to have $pathname call by reference and change the filename - usable for copying files before indexing??? Needs to be tested.
-// Answer: Note:  Note that the parameters for call_user_func() are not passed by reference.
+// Answer: Note that the parameters for call_user_func() are not passed by reference.
 
 		if (is_array($meta = $this->getFileNodeInfo($pathname, true))) {
 
@@ -738,6 +760,8 @@ class tx_dam_indexing {
 
 				$this->statMeta($meta);
 
+				$this->unlock($lockId);
+
 				return $meta;
 
 
@@ -745,6 +769,8 @@ class tx_dam_indexing {
 				$meta['fields'] = $meta['row'];
 
 				$this->statMeta($meta);
+
+				$this->unlock($lockId);
 
 				return $meta;
 			}
@@ -757,6 +783,9 @@ class tx_dam_indexing {
 				$this->log ('Is not readable: '.$pathname, 1, 1);
 			}
 		}
+
+		$this->unlock($lockId);
+
 		return FALSE;
 	}
 
@@ -1107,7 +1136,7 @@ class tx_dam_indexing {
 		}
 
 		if ($mimeType['file_type'] == '') {
-			$mimeType['file_type'] = array_search($mimeType['fulltype'],$TX_DAM['file2mime'],true);
+			$mimeType['file_type'] = array_search($mimeType['fulltype'], $TX_DAM['file2mime'], true);
 		}
 
 		unset($mimeType['fulltype']);
@@ -1312,7 +1341,7 @@ class tx_dam_indexing {
 
 			$pathname = tx_dam::file_absolutePath($path);
 
-			if(is_file($pathname))	{
+			if(@is_file($pathname))	{
 				$filearray[md5($pathname)] = $pathname;
 			} else {
 				$filearray = $this->getFilesInDir($path, $recursive, $filearray);
@@ -1496,6 +1525,56 @@ class tx_dam_indexing {
 	 */
 	function statClear() {
 		$this->stat = array();
+	}
+
+
+
+
+
+
+	/************************************
+	 *
+	 * Locking
+	 *
+	 ************************************/
+
+
+	/**
+	 * obtain exclusive lock
+	 *
+	 * @param string file path
+	 * @return mixed Semaphore id
+	 */
+	function lock ($filename) {
+		$sem_id = 0;
+
+			// just no locking if the needed functions are not available
+		if( !function_exists('ftok') ) return $sem_id;
+
+			// get semaphore key
+		if ($sem_key = ftok($filename, 'I')) {
+
+				// get semaphore identifier
+			$sem_id = sem_get($sem_key, 1, 0666, 1);
+				// acquire semaphore lock
+			sem_acquire($sem_id);
+		}
+			// return sem_id
+		return $sem_id;
+	}
+
+
+	/**
+	 * release lock
+	 *
+	 * @param mixed Semaphore id
+	 * @return void
+	 */
+	function unlock($sem_id) {
+			// release semaphore lock
+		if ($sem_id) {
+			sem_release($sem_id);
+		}
 	}
 
 

@@ -509,7 +509,7 @@ class tx_dam_browse_media extends browse_links {
 					// Thumbnail/size generation:
 				$clickThumb = '';
 				if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fI['file_type']) AND $displayThumbs AND is_file($fI['file_name_absolute']))	{
-					$clickThumb = t3lib_BEfunc::getThumbNail('thumbs.php', $fI['file_path_absolute'].$fI['file_name'], '');
+					$clickThumb = t3lib_BEfunc::getThumbNail($GLOBALS['BACK_PATH'].'thumbs.php', $fI['file_path_absolute'].$fI['file_name'], '');
 					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$ATag_insert.$clickThumb.'</a>'.'</div>';
 				} elseif ($displayThumbs) {
 					$clickThumb = '<div style="width:68px"></div>';

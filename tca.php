@@ -29,7 +29,10 @@ $TCA['tx_dam'] = array(
 				'default' => '0'
 			)
 		),
-// TODO remove active field?
+
+
+
+// TODO remove active field? Has no function yet.
 //		'active' => array(
 //			'exclude' => '1',
 //			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
@@ -126,7 +129,8 @@ $TCA['tx_dam'] = array(
 		),
 		'l18n_diffsource' => array(
 			'config'=>array(
-				'type'=>'passthrough')
+				'type' => 'passthrough'
+			)
 		),
 
 
@@ -215,7 +219,7 @@ $TCA['tx_dam'] = array(
 				'type' => 'input',
 				'readOnly' => true,
 				'size' => '25',
-				'max' => '100',
+				'max' => '255',
 				'eval' => 'required',
 			)
 		),
@@ -797,6 +801,53 @@ $TCA['tx_dam'] = array(
 		),
 
 
+
+		/*
+		 * displayed in devel mode only
+		 */
+
+
+		'deleted' => array(
+			'exclude' => '1',
+			'label' => 'Deleted',
+			'config' => array(
+				'type' => 'check',
+				'default' => '0'
+			)
+	),
+		'index_type' => array(
+			'label' => 'Index type:',
+			'config' => array(
+				'type' => 'input',
+				'size' => '4',
+				'max' => '4',
+			)
+		),
+		'file_inode' => array(
+			'label' => 'File inode:',
+			'config' => array(
+				'type' => 'input',
+				'size' => '5',
+				'eval' => 'int',
+			)
+		),
+		'file_hash' => array(
+			'label' => 'File hash:',
+			'config' => array(
+				'type' => 'input',
+				'size' => '32',
+				'max' => '32',
+			)
+		),
+		'file_status' => array(
+			'label' => 'File status code:',
+			'config' => array(
+				'type' => 'input',
+				'size' => '5',
+				'eval' => 'int',
+			)
+		),
+
 	),
 
 	'types' => array(
@@ -846,35 +897,41 @@ $tx_dam_footer = $tx_dam_category;
 $tx_dam_common = $tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage;
 
 $tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_extraMeta, meta,';
-// for testing languages: $tx_dam_meta.= '--div--;[Div], sys_language_uid,l18n_parent,';
+
+$tx_dam_extra = '';
+
+// for development:
+if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['devel']) {
+	$tx_dam_extra .= '--div--;[Devel], deleted, index_type, file_hash, file_inode, file_status, sys_language_uid;;;;3-3-3, l18n_parent, l18n_diffsource, t3ver_label;;;;3-3-3,';
+}
 
 $TCA['tx_dam']['types'] = array(
 	/* undefined */
-	'0' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'0' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* text */
-	'1' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'1' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_extra),
 	/* image */
-	'2' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage),
+	'2' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_extra),
 	/* audio */
-	'3' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'3' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* video */
-	'4' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'4' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* interactive */
-	'5' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'5' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* service */
-	'6' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'6' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* font */
-	'7' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'7' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* model */
-	'8' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'8' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* dataset */
-	'9' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_common),
+	'9' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_common.$tx_dam_extra),
 	/* collection */
-	'10' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'10' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* software */
-	'11' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'11' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 	/* application */
-	'12' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common),
+	'12' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_extra),
 );
 
 
@@ -888,6 +945,8 @@ $TCA['tx_dam_cat'] = array(
 
 	'columns' => array(
 		'hidden' => array(
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '1',
 			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
 			'config' => array(
@@ -896,6 +955,8 @@ $TCA['tx_dam_cat'] = array(
 			)
 		),
 		'fe_group' => array(
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'exclude' => '1',
 			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.fe_group',
 			'config' => array(
@@ -972,8 +1033,58 @@ $TCA['tx_dam_cat'] = array(
 		),
 */
 		'parent_id' => array(
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_cat_item.parent_id',
 			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['category_config'],
+		),
+
+
+		/*
+		 * LANGUAGE
+		 */
+		'sys_language_uid' => array(
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
+			'config' => array(
+				'type' => 'select',
+				'foreign_table' => 'sys_language',
+				'foreign_table_where' => 'ORDER BY sys_language.title',
+				'items' => array(
+					array('LLL:EXT:lang/locallang_general.xml:LGL.allLanguages',-1),
+					array('LLL:EXT:lang/locallang_general.xml:LGL.default_value',0)
+				)
+			)
+		),
+		'l18n_parent' => array(
+			'displayCond' => 'FIELD:sys_language_uid:>:0',
+			'exclude' => '1',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
+			'config' => array(
+				'type' => 'select',
+				'items' => array(
+					array('', 0),
+				),
+				'foreign_table' => 'tx_dam_cat',
+				'foreign_table_where' => 'AND tx_dam_cat.uid=###REC_FIELD_l18n_parent### AND tx_dam_cat.sys_language_uid IN (-1,0)',
+				'wizards' => array(
+					'_PADDING' => 2,
+					'_VERTICAL' => 1,
+
+					'edit' => array(
+							'type' => 'popup',
+							'title' => 'edit default language version of this record ',
+							'script' => 'wizard_edit.php',
+							'popup_onlyOpenIfSelected' => 1,
+							'icon' => 'edit2.gif',
+							'JSopenParams' => 'height=600,width=700,status=0,menubar=0,scrollbars=1,resizable=1',
+	),
+				),
+			)
+		),
+		'l18n_diffsource' => array(
+			'config'=>array(
+				'type'=>'passthrough')
 		),
 
 
