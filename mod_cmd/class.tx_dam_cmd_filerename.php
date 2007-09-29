@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,23 +25,17 @@
  * Command module 'file rename'
  * Part of the DAM (digital asset management) extension.
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-ModCmd
- * @subpackage File
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
+
  *
- *
- *   63: class tx_dam_cmd_filerename extends t3lib_extobjbase
- *   74:     function head()
- *  126:     function main()
- *  181:     function renameForm()
- *  238:     function renameFile()
- *
- * TOTAL FUNCTIONS: 4
- * (This index is automatically created/updated by the script "update-class-index")
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
@@ -56,43 +50,67 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 /**
  * Class for the file rename command
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-ModCmd
- * @subpackage File
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 class tx_dam_cmd_filerename extends t3lib_extobjbase {
 
 
-	/**
-	 * Additional access check
-	 *
-	 * @return	boolean Return true if access is granted
-	 */
-	function accessCheck() {
-		return tx_dam::access_checkAction('renameFile');
-	}
+	var $rec = array();
 
 
 	/**
 	 * Do some init things and set some things in HTML header
-	 *
-	 * @return	void
+	 * 
+	 * @return	void		
 	 */
 	function head() {
-		$GLOBALS['SOBE']->pageTitle = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:file_rename.php.pagetitle');
+		global $SOBE, $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
+
+
+//
+//			// Cleaning and checking target
+//		if (@file_exists($this->pObj->target))	{
+//			$this->pObj->target = $SOBE->basicff->cleanDirectoryName($this->pObj->target);		// Cleaning and checking target (file or dir)
+//		} else {
+//			$this->pObj->target = '';
+//		}
+//		$key = $SOBE->basicff->checkPathAgainstMounts($this->pObj->target.'/');
+//		if (!$this->pObj->target || !$key)	{
+//			t3lib_BEfunc::typo3PrintError ('Parameter Error','Target was not a directory!','');
+//			exit;
+//		}
+//
+//			// Finding the icon
+//		switch($GLOBALS['FILEMOUNTS'][$key]['type'])	{
+//			case 'user':	$this->icon = 'gfx/i/_icon_ftp_user.gif';	break;
+//			case 'group':	$this->icon = 'gfx/i/_icon_ftp_group.gif';	break;
+//			default:		$this->icon = 'gfx/i/_icon_ftp.gif';	break;
+//		}
+//
+//			// Relative path to filemount, $key:
+//		$this->shortPath = substr($this->pObj->target,strlen($GLOBALS['FILEMOUNTS'][$key]['path']));
+//
+//			// Setting title:
+//		$this->title = $GLOBALS['FILEMOUNTS'][$key]['name'].': '.$this->shortPath;
+
+
+
+		$SOBE->pageTitle = $LANG->sL('LLL:EXT:lang/locallang_core.php:file_rename.php.pagetitle');
+		
+		$id = FALSE;
+		if(is_array($this->pObj->data['tx_dam_simpleforms'])) {
+			$id = intval(key($this->pObj->data['tx_dam_simpleforms']));
+		}
+		$id = $id ? $id : intval(t3lib_div::_GP('id'));
+		if ($id) {
+			$row = t3lib_BEfunc::getRecord('tx_dam', $id);		
+			$this->rec = $row;
+		}
+			
+		
 	}
-
-
-	/**
-	 * Returns a help icon for context help
-	 *
-	 * @return	string HTML
-	 */
-	function getContextHelp() {
-// TODO csh
-#		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
-	}
-
 
 	/**
 	 * Main function, rendering the content of the rename form
@@ -100,89 +118,170 @@ class tx_dam_cmd_filerename extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function main()	{
-		global  $LANG;
+		global $SOBE, $LANG;
 
-		$content = '';
+			// Make page header:
+		$content='';
 
-			// Cleaning and checking target
-		if ($this->pObj->file[0]) {
-			$this->file = tx_dam::file_compileInfo($this->pObj->file[0]);
-			$this->meta = tx_dam::meta_getDataForFile($this->file);
-		} elseif ($id = intval($this->pObj->record['tx_dam'][0])) {
-			$this->meta = tx_dam::meta_getDataByUid($id);
-			$this->file = tx_dam::file_compileInfo($this->meta);
-		}
-		if (!is_array($this->meta)) {
-			$fileType = tx_dam::file_getType ($this->file);
-			$this->meta = array_merge($this->file, $fileType);
-			$this->meta['uid'] = 0;
-		}
+		if (is_array($this->rec)) {
 
-		if ($this->file['file_accessable']) {
-
-			if (is_array($this->pObj->data) AND $this->pObj->data['file_name']) {
-
-				$error = tx_dam::process_renameFile($this->file, $this->pObj->data['file_name'], $this->pObj->data);
-
-				if ($error) {
-					$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), $this->pObj->buttonBack(0), 2);
-
-				} else {
+			$error = '';
+			
+			if (is_array($this->pObj->data['tx_dam_simpleforms'])) {
+					// do the renaming:
+				$error = $this->renameFile();
+				
+				if(!$error) {
 					$this->pObj->redirect();
 				}
-
-
-			} else {
-				$content.=  $this->renderForm();
+				
 			}
+	
+			$content.= tx_dam_div::getDAMRecordInfo($this->rec);
+			$content.= '<br />';
+				
+	
+				// output error message
+			if($error) {
+				$content.= $SOBE->doc->section('Error',htmlspecialchars($error),0,1,2);
+				$content.= $SOBE->doc->spacer(15);
+			}
+					
+										
+				// Making the formfields for renaming:
+			$code = $this->renameForm();
+				// Add the HTML as a section:
+			$content.= $SOBE->doc->section('',$code);
 
 		} else {
-				// this should have happen in index.php already
-			$content.= $this->pObj->accessDeniedMessage($this->file['file_name']);
+
+			$content.= $this->pObj->wrongCommandMessage();
 		}
+		
+
+		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
+
+			// CSH:
+#		$code.= t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'<br/>');
 
 		return $content;
 	}
-
 
 	/**
 	 * Making the formfields for renaming
-	 *
+	 * 
 	 * @return	string		HTML content
 	 */
-	function renderForm()	{
-		global $TCA, $BACK_PATH, $LANG, $TYPO3_CONF_VARS;
+	function renameForm()	{
+		global $TCA, $BACK_PATH, $LANG, $FILEMOUNTS;
 
-		$content = '';
-		$msg = array();
+		$content='';
 
-		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($this->meta);
+		$row = $this->rec;
 
+		$filename = tx_dam_div::getAbsPath($row['file_path'].$row['file_name']);
+		if($id = $row['uid']) {
+			
+			//
+			// Create a edit form with tceforms
+			//		
 
-		if($this->meta['uid']) {
-			$msg[] = $this->pObj->getFormInputField('title', $this->meta['title'], 30);
-			$msg[] = $this->pObj->getFormInputField('file_name', $this->meta['file_name'], 30);
-			$msg[] = $this->pObj->getFormInputField('file_dl_name', $this->meta['file_dl_name'], 30);
-		} else {
-			$msg[] = $this->pObj->getFormInputField('file_name', $this->meta['file_name'], 30);
+				// fake table - to be safe
+			t3lib_div::loadTCA('tx_dam');
+			$TCA['tx_dam_simpleforms'] = $TCA['tx_dam'];
+	
+			require_once (PATH_txdam.'lib/class.tx_dam_simpleforms.php');
+			$form = t3lib_div::makeInstance('tx_dam_simpleForms');
+			
+			$form->initDefaultBEmode();
+			$form->setNewBEDesign(FALSE);
+			$form->setNoneToEditable($TCA['tx_dam_simpleforms']);
+			$form->removeRequired($TCA['tx_dam_simpleforms']);
+	
+			$columnsOnly = 'title,file_name,file_dl_name';
+			$code = $form->getListedFields('tx_dam_simpleforms', $row, $columnsOnly);
+			$content.= $form->wrapTotal($code, $row, 'tx_dam_simpleforms');
+	
+			$SOBE->doc->JScode .='
+			'.$form->printNeededJSFunctions_top();
+			$content.= $form->printNeededJSFunctions();			
+				
+			unset($TCA['tx_dam_simpleforms']);
+
+	
+				// Making submit button:
+			$content.= '
+				<div id="c-submit">
+					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:file_rename.php.submit',1).'" />
+					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.cancel',1).'" onclick="jumpBack(); return false;" />
+					<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->returnUrl).'" />
+				</div>
+			';		
 		}
 
 
-		$buttons = '
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_rename.php.submit',1).'" />
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
-
-
-		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
-
 		return $content;
+		
+	}
+	
+	/**
+	 * Rename the file and process DB update
+	 * 
+	 * @return	void
+	 */	
+	function renameFile() {
+		$error = FALSE;
+		
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$file = t3lib_div::makeInstance('tx_dam_tce_file');
+		$file->init();
+		
+		$row = $this->rec;
+		
+		if($id = $row['uid']) {
+			$data = $this->pObj->data['tx_dam_simpleforms'][$row['uid']];
+			if (is_array($data)) {
+				$filepath = tx_dam_div::getAbsPath($row['file_path'].$row['file_name']);
+				$org_filename = $row['file_name'];
+				$new_filename = $data['file_name'];
+				if ($new_filename AND ($new_filename!=$row['file_name']) AND @file_exists($filepath)) {
+						
+						// Processing rename file
+					$cmd = array();
+					$cmd['rename'][$id]['target'] = $filepath;
+					$cmd['rename'][$id]['data'] = $new_filename;
+					
+					$file->setCmdmap($cmd);
+					$log = $file->process();
+					
+					if ($file->errors()) {
+						$error = $file->getLastError();
+					} else {
+						$org_filename = $new_filename;
+					}
+	
+				}
+		
+					// rename meta data field
+				$fields_values = array(
+					'file_name' => $org_filename,
+					'file_dl_name' => $data['file_dl_name'] ? $data['file_dl_name'] : $row['file_dl_name'],
+					'title' => $data['title'],
+					);
+#TODO tcemain or tx_dam_db
+				$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);
+				
+				$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);	
+			}
+		}
+		return $error;	
 	}
 }
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filerename.php'])    {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filerename.php']);
-}
+//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/tx_dam_cmd_filerename.php'])    {
+//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/tx_dam_cmd_filerename.php']);
+//}
 
 
 ?>

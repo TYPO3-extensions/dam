@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -24,133 +24,108 @@
 /**
  * Part of the DAM (digital asset management) extension.
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-BeLib
- * @subpackage Lib
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   59: class tx_dam_browseTrees
- *   69:     function init($thisScript, $mode='browse', $folderOnly=false)
- *   91:     function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')
- *  160:     function getTrees()
- *  182:     function getMountsForTreeClass($classKey, $treeName='')
+ *   59: class tx_dam_browseTrees 
+ *   68:     function init($thisScript, $modeEB=false)	
+ *  124:     function getTrees()	
  *
- * TOTAL FUNCTIONS: 4
- * (This index is automatically created/updated by the script "update-class-index")
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
 
+ 
 
+require_once(PATH_txdam.'lib/class.tx_dam_stdselection.php');
 
 
 
 /**
  * Main script class for the tree navigation frame.
  * This is used in the nav frame or the element browser.
- *
- * @author	@author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-BeLib
- * @subpackage Lib
+ * 
+ * @author	@author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 class tx_dam_browseTrees {
 
-	var $selectionClasses = array();
-
 	/**
 	 * initialize the browsable trees
-	 *
+	 * 
 	 * @param	string		script name to link to
 	 * @param	boolean		Element browser mode
-	 * @param	boolean		Shows the folder tree only
-	 * @return	void
+	 * @return	void		
 	 */
-	function init($thisScript, $mode='browse', $folderOnly=false)	{
+	function init($thisScript, $modeEB=false)	{
 		global $BE_USER,$LANG,$BACK_PATH,$TYPO3_CONF_VARS;
-
-		tx_dam::config_init();
-
-		if ($folderOnly OR t3lib_div::_GP('folderOnly')) {
+		
+		if (t3lib_div::_GP('folderOnly')) {
 			$selClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamFolder'];
-			$selectionClasses  = array();
-			$selectionClasses ['txdamFolder'] = $selClasses;
-		} else {
-			$selectionClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'];
-		}
+			$TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'] = array();
+			$TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamFolder'] = $selClasses;
+		}		
 
-		$this->initSelectionClasses($selectionClasses , $thisScript, $mode);
+			// move media types to the end
+		if(isset($TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamMedia'])) {
+			$selClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamMedia'];
+			unset($TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamMedia']);
+			$TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamMedia'] = $selClasses;	
+		}
+		
+# debug($TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']);
+
+		$this->initSelectionClasses($TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'], $thisScript, $modeEB);
 	}
 
 	/**
 	 * initialize the browsable trees
-	 *
+	 * 
 	 * @param	array		$TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']
 	 * @param	string		script name to link to
 	 * @param	boolean		Element browser mode
-	 * @return	void
+	 * @return	void		
 	 */
-	function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')	{
+	function initSelectionClasses($selectionClassesArr, $thisScript, $modeEB=false)	{
 		global $BE_USER,$LANG,$BACK_PATH;
-
-		$this->selectionClasses = $selectionClassesArr;
-
-			// configuration - default
-		$configDefault = tx_dam::config_getValue('setup.selections.default');
-		$configDefault = $configDefault['properties'];
-
-		if (is_array($this->selectionClasses))	{
-			foreach($this->selectionClasses as $classKey => $classRef)	{
-
-					// configuration - class
-				$config = tx_dam::config_getValue('setup.selections.'.$classKey);
-				$config = $config['properties'];
-				if(intval($config['disable'])) {
-					continue;
-				}
-
+		
+		if (is_array($selectionClassesArr))	{
+			foreach($selectionClassesArr as $classKey => $classRef)	{
+			
 				if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
 					if (!$obj->isPureSelectionClass)	{
 						if ($obj->isTreeViewClass)	{
-								// object is a treeview class itself
-							$this->treeObjArr[$classKey] = &$obj;
-							$this->treeObjArr[$classKey]->init();
-
+								// object is a treeview class itself or just no tree class
+							$this->arrayTree[$classKey] = &$obj;
+							$this->arrayTree[$classKey]->init();
 						} else {
 								// object does not include treeview functionality. Therefore the standard browsetree is used with setup from the object
-							$this->treeObjArr[$classKey] = &t3lib_div::makeInstance('tx_dam_browseTree');
-							$this->treeObjArr[$classKey]->init();
+							$this->arrayTree[$classKey] = &t3lib_div::makeInstance('tx_dam_browseTree');
+							$this->arrayTree[$classKey]->init();
+	
+							$this->arrayTree[$classKey]->title = $obj->dam_treeTitle();
+							$this->arrayTree[$classKey]->treeName = $obj->dam_treeName();
+							$this->arrayTree[$classKey]->iconName = basename($obj->dam_defaultIcon());
+							$this->arrayTree[$classKey]->iconPath = dirname($obj->dam_defaultIcon()).'/';
 
-							$this->treeObjArr[$classKey]->title = $obj->getTreeTitle();
-							$this->treeObjArr[$classKey]->treeName = $obj->getTreeName();
-							$this->treeObjArr[$classKey]->domIdPrefix = $obj->domIdPrefix ? $obj->domIdPrefix : $obj->getTreeName();
-							$this->treeObjArr[$classKey]->rootIcon = PATH_txdam_rel.'i/cat2folder.gif';
-							$this->treeObjArr[$classKey]->iconName = basename($obj->getDefaultIcon());
-							$this->treeObjArr[$classKey]->iconPath = dirname($obj->getDefaultIcon()).'/';
-								// workaround: Only variables can be passed by reference
-							$this->treeObjArr[$classKey]->_data = $obj->getTreeArray();
-							$this->treeObjArr[$classKey]->setDataFromArray($this->treeObjArr[$classKey]->_data);
-
+							$this->arrayTree[$classKey]->setDataFromArray($obj->getTreeArray());
+#debug($obj->getTreeArray());
+#debug($this->arrayTree[$classKey]->data);
+#debug($this->arrayTree[$classKey]->dataLookup);
 						}
-
-						$this->treeObjArr[$classKey]->thisScript = $thisScript;
-						$this->treeObjArr[$classKey]->BE_USER = $BE_USER;
-						$this->treeObjArr[$classKey]->mode = $mode;
-						if(!($config['disableModeSelIcons']=='0') AND ($configDefault['disableModeSelIcons'] OR $config['disableModeSelIcons'])) {
-							$this->treeObjArr[$classKey]->modeSelIcons = false;
-						}
-						$this->treeObjArr[$classKey]->ext_IconMode = '1'; // no context menu on icons
-					}
-
-					if ($this->treeObjArr[$classKey]->supportMounts) {
-						$mounts = $this->getMountsForTreeClass($classKey, $this->treeObjArr[$classKey]->getTreeName());
-						if (count($mounts)) {
-							$this->treeObjArr[$classKey]->setMounts($mounts);
-						} else {
-							unset($this->treeObjArr[$classKey]);
-						}
+						
+						$this->arrayTree[$classKey]->thisScript = $thisScript;
+						$this->arrayTree[$classKey]->BE_USER = $BE_USER;
+						$this->arrayTree[$classKey]->modeEB = $modeEB;
+						$this->arrayTree[$classKey]->ext_IconMode = '1'; // no context menu on icons
 					}
 				}
 			}
@@ -159,18 +134,19 @@ class tx_dam_browseTrees {
 	}
 
 
+
 	/**
 	 * rendering the browsable trees
-	 *
+	 * 
 	 * @return	string		tree HTML content
 	 */
 	function getTrees()	{
 		global $LANG,$BACK_PATH;
 
-		$tree = '';
+		$tree = ''; 
 
-		if (is_array($this->treeObjArr)) {
-			foreach($this->treeObjArr as $treeName => $treeObj)	{
+		if (is_array($this->arrayTree)) {
+			foreach($this->arrayTree as $treeName => $treeObj)	{
 				$tree .= $treeObj->getBrowsableTree();
 			}
 		}
@@ -178,61 +154,6 @@ class tx_dam_browseTrees {
 		return $tree;
 	}
 
-
-	/**
-	 * Returns the mounts for the selection classes
-	 *
-	 * @param	string		$classKey: ...
-	 * @param	string		$treeName: ...
-	 * @return	array
-	 */
-	function getMountsForTreeClass($classKey, $treeName='') {
-		global $BE_USER, $TYPO3_CONF_VARS;
-
-		if(!$treeName) {
-			if (is_object($obj = &t3lib_div::getUserObj($this->selectionClasses [$classKey])))	{
-				$treeName = $obj->getTreeName();
-			}
-		}
-
-		$mounts = array();
-
-		if($GLOBALS['BE_USER']->user['admin']){
-			$mounts = array(0 => 0);
-			return $mounts;
-		}
-
-		if ($GLOBALS['BE_USER']->user['tx_dam_mountpoints']) {
-			 $values = explode(',',$GLOBALS['BE_USER']->user['tx_dam_mountpoints']);
-			 foreach($values as $mount) {
-			 	list($k,$id) = explode(':', $mount);
-			 	if ($k == $treeName) {
-					$mounts[$id] = $id;
-			 	}
-			 }
-		}
-
-		if(is_array($GLOBALS['BE_USER']->userGroups)){
-			foreach($GLOBALS['BE_USER']->userGroups as $group){
-				if ($group['tx_dam_mountpoints']) {
-					$values = explode(',',$group['tx_dam_mountpoints']);
-					 foreach($values as $mount) {
-					 	list($k,$id) = explode(':', $mount);
-					 	if ($k == $treeName) {
-							$mounts[$id] = $id;
-					 	}
-					 }
-				}
-			}
-		}
-
-			// if root is mount just set it and remove all other mounts
-		if(isset($mounts[0])) {
-			$mounts = array(0 => 0);
-		}
-
-		return $mounts;
-	}
 }
 
 

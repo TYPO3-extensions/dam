@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,12 +25,13 @@
  * Command
  * Part of the DAM (digital asset management) extension.
  *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-ModCmd
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
- *
+
  *
  */
 
@@ -43,115 +44,30 @@ require ($BACK_PATH.'template.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 
-$LANG->includeLLFile('EXT:dam/mod_cmd/locallang.xml');
+$LANG->includeLLFile('EXT:dam/mod_cmd/locallang.php');
 
 
-// Module is available to everybody - submodules may deny access
+// Module is available to everybody
 // $BE_USER->modAccess($MCONF,1);
 
 
 
 require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
-require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
-require_once(PATH_txdam.'lib/class.tx_dam_listfiles.php');
+require_once(PATH_txdam.'lib/class.tx_dam_filelist.php');
 
 
 
 /**
  * Script class for the DAM command script
- *
- * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package DAM-ModCmd
+ * 
+ * @author	René Fritz <r.fritz@colorcube.de>
+ * @package TYPO3
+ * @subpackage tx_dam
  */
 class tx_dam_cmd extends tx_dam_SCbase {
 
-
 	/**
-	 * GP parameter: CMD
-	 * 'CMD' is the parameter which defines the action command like tx_dam_cmd_filedelete or tx_dam_cmd_filerename that should be called for the passed parameter.
-	 * Of course not all commands can handle all parameter/item types. Eg tx_dam_cmd_filedelete can handle items passed with GP parameter: file.
-	 */
-	 var $CMD;
-
-	/**
-	 * GP parameter: file
-	 * 'file' is the parameter that passes the name of the file (including path) the action should be processed for.
-	 *
-	 * An array of files can be passed with 'file' in principle, but currently there's no command supporting that.
-	 * After processing this variable is an array no matter if only one or more items were passed.
-	 *
-	 * @var array
-	 */
-	 var $file = array();
-
-	/**
-	 * GP parameter: folder
-	 * 'folder' is the parameter that passes the name of the folder (including path) the action should be processed for.
-	 *
-	 * An array of folder can be passed with 'folder' in principle, but currently there's no command supporting that.
-	 * After processing this variable is an array no matter if only one or more items were passed.
-	 *
-	 * @var array
-	 */
-	 var $folder = array();
-
-	/**
-	 * GP parameter: record
-	 * 'record' is the parameter that passes info's about the record the action should be processed for.
-	 * supported formats:
-	 * &record=table:uid
-	 * &record=table:uid,uid_2,6,45,8
-	 *
-	 * A comma list of uid's can be passed with 'record' in principle, but currently there's no command supporting that.
-	 * After processing this variable is an array no matter if only one or more items were passed.
-	 *
-	 * @var array
-	 */
-	 var $record = array();
-
-	/**
-	 * GP parameter: target
-	 * 'target' is the parameter that defines the target of an command.
-	 *
-	 * The meaning of the value depends on the command. For moving files it defines the target folder.
-	 */
-	 var $target;
-
-
-
-
-
-	/**
-	 * GP parameter: redirect
-	 *
-	 * Will be used as url to return to automatically (for silent comands). If not set $this->returnUrl will be used.
-	 */
-	var $redirect;
-
-	/**
-	 * GP parameter: returnUrl
-	 *
-	 * This url will be used for manual return. Means for 'back' buttons etc.
-	 */
-	var $returnUrl;
-
-
-
-	/**
-	 * If set to FALSE the user is not allowed to access the current module action.
-	 * Might be set by sub-modules.
-	 * The meaning of this flag is that the submudule might decide that the user don have enough right to perform the action. This can be the
-	 * example: $this->pObj->actionAccess = tx_dam::access_checkAction('deleteFolder');
-	 */
-	var $actionAccess = NULL;
-
-	/**
-	 * internal
-	 */
-
-	/**
-	 * The action for the form tag.
-	 * Might be set by sub-modules.
+	 * the action for the form tag
 	 */
 	var $actionTarget = '';
 
@@ -159,25 +75,25 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 * the page title
 	 */
 	var $pageTitle = '[no title]';
-
+	
 	/**
-	 * tx_dam_tce_file object
+	 * t3lib_basicFileFunctions object
 	 */
-	var $TCEfile;
-
-
-
+	var $basicFF;	
+	
+	
+	
 	/**
 	 * Initializes the backend module
-	 *
-	 * @return	void
+	 * 
+	 * @return	void		
 	 */
 	function init()	{
-		global $BE_USER, $TYPO3_CONF_VARS, $FILEMOUNTS;
+		global $BE_USER, $SOBE, $TYPO3_CONF_VARS, $FILEMOUNTS;
 
-// TODO veriCode needed and working?
+#TODO
 		$this->vC = t3lib_div::_GP('vC');
-
+		
 			// Checking referer / executing
 		$refInfo=parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
 		$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
@@ -188,70 +104,29 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 
 
-			// Initialize file GPvar
-		if (is_array($param = t3lib_div::_GP('file'))) {
-			$this->file = $param;
-		} elseif ($param) {
-			$this->file[] = $param;
-		}
+		parent::init();
 
-			// Initialize folder GPvar
-		if (is_array($param = t3lib_div::_GP('folder'))) {
-			$this->folder = $param;
-		} elseif ($param) {
-			$this->folder[] = $param;
-		}
 
-			// Initialize record GPvar
-		if ($param = t3lib_div::_GP('record')) {
-			if (is_array($param)) {
-				$this->record = $param;
-			} else {
-				list($table, $uidList) = explode(':', $param);
-				$this->record[$table] = $uidList;
-			}
-
-			foreach ($this->record as $table => $uidList) {
-				if (is_array($GLOBALS['TCA'][$table])) {
-					if($uidList = $GLOBALS['TYPO3_DB']->cleanIntList($uidList)) {
-						$this->record[$table] = explode(',', $uidList);
-					}
-				} else {
-					unset($this->record[$table]);
-				}
-			}
-		}
-
-			// Initialize target GPvar
-		$this->target = t3lib_div::_GP('target');
-
-			// Initialize data GPvar - may be used with forms
+#TODO			// Initialize GPvars:
 		$this->data = t3lib_div::_GP('data');
-
-
-
 		$this->returnUrl = t3lib_div::_GP('returnUrl');
 		$this->returnUrl = $this->returnUrl ? $this->returnUrl : t3lib_div::getIndpEnv('HTTP_REFERER');
-
-
+		
+		
 		$this->redirect = t3lib_div::_GP('redirect');
 		$this->redirect = $this->redirect ? $this->redirect : $this->returnUrl;
-
-
+		
 		//
-		// Init TCE-file-functions object:
-		// has object: ->fileProcessor = t3lib_div::makeInstance('tx_dam_extFileFunctions');
+		// Init basic-file-functions object:
 		//
+		
+		$this->basicFF = t3lib_div::makeInstance('t3lib_basicFileFunctions');
+		$this->basicFF->init($FILEMOUNTS,$TYPO3_CONF_VARS['BE']['fileExtensions']);
 
-		$this->TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
-		$this->TCEfile->init();
-
-
-		parent::init();
-	}
-
-
-
+		
+//		$this->initDB();
+	}	
+	
 
 
 	/**
@@ -279,22 +154,25 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			$this->extClassConf = $this->getExternalItemConfig($this->MCONF['name'],$MM_key,'tx_dam_cmd_nothing');
 			if (is_array($this->extClassConf) && $this->extClassConf['path'])	{
 				$this->include_once[]=$this->extClassConf['path'];
-			}
+			}	
 		}
+#		$this->MOD_MENU['function'][$MS_value] = $MS_value;
+#		$this->MOD_SETTINGS['function'] = $MS_value;
 	}
 
 
 
 
+	
 	/**
 	 * Main function of the module. Write the content to $this->content
-	 *
-	 * @return	void
+	 * 
+	 * @return	void		
 	 */
 	function main()	{
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
 
-
+		
 		//
 		// Initialize the template object
 		//
@@ -304,312 +182,142 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		$this->doc->docType = 'xhtml_trans';
 
 
-
-		//
-		// check access
-		//
-
-		$access = false;
-
-		$this->actionAccess = $this->extObjAccess();
-
-//debug($this->actionAccess, '$this->actionAccess');
-//debug($this->file, '$this->file');
-//debug($this->folder, '$this->folder');
-//debug($this->record, '$this->record');
-
-		if ($this->actionAccess) {
-			$this->accessDenied = array();
-
-			if ($this->file) {
-				foreach ($this->file as $key => $filename) {
-					if (!tx_dam::access_checkFile($filename, $this->extObj->passthroughMissingFiles)) {
-						$this->accessDenied['file'][] = tx_dam::file_normalizePath($filename);
-						unset($this->file[$key]);
-					}
-				}
-				if ($this->file) {
-					$access = true;
-				}
+#debug($HTTP_GET_VARS, '$HTTP_GET_VARS', __LINE__, __FILE__);
+#debug(t3lib_div::_GET(), '_GET()', __LINE__, __FILE__);
+#debug($HTTP_POST_VARS, '$HTTP_POST_VARS', __LINE__, __FILE__);
+#debug($GLOBALS['SOBE']->MOD_SETTINGS, '$GLOBALS[SOBE]->MOD_SETTINGS', __LINE__, __FILE__);
+#debug($this->SLCMD, 'SLCMD', __LINE__, __FILE__);
+#debug($this->MOD_MENU,'MOD_MENU', __LINE__, __FILE__);
+#debug($this->MOD_MENU['function'],'$this->MOD_MENU[function]', __LINE__, __FILE__);
+#debug($this->MOD_SETTINGS['function'],'$this->MOD_SETTINGS[function]', __LINE__, __FILE__);
 
 
-			} elseif ($this->folder) {
-				foreach ($this->folder as $key => $path) {
-					if (!tx_dam::access_checkPath($path)) {
-						$this->accessDenied['folder'][] = tx_dam::path_makeRelative($path);
-						unset($this->folder[$key]);
-					}
-				}
-				if ($this->folder) {
-					$access = true;
-				}
-
-
-			}elseif ($this->record AND $this->defaultPid) {
-				foreach ($this->record as $table => $uidList) {
-
-					$where = array();
-					$where['enableFields'] = tx_dam_db::deleteClause($table);
-					$where['pidList'] = $table.'.pid IN ('.$this->defaultPid.')';
-					$where['uid'] = $table.'.uid in ('.implode(',',$uidList).')';
-
-					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid', $table, implode(' AND ', $where), '', '', '', 'uid');
-					if ($rows) {
-						$this->record[$table] = array_keys($rows);
-					} else {
-						$this->accessDenied['record'][$table] = $uidList;
-						unset($this->record[$table]);
-					}
-				}
-				if ($this->record) {
-					$access = true;
-				}
-			}
-		}
+		// Access check...
+		// The page will show only if there is a valid page and if this page may be viewed by the user
+#		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
+#		$access = is_array($this->pageinfo) ? 1 : 0;
 
 
 
 		//
+		// Validating the input path and checking access against the mounts of the user.
+		// 
+	
+		$this->path = $this->basicFF->is_directory(tx_dam_div::getAbsPath($this->path));
+		$this->path = $this->path ? $this->path.'/' : '';
+		$access = $this->path && ($this->fmountID = $this->basicFF->checkPathAgainstMounts($this->path));
+		$this->path_mount = $FILEMOUNTS[$this->fmountID]['path'];
+		
+//debug($this->MOD_SETTINGS['tx_dam_folder'], 'tx_dam_folder');
+//debug($this->path_mount, 'path_mount');
+//debug($this->path, 'path');
+//debug($FILEMOUNTS, '$FILEMOUNTS');
+//debug($this->fmountID, 'fmountID');
+			
+
+$access = TRUE;
+
+		// 
 		// Main
-		//
-
+		// 
 		if ($access)	{
 
-
+			
 			//
 			// Output page header
 			//
-
-			$this->actionTarget = $this->actionTarget ? $this->actionTarget : t3lib_div::linkThisScript(array('returnUrl' => $this->returnUrl, 'redirect' => $this->redirect));
-			$this->doc->form = '<form action="'.htmlspecialchars($this->actionTarget).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->actionTarget = $this->actionTarget ? $this->actionTarget : t3lib_div::linkThisScript();
+			$this->doc->form='<form action="'.$this->actionTarget.'" method="POST" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 				// JavaScript
 			$this->doc->JScodeArray['jumpToUrl'] = '
 				var script_ended = 0;
 				var changed = 0;
-
+				
 				function jumpToUrl(URL)	{
 					document.location = URL;
 				}
-
+				
 				function jumpBack()	{
-					document.location = "'.$this->redirect.'";
-				}
-
-				function navFrameReload() {
-					top.content.nav_frame.document.location.reload();
+					document.location = "'.$this->returnUrl.'";
 				}
 				';
 			$this->doc->postCode.= $this->doc->wrapScriptTags('
 				script_ended = 1;');
 
 
-			$this->makePageHeader();
+			$this->extObjHeader();
+
+
+				// Draw the header.
+			$this->content.= $this->doc->startPage($this->pageTitle);
+			$this->content.= $this->doc->header($this->pageTitle);
+			$this->content.= $this->doc->spacer(5);
 
 
 			//
-			// Call submodule function
+			// Call submodule function  
 			//
-
+			
 			$this->extObjContent();
+
+			
+			$this->content.= $this->doc->spacer(10);
 
 
 		} else {
 				// If no access
-
-			$this->makePageHeader();
-
-			$accessDeniedInfo = array();
-
-			if ($this->actionAccess) {
-				foreach ($this->accessDenied as $type => $items) {
-					if ($items) {
-						$accessDeniedInfo[] = '<h4>'.$LANG->getLL($type,1).'</h4>';
-						foreach ($items as $item) {
-							$accessDeniedInfo[] = '<p>'.htmlspecialchars($item).'</p>';
-						}
-					}
-				}
-			} else {
-				$accessDeniedInfo[] = '<p>'.sprintf($LANG->getLL('messageCmdDenied', 1),$this->pageTitle).'</p>';
-			}
-// file do not exist ...
-			$this->content.= $this->accessDeniedMessage(implode('', $accessDeniedInfo));
+			$this->content.= $this->doc->startPage($LANG->getLL('title'));
+			$this->content.= $this->doc->header($LANG->getLL('title'));
+			$this->content.= $this->doc->spacer(5);
+#TODO
+			$this->content.= $this->doc->spacer(10);
 		}
-
-
-		$this->content.= $this->doc->spacer(10);
+			
+		
 	}
-
 
 	/**
 	 * Prints out the module HTML
-	 *
+	 * 
 	 * @return	string		HTML
 	 */
 	function printContent()	{
+		global $SOBE;
+
 		$this->content.= $this->doc->middle();
 		$this->content.= $this->doc->endPage();
 		$this->content=$this->doc->insertStylesAndJS($this->content);
 		echo $this->content;
 	}
 
-
-
-
-
-	//*******************************
-	//
-	//	misc stuff
-	//
-	//*******************************
-
-
 	/**
-	 * Calls the 'accessCheck' function of the submodule if present.
-	 *
-	 * @return	boolean	Default is true
-	 */
-	function extObjAccess()	{
-		if (is_callable(array($this->extObj,'accessCheck'))) {
-			return $this->extObj->accessCheck();
-		} else {
-			return true;
-		}
-	}
-
-
-	/**
-	 * Send redirect header
-	 *
-	 * @param 	boolean 	$updateNavFrame If set the navigation frame will be updated
-	 * @return	void
-	 */
-	function redirect($updateNavFrame=false)	{
-		if ($this->redirect) {
-			if ($updateNavFrame) {
-				$this->content .= $this->doc->wrapScriptTags('
-							navFrameReload();
-							jumpBack();');
-			} else {
-				header('Location: '.t3lib_div::locationHeaderUrl($this->redirect));
-				exit;
-			}
-		}
-	}
-
-
-
-
-
-	//*******************************
-	//
-	//	GUI stuff
-	//
-	//*******************************
-
-
-
-	/**
-	 * Render page header (title)
-	 *
-	 * @return	void
-	 */
-	function makePageHeader()	{
-		$this->extObjHeader();
-
-		$this->content.= $this->doc->startPage($this->pageTitle);
-		$this->content.= $this->doc->header($this->pageTitle);
-		if (is_callable(array($this->extObj,'getContextHelp'))) {
-			$this->content.= '<div style="float:right">'.$this->extObj->getContextHelp().'</div>';
-		}
-		$this->content.= $this->doc->spacer(10);
-	}
-
-
-	/**
-	 * Returns a message box that the passed command was wrong
-	 *
+	 * Returns a message that the passed command was wrong
+	 * 
 	 * @return	string 	HTML content
 	 */
 	function wrongCommandMessage()	{
-		global  $LANG;
-
-		$content = '';
-
-		if ($GLOBALS['SOBE']->CMD) {
-			$msg[] = $LANG->getLL('tx_dam_cmd_nothing.messageUnknownCmd',1);
-			$msg[] = 'Command: '.htmlspecialchars($GLOBALS['SOBE']->CMD);
+		global $SOBE, $LANG;
+		
+		$content = $SOBE->doc->section('',$SOBE->doc->icons(2).' '.$LANG->getLL('tx_dam_cmd_nothing.message'));
+		if ($SOBE->CMD) {
+			$content.= $SOBE->doc->section('Command:',htmlspecialchars($SOBE->CMD), 0,0);
 		}
-		else {
-			$msg[] = $LANG->getLL('tx_dam_cmd_nothing.messageNoCmd',1);
-		}
-
-		$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), $msg, $this->buttonBack(0), 2);
-
 		return $content;
 	}
 
-
 	/**
-	 * Returns a access denied message box
-	 *
-	 * @param 	mixed 	$info Additional content as string or array (will be wrapped in <p> tags.
-	 * @return	string 	HTML content
+	 * Send redirect header
+	 * 
+	 * @return	void
 	 */
-	function accessDeniedMessage($msg='')	{
-		global  $LANG;
-
-		$content = $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('accessDenied'), $msg, $this->buttonBack(0), 2);
-		return $content;
+	function redirect()	{
+		if ($this->redirect) {
+			Header('Location: '.t3lib_div::locationHeaderUrl($this->redirect));
+			exit;
+		}	
 	}
 
-
-	/**
-	 * Renders a 'back' button
-	 *
-	 * @param	float		Padding-top for the div-section as em
-	 * @return string HTML
-	 */
-	function buttonBack($linesBefore=1) {
-		$content = '';
-		if ($linesBefore) {
-			$content .= '
-
-	<!-- Spacer element -->
-	<div style="padding-top: '.number_format((float)$linesBefore,1).'em;"></div>
-';
-		}
-
-		$content .= $this->btn_back('',$this->returnUrl);
-		return $content;
-	}
-
-
-	/**
-	 * Can be used to generate simple form fields
-	 *
-	 * @param string $field field name
-	 * @param string $value Value for the input field
-	 * @param integer $size Can be used to set a specific size for the input field in em's.
-	 * @return string Input field with label wrapped in div tag
-	 */
-	function getFormInputField ($field, $value, $size=0) {
-		global $LANG, $TCA;
-
-		t3lib_div::loadTCA('tx_dam');
-
-		$size = $size ? $size : $TCA['tx_dam']['columns'][$field]['config']['size'];
-		$size = $size ? $size : 20;
-
-		$max = $TCA['tx_dam']['columns'][$field]['config']['max'];
-		$max = $max ? $max : 256;
-
-		return '<div style="margin-bottom:0.8em">
-					<strong>'.tx_dam_guifunc::getFieldLabel($field).'</strong><br />
-					<input type="text" name="data['.$field.']" value="'.$value.'" style="width:'.$size.'em;" maxlength="'.$max.'" />
-				</div>';
-	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php'])    {
@@ -631,7 +339,7 @@ while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkExtObj();	// Checking for first level external objects
 
 // Repeat Include files! - if any files has been added by second-level extensions
-reset($SOBE->include_once);
+reset($SOBE->include_once);	
 while(list(,$INC_FILE)=each($SOBE->include_once))	{include_once($INC_FILE);}
 $SOBE->checkSubExtObj();	// Checking second level external objects
 
