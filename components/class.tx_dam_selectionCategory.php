@@ -106,8 +106,11 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 
 		if(TYPO3_MODE=='FE') {
 			$this->clause = $GLOBALS['TSFE']->sys_page->enableFields($this->table);
+// FIXME ...
+			$this->clause .= ' AND sys_language_uid=0';
 		} else {
 			$this->clause = ' AND deleted=0';
+			$this->clause .= ' AND sys_language_uid=0';
 		}
 		$this->orderByFields = 'sorting,title';
 

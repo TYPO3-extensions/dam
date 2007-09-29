@@ -117,7 +117,6 @@ class tx_dam_batchProcess {
 		if(t3lib_div::_GP($this->startParam)) {
 			$data = t3lib_div::_POST('data');
 			$data_fixedFields = t3lib_div::_POST('data_fixedFields');
-			$this->getFormSetup();
 			$formSubmitted = $this->extractFormData($data, $data_fixedFields);
 			$this->saveFormSetup();
 			return $formSubmitted;
@@ -125,9 +124,6 @@ class tx_dam_batchProcess {
 
 		return false;
 	}
-
-
-
 
 
 	/**
@@ -147,16 +143,20 @@ class tx_dam_batchProcess {
 		}
 	}
 
+
 	/**
 	 * Return field names to be processed as array
 	 *
 	 * @return array Field names
 	 */
 	function getProcessFieldList() {
-		$fields = array_keys(array_merge($this->replaceData,$this->appendData));
+		$fields = array_keys(array_merge($this->replaceData, $this->appendData));
 		$fields = tx_dam_db::getMetaInfoFieldList(TRUE, $fields);
 		return $fields;
 	}
+
+
+
 
 
 	/********************************
@@ -180,7 +180,7 @@ class tx_dam_batchProcess {
 
 
 		$this->getFormSetup();
-		$rec = array_merge($this->replaceData,$this->appendData);
+		$rec = array_merge($this->replaceData, $this->appendData);
 		$fixedFields = array_keys($this->appendData);
 
 		$code = $this->getPresetForm($rec, $fixedFields, $LANG->getLL('tx_dam_batchProcess.appendDesc',0)); // don't hsc because of <b> tags
@@ -215,6 +215,7 @@ class tx_dam_batchProcess {
 
 		return $content;
 	}
+
 
 	/**
 	 * Render a form with TCEForms to edit/enter the preset data
@@ -379,8 +380,6 @@ class tx_dam_batchProcess {
 	 */
 	function extractFormData($data, $appendFieldsArr) {
 		if (is_array($data['tx_dam_simpleforms'][1])) {
-
-			t3lib_div::loadTCA('tx_dam');
 
 				// get which fields are append
 			$appendFields=array();

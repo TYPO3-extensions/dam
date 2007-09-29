@@ -135,7 +135,6 @@ class tx_dam_selection {
 	 * @return	string		returns a serialized selection definition
 	 */
 	function serialize()	{
-		#return t3lib_div::array2xml($this->sel);
 		return serialize($this->sel);
 	}
 
@@ -147,7 +146,6 @@ class tx_dam_selection {
 	 * @return	array		returns a selection definition
 	 */
 	function unserialize($sel)	{
-		#return t3lib_div::array2xml($sel);
 		return $this->cleanSelectionArray(unserialize($sel));
 	}
 

@@ -316,7 +316,7 @@ class tx_dam_actionCall {
 		while ($this->valid()) {
 			$item = $this->current();
 			if ($checkValidStrict) {
-				$valid = $item->isValid($this->type, $this->itemInfo, $this->env);
+				$valid = $this->checkItemValid($item);
 			}
 
 			if ($valid OR $showDisabled) {
@@ -336,6 +336,42 @@ class tx_dam_actionCall {
 	}
 
 
+
+	/**
+	 * Function calls the actions own ->isValid function.
+	 * If that returns true - meaning that the action is accessible a hook taking effect which allows external validation of the
+	 * action.
+	 *
+	 * @param	object		$item Reference to the action object currently in process
+	 * @return	boolean		returns true or false
+	 */
+	function checkItemValid (&$item) {
+		global $TYPO3_CONF_VARS;
+
+		$valid = $item->isValid($this->type, $this->itemInfo, $this->env);
+
+		if ($valid) {
+			$item->getIdName();
+
+				// hook
+			if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['actionValidation']) AND count($TYPO3_CONF_VARS['EXTCONF']['dam']['actionValidation']))	{
+				foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['actionValidation'] as $classKey => $classRef)	{
+					if (strtolower($classKey) == strtolower($item->idName)) {
+						if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
+							if (method_exists($obj, 'isTypeValid')) {
+								$valid = $obj->isTypeValid($item->idName, $this->itemInfo);
+								if ($valid === false) {
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $valid;
+	}
 
 
 

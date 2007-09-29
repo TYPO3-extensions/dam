@@ -141,7 +141,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist"';
 
-		$this->showMultiActions = true;
+// TODO		$this->showMultiActions = true;
 		$this->showAction = true;
 		$this->showIcon = true;
 

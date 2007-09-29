@@ -1012,7 +1012,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 * Prints the selector box form-field for the db/file/select elements (multiple)
 	 *
 	 * @param	string		Form element name
-	 * @param	string		Mode "db", "file" (internal_type for the "group" type) OR blank (then for the "select" type). Seperated with '|' a user Defined mode can be set to be passed as param to the EB.
+	 * @param	string		Mode "db", "file" (internal_type for the "group" type) OR blank (then for the "select" type). Seperated with '|' a user defined mode can be set to be passed as param to the EB.
 	 * @param	string		Commalist of "allowed"
 	 * @param	array		The array of items. For "select" and "group"/"file" this is just a set of value. For "db" its an array of arrays with table/uid pairs.
 	 * @param	string		Alternative selector box.
@@ -1138,7 +1138,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						$itemTitle = $GLOBALS['LANG']->JScharCode(t3lib_BEfunc::getRecordTitle($itemTable, $rec));
 						$elValue = $itemTable.'_'.$itemUid;
 					}
-					$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',unescape(\''.rawurlencode(str_replace('%20', ' ', $elValue)).'\'),'.$itemTitle.');';
+					$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',\''.t3lib_div::slashJS(t3lib_div::rawUrlEncodeJS($elValue)).'\','.t3lib_div::slashJS($itemTitle).');';
+					#$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',unescape(\''.rawurlencode(str_replace('%20', ' ', $elValue)).'\'),'.$itemTitle.');';
 
 	#				$counter++;
 	#				if ($params['maxitems'] && $counter >= $params['maxitems'])	{	break;	}	// Makes sure that no more than the max items are inserted... for convenience.
@@ -1210,15 +1211,15 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		$error = 0;
 
-// 		for future t3 version
+// 		for future t3 version?
 //
 //		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
 //			return true;
 //		}
 
 			// is mmforeign loaded?
-		if (t3lib_extMgm::isLoaded('mmforeign')) {
-			return true;
+		if (!t3lib_extMgm::isLoaded('mmforeign')) {
+			return 'Warning: DAM References are disabled! Install extension "mmforeign".';
 		}
 
 			// this forces us to think all is fine
@@ -1233,11 +1234,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php']))) {
 			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php'];
 		}
-		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php']))) {
-			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php'];
-		}
 
-		return 'Warning: DAM References are disabled! Install extension "mmforeign".';
+		return true;
 	}
 
 }

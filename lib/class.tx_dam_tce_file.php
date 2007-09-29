@@ -157,7 +157,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 						}
 
 							// hook
-						if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses']))	{
+						if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses']) AND count($TYPO3_CONF_VARS['EXTCONF']['dam']['processTriggerClasses']))	{
 							foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses'] as $classKey => $classRef)	{
 								if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
 									if (method_exists($obj, 'filePostTrigger')) {

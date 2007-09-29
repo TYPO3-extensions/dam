@@ -97,7 +97,7 @@ class upload_status {
 		// TODO Windows?
 
 
-		$files = getUploadFilesStat($upload_tmp_dir);
+		$files = $this->getUploadFilesStat($upload_tmp_dir);
 
 		$fileCount = 0;
 		if (count($files)) {
@@ -106,7 +106,7 @@ class upload_status {
 			foreach ($files as $key => $fileStat) {
 				$bytesUploaded +=$fileStat['size'];
 			}
-			$status = formatSize($bytesUploaded);
+			$status = $this->formatSize($bytesUploaded);
 		} else $status = 0;
 
 		$output = '<?xml version="1.0" encoding="UTF-8" standalone="yes"'.chr(63).'>

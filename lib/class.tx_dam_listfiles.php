@@ -308,11 +308,11 @@ class tx_dam_listfiles extends tx_dam_listbase {
 			} else {
 
 	// TODO doing autoindexing here is ugly - move to somewhere else!!
-				if(!($uid = tx_dam::file_isIndexed($item['file_path'].$item['file_name']))) {
+				if(!($uid = tx_dam::file_isIndexed($item))) {
 					$attachToIcon = $iconNotIndexed;
 					$titleAttr = $titleNotIndexed;
 					if($this->enableAutoIndexing) {
-						if ($metaRow = tx_dam::index_autoProcess($item['file_path'].$item['file_name'])) {
+						if ($metaRow = tx_dam::index_autoProcess($item)) {
 							$attachToIcon = '';
 							$titleAttr = '';
 							$item = $metaRow['fields'];

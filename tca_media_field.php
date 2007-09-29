@@ -148,10 +148,8 @@ function txdam_getMediaTCA($type, $MM_ident='') {
 
 	if($MM_ident AND is_array($tcaDef)) {
 		if(is_array($tcaDef['config'])) {
-# OLD:			$tcaDef['config']['MM_ident'] = $MM_ident;
 			$tcaDef['config']['MM_match_fields'] = array('ident' => $MM_ident);
 		} else {
-# OLD:			$tcaDef['MM_ident'] = $MM_ident;
 			$tcaDef['MM_match_fields'] = array('ident' => $MM_ident);
 		}
 	}
