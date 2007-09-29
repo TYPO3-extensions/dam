@@ -227,6 +227,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 				} else {
 
 					$org_filename = $row['file_name'];
+					$oldFile = tx_dam::file_absolutePath($row);
 
 					$newFile = $log['cmd']['upload'][$id]['target_file'];
 					$new_filename = basename($newFile);
@@ -237,10 +238,11 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 						$fields_values['file_name'] = $new_filename;
 						if ($org_filename != $new_filename) {
 							$fields_values['file_dl_name'] = $new_filename;
-							if($row['file_name']) {
-								unlink(tx_dam::file_absolutePath($row));
+							if(@is_file($oldFile)) {
+								unlink($oldFile);
 							}
 						}
+
 
 // TODO tx_dam_db
 						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);

@@ -1,3 +1,8 @@
+06-11-26 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: 3864#: After replacing an existing file in DAM re-indexing fails.
+
+
 06-11-24 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: added check to tx_dam_tce_process if a file exists that should be deleted
