@@ -1,51 +1,51 @@
-2007-04-09 Rene Fritz <r.fritz@colorcube.de>
+2007-04-09  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Added editor registering function
 	* Added: Added editor module
 	* Added: Added action to call editor
 	* Added: Added text editor (included from dam_act_edittxt)
 
-2007-04-08 Rene Fritz <r.fritz@colorcube.de>
+2007-04-08  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: make treeview browseable with simpleforms, merged code with fix from 4549
 	* Change: auto size for treeview field in read only mode
 	* Change: removed overhead from treeview fields (whole tree was rendered to get names for selected items)
 
-2007-04-07 Rene Fritz <r.fritz@colorcube.de>
+2007-04-07  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: tx_dam_media fetches language overlay automatically now in FE
 	* Fix: 4215: Absolute file mounts & userHomePath not below server-root breaks autoindex in file list
 	* Change: changed keys (exif, iptc, ...) for use in xml with field tx_dam.meta to uppercase
 	* Change: tx_dam_indexing look for exif_done, iptc_done and xmp_done in meta field to decide if image:exif or image:iptc services needs to be called
 
-07-04-04 Rene Fritz  <r.fritz@colorcube.de>
+2007-04-04  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Enabled the "Extra data" sheet for all types in tca
 	* Fix: 5320: beta5 RTE Integration: Links to tx_dam records with same uid as an accessible page results in link to that page
 
-07-03-29 Rene Fritz  <r.fritz@colorcube.de>
+2007-03-29  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: removed hardcoded tx_dam::config_setValue('setup.devel', '1'); in tx_dam_scbase
 	* Fix: 5298: typo in class tx_dam_file_list causes php error
 	* Fix: 4549: category selection in flexform - tree does not show up if defined browsable
-	
-07-03-20 Rene Fritz  <r.fritz@colorcube.de>
+
+2007-03-20  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: cleanups and enhancements in tx_dam_media
 
-07-03-13 Rene Fritz  <r.fritz@colorcube.de>
+2007-03-13  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: form action had wrong format in some modules
 	* Fix: saving of indexing preset didn't work in tx_dam_tools_indexsetup
 	* Change: the indexing option 'folder to category' will search now for a category using LIKE
 
-07-03-12 Rene Fritz  <r.fritz@colorcube.de>
+2007-03-12  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: image previewer works now in translated records
 	* Fix: set non visible fields to 'l10n_mode' => 'exclude' in TCA
 	* Added: added the tag <media> to RTE content processing and frontend rendering
 
-07-03-11 Rene Fritz  <r.fritz@colorcube.de>
+2007-03-11  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: mod_cmd use cmdInit() method of extObj if available
 	* Change: mod_cmd use ->templateClass
@@ -53,46 +53,46 @@
 	* Fix: tx_dam_tools_indexupdate did no check more than 200 files
 	* Added: button to change sorting order in media>list>thumbs module
 
-07-03-9 Rene Fritz  <r.fritz@colorcube.de>
+2007-03-09  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: sorting selector in EB
 	* Change: set title cropping to 120 in EB
 	* Change: search for indexing setup up to $TYPO3_CONF_VARS['BE']['lockRootPath'] if set
 
-07-03-06 Rene Fritz  <r.fritz@colorcube.de>
+2007-03-06  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: 5143: Categories module shows php error
 	* Fix: 0004681: make mm compatible with 4.1
 
-07-02-22 Rene Fritz  <r.fritz@colorcube.de>
+2007-02-22  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: icon paths in tx_dam_selectionFolder
 
-07-02-21 Rene Fritz  <r.fritz@colorcube.de>
+2007-02-21  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_mm_cat table lacked the field "tablenames" which might be needed in some circumstances
 
-07-02-20 Rene Fritz  <r.fritz@colorcube.de>
+2007-02-20  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: 'Add all to list' button to EB list and upload module. Will insert all elements to the current CE.
 	* Fix: tx_dam_querygen::getQueryParts() tables from 'enableFields' will be added to FROM
 
-07-02-19 Rene Fritz  <r.fritz@colorcube.de>
+2007-02-19  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: tca_media_field.php: set 'MM_opposite_field' => 'file_usage',
 	* Added: check if file is present in tx_dam_image::preview()
 
-07-02-16 Rene Fritz  <r.fritz@colorcube.de>
+2007-02-16  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: tx_dam_db workaround, using tx_dam.sorting_foreign when TYPO3 4.1
 	* Change: remove mmforeign dependency in dam_ttcontent and use ext_update.php to create warnings in EM when needed.
 
-07-02-15 Rene Fritz  <r.fritz@colorcube.de>
+2007-02-15  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: tx_dam_tce_file removed referer check
 	* Added: tx_dam::meta_putData()
-	
-07-02-14 Rene Fritz  <r.fritz@colorcube.de>
+
+2007-02-14  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Multi actions in file module
 	* Added: Multi action: Media>File file copy
@@ -101,11 +101,11 @@
 	* Added: Multi action: Media>List file copy
 	* Added: Multi action: Media>List file move
 
-07-01-25 Rene Fritz  <r.fritz@colorcube.de>
+2007-01-25  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: plus icon for insert file after upload in CE
 
-07-01-22 Rene Fritz  <r.fritz@colorcube.de>
+2007-01-22  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: Workaround of usage of $GLOBALS['SOBE']->config_checkValueEnabled() in tx_dam_guiRenderList
 	* Fix: file delete command module didn't show error messages
@@ -114,7 +114,7 @@
 	* Fix: tx_Dam::path_makeAbsolute make use of 'dir_*' now
 	* Change: code cleanups in lib/tx_dam_list*
 
-07-01-20 Rene Fritz  <r.fritz@colorcube.de>
+2007-01-20  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: tx_dam::process_copyFile()
 	* Added: tx_dam::process_moveFolder()
@@ -123,27 +123,27 @@
 	* Added: tx_dam::notify_fileCopied()
 	* Added: tx_dam_db::cloneFilePath()
 	* Added: ux_t3lib_extFileFunctions::func_copy()
-	
-07-01-15 Rene Fritz  <r.fritz@colorcube.de>
+
+2007-01-15  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: small changes to tx_dam_scbase
 	* Change: small changes to tx_dam_simpleforms
-	
-07-01-10 Rene Fritz  <r.fritz@colorcube.de>
+
+2007-01-10  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: fix call of $GLOBALS['SOBE']->config_checkValueEnabled() in EB
 
-06-12-07 Rene Fritz  <r.fritz@colorcube.de>
+2006-12-07  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_image generate checksum for thumbs.php. Needed for t3 4.0.3
 
-06-12-05 Rene Fritz  <r.fritz@colorcube.de>
+2006-12-05  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: finished several TSconfig options which enables/disables actions in modules
 	* Change: renamed tx_dam:access_checkAction to tx_dam::access_checkFileOperation
 	* Added: if devel option is enabled modules show a 'Module Info' box which displays keys needed for configuration in TSconfig
 
-06-12-04 Rene Fritz  <r.fritz@colorcube.de>
+2006-12-04  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Media>Tools>Configuration. Displays the current DAM setup (from TSconfig)
 	* Change: Media>Tools>Categories rebuild the tree now instead of cleaning it.
@@ -153,7 +153,7 @@
 	* Added: RTE image browser for htmlArea
 	* Added: EM Option to enable RTE image browser
 
-06-12-03 Rene Fritz  <r.fritz@colorcube.de>
+2006-12-03  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: added tons of TSconfig options. Have a look in the manual
 	* Change: make use of the file icons theme in the folder tree
@@ -162,12 +162,12 @@
 	* Change: cleaned up tx_dam_db::getPid()
 	* Added: Categories show the BE users language now when in sys_language the iso code is set and match - little tricky
 
-06-12-01 Rene Fritz  <r.fritz@colorcube.de>
+2006-12-01  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: added workaround for htmlarea EB
 	* Added: manual updates and cleanups
-	
-06-11-30 Rene Fritz  <r.fritz@colorcube.de>
+
+2006-11-30  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: file link browser XCLASS for htmlarea
 	* Added: tx_dam_action_localizeRec localization action
@@ -177,30 +177,30 @@
 	* Change: Removed modfunc_list_editsel. Function is integrated in list module now
 	* Fix: listmodul showed never more that 30 records at once
 
-06-11-29 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-29  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: remove options to select alternate bg colors for rows. TSconfig used now
 	* Change: removed alt_db_navframe XCLASS. Hiding the media folder when it is a mount is fixed in 4.0.3
 
-06-11-28 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-28  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: use lock() while indexing instead of sem_* functions
 	* Fix: meta collect with dry run did not use a unique id for each meta entry
 	* Fix: 'create new text file' returns to list now
 
-06-11-26 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-26  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: removed usage of pathinfo() because of problems with utf-8 in some PHP versions
 	* Fix: Return to list and reload navframe when new category was created
 
-06-11-25 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-25  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: tx_dam_action_renameFileRec for list module
 	* Added: tx_dam_action_replaceFileRec for list module
 	* Added: tx_dam::icon_getFileTypeImgTag() render enable fields now when in BE mode
 	* Change: File and folder icons are fully themable for FE and BE. dam_fileicons ext show how
-	
-06-11-24 Rene Fritz  <r.fritz@colorcube.de>
+
+2006-11-24  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: #4261: insert a check is_array before the merge $MOD_SETTINGS
 	* Fix: #4413: added check to tx_dam_tce_process if a file exists that should be deleted
@@ -209,13 +209,13 @@
 	* Fix: #4368: Renaming of folders fails
 	* Change: once again checked all occurencies of t3lib_div::makeInstance and added global $TYPO3_CONF_VARS; to make XCLASSes work
 
-06-11-22 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-22  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_index_rule_folderAsCat works again
 	* Fix: small fixes related to PHP 4 and wrong function names
 	* Fix: tx_dam_action_editFileRecord works again
 
-06-11-19 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-19  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: implemented multi action framework
 	* Added: implemented multi actions in record list module
@@ -224,15 +224,15 @@
 	* Added: media types: text, image, ... can be used as items in TCA allowed_types/disallowed_types which trigger the element browser to show those media types
 	* Added: tx_dam_extFileFunctions::func_move
 	* Added: tx_dam::process_moveFile
-	
-06-11-18 Rene Fritz  <r.fritz@colorcube.de>
+
+2006-11-18  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: implemented actions in modfunc_list_thumbs
 	* Change: smaller code cleanups in actions code
 	* Added: action tx_dam_action_editRecPopup - edit record in popup
 	* Added: tx_dam_image - has some useful functions for thumbnail and scaling stuff
 
-06-11-16 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-16  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Possibility to define file extensions that define what files should be skipped while indexing: $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['skipFileTypes']
 	* Added: file_compileInfo() return $fileInfo['file_extension'] now
@@ -241,20 +241,20 @@
 	* Added: more locallang labels in tools modules
 	* Added: top bars in tools modules - like all others
 
-06-11-12 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-12  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: Uploads module show errors from tce (db) now
 	* Added: default field to tt_content: ce_flexform
 
-06-11-10 Rene Fritz  <r.fritz@colorcube.de>
+2006-11-10  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: All records with missing files will be excluded from query now
 	* Fix: unnecessary use of $LANG in indexing make trouble
 	* Added: tx_dam_db::evalData()
 	* Added tx_dam_iterator_media
 	* Change: iterators can be used in FE now more flexible
-	
-06-11-4 Rene Fritz  <r.fritz@colorcube.de>
+
+2006-11-04  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: to all action links: '&vC='.$GLOBALS['BE_USER']->veriCode();
 	* Fix: fixed smaller todo's and some localization stuff
@@ -269,21 +269,21 @@
 	* Change: fe_group is now like in tt_content
 	* Change: records layout is change due to changed fe_group field
 
-06-10-25 Rene Fritz  <r.fritz@colorcube.de>
+2006-10-25  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: added file context sub-menus to record context menu
 
-06-10-24 Rene Fritz  <r.fritz@colorcube.de>
+2006-10-24  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: record context menus works now
 	* Added: file context menus works too
 	* Change: media field rendering shows nicer file list and support context menus
 
-06-10-18 Rene Fritz  <r.fritz@colorcube.de>
+2006-10-18  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: sortby was used wrong which caused random numbered title's - that bug was a highlight!
 
-06-10-17 Rene Fritz  <r.fritz@colorcube.de>
+2006-10-17  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Output of error messages in indexing process. This is when TCEMain fails to insert record.
 	* Fix: sql definition of file_path
@@ -292,7 +292,7 @@
 	* Change: check post_max_size for upload size calculation
 	* Added: XCLASS to make Media folder hideable when it is a db mount
 
-06-10-16 Rene Fritz  <r.fritz@colorcube.de>
+2006-10-16  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: backup files (*.txt~) will now be detected with it's file type: txt
 	* Change: removed t3lib_extMgm::allowTableOnStandardPages() for all dam tables so they will not be seen on 'reacte new record' action. Web>List seems still to work, but not creation of records.
@@ -306,18 +306,18 @@
 	* Added: Usage of identify to get images size and format. Used by default now.
 	* Added: tx_dam_indexing: added t3lib_div::devLog() all over the place
 
-06-09-14 Rene Fritz  <r.fritz@colorcube.de>
+2006-09-14  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: fixed some sorting issues in list modules (no sorting or depreciated sorting field was used)
 	* Added: tx_dam_db::getFieldListForUser()
 	* Change: if the selection change in list modules the list pointer (result browser) resets now
 	*Added: check function_exists('sem_get') in tx_dam_indexing
 
-06-09-13 Rene Fritz  <r.fritz@colorcube.de>
+2006-09-13  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: field file_path is changed to varchar(255) and defined as index (including file_name and other) which will speed up things!!
 
-06-09-01 Rene Fritz  <r.fritz@colorcube.de>
+2006-09-01  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: tx_dam_indexing. Locking should prevent double indexing from two concurrent processes
 	* Added: [Devel] tab in TCA when devel option is activated. Shows some extra fields.
@@ -332,36 +332,36 @@
 	* Fix #3940:  category not assignable if title contains ' character -  added t3lib_div::slashJS() in tx_dam_tcefunc and tx_dam_selprocbase
 	* Fix: tx_dam::process_replaceFile(). reindexing works now
 
-06-08-31 Rene Fritz  <r.fritz@colorcube.de>
+2006-08-31  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: updateMetaTrigger($meta) and insertMetaTrigger($meta) get uid now in meta record
 	* Added: tx_dam::_callProcessPostTrigger() and calls in all tx_dam::process_* functions to call a hook for post processing. See also tx_dam::register_fileTrigger()
 	* Added: hook in tx_dam_actioncall. see checkItemValid()
 	* Added: multi language support for categories (but not in tx_dam_selectionCategory)
 
-06-08-28 Rene Fritz  <r.fritz@colorcube.de>
+2006-08-28  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: cleaned up tx_dam_db::getMetaForUploads()
 	* Added: tx_dam_db::fillWhereClauseArray()
 	* Added: tx_dam::meta_findDataForUploadsFile()
 	* Added: tx_dam::media_getForUploadsFile()
 
-06-08-23 Rene Fritz  <r.fritz@colorcube.de>
+2006-08-23  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: workspaces fields and TCA stuff
 
-06-08-16 Rene Fritz  <r.fritz@colorcube.de>
+2006-08-16  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: Element browser improvements. Small bug fixes. Possiblity to use current or stored selection.
 	* Change: made tx_dam_selectionCategory use for FE enableFields
 
-06-08-07 Rene Fritz  <r.fritz@colorcube.de>
+2006-08-07  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added category element browser
 	* Added treelib/class.tx_dam_treelib_elementbrowser.php base class for  a element browser for trees.
 	* Added treelib/class.tx_dam_treelib_ebtreeview.php base class  for element browser trees
 
-06-08-01 and before Rene Fritz  <r.fritz@colorcube.de>
+2006-08-01  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: improved and fixed a lot of things in lib/tx_dam_*. Too much to list here. Often FE stuff is implemented.
 	* Change: tx_dam_browseTrees. Allow to set $this->selectionClasses array
@@ -385,7 +385,7 @@
  	* Added: tx_dam_tcaFunc: Provide misc TCA functions for usage in own extension.
 
 
-06-07-19 Rene Fritz  <r.fritz@colorcube.de>
+2006-07-19  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: added rawurlencode where needed
 	* Added: tx_dam_media. Works now. Needs still some work
@@ -394,14 +394,14 @@
 	* Added: new text file command module: tx_dam_cmd_filenew
 	* Added tx_dam::register_mediaTable(): Register a table that is related to a media folder and should be stored there.
 
-06-07-18 Rene Fritz  <r.fritz@colorcube.de>
+2006-07-18  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: added class="typo3-icon" to icons here and there
 	* Change: DAM record is now called 'Media'; added 'Video' to locallang
 	* Change: set default hidden=0 for tx_dam_cat
 	* Change: removed 'required' for file_type field, so saving for unknown file types is possible
 
-06-06-06 Rene Fritz  <r.fritz@colorcube.de>
+2006-06-06  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added folder element browser
 	* Added: register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
@@ -412,34 +412,34 @@
 	* Change: several small chages to components/tx_dam_actions_*
 	* Added selection_getItemIcon() to selection classes
 
-06-05-23 Rene Fritz  <r.fritz@colorcube.de>
+2006-05-23  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: DBAL related fixes in tx_dam_db, tx_dam_sysfolder, tx_dam_querygen and dam_catedit
 	* Added: 'lost_records' and 'statistics' function to modfunc tx_dam_tools_indexupdate
 
-06-05-16 Rene Fritz  <r.fritz@colorcube.de>
+2006-05-16  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: Moved 'remove from selection' function into own selection class: tx_dam::register_selection ('txdamRecords',  ...
 	* Added: plugin.tx_dam.defaults TS setup for FE usage - no real usage for now
 
-06-05-11 Rene Fritz  <r.fritz@colorcube.de>
+2006-05-11  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: make use of the rewritten mmforeign extension. Added TCA field config option 'userFunc_checkValue' in tca_media_field.php
 
-06-05-6 Rene Fritz  <r.fritz@colorcube.de>
+2006-05-6  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: use of escapeStrForLike() and cleanIntList()
 
-06-04-14 Rene Fritz  <r.fritz@colorcube.de>
+2006-04-14  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added tx_dam::register_fileTrigger() and hook in tx_dam_tce_file
 	* Added db result check to tx_dam_db::getDataWhere() - changed empty return value to array() - cleaned up a little bit too
 
-06-04-13 Rene Fritz  <r.fritz@colorcube.de>
+2006-04-13  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: added "global $TYPO3_CONF_VARS;" where needed to make XCLASSes work
 
-06-04-11 Rene Fritz  <r.fritz@colorcube.de>
+2006-04-11  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: fetchFileList::fetchFileList() use now $conf['refTable'] instead of tt_content if set
 	* Change: activated XCLASS code in command modules (mod_cmd/*)
@@ -449,19 +449,19 @@
 	* Change: Added reindexing to dam/mod_cmd/class.tx_dam_cmd_filereplace.php:replaceFile():
 	* Added in tx_dam_index: $this->stat['newIndexed'], $this->stat['reIndexed'] used in index module now
 
-06-04-10 Rene Fritz  <r.fritz@colorcube.de>
+2006-04-10  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_browsetrees: more than one tx_dam_selProcBase with isTreeViewClass = FALSE is useable now by setting 'domIdPrefix'. Don't know if this is really needed.
 	* Fix: Make tx_dam context menu work. Tried to load locallang.xml as PHP file.
 	* Fix: Displaying selected categories in indexing preset form works now.
 	* Some smaller manual updates
 
-06-04-08 Rene Fritz  <r.fritz@colorcube.de>
+2006-04-08  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: class.tx_dam_indexing.php: $osType = t3lib_exec::_getOS(); -> $osType = TYPO3_OS;
 	* added tx_dam::file_ur()
 	* tx_dam::file_getType () can handle now $fileInfo array
 
-06-04-07 Rene Fritz  <r.fritz@colorcube.de>
+2006-04-07  Rene Fritz  <r.fritz@colorcube.de>
 
 	* 1.0 release
