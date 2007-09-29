@@ -420,7 +420,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 				}
 
 				function navFrameReload() {
-					top.content.nav_frame.document.location.reload();
+					top.content.nav_frame.document.refresh_nav();
 				}
 				';
 			$this->doc->postCode.= $this->doc->wrapScriptTags('

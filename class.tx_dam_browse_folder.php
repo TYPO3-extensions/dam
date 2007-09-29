@@ -149,7 +149,8 @@ class tx_dam_browse_folder extends browse_links {
 	 * @return	string		HTML content for the module
 	 */
 	function main_folder()	{
-		global $BE_USER;
+		global $BE_USER, $TYPO3_CONF_VARS;
+		
 
 			// Starting content:
 		$content.=$this->doc->startPage('TBE file selector');

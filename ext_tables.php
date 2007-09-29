@@ -297,8 +297,10 @@ if (TYPO3_MODE=='BE')	{
 	tx_dam::register_action ('tx_dam_action_cmSubFile',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_cmSubFile');
 	tx_dam::register_action ('tx_dam_action_revertRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_revertRec');
 	tx_dam::register_action ('tx_dam_action_hideRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_hideRec');
+	tx_dam::register_action ('tx_dam_action_renameFileRec',      'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_renameFileRec');
+	tx_dam::register_action ('tx_dam_action_replaceFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_replaceFileRec');
 	tx_dam::register_action ('tx_dam_action_deleteRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteRec');
-//	tx_dam::register_action ('tx_dam_action_deleteQuickRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteQuickRec');
+#	tx_dam::register_action ('tx_dam_action_deleteQuickRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_deleteQuickRec');
 	tx_dam::register_action ('tx_dam_action_lockWarningRec',  'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_lockWarningRec');
 
 	tx_dam::register_action ('tx_dam_multiaction_hideRec',    'EXT:dam/components/class.tx_dam_multiActionsRecord.php:&tx_dam_multiaction_hideRec');

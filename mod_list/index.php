@@ -55,6 +55,8 @@ require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 
+$BE_USER->modAccess($MCONF,1);
+
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
 
@@ -63,8 +65,6 @@ require_once(PATH_txdam.'lib/class.tx_dam_selstorage.php');
 
 $LANG->includeLLFile('EXT:dam/mod_list/locallang.xml');
 
-
-$BE_USER->modAccess($MCONF,1);
 
 
 
@@ -96,7 +96,9 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		$this->guiItems = t3lib_div::makeInstance('tx_dam_guiRenderList');
 
 
-			// Initialize the template object
+		//
+		// Initialize the template object
+		//
 
 		$this->doc = t3lib_div::makeInstance('mediumDoc');
 		$this->doc->backPath = $BACK_PATH;

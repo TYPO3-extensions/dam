@@ -267,6 +267,9 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 		$valid = ($this->isTypeValid ($type, $itemInfo, $env) AND $this->itemInfo['uid']);
 		if ($valid AND $this->editPermsNeeded) {
 
+			if (!isset($this->env['permsEdit'])) {
+				$this->env['permsEdit'] = ($GLOBALS['SOBE']->calcPerms & 16);
+			}
 			if (!isset($this->itemInfo['__table'])) {
 				$this->itemInfo['__table'] = 'tx_dam';
 			}
@@ -585,7 +588,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid)	{
-			$valid = (($this->itemInfo['__type'] == 'file') AND ($itemInfo['file_status'] != TXDAM_status_file_missing));
+			$valid = (($this->itemInfo['__type'] == 'file') OR ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam')) AND ($itemInfo['file_status'] != TXDAM_status_file_missing);
 		}
 		return $valid;
 	}
@@ -629,7 +632,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 	 */
 	function _getCommand() {
 
-		$filepath = $this->itemInfo['file_path_absolute'].$this->itemInfo['file_name'];
+		$filepath = tx_dam::file_absolutePath($this->itemInfo);
 
 		$script = $this->env['defaultCmdScript'];
 		$script .= '?CMD='.$this->cmd;
@@ -804,7 +807,24 @@ class tx_dam_action_deleteFile extends tx_dam_action_renameFile {
 	 */
 	var $typesAvailable = array('icon', 'control', 'context');
 
-
+	/**
+	 * Returns true if the action is of the wanted type
+	 * This method should return true if the action is possibly true.
+	 * This could be the case when a control is wanted for a list of files and in beforhand a check should be done which controls might be work.
+	 * In a second step each file is checked with isValid().
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
+		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
+			$valid = ($this->itemInfo['__type'] == 'file');
+		}
+		return $valid;
+	}
+	
 	/**
 	 * Returns the icon image tag.
 	 * Additional attributes to the image tagcan be added.

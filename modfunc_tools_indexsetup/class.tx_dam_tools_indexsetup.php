@@ -88,6 +88,8 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 	}
 
 	function head() {
+		global $TYPO3_CONF_VARS;
+		
 		global  $TYPO3_CONF_VARS, $FILEMOUNTS;
 
 		if(!is_object($GLOBALS['SOBE']->basicFF)) {

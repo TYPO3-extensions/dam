@@ -71,25 +71,27 @@ class tx_dam_tce_process {
 						require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
 						require_once (PATH_t3lib.'class.t3lib_extfilefunc.php');
 
-						$file = tx_dam::path_makeAbsolute($row['file_path']).$row['file_name'];
-						$cmd = array();
-						$cmd['delete'][0]['data'] = $file;
-
-
-							// Initializing:
-						$tce->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
-						$tce->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-						$tce->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
-						$tce->fileProcessor->dontCheckForUnique = $tce->overwriteExistingFiles ? 1 : 0;
-
-							// Checking referer / executing:
-						$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
-						$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
-						if ($httpHost!=$refInfo['host'] && $tce->vC!=$BE_USER->veriCode() && !$TYPO3_CONF_VARS['SYS']['doNotCheckReferer'])	{
-							$tce->fileProcessor->writeLog(0,2,1,'Referer host "%s" and server host "%s" did not match!',array($refInfo['host'],$httpHost));
-						} else {
-							$tce->fileProcessor->start($cmd);
-							$tce->fileProcessor->processData();
+						$filepath = tx_dam::file_absolutePath($row);
+						if (@is_file($filepath)) {
+							$cmd = array();
+							$cmd['delete'][0]['data'] = $filepath;
+	
+	
+								// Initializing:
+							$tce->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
+							$tce->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
+							$tce->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+							$tce->fileProcessor->dontCheckForUnique = $tce->overwriteExistingFiles ? 1 : 0;
+	
+								// Checking referer / executing:
+							$refInfo = parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
+							$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
+							if ($httpHost!=$refInfo['host'] && $tce->vC!=$BE_USER->veriCode() && !$TYPO3_CONF_VARS['SYS']['doNotCheckReferer'])	{
+								$tce->fileProcessor->writeLog(0,2,1,'Referer host "%s" and server host "%s" did not match!',array($refInfo['host'],$httpHost));
+							} else {
+								$tce->fileProcessor->start($cmd);
+								$tce->fileProcessor->processData();
+							}
 						}
 
 					break;

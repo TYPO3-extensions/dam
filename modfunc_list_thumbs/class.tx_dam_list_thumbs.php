@@ -219,6 +219,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 	 * @return	string		HTML table with the control panel (unless disabled)
 	 */
 	function getItemControl($item, $table='tx_dam')	{
+		global $TYPO3_CONF_VARS;
+		
 		static $actionCall;
 
 		$content = '';

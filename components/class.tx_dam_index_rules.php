@@ -26,8 +26,8 @@
  * Part of the DAM (digital asset management) extension.
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
@@ -93,8 +93,8 @@ class tx_dam_index_rules {
  * Recursive
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 class tx_dam_index_rule_recursive extends tx_dam_indexRuleBase {
 
@@ -116,8 +116,8 @@ class tx_dam_index_rule_recursive extends tx_dam_indexRuleBase {
  * Folder as category
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 
@@ -178,22 +178,22 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 	 * @return	array Processed meta data array
 	 */
 	function processMeta($meta)	{
-		$folder = basename(preg_replace('#/$#','',$meta['file_path']));
+
+		$folder = basename(preg_replace('#/$#','',$meta['fields']['file_path']));
 		if ($folder) {
 
 			if($this->setup['fuzzy']) {
 				$folder = str_replace ('_', ' ', $folder);
 				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($folder,'tx_dam');
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', 'tx_dam_cat'));
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', 'tx_dam_cat').' AND deleted=0');
 			} else {
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title='.$GLOBALS['TYPO3_DB']->fullQuoteStr($folder, 'tx_dam_cat'));
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title='.$GLOBALS['TYPO3_DB']->fullQuoteStr($folder, 'tx_dam_cat').' AND deleted=0');
 			}
 			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 
 			if ($row['uid']) {
-				$meta['fields']['category'].= ',tx_dam_cat_'.$row['uid'];
+				$meta['fields']['category'].= ','.$row['uid'].',';
 			}
-
 		}
 		return $meta;
 	}
@@ -208,8 +208,8 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
  * Reindexing
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 class tx_dam_index_rule_doReindexing extends tx_dam_indexRuleBase {
 
@@ -313,8 +313,8 @@ class tx_dam_index_rule_doReindexing extends tx_dam_indexRuleBase {
  * Dry run
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 class tx_dam_index_rule_dryRun extends tx_dam_indexRuleBase {
 
@@ -344,8 +344,8 @@ class tx_dam_index_rule_dryRun extends tx_dam_indexRuleBase {
  * Demo
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 class tx_dam_index_rule_titleFromFilename extends tx_dam_indexRuleBase {
 
@@ -373,8 +373,8 @@ class tx_dam_index_rule_titleFromFilename extends tx_dam_indexRuleBase {
  * Devel
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @package DAM-Component
+ * @subpackage Index-Rule
  */
 class tx_dam_index_rule_devel extends tx_dam_indexRuleBase {
 

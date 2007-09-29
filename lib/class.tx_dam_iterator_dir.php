@@ -104,7 +104,11 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 	 */
 	var $countBytes = 0;
 
-
+	/**
+	 * if set files will be checked if index anf if not it will be done in place
+	 */
+	var $enableAutoIndexing = false;
+	
 	/**
 	 * List of allow regex
 	 *
@@ -396,6 +400,10 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 							if (count($this->allowFileTypes) AND !in_array($fileInfo['file_type'], $this->allowFileTypes)) {
 								continue;
 							}
+							
+							if ($this->enableAutoIndexing) {
+								$this->autoIndex($fileInfo);
+							}
 						}
 						elseif($type=='dir' OR $type=='link') {
 							$fileInfo = tx_dam::path_compileInfo($filepath);
@@ -411,6 +419,7 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 			}
 		}
 	}
+
 
 
 	/**
@@ -441,6 +450,26 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 			}
 		}
 		$this->rewind();
+	}
+
+
+	/**
+	 * Processes auto indexing if the file is not yet indexed
+	 * 
+	 * @param array $item
+	 */
+	function autoIndex(&$item) {
+
+			// we don't index indexing setup files
+		if ($item['file_name']=='.indexing.setup.xml') {
+
+		} elseif(!($uid = tx_dam::file_isIndexed($item))) {
+			if ($metaRow = tx_dam::index_autoProcess($item)) {
+				$item = $metaRow['fields'];
+				
+				$item['__isIndexed'] = true;
+			}
+		}
 	}
 
 }

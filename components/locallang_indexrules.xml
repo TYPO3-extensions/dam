@@ -45,7 +45,7 @@
             <label index="recursive.title">Unterverzeichnisse mit einbeziehen</label>
             <label index="folderAsCat.title">Verzeichnisse als Kategorien verwenden</label>
             <label index="folderAsCat.desc">Kategorien werden gesetzt falls die Datei in einem gleichnamigen Verzeichnis liegt.</label>
-            <label index="folderAsCat.use_fuzzy">Verzeichnisnamen auf Kategorienamen übertragen.</label>
+            <label index="folderAsCat.use_fuzzy">Verwende auch ähnliche Kategorienamen.</label>
             <label index="dryRun.title">Testlauf</label>
             <label index="dryRun.desc">Es werden keine Daten zum DAM hinzugefügt sondern nur gezeigt was passieren würde</label>
             <label index="doReindexing.title">Neu-Indexierung</label>

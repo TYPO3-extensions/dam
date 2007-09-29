@@ -110,9 +110,17 @@ class tx_dam_browse_media extends browse_links {
 		if ($type=='db' AND $pArr[3]=='tx_dam') {
 			$isValid = true;
 
-		} elseif ($type=='file') {
+		} 
+		elseif ($type=='file') {
+			$isValid = true;
+
+		} 
+		elseif ($type=='part_rte_linkfile') {
 			$isValid = true;
 		}
+//		elseif ($type=='rte' AND $pObj->button == 'image') {
+//			$isValid = true;
+//		}
 
 		return $isValid;
 	}
@@ -125,6 +133,8 @@ class tx_dam_browse_media extends browse_links {
 	 * @return void
 	 */
 	function initDAM () {
+		global $TYPO3_CONF_VARS;
+		
 
 		if (!is_object($this->damSC)) {
 			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');
@@ -132,8 +142,17 @@ class tx_dam_browse_media extends browse_links {
 			$this->damSC->MCONF['name'] = $this->MCONF_name;
 			$this->damSC->menuConfig();
 			$this->damSC->init();
-			$this->damSC->doc = &$this->doc;
+			$this->damSC->doc = & $this->doc;
+			$this->damSC->addDocStyles();
 		}
+
+		$path = tx_dam::path_makeAbsolute($this->damSC->path);
+		if (!$path OR !@is_dir($path))	{
+			$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
+			$fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+			$path = $fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
+		}
+		$this->damSC->path = tx_dam::path_makeRelative($path); // mabe not needed
 	}
 
 
@@ -143,6 +162,8 @@ class tx_dam_browse_media extends browse_links {
 	 * @return void
 	 */
 	function initDAMSelection () {
+		global $TYPO3_CONF_VARS;
+		
 
 		$this->damSC->addParams = $this->addParams;
 
@@ -175,6 +196,29 @@ class tx_dam_browse_media extends browse_links {
 
 
 	/**
+	 * Init rendering
+	 *
+	 * @return	void
+	 */
+	function renderInit()	{
+			// init class browse_links
+		$this->init();
+
+			// init the DAM object
+		$this->initDAM();
+
+			// processes MOD_SETTINGS
+		$this->getModSettings();
+
+			// Processes bparams parameter
+		$this->processParams();
+
+			// init the DAM selection after we've got the params
+		$this->initDAMSelection();
+	}
+
+
+	/**
 	 * Rendering
 	 * Called in SC_browse_links::main() when isValid() returns true;
 	 *
@@ -189,28 +233,18 @@ class tx_dam_browse_media extends browse_links {
 		$this->pObj = &$pObj;
 		$pObj->browser = & $this;
 
-			// init class browse_links
-		$this->init();
-
-			// init the DAM object
-		$this->initDAM();
-
-		$this->getModSettings();
-
-		$this->processParams();
-
-			// init the DAM selection after we've got the params
-		$this->initDAMSelection();
-
-
+		$this->renderInit();
 
 		$content = '';
 
-		switch((string)$this->mode)	{
+		switch((string)$type)	{
 			case 'db':
 			case 'file':
 				$content = $this->main();
 			break;
+//			case 'rte':
+//				$content = $this->main_rte();
+//			break;
 			default:
 				$content .= '<h3>ERROR</h3>';
 				$content .= '<h3>Unknown or missing mode!</h3>';
@@ -253,6 +287,44 @@ class tx_dam_browse_media extends browse_links {
 	}
 
 
+	/**
+	 * Rendering of element browser parts to embed them in other EB's
+	 *
+	 * @param	string		$type Type: "file", ...
+	 * @param	object		$pObj Parent object.
+	 * @return	string		Rendered content
+	 * @see SC_browse_links::main()
+	 */
+	function renderPart($type, &$pObj)	{
+
+		$this->pObj = &$pObj;
+		$pObj->browser = & $this;
+
+		$this->renderInit();
+
+		$content = '';
+
+		switch((string)$type)	{
+			case 'rte_linkfile':
+				$content = $this->part_rte_linkfile();
+			break;
+
+			default:
+				$content .= '<h3>ERROR</h3>';
+				$content .= '<h3>Unknown or missing mode!</h3>';
+				$debug = true;
+			break;
+		}
+
+		if (is_object($this->pObj->doc)) {
+			$this->pObj->doc->inDocStylesArray = array_merge($this->pObj->doc->inDocStylesArray, $this->doc->inDocStylesArray);
+			$this->pObj->doc->JScodeArray = array_merge($this->pObj->doc->JScodeArray, $this->doc->JScodeArray);
+		}
+		
+		return $content;
+	}
+
+
  	/**
 	 * TYPO3 Element Browser: Showing a browse trees and allows you to browse for records
 	 *
@@ -261,19 +333,8 @@ class tx_dam_browse_media extends browse_links {
 	function main()	{
 		global $LANG, $BE_USER, $TYPO3_CONF_VARS;
 
-
-		$path = tx_dam::path_makeAbsolute($this->damSC->path);
-		if (!$path OR !@is_dir($path))	{
-			$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
-			$fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-			$path = $fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
-		}
-		$this->damSC->path = tx_dam::path_makeRelative($path); // mabe not needed
-
-
 			// Starting content:
 		$content = $this->doc->startPage('TBE file selector');
-
 
 
 			// Initializing the action value, possibly removing blinded values etc:
@@ -316,7 +377,7 @@ class tx_dam_browse_media extends browse_links {
 				$content.= $this->damSC->getOptions();
 				$content.='<br /><br />';
 				if ($BE_USER->isAdmin() || $BE_USER->getTSConfigVal('options.createFoldersInEB'))	{
-					$content.= $this->createFolder($path);
+					$content.= $this->createFolder(tx_dam::path_makeAbsolute($this->damSC->path));
 				}
 			break;
 		}
@@ -331,6 +392,13 @@ class tx_dam_browse_media extends browse_links {
 	}
 
 
+	/**
+	 * Render link file part for RTE
+	 */
+	function part_rte_linkfile () {
+		$content.= $this->dam_select($this->allowedFileTypes, $this->disallowedFileTypes);
+		return $content;
+	}
 
 
 
@@ -350,7 +418,8 @@ class tx_dam_browse_media extends browse_links {
 	 * @return	string		HTML content for the module
 	 */
 	function dam_select($allowedFileTypes=array(), $disallowedFileTypes=array())	{
-		global $BE_USER;
+		global $BE_USER, $TYPO3_CONF_VARS;
+		
 
 		$content = '';
 
@@ -379,7 +448,7 @@ class tx_dam_browse_media extends browse_links {
 		$fileList .= $this->renderFileList($files, $this->mode);
 
 
-		$content .= $this->formTag;
+		$content .= $this->getFormTag();
 		$content .= $this->getSelectionSelector();
 		$content .= $this->damSC->getResultInfoBar();
 
@@ -394,7 +463,7 @@ class tx_dam_browse_media extends browse_links {
 			<table border="0" cellpadding="0" cellspacing="0" id="typo3-EBfiles">
 				<tr>
 					<td class="c-wCell" valign="top">'.$this->barheader($GLOBALS['LANG']->getLL('folderTree',1).':').$trees.'</td>
-					<td class="c-wCell" valign="top">'.$fileList.'</td>
+					<td valign="top">'.$fileList.'</td>
 				</tr>
 			</table>
 			';
@@ -402,13 +471,13 @@ class tx_dam_browse_media extends browse_links {
 		$content .= '</form>';
 
 			// current selection box
-		$content .= $this->formTag;
+		$content .= $this->getFormTag();
 
 		$selectionBox = '<div style="width:70%;">'.$this->damSC->getCurrentSelectionBox().'</div>';
 		$content .= $this->damSC->buttonToggleDisplay('selectionBox', $GLOBALS['LANG']->getLL('selection',1), $selectionBox);
 		$content .= '</form>';
 
-		$content .= $this->formTag;
+		$content .= $this->getFormTag();
 		$content .= $this->damSC->getSearchBox('simple', false);
 		$content .= '</form>';
 
@@ -420,6 +489,8 @@ class tx_dam_browse_media extends browse_links {
 	 *
 	 */
 	function getSelectionSelector () {
+		global $TYPO3_CONF_VARS;
+		
 		$txdamSel = $this->getModSettings('txdamSel');
 		list($txdamSelType,$key) = explode(':', $txdamSel);
 
@@ -478,7 +549,6 @@ class tx_dam_browse_media extends browse_links {
 				}
 
 					// Create file icon:
-				$titleAttrib = tx_dam_guiFunc::icon_getTitleAttribute($fI);
 				$iconFile = tx_dam::icon_getFileType($fI);
 				$iconTag = tx_dam_guiFunc::icon_getFileTypeImgTag($fI);
 				$iconAndFilename = $iconTag.htmlspecialchars(t3lib_div::fixed_lgd_cs($fI['file_title'], $GLOBALS['BE_USER']->uc['titleLen']));
@@ -502,10 +572,24 @@ class tx_dam_browse_media extends browse_links {
 						"'".$fI['file_type']."'",
 						"'".$iconFile."'")
 						);
-					$onClick = 'return insertElement('.$onClick_params.');';
-					$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
-					$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
-					$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+						
+					$titleAttrib = tx_dam_guiFunc::icon_getTitleAttribute($fI);
+
+					
+					if ($mode=='rte') {
+						$onClick = 'return link_folder(\''.t3lib_div::rawUrlEncodeFP($fI['_ref_file_path']).'\');';
+						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+						
+					} else {
+						$onClick = 'return insertElement('.$onClick_params.');';
+						$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+						$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
+						
+						$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
+						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+					}
+				
+					
 				}
 
 					// Create link to showing details about the file in a window:
@@ -533,7 +617,7 @@ class tx_dam_browse_media extends browse_links {
 				$lines[] = '
 					<tr class="bgColor4">
 						<td valign="top" nowrap="nowrap" style="min-width:20em">'.$ATag_insert.$iconAndFilename.'</a>'.'&nbsp;</td>
-						<td valign="top" width="1%">'.$ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a></td>
+						<td valign="top" width="1%">'.$addIcon.'</td>
 						<td valign="top" nowrap="nowrap" width="1%">'.$info.'</td>
 					</tr>';
 
@@ -636,13 +720,25 @@ class tx_dam_browse_media extends browse_links {
 			$content .= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 					// Upload form
-			require_once(PATH_txdam.'modfunc_file_upload/class.tx_dam_file_upload.php');
-			$damUploadExtObj = t3lib_div::makeInstance('tx_dam_file_upload');
-			$damUploadExtObj->init($this->damSC, array('path' => PATH_thisScript));
-			$damUploadExtObj->enableBatchProcessing = false;
+			if ($objRef = $TYPO3_CONF_VARS['SC_OPTIONS']['ext/dam/class.tx_dam_browse_media.php']['upload_modfunc']) {
+				$damUploadExtObj = t3lib_div::getUserObj($objRef);
+			} else {
+				require_once(PATH_txdam.'modfunc_file_upload/class.tx_dam_file_upload.php');
+				$damUploadExtObj = t3lib_div::makeInstance('tx_dam_file_upload');
+			}
+			
+				// it may be needed
+			require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
+			$this->damSC->guiItems = t3lib_div::makeInstance('tx_dam_guiRenderList');
+			
+				// init the upload module function
 			$this->damSC->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->damSC->MOD_MENU, t3lib_div::_GP('SET'), $this->damSC->MCONF['name'], 'ses');
+			$damUploadExtObj->init($this->damSC, array('path' => PATH_thisScript));
+			$damUploadExtObj->setEBmode($this);
+			
 
-
+				// call it
+			if (is_callable(array($damUploadExtObj,'head')))	$damUploadExtObj->head();
 			$form = $damUploadExtObj->main();
 
 
@@ -661,7 +757,7 @@ class tx_dam_browse_media extends browse_links {
 				<table border="0" cellpadding="0" cellspacing="0" id="typo3-EBfiles">
 					<tr>
 						<td class="c-wCell" valign="top">'.$this->barheader($GLOBALS['LANG']->getLL('folderTree',1).':').$trees.'</td>
-						<td class="c-wCell" valign="top">'.$form.'</td>
+						<td valign="top" style="padding-right:5px;">'.$form.'</td>
 					</tr>
 				</table>
 				';
@@ -681,6 +777,7 @@ class tx_dam_browse_media extends browse_links {
 	 * @return	string		HTML for the create folder form.
 	 */
 	function createFolder($path) {
+		
 		if ($path!='/' && @is_dir($path))	{
 			return parent::createFolder($path);
 		}
@@ -763,20 +860,7 @@ class tx_dam_browse_media extends browse_links {
 			if($this->damSC->selection->res) {
 				while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->damSC->selection->res)) {
 
-					$row['file_title'] = $row['title'] ? $row['title'] : $row['file_name'];
-					$row['file_path_absolute'] = tx_dam::path_makeAbsolute($row['file_path']);
-					$row['file_name_absolute'] = $row['file_path_absolute'].$row['file_name'];
-					$row['__exists'] = @is_file($row['file_name_absolute']);
-
-					if ($mode=='db') {
-						$row['_ref_table'] = 'tx_dam';
-						$row['_ref_id'] = $row['uid'];
-						$row['_ref_file_path'] = '';
-					} else {
-						$row['_ref_table'] = '';
-						$row['_ref_id'] = t3lib_div::shortMD5($row['file_name_absolute']);
-						$row['_ref_file_path'] = $row['file_name_absolute'];
-					}
+					$row = $this->enhanceItemArray($row, $mode);
 
 					$filearray[] = $row;
 					if (count($filearray) >= $this->damSC->selection->pointer->itemsPerPage) {
@@ -798,6 +882,31 @@ class tx_dam_browse_media extends browse_links {
 	 *	 Tools
 	 *
 	 ***************************************/
+
+
+
+
+	function enhanceItemArray($row, $mode) {
+		$row['file_title'] = $row['title'] ? $row['title'] : $row['file_name'];
+		$row['file_path_absolute'] = tx_dam::path_makeAbsolute($row['file_path']);
+		$row['file_name_absolute'] = $row['file_path_absolute'].$row['file_name'];
+		$row['__exists'] = @is_file($row['file_name_absolute']);
+
+		if ($mode=='db') {
+			$row['_ref_table'] = 'tx_dam';
+			$row['_ref_id'] = $row['uid'];
+			$row['_ref_file_path'] = '';
+		} else {
+			$row['_ref_table'] = '';
+			$row['_ref_id'] = t3lib_div::shortMD5($row['file_name_absolute']);
+			$row['_ref_file_path'] = $row['file_name_absolute'];
+		}
+
+		return $row;
+	}
+
+
+
 
 
 
@@ -877,6 +986,7 @@ class tx_dam_browse_media extends browse_links {
 			}
 
 			$MOD_SETTINGS = $GLOBALS['BE_USER']->getModuleData('txdamM1_list', '');
+			$MOD_SETTINGS = is_array($MOD_SETTINGS) ? $MOD_SETTINGS : array();
 			$MOD_SETTINGS = array_merge($MOD_SETTINGS, t3lib_BEfunc::getModuleData($MOD_MENU, $settings, $this->MCONF_name));
 			$GLOBALS['SOBE']->MOD_SETTINGS = $this->damSC->MOD_SETTINGS = $MOD_SETTINGS;
 		}
@@ -981,11 +1091,14 @@ class tx_dam_browse_media extends browse_links {
 			$this->addParams['SET[txdamSel]'] = $this->damSC->addParams['SET[txdamSel]'] = '__txdam_eb_selection';
 		}
 
-		$this->formTag = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 	}
 
-
+	function getFormTag($name='') {
+		global $TYPO3_CONF_VARS;
+		
+		return '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="'.$name.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+	}
 
 	/**
 	 * Quotes a string for usage as JS parameter. Depends wheter the value is used in script tags (it doesn't need/must not get htmlspecialchared in this case)

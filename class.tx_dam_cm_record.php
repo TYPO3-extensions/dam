@@ -48,7 +48,8 @@ class tx_dam_cm_record {
 
 
 	function main(&$backRef, $menuItems, $table, $uid)	{
-		global $BE_USER, $TCA, $LANG;
+		global $BE_USER, $TCA, $LANG, $TYPO3_CONF_VARS;
+		
 
 
 			// Returns directly, because the clicked item was not from the DAM table

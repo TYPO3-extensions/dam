@@ -1323,7 +1323,8 @@ class tx_dam_db {
 	 * @return array
 	 */
 	function evalData($table, $fieldArray) {
-		global $TCA;
+		global $TCA, $TYPO3_CONF_VARS;
+		
 
 			// Load TCA configuration for the given field:
 		t3lib_div::loadTCA($table);

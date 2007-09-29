@@ -515,8 +515,10 @@ $maxPages=100;
 		$this->doc->inDocStylesArray['typo3-filelist'] = '
 				.typo3-foldernavbar { margin: 12px 0px 2px 5px; }
 				.typo3-topactions { margin: 7px 0px 10px 0px; }
-				.typo3-filelist TD { padding-top: 1px;  }
-				.typo3-filelist TD.typo3-filelist-item { border-bottom: 1px dotted '.$borderColor.'; }';
+				.typo3-filelist TD { padding: 1px 3px 0 3px; }
+				.typo3-filelist TD.typo3-filelist-item { border-bottom: 1px dotted '.$borderColor.'; }
+				.typo3-filelist TD.c-headLine { background-color: #ccc; font-weight: bold; height: 16px; }
+				';
 
 		$this->doc->inDocStylesArray['gui_buttons'] = '
 				.buttonToggleDisplay { background-color: '.$this->doc->buttonColor.'; border: 1px solid #888; padding: 0px 2px 0px 0px; width:30%; }
@@ -1081,7 +1083,8 @@ $maxPages=100;
 		if (in_array('box', $showElements)) {
 			$rows = array();
 			$lastHeader = '';
-			$headBbgColor = ' bgColor="'.$GLOBALS['SOBE']->doc->bgColor6.'"';
+			$headBbgColor = is_object($GLOBALS['SOBE']->doc) ? $GLOBALS['SOBE']->doc->bgColor6 : $this->doc->bgColor6;
+			$headBbgColor = ' bgColor="'.$headBbgColor.'"';
 			foreach (array('SELECT','OR','AND','NOT','SEARCH') as $queryType) {
 				if(is_array($this->selection->sl->sel[$queryType])) {
 
@@ -1144,7 +1147,8 @@ $maxPages=100;
 		global $LANG, $BACK_PATH, $BE_USER;
 		static $selClasses = array();
 
-		$rowBbgColor = ' bgColor="'.t3lib_div::modifyHTMLColor($GLOBALS['SOBE']->doc->bgColor4,+10,+10,+10).'"';
+		$rowBbgColor = is_object($GLOBALS['SOBE']->doc) ? $GLOBALS['SOBE']->doc->bgColor4 : $this->doc->bgColor4;
+		$rowBbgColor = ' bgColor="'.t3lib_div::modifyHTMLColor($rowBbgColor, +10, +10, +10).'"';
 
 		foreach ($sel[$queryType] as $selectionRuleName => $items) {
 			if(is_array($items)) {
@@ -1664,13 +1668,6 @@ $maxPages=100;
 	function getRecordInfoEditLink($refTable, $row, $showRootline=FALSE) {
 		global $BACK_PATH, $LANG, $TCA;
 
-		$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
-
-			// Prepend table description for non-pages tables
-		if(!($refTable=='pages')) {
-			$iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
-		}
-
 			// Create record title or rootline for pages if option is selected
 		if($refTable=='pages' AND $showRootline) {
 			$elementTitle = t3lib_BEfunc::getRecordPath($row['uid'], '1=1', 0);
@@ -1681,10 +1678,18 @@ $maxPages=100;
 
 			// Create icon for record
 		if ($refTable=='tx_dam') {
-			$elementIcon = tx_dam_guiFunc::icon_getFileTypeImgTag($row, 'class="c-recicon" align="top" title="'.$iconAltText.'"', false);
+			$elementIcon = tx_dam_guiFunc::icon_getFileTypeImgTag($row, 'class="c-recicon" align="top"');
+			
 		} else {
-			$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');
-		}
+
+			$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
+
+				// Prepend table description for non-pages tables
+			if(!($refTable=='pages')) {
+				$iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
+			}
+				$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');
+			}
 
 			// Return item with edit link
 		return tx_dam_SCbase::wrapLink_edit($elementIcon. $elementTitle, $refTable, $row['uid']);
@@ -1763,6 +1768,7 @@ $maxPages=100;
 
 
 }
+
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_scbase.php'])    {

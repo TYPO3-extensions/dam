@@ -113,7 +113,8 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $BE_USER, $LANG, $BACK_PATH, $TCA;
+		global $BE_USER, $LANG, $BACK_PATH, $TCA, $TYPO3_CONF_VARS;
+		
 
 		$content = '';
 

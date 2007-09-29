@@ -93,7 +93,8 @@ class tx_dam_browseTrees {
 	 * @return	void
 	 */
 	function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')	{
-		global $BE_USER,$LANG,$BACK_PATH;
+		global $BE_USER,$LANG,$BACK_PATH, $TYPO3_CONF_VARS;
+		
 
 		$this->selectionClasses = $selectionClassesArr;
 

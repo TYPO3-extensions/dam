@@ -136,7 +136,8 @@ class tx_dam_cmd_folderdelete extends t3lib_extobjbase {
 	 * @return	string		HTML content
 	 */
 	function renderForm(){
-		global $BACK_PATH, $LANG;
+		global $BACK_PATH, $LANG, $TYPO3_CONF_VARS;
+		
 
 		$content = '';
 

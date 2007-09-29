@@ -81,7 +81,8 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function init()	{
-		global $BE_USER, $BACK_PATH;
+		global $BE_USER, $BACK_PATH, $TYPO3_CONF_VARS;
+		
 
 		parent::init();
 

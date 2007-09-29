@@ -818,7 +818,7 @@ $TCA['tx_dam'] = array(
 
 
 		/*
-		 * displayed in devel mode only
+		 * displayed in debug mode only
 		 */
 
 
@@ -859,6 +859,16 @@ $TCA['tx_dam'] = array(
 			'config' => array(
 				'type' => 'input',
 				'size' => '5',
+				'eval' => 'int',
+			)
+		),
+		'tstamp' => array(
+			'exclude' => '1',
+			'label' => 'Timestamp:',
+			'config' => array(
+				'type' => 'input',
+				'size' => '15',
+				'max' => '20',
 				'eval' => 'int',
 			)
 		),
@@ -920,8 +930,8 @@ $tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_extraMeta, 
 $tx_dam_extra = '';
 
 // for development:
-if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['devel']) {
-	$tx_dam_extra .= '--div--;[Devel], deleted, index_type, file_hash, file_inode, file_status, sys_language_uid;;;;3-3-3, l18n_parent, l18n_diffsource, t3ver_label;;;;3-3-3,';
+if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['debug']) {
+	$tx_dam_extra .= '--div--;[Devel], deleted, tstamp, index_type, file_hash, file_inode, file_status, sys_language_uid;;;;3-3-3, l18n_parent, l18n_diffsource, t3ver_label;;;;3-3-3,';
 }
 
 $TCA['tx_dam']['types'] = array(
