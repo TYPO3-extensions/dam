@@ -368,9 +368,12 @@ class tx_dam {
 	 * @return	string		Cleaned path
 	 */
 	function path_makeClean ($path) {
-		$path = t3lib_div::resolveBackPath($path);
-		$path = preg_replace('#[\/\. ]*$#','',$path).'/';
-		$path = str_replace('//','/',$path);
+		if ($path) {
+			$path = str_replace('/./', '/', $path);
+			$path = t3lib_div::resolveBackPath($path);
+			$path = preg_replace('#[\/\. ]*$#', '', $path).'/';
+			$path = str_replace('//', '/', $path);
+		}
 		return $path;
 	}
 
@@ -418,6 +421,7 @@ class tx_dam {
 
 		if($path) {
 
+			$pathInfo = array();
 			$pathInfo['__type'] = 'dir';
 			$pathInfo['__exists'] = @is_dir($path);
 			$pathInfo['__protected'] = @is_file($path.'.htaccess');
@@ -428,7 +432,7 @@ class tx_dam {
 			$pathInfo['dir_type'] = @filetype($path);
 			$pathInfo['dir_owner'] = @fileowner($path);
 			$pathInfo['dir_perms'] = @fileperms($path);
-				// I have no idea why these are reversed in t3lib_basicfilefunc
+				// I have no idea why these are negated in t3lib_basicfilefunc
 			$pathInfo['dir_writable'] = @is_writable($path);
 			$pathInfo['dir_readable'] = @is_readable($path);
 

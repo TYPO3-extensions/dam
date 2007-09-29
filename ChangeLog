@@ -1,3 +1,11 @@
+07-03-26 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: typo in tx_dam_browse_media: t3lib_div::trimeExplode()
+
+07-03-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: 5113: tx_dam::path_makeClean() will handle /./ now
+
 07-03-11 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: 4287: In multilingual environments wrong files are displayed in the non-default languages
