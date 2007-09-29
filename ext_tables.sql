@@ -312,6 +312,7 @@ CREATE TABLE tx_dam_mm_ref (
   tablenames varchar(30) DEFAULT '' NOT NULL,
   ident varchar(30) DEFAULT '' NOT NULL,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
+#  sorting_foreign int(11) unsigned DEFAULT '0' NOT NULL, generated in EM for TYPO3 V 4.1
   KEY uid_local (uid_local),
   KEY uid_foreign (uid_foreign)
 );

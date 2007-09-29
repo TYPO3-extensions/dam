@@ -101,7 +101,7 @@ class tx_dam_multiaction_recordBase extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'record'); # AND ($this->itemInfo['__table'] == 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'record'); # AND ($this->itemInfo['__table'] === 'tx_dam');
 		}
 		return $valid;
 	}

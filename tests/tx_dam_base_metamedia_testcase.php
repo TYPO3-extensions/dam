@@ -88,7 +88,7 @@ class tx_dam_base_metamedia_testcase extends tx_dam_testlib {
 
 		$data = tx_dam::meta_findDataForFile($filename);
 		self::assertEquals ($data[$meta['uid']]['uid'], $meta['uid'], 'Wrong index for '.$filename);
-// TODO test hash
+// todo: test hash
 	}
 
 

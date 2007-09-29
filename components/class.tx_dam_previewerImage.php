@@ -70,12 +70,12 @@ class tx_dam_previewerImage extends tx_dam_previewerProcBase {
 	function isValid($row, $size, $type, $conf=array()) {
 		$valid = false;
 
-		if ($size == '200' AND $type == 'topright') {
+		if ($size === '200' AND $type === 'topright') {
 			if (($row['media_type'] == TXDAM_mtype_image AND $row['hpixels'] AND $row['vpixels'])
 				OR $row['media_type'] == TXDAM_mtype_font
-				OR $row['file_type'] == 'pdf'
-				OR $row['file_type'] == 'ps'
-				OR $row['file_type'] == 'eps'
+				OR $row['file_type'] === 'pdf'
+				OR $row['file_type'] === 'ps'
+				OR $row['file_type'] === 'eps'
 				 ) {
 				$valid = true;
 			}

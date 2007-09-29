@@ -325,6 +325,7 @@ class tx_dam_actionBase {
 				break;
 
 			case 'control':
+			case 'globalcontrol':
  				$content = $this->_renderControl ($this->getIcon(), $this->getDescription(), $this->_getCommand());
 				break;
 

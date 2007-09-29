@@ -316,14 +316,15 @@ class tx_dam_querygen {
 	 * @param	string		$mmtable MM table (original name)
 	 * @param	string		$local_table Local table. Default $this->table
 	 * @param	string		$mmtableAlias Alias of the MM table to be used.
+	 * @param	string		$additionalClause Additional ON clause
 	 * @return	void
 	 */
-	function addMMJoin($mmtable, $local_table='', $mmtableAlias='')	{
+	function addMMJoin($mmtable, $local_table='', $mmtableAlias='', $additionalClause='')	{
 		$local_table = $local_table ? $local_table : $this->table;
 		$mmtableName = $mmtableAlias ? $mmtableAlias : $mmtable;
 		$mmtableNameDef = $mmtableAlias ? $mmtable.' AS '.$mmtableAlias : $mmtable ;
 
-		$this->query['LEFT_JOIN'][$mmtableNameDef] = $local_table.'.uid='.$mmtableName.'.uid_local';
+		$this->query['LEFT_JOIN'][$mmtableNameDef] = $local_table.'.uid='.$mmtableName.'.uid_local '.$additionalClause;
 	}
 
 
@@ -428,11 +429,11 @@ class tx_dam_querygen {
 				// FROM
 				//
 
-				$queryParts['SELECT'].= implode (',',$select['FROM']+$select['SELECT']);
+				$queryParts['SELECT'].= implode (', ',$select['FROM']+$select['SELECT']);
 			}
 
 				// tables
-			$queryParts['FROM'].= ' '.implode (',',array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM']))));
+			$queryParts['FROM'].= ' '.implode (', ',array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM']))));
 
 
 			//
@@ -530,7 +531,7 @@ class tx_dam_querygen {
 
 				// Traverse the configured columns and add all columns that can be searched:
 			foreach($TCA[$table]['columns'] as $fieldName => $info)	{
-				if ($info['config']['type']=='text' || ($info['config']['type']=='input' && !ereg('date|time|int',$info['config']['eval'])))	{
+				if ($info['config']['type'] === 'text' || ($info['config']['type'] === 'input' && !ereg('date|time|int',$info['config']['eval'])))	{
 					$sfields[] = $table.'.'.$fieldName;
 				}
 			}
@@ -558,7 +559,7 @@ class tx_dam_querygen {
 	function compileFieldList($table, $fields) {
 		$fieldList = array();
 
-		if ($fields=='*') {
+		if ($fields === '*') {
 			$fieldList[$table] = $table.'.*';
 		} else {
 			$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
@@ -567,7 +568,7 @@ class tx_dam_querygen {
 			}
 		}
 
-		return implode(',',$fieldList);
+		return implode(', ',$fieldList);
 	}
 
 
@@ -584,8 +585,7 @@ class tx_dam_querygen {
 	function enableFields($table='')	{
 		$table = $table ? $table : $this->table;
 
-		$enableFields = tx_dam_db::enableFields($table, $this->mode);
-		return $enableFields ? ' AND '.$enableFields : '';
+		return tx_dam_db::enableFields($table, 'AND', $this->mode);
 	}
 }
 

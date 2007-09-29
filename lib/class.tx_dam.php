@@ -55,7 +55,7 @@
  *              SECTION: Access check related function
  *  602:     function access_checkPath($path)
  *  624:     function access_checkFile ($fileInfo, $ignoreMissingFile=false)
- *  647:     function access_checkAction ($action, $setup=NULL)
+ *  647:     function access_checkFileOperation ($action, $setup=NULL)
  *  703:     function access_isProtectedFile ($fileInfo)
  *
  *              SECTION: Meta data related function
@@ -163,6 +163,34 @@ class tx_dam {
 
 
 	/**
+	 * Like basename() this returns the filename without path.
+	 * This works NOT with a path to get a folder name.
+	 * (needed because pathinfo is broken on some php5.x versions using utf-8 chars)
+	 *
+	 * @param	string		$filename The file name with path
+	 * @return	string		A file name
+	 */
+	function file_basename ($filename) {
+		$path_parts = t3lib_div::split_fileref($filename);
+		return $path_parts['file'];
+	}
+	
+	
+	/**
+	 * Like dirname() this returns the path but the path has a trailing slash.
+	 * This works NOT with a path without trailing slash.
+	 * (needed because pathinfo is broken on some php5.x versions using utf-8 chars)
+	 *
+	 * @param	string		$filename The file name with path
+	 * @return	string		A file path with trailing slash
+	 */
+	function file_dirname ($filename) {
+		$path_parts = t3lib_div::split_fileref($filename);
+		return $path_parts['path'];
+	}
+
+	
+	/**
 	 * Checks if the file is already indexed.
 	 * Returns the UID of the meta data record if the file is indexed already or false if the file is not indexed yet.
 	 *
@@ -196,15 +224,17 @@ class tx_dam {
 
 		$filename = tx_dam::file_absolutePath ($filename);
 
-		if ($ignoreExistence OR @is_file($filename) ) {
+		if ($filename AND ($ignoreExistence OR @is_file($filename)) ) {
 			$fileInfo = array();
 			$fileInfo['__type'] = 'file';
 			$fileInfo['__exists'] = @is_file($filename);
-			$path_parts = pathinfo($filename);
-			$fileInfo['file_name'] = $path_parts['basename'];
-			$fileInfo['file_extension'] = $path_parts['extension'];
+			
+			// don't handle utf8: $path_parts = pathinfo($fileInfo);
+			$path_parts = t3lib_div::split_fileref($filename);
+			$fileInfo['file_name'] = $path_parts['file'];
+			$fileInfo['file_path_absolute'] = $path_parts['path'];
+			$fileInfo['file_extension'] = $path_parts['realFileext'];
 			$fileInfo['file_title'] = $fileInfo['file_name'];
-			$fileInfo['file_path_absolute'] = $path_parts['dirname'].'/';
 			$fileInfo['file_path'] = tx_dam::path_makeRelative ($fileInfo['file_path_absolute']);
 			$fileInfo['file_path_relative'] = $fileInfo['file_path'];
 
@@ -279,7 +309,7 @@ class tx_dam {
 	/**
 	 * Calculates a hash value from a file.
 	 * The hash is used to identify file changes or a file itself.
-	 * Remember that a file can occur multiple times in the filesystem, therefore you can detect only that it is the same file. But you have to take the location (path) into account to identify the right file.
+	 * Remember that a file can occur multiple times in the file system, therefore you can detect only that it is the same file. But you have to take the location (path) into account to identify the right file.
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @return	string		hash value
@@ -295,7 +325,7 @@ class tx_dam {
 				$cmd = t3lib_exec::getCommand('md5sum');
 				$output = array();
 				$retval='';
-				exec($cmd.' -b "'.escapeshellcmd($filename).'"', $output, $retval);
+				exec($cmd.' -b '.escapeshellcmd($filename), $output, $retval);
 				$output = explode(' ',$output[0]);
 				$match = array();
 				if (preg_match('#[0-9a-f]{32}#', $output[0], $match)) {
@@ -318,8 +348,9 @@ class tx_dam {
 	 * @return	string		Normalized path to file
 	 */
 	function file_normalizePath ($filename) {
-		$file_name = basename($filename);
-		$file_path = tx_dam::path_makeRelative (dirname($filename).'/');
+		$path_parts = t3lib_div::split_fileref($filename);
+		$file_name = $path_parts['file'];
+		$file_path = tx_dam::path_makeRelative($path_parts['path']);
 
 		return $file_path.$file_name;
 	}
@@ -336,10 +367,10 @@ class tx_dam {
 		if (is_array($fileInfo)) {
 			$file_name = $fileInfo['file_name'];
 			$file_path = $fileInfo['file_path_absolute'] ? $fileInfo['file_path_absolute'] : tx_dam::path_makeAbsolute ($fileInfo['file_path']);
-		} else {
-			$path_parts = pathinfo($fileInfo);
-			$file_path = tx_dam::path_makeAbsolute($path_parts['dirname']);
-			$file_name = $path_parts['basename'];
+		} elseif ($fileInfo) {
+			$path_parts = t3lib_div::split_fileref($fileInfo);
+			$file_name = $path_parts['file'];
+			$file_path = tx_dam::path_makeAbsolute($path_parts['path']);
 		}
 
 		return $file_path.$file_name;
@@ -359,8 +390,9 @@ class tx_dam {
 			$file_name = $fileInfo['file_name'];
 			$file_path = $fileInfo['file_path_absolute'] ? $fileInfo['file_path_absolute'] : tx_dam::path_makeAbsolute ($fileInfo['file_path']);
 		} else {
-			$file_name = basename($fileInfo);
-			$file_path = tx_dam::path_makeAbsolute (dirname($fileInfo).'/');
+			$path_parts = t3lib_div::split_fileref($fileInfo);
+			$file_name = $path_parts['file'];
+			$file_path = tx_dam::path_makeAbsolute($path_parts['path']);
 		}
 
 			// for now path_makeRelative() do what we want but that may change
@@ -379,7 +411,11 @@ class tx_dam {
 	 * @return	string		URL to file
 	 */
 	function file_url ($fileInfo, $conf) {
-// TODO use download framework
+
+		/*
+		 * A secure download framework is in preparation which will be used here
+		 */
+
 		$file_url = t3lib_div::getIndpEnv('TYPO3_SITE_URL').tx_dam::file_relativeSitePath ($fileInfo);
 
 		return $file_url;
@@ -388,32 +424,42 @@ class tx_dam {
 
 	/**
 	 * Returns a string where any invalid character of a filename is substituted by '_'. By the way this can be used to clean folder names as well.
-	 * This function don't do any charset conversion for good reasons. Most filesystems don't have charset support. TYPO3 may use a different charset than the system locale setting. So the safest ist to set $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'], which is then the charset for filenames automatically.
+	 * This function don't do any charset conversion for good reasons. Most file systems don't have charset support. TYPO3 may use a different charset than the system locale setting. So the safest ist to set $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'], which is then the charset for filenames automatically.
 	 *
 	 * @param	string		$filename filename (without path)
 	 * @param	string		$crop If true the name will be shortened if needed
 	 * @return	string		Output string with any invalid characters is substituted by '_'
 	 */
-	function file_makeCleanName ($filename, $crop=true)	{
+	function file_makeCleanName ($filename, $crop=false)	{
+	
+		$filename = trim($filename);
 
-		if (TYPO3_OS=='WIN') {
+		if (TYPO3_OS === 'WIN') {
 			$filename = str_replace('[', '(', $filename);
 			$filename = str_replace(']', ')', $filename);
 			$filename = str_replace('+', '_', $filename);
 		}
+		
+			// chars like ?"*:<> are allowed on some filesystems but will be removed to secure shell commands
 		$filename = preg_replace('#[/|\\?"*:<>]#', '_', trim($filename));
-		if ($filename=='.' OR $filename=='..') {
+		if ($filename === '.' OR $filename === '..') {
 			$filename .= '_';
 		}
 
+			// handle UTF-8 characters
+		if ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] == 'utf-8' && $GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem'])	{
+				// allow ".", "-", 0-9, a-z, A-Z and everything beyond U+C0 (latin capital letter a with grave)
+			$filename = preg_replace('/[\x00-\x2C\/\x3A-\x3F\x5B-\x60\x7B-\xBF]/u','_', $filename);
+		}
+		
 		$maxFileNameLength = $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] ? $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] : 60;
 		if ($crop AND strlen($filename) > $maxFileNameLength) {
-			$path_parts = pathinfo($filename);
-			if ($extLen = strlen($path_parts['extension'])) {
+			$path_parts = t3lib_div::split_fileref($filename);
+			if ($extLen = strlen($path_parts['realFileext'])) {
 				$extLen += 1;
-				$filename = substr ($path_parts['basename'], 0, $maxFileNameLength-$extLen).'.'.$path_parts['extension'];
+				$filename = substr ($path_parts['filebody'], 0, $maxFileNameLength-$extLen).'.'.$path_parts['realFileext'];
 			} else {
-				$filename = substr ($path_parts['basename'], 0, $maxFileNameLength);
+				$filename = substr ($path_parts['filebody'], 0, $maxFileNameLength);
 			}
 		}
 
@@ -427,6 +473,20 @@ class tx_dam {
 	 *	 Path related function
 	 *
 	 ***************************************/
+
+
+	/**
+	 * Returns a folder name from a path.
+	 * This works NOT with a path without trailing slash.
+	 * (needed because pathinfo is broken on some php5.x versions using utf-8 chars)
+	 *
+	 * @param	string		$path 
+	 * @return	string		The name of the folder
+	 */
+	function path_basename ($path) {		
+		preg_match ('#([^/]+)/{0,1}$#', $path, $match);
+		return $match[1];
+	}
 
 
 	/**
@@ -459,17 +519,19 @@ class tx_dam {
 	 */
 	function path_makeAbsolute ($path, $mountpath=NULL) {
 
-		if (is_array($path)) {
-			$path = $path['file_path_absolute'] ? $path['file_path_absolute'] : $path['file_path'];
+		if ($path) {
+			if (is_array($path)) {
+				$path = $path['file_path_absolute'] ? $path['file_path_absolute'] : $path['file_path'];
+			}
+	
+			$path = tx_dam::path_makeClean ($path);
+	
+			if(t3lib_div::isAbsPath($path)) {
+				return $path;
+			}
+			$mountpath = is_null($mountpath) ? PATH_site : tx_dam::path_makeClean ($mountpath);
+			$path = $mountpath ? $mountpath.$path : '';
 		}
-
-		$path = tx_dam::path_makeClean ($path);
-
-		if(t3lib_div::isAbsPath($path)) {
-			return $path;
-		}
-		$mountpath = is_null($mountpath) ? PATH_site : tx_dam::path_makeClean ($mountpath);
-		$path = $mountpath ? $mountpath.$path : '';
 		return $path;
 	}
 
@@ -568,7 +630,7 @@ class tx_dam {
 			$pathInfo['web_nonweb'] = t3lib_div::isFirstPartOfStr($path, t3lib_div::getIndpEnv('TYPO3_DOCUMENT_ROOT')) ? 'web' : '';
 			$pathInfo['web_sys'] = $pathInfo['web_nonweb'] ? 'web' : 'sys';
 
-			if (TYPO3_MODE=='BE') {
+			if (TYPO3_MODE === 'BE') {
 				$pathInfo['dir_accessable'] = $pathInfo['mount_id'] ? true : false;
 			}
 
@@ -582,10 +644,10 @@ class tx_dam {
 
 			// ksort($pathInfo);
 
-			if ($pathInfo['dir_name']=='_temp_')	{
+			if ($pathInfo['dir_name'] === '_temp_')	{
 				$pathInfo['dir_title'] = 'TEMP';
 			}
-			if ($pathInfo['dir_name']=='_recycler_')	{
+			if ($pathInfo['dir_name'] === '_recycler_')	{
 				$pathInfo['dir_title'] = 'RECYCLER';
 			}
 
@@ -659,10 +721,11 @@ class tx_dam {
 	 *
 	 * @param 	string 		$action Action name: deleteFile, moveFolder, ... .If empty the whole permission array will be returned.
 	 * @param	integer		$setup File permission integer from BE_USER object.
+	 * @return	mixed		Returns an array with action permissions if $action is empty. Otherwise true or false will be returned depending if the action is allowed.
 	 * @see t3lib_extFileFunctions::init_actionPerms()
 	 * @todo implement for FE
 	 */
-	function access_checkAction ($action, $setup=NULL) {
+	function access_checkFileOperation ($action='', $setup=NULL) {
 
 		if (!is_object($GLOBALS['BE_USER'])) {
 			return false;
@@ -672,36 +735,32 @@ class tx_dam {
 			return true;
 		}
 
-		$setup = tx_dam::config_getValue('actions.allowDeny', true);
-		$allowDeny = new tx_dam_allowdeny(NULL, $setup);
-		$actionPerms = $allowDeny->getAllowed();
-// TODO test tx_dam_allowdeny
 
 		$setup = $setup ? $setup : $GLOBALS['BE_USER']->user['fileoper_perms'];
 
 		if (($setup&1)==1)	{		// Files: Upload,Copy,Move,Delete,Rename
-			$actionPerms['uploadFile']=1;
-			$actionPerms['copyFile']=1;
-			$actionPerms['moveFile']=1;
-			$actionPerms['deleteFile']=1;
-			$actionPerms['renameFile']=1;
-			$actionPerms['editFile']=1;
-			$actionPerms['newFile']=1;
+			$actionPerms['uploadFile'] = true;
+			$actionPerms['copyFile'] = true;
+			$actionPerms['moveFile'] = true;
+			$actionPerms['deleteFile'] = true;
+			$actionPerms['renameFile'] = true;
+			$actionPerms['editFile'] = true;
+			$actionPerms['newFile'] = true;
 		}
 		if (($setup&2)==2)	{		// Files: Unzip
-			$actionPerms['unzipFile']=1;
+			$actionPerms['unzipFile'] = true;
 		}
 		if (($setup&4)==4)	{		// Directory: Move,Delete,Rename,New
-			$actionPerms['moveFolder']=1;
-			$actionPerms['deleteFolder']=1;
-			$actionPerms['renameFolder']=1;
-			$actionPerms['newFolder']=1;
+			$actionPerms['moveFolder'] = true;
+			$actionPerms['deleteFolder'] = true;
+			$actionPerms['renameFolder'] = true;
+			$actionPerms['newFolder'] = true;
 		}
 		if (($setup&8)==8)	{		// Directory: Copy
-			$actionPerms['copyFolder']=1;
+			$actionPerms['copyFolder'] = true;
 		}
 		if (($setup&16)==16)	{		// Directory: Delete recursively (rm -Rf)
-			$actionPerms['deleteFolderRecursively']=1;
+			$actionPerms['deleteFolderRecursively'] = true;
 		}
 
 		if ($action) {
@@ -721,8 +780,12 @@ class tx_dam {
 	function access_isProtectedFile ($fileInfo) {
 
 		$path = tx_dam::path_makeAbsolute($path);
-// TODO check for real protection
+
 		$htaccessPath = tx_dam::tools_findFileInPath('.htaccess', $path);
+
+		/*
+		 * A secure download framework is in preparation which will be used here
+		 */
 
 		return false;
 	}
@@ -762,7 +825,7 @@ class tx_dam {
 			$where = array();
 			$where['file_name'] = 'file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'],'tx_dam');
 			$where['file_path'] = 'file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'],'tx_dam');
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', '', $mode);
 
 			if ($rows = tx_dam_db::getDataWhere($fields, $where, '', '', '1')) {
 				reset ($rows);
@@ -802,7 +865,7 @@ class tx_dam {
 			$fields = $fields ? $fields : tx_dam_db::getMetaInfoFieldList();
 
 			$where = array();
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', '', $mode);
 
 			$fileList = tx_dam::file_relativeSitePath($fileInfo);
 			if ($rows = tx_dam_db::getMetaForUploads ($fileList, '', $fields)) {
@@ -830,7 +893,7 @@ class tx_dam {
 		if($uid = intval($uid)) {
 			$where = array();
 			$where['file_name'] = 'tx_dam.uid='.$uid;
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', '', $mode);
 			if ($rows = tx_dam_db::getDataWhere($fields, $where, '', '', '1')) {
 				reset ($rows);
 				$row = current($rows);
@@ -858,7 +921,7 @@ class tx_dam {
 		if($hash) {
 			$where = array();
 			$where['file_hash'] = 'file_hash='.$GLOBALS['TYPO3_DB']->fullQuoteStr($hash,'tx_dam');
-			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', '', $mode);
 			$rows = tx_dam_db::getDataWhere($fields, $where);
 		}
 
@@ -957,64 +1020,33 @@ class tx_dam {
 	 * Fetches the meta data variant from the index by a given meta data record array. The result will have the same fields selected as the given record.
 	 * For now different languages can be fetched.
 	 * Later this function may support versions too.
+	 * 
+	 * $conf = array(
+	 * 		'sys_language_uid' // sys_language uid of the wanted language
+	 * 		'lovl_mode' // Overlay mode. If "hideNonTranslated" then records without translation will not be returned un-translated but false
+	 * )
+	 * 
+	 * In FE mode sys_language_uid and lovl_mode will be get from TSFE automatically
+	 * 
+	 * The return record has still the same uid.
+	 * sys_language_uid is set from the overlay record
+	 * Additionally following keys are set:
+	 * _BASE_REC_UID - the uid from the base record which is the non-overlaid record
+	 * _LOCALIZED_UID - the uid from the overlay record
+	 * 
+	 * IMPORTANT
+	 * Localized records itself does NOT contain valid data except the translated content. That means the field 'file_name' for example may contain data but could be invalid.
+	 * Valid meta data is in the record with sys_language_uid=0 only!
 	 *
-	 * @param	array		$row Meta data record array with 'uid' field
-	 * @param	mixed		$conf
+	 * @param	array		$row Meta data record array. Must containt uid, pid and sys_language_uid
+	 * @param	integer		$conf Configuration array that defines the wanted overlay
 	 * @param	boolean		$mode TYPO3_MODE (FE, BE)
 	 * @return	array		Meta data array or false
+	 * @see tx_dam_db::getRecordOverlay()
 	 */
 	function meta_getVariant ($row, $conf, $mode=TYPO3_MODE) {
-		$row = false;
 
-// TODO hohooOOOO
-
-			// The uid of the sys_language or the ISO code
-		$language = $conf['language'];
-
-/*
-
-					// Versioning preview:
-				$GLOBALS['TSFE']->sys_page->versionOL($this->table, $this->currentData);
-
-					// Language Overlay:
-				if (is_array($this->currentData) && $GLOBALS['TSFE']->sys_language_contentOL)	{
-					$this->currentData = $GLOBALS['TSFE']->sys_page->getRecordOverlay($this->table, $this->currentData, $GLOBALS['TSFE']->sys_language_content, $GLOBALS['TSFE']->sys_language_contentOL);
-				}
-
- */
-
-
-		if($uid = intval($row['uid'])) {
-			$fields = implode(',', array_keys($row));
-
-			$sys_language_uid = 0;
-			if(t3lib_div::testInt($language)) {
-				$sys_language_uid = intval($language);
-			} else {
-					// Finding the uid for an ISO code:
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-														'uid',
-														'sys_language',
-														'lg_iso_2='.$GLOBALS['TYPO3_DB']->fullQuoteStr($language,'sys_language').
-															' AND deleted=0'
-													);
-				if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-					$sys_language_uid = intval($row['uid']);
-				}
-			}
-
-			$where = array();
-			$where['sys_language_uid'] = $sys_language_uid;
-			$where['l18n_parent'] = '';
-			if($sys_language_uid) {
-				$where['l18n_parent'] = ' AND l18n_parent='.$uid;
-			}
-
-			if ($rows = tx_dam_db::getDataWhere($fields, $where, '', '', '1')) {
-				reset ($rows);
-				$row = current($rows);
-			}
-		}
+		$row = tx_dam_db::getRecordOverlay('tx_dam', $this->currentData, $conf, $mode);
 
 		return $row;
 	}
@@ -1047,6 +1079,7 @@ class tx_dam {
 
 		return $status;
 	}
+
 
 
 
@@ -1175,7 +1208,7 @@ class tx_dam {
 	function index_check ($fileInfo, $hash='') {
 
 		$status = array(
-				'__status' => TXDAM_file_notfound,
+				'__status' => TXDAM_file_unknown,
 				'meta' => array(),
 			);
 
@@ -1186,9 +1219,7 @@ class tx_dam {
 			$hash = $fileInfo['file_hash'];
 		}
 // FIXME $hash is not used - what is the concept?
-		if (is_array($fileInfo)) {
-
-			$status['__status'] = TXDAM_file_unknown;
+		if ($fileInfo) {
 
 			$where = array();
 			$where['file_name'] = 'file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'],'tx_dam');
@@ -1269,7 +1300,7 @@ class tx_dam {
 
 
 			// disable auto indexing by setup
-		if(tx_dam::config_getValue('setup.indexing.auto.disable')) {
+		if(!tx_dam::config_getValue('setup.indexing.auto')) {
 			return false;
 		}
 
@@ -1293,7 +1324,7 @@ class tx_dam {
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
-		$index->setDefaultSetup(dirname($filename));
+		$index->setDefaultSetup(tx_dam::file_dirname($filename));
 		$index->initEnabledRules();
 		$index->enableReindexing($reindex);
 
@@ -1315,7 +1346,7 @@ class tx_dam {
 	 * This function can be used if a setup for indexing is available of callback function shall be used.
 	 * But simply a file name can be passed to and everything goes automatically.
 	 *
-	 * @param	mixed		$filename A single filename or folder path or a list of files and path as array
+	 * @param	mixed		$filename A single filename or folder path or a list of files and paths as array. If it is an array the values can be file path or array: array('processFile' => 'path to file that should be indexed', 'metaFile' => 'additional file that holds meta data for the processFile')
 	 * @param	mixed		$setup Setup as string (serialized setup) or array. See tx_dam_indexing::restoreSerializedSetup()
 	 * @param	mixed		$callbackFunc Callback function for the finished indexed file.
 	 * @param	mixed		$metaCallbackFunc Callback function which will be called during indexing to allow modifications to the meta data.
@@ -1334,13 +1365,17 @@ class tx_dam {
 		if ($setup) {
 			$index->restoreSerializedSetup($setup);
 		} elseif(!is_array($filename)) {
-			$index->setDefaultSetup(dirname($filename));
+			$index->setDefaultSetup(tx_dam::file_dirname($filename));
+		} elseif($filename['processFile']) {
+			$index->setDefaultSetup(tx_dam::file_dirname($filename['processFile']));
 		}
 		$index->setPID();
 		$index->initEnabledRules();
 		$index->setOptionsFromRules();
 
-		if(is_array($filename)) {
+		if($filename['processFile']) {
+			$index->setPathsList(array($filename));
+		} elseif(is_array($filename)) {
 			$index->setPathsList($filename);
 		} else {
 			$index->setPath($filename);
@@ -1428,9 +1463,10 @@ class tx_dam {
 		$error = false;
 
 		$oldPath = tx_dam::file_absolutePath($oldPath);
-		$oldName = basename($oldPath);
-		$newName = tx_dam::file_makeCleanName($newName);
-		$newPath = dirname($oldPath).'/'.$newName;
+		$path_parts = t3lib_div::split_fileref($oldPath);
+		$oldName = $path_parts['file'];
+		$newName = tx_dam::file_makeCleanName($newName, true);
+		$newPath = $path_parts['path'].$newName;
 
 		if ($oldPath !== $newPath) {
 
@@ -1500,8 +1536,9 @@ class tx_dam {
 
 		$oldFilePath = tx_dam::file_absolutePath($oldFilePath);
 		$newPath = tx_dam::path_makeAbsolute($newPath);
-
-		if (basename($oldFilePath) !== $newPath) {
+		$oldFileName = tx_dam::file_basename($oldFilePath);;
+				
+		if ($oldFilePath !== $newPath) {
 
 			$error = false;
 
@@ -1529,7 +1566,7 @@ class tx_dam {
 		if (!$error) {
 			$info = array(
 					'target_file' => $oldFilePath,
-					'new_file' => $newPath.basename($oldFilePath),
+					'new_file' => $newPath.$oldFileName,
 				);
 			tx_dam::_callProcessPostTrigger('moveFile', $info);
 		}
@@ -1556,10 +1593,12 @@ class tx_dam {
 		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
 		$TCEfile->init();
 
+		$path_parts = t3lib_div::split_fileref($filename);
+		
 			// Processing create new file
 		$cmd = array();
-		$cmd['newfile']['NONE']['target'] = tx_dam::path_makeAbsolute(dirname($filename));
-		$cmd['newfile']['NONE']['data'] = basename($filename);
+		$cmd['newfile']['NONE']['target'] = tx_dam::path_makeAbsolute($path_parts['path']);
+		$cmd['newfile']['NONE']['data'] = $path_parts['file'];
 		$cmd['newfile']['NONE']['content'] = $content;
 
 		$TCEfile->setCmdmap($cmd);
@@ -1627,7 +1666,7 @@ class tx_dam {
 				// index the file
 			$setup = array(
 				'recursive' => false,
-				'doReindexing' => 1,
+				'doReindexing' => tx_dam::config_checkValueEnabled('indexing.editFile.reindexingMode', 1), // reindexPreserve - preserve old data if new is empty
 				);
 			tx_dam::index_process ($filepath, $setup);
 		}
@@ -1665,8 +1704,8 @@ class tx_dam {
 		$TCEfile->fileProcessor->dontCheckForUnique = true;
 
 
-// FIXME overwrite only orig file not others
-// dontCheckForUnique=true allow overwrtiting any file
+// FIXME overwrite only original file not others
+// dontCheckForUnique=true allow overwriting any file
 // dontCheckForUnique have to be false and the file have to be replaced afterwards?
 
 
@@ -1684,7 +1723,7 @@ class tx_dam {
 
 				$newFile = $log['cmd']['upload'][$id]['target_file'];
 				$newFile = tx_dam::file_absolutePath($newFile);
-				$new_filename = basename($newFile);
+				$new_filename = tx_dam::file_basename($newFile);
 
 					// new file name - so we need to update some stuff
 				if ($new_filename !== $meta['file_name']) {
@@ -1705,11 +1744,11 @@ class tx_dam {
 						}
 					}
 				}
-// TODO make default reindexing value configureable
+
 					// reindex the file
 				$setup = array(
 						'recursive' => false,
-						'doReindexing' => 2, // reindexPreserve - preserve old data if new is empty
+						'doReindexing' => tx_dam::config_checkValueEnabled('indexing.replaceFile.reindexingMode', 2), // reindexPreserve - preserve old data if new is empty
 					);
 				tx_dam::index_process ($newFile, $setup);
 
@@ -1746,7 +1785,7 @@ class tx_dam {
 		$error = false;
 
 		$oldPath = tx_dam::path_makeAbsolute($oldPath);
-		$newName = tx_dam::file_makeCleanName($newName);
+		$newName = tx_dam::file_makeCleanName($newName, true);
 		$newPath = dirname($oldPath).$newName.'/';
 
 			// Init TCE-file-functions object:
@@ -1939,9 +1978,11 @@ class tx_dam {
 
 				// file was moved to recycler
 			if ($recyclerPath) {
-				$org_filename = basename($filename);
-				$new_filename = $recyclerPath;
-				$new_path = dirname($recyclerPath);
+				
+				$org_filename = tx_dam::file_basename($filename);
+				$path_parts = t3lib_div::split_fileref($recyclerPath);
+				$new_filename = $path_parts['file'];
+				$new_path = $path_parts['path'];
 
 				if ($org_filename != $new_filename) {
 					$fields_values['file_name'] = $new_filename;
@@ -1956,16 +1997,24 @@ class tx_dam {
 			}
 
 			tx_dam_db::insertUpdateData($fields_values);
+			
+			
+				// set language overlays deleted
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'l18n_parent='.$uid, array('deleted' => 1));
+			# $GLOBALS['TYPO3_DB']->exec_DELETEquery('tx_dam', 'l18n_parent='.$uid);
 
-			// TODO delete child elements and their MM-relation
+
+		// todo: replace with full supported group concept --------------------
+			// todo: delete child elements and their MM-relation
 			// files stay at their physical storage position (usually uploads/tx_dam/storage/_uid_/)
 
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam', 'parent_id='.intval($uid));
 			while ($childRow = $GLOBALS['TYPO3_DB']->sql_fetch_row($res)) {
 				$childUid = $childRow[0];
 				$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$childUid, array('deleted' => 1));
-				$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$childUid) ;
+				$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$childUid);
 			}
+		// ------------------------------------
 
 		} elseif (preg_match('#/$#', $filename)) {
 			tx_dam_db::updateFilePathSetDeleted($filename);
@@ -2012,7 +2061,7 @@ class tx_dam {
 
 
 	/**
-	 * Returns the icon filepath for a file type icon for a given file.
+	 * Returns the icon file path for a file type icon for a given file.
 	 * $mimeType = tx_dam::file_getType($filename);
 	 *
 	 * @param	array		$mimeType Describes the type of a file. Can be meta record array or array from tx_dam::file_getType().
@@ -2072,7 +2121,7 @@ class tx_dam {
 
 		if (!$absolutePath) {
 			$iconfile = preg_replace('#^'.preg_quote(PATH_site).'#', '', $iconfile);
-	 		if (TYPO3_MODE=='BE') {
+	 		if (TYPO3_MODE === 'BE') {
 				$iconfile = '../'.$iconfile;
 				$iconCacheRel[$cacheKey] = $iconfile;
 			}
@@ -2083,19 +2132,19 @@ class tx_dam {
 
 
 	/**
-	 * Returns the icon filepath for a folder icon for a given path.
+	 * Returns the icon file path for a folder icon for a given path.
 	 *
 	 * @param	array		$pathInfo Path info array: $pathInfo = tx_dam::path_getInfo($path)
 	 * @param	boolean		$absolutePath If set the path to the icon is absolute. By default it's relative to typo3/ folder.
 	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
-	 * @return	string		Iconpath
+	 * @return	string		Icon path
 	 * @see tx_dam::path_getInfo()
 	 * @todo caching
 	 */
 	function icon_getFolder($pathInfo, $absolutePath=false, $mode=TYPO3_MODE)	{
 
 
-		if ($pathInfo['mount_path'] == $pathInfo['dir_path_absolute']) {
+		if ($pathInfo['mount_path'] === $pathInfo['dir_path_absolute']) {
 			switch($pathInfo['mount_type'])	{
 				case 'user':	$iconfile = 'folder_mount_user.gif';	break;
 				case 'group':	$iconfile = 'folder_mount_group.gif';	break;
@@ -2106,17 +2155,17 @@ class tx_dam {
 			if($pathInfo['__protected']) {
 				$iconfile = 'folder_'.$pathInfo['web_sys'].'_protected.gif';
 			}
-			elseif ($pathInfo['dir_name']=='_temp_')	{
+			elseif ($pathInfo['dir_name'] === '_temp_')	{
 				$iconfile = 'folder_temp.gif';
 			}
-			elseif ($pathInfo['dir_name']=='_recycler_')	{
+			elseif ($pathInfo['dir_name'] === '_recycler_')	{
 				$iconfile = 'folder_recycler.gif';
 			}
-// what is this - makes it sense?
-			elseif ($pathInfo['mount_id']=='_temp_')	{
+			// what is this - makes it sense?
+			elseif ($pathInfo['mount_id'] === '_temp_')	{
 				$iconfile = 'folder_mount.gif';
 			} else {
-				$iconfile = 'folder_'.$pathInfo['web_sys'].($pathInfo['dir_writable']?'':'_ro').'.gif';
+				$iconfile = 'folder_'.($pathInfo['web_sys']?$pathInfo['web_sys']:'web').($pathInfo['dir_writable']?'':'_ro').'.gif';
 			}
 		}
 
@@ -2129,7 +2178,7 @@ class tx_dam {
 		
 		if (!$absolutePath) {
 			$iconfile = preg_replace('#^'.preg_quote(PATH_site).'#', '', $iconfile);
-	 		if (TYPO3_MODE=='BE') {
+	 		if (TYPO3_MODE === 'BE') {
 				$iconfile = '../'.$iconfile;
 			}
 		}
@@ -2159,7 +2208,7 @@ class tx_dam {
 		elseif (isset($infoArr['file_name']) OR isset($infoArr['file_type']) OR isset($infoArr['media_type'])) {
 			$iconfile = tx_dam::icon_getFileType ($infoArr);
 			
-			if ($mode=='BE') {
+			if ($mode === 'BE') {
 				$tca_temp_typeicons = $TCA['tx_dam']['ctrl']['typeicons'];
 				$tca_temp_iconfile = $TCA['tx_dam']['ctrl']['iconfile'];
 				unset($TCA['tx_dam']['ctrl']['typeicons']);
@@ -2220,7 +2269,7 @@ class tx_dam {
 			return false;
 		}
 
-		if (tx_dam::path_makeRelative($path)=='') {
+		if (tx_dam::path_makeRelative($path) == '') {
 			return false;
 		}
 
@@ -2328,7 +2377,7 @@ class tx_dam {
 	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
-	 * @todo register name as LANG ressource? Or put it into the class?
+	 * @todo register name as LANG resource? Or put it into the class?
 	 * @todo make it possible to register media_types?
 	 */
 	function register_previewer ($idName, $class, $position='') {
@@ -2401,10 +2450,10 @@ class tx_dam {
 	 * Returns the registry array from for a type like action, editor, mediaTable. Except fileType.
 	 *
 	 * @param string $type Registry name: mediaTable, fileIconPath, action, editor, ... (from register_XXX())
-	 * @param string $select Some special prameter. Depends on the entriy to be fetched
+	 * @param string $select Some special parameter. Depends on the entry to be fetched
 	 * @return array
 	 */
-	function register_getEntries($type, $select) {
+	function register_getEntries($type, $select=NULL) {
 		$registry = array();
 		switch ($type) {
 			case 'mediaTable':
@@ -2445,30 +2494,29 @@ class tx_dam {
 	 * @return	mixed		Just the value or when $getProperties is set an array with the properties of the $configPath.
 	 */
 	function config_getValue($configPath='', $getProperties=false) {
-		$configValues = false;
-
-		$config = $GLOBALS['T3_VAR']['ext']['dam']['config'];
-
-		if(!is_array($config)) {
-			tx_dam::config_init();
-		}
-
-		if ($configPath) {
-			$configValues = tx_dam::_getTSConfigObject($configPath, $config['mergedTSconfig']);
-		}
-
-		if ($getProperties) {
-			$configValues = $configValues['properties'];
-		} else {
-			$configValues = $configValues['value'];
-		}
-
-		return $configValues;
+		require_once(PATH_txdam.'lib/class.tx_dam_config.php');
+		return tx_dam_config::getValue($configPath, $getProperties);
 	}
-
+	
+	
+	/**
+	 * Check a config value if its enabled
+	 * Anything except '' and 0 is true
+	 * If the the option is not set the default value will be returned
+	 *
+	 * @param	string		$configPath Pointer to an "object" in the TypoScript array, fx. 'setup.selections.default'
+	 * @param	mixed 		$default Default value when option is not set, otherwise the value itself
+	 * @return boolean
+	 */
+	function config_checkValueEnabled($configPath, $default=false) {
+		require_once(PATH_txdam.'lib/class.tx_dam_config.php');
+		return tx_dam_config::checkValueEnabled($configPath, $default);
+	}
+	
+	
 	/**
 	 * Set a dam config value
-	 * The configPath must begin with "setup." or "mod."
+	 * The config path must begin with "setup." or "mod."
 	 * "setup" is mapped to tx_dam TSConfig key.
 	 *
 	 * @param	string		$configPath Pointer to an "object" in the TypoScript array, fx. 'setup.selections.default'
@@ -2477,73 +2525,48 @@ class tx_dam {
 	 * @todo map user setup/options to dam setup?
 	 */
 	function config_setValue($configPath='', $value='') {
+		require_once(PATH_txdam.'lib/class.tx_dam_config.php');
+		return tx_dam_config::setValue($configPath, $value);
+	}
 
-		$config = & $GLOBALS['T3_VAR']['ext']['dam']['config'];
 
-		$perfomMerge = false;
-		if(!is_array($config)) {
-			tx_dam::config_init();
-		}
-
-		if ($configPath) {
-			list ($baseKey, $options) = explode('.', $configPath, 2);
-			$options = explode('.', $options);
-			$lastOption = count ($options);
-			if (!is_array($config['definedTSconfig'][$baseKey.'.'])) {
-				$config['definedTSconfig'][$baseKey.'.'] = array();
-			}
-			$optionArrPath = & $config['definedTSconfig'][$baseKey.'.'];
-			$optCount = 0;
-			foreach ($options as $optionValue) {
-				$optCount++;
-				if ($optCount < $lastOption) {
-					$optionArrPath = & $optionArrPath[$optionValue.'.'];
-				} else {
-					$optionArrPath = & $optionArrPath[$optionValue.(is_array($value)?'.':'')];
-				}
-
-			}
-			$optionArrPath = $value;
-			$perfomMerge = true;
-		}
-		if ($perfomMerge) {
-			$config['mergedTSconfig'] = t3lib_div::array_merge_recursive_overrule($config['pageUserTSconfig'], $config['definedTSconfig']);
-		}
+	/**
+	 * Check a config value if its enabled
+	 * Anything except '' and 0 is true
+	 *
+	 * @param	mixed 		$value Value to be checked
+	 * @return mixed	Return false if value is empty or 0, otherwise the value itself
+	 */
+	function config_isEnabled($value) {
+		require_once(PATH_txdam.'lib/class.tx_dam_config.php');
+		return tx_dam_config::isEnabled($value);
+	}
+	
+	
+	/**
+	 * Check a config value if its enabled
+	 * Anything except '' and 0 is true
+	 *
+	 * @param	array 		$config Configuration array
+	 * @param	string 		$option Option key. If not set in $config default value will be returned
+	 * @param	mixed 		$default Default value when option is not set, otherwise the value itself
+	 * @return boolean
+	 */
+	function config_isEnabledOption($config, $option, $default=false) {
+		require_once(PATH_txdam.'lib/class.tx_dam_config.php');
+		return tx_dam_config::isEnabledOption($config, $option, $default);
 	}
 
 
 	/**
 	 * Init dam config values - which means they are fetched from TSConfig
 	 *
-	 * @param	boolean $force Will force the initialitzation to be done again except definedTSconfig set by config_setValue
+	 * @param	boolean $force Will force the initialization to be done again except definedTSconfig set by config_setValue
 	 * @return void
 	 */
 	function config_init($force=false) {
-
-		$config = & $GLOBALS['T3_VAR']['ext']['dam']['config'];
-
-		$perfomMerge = false;
-		if(!is_array($config)) {
-			$config = array();
-			$config['definedTSconfig'] = array();
-			$config['mergedTSconfig'] = array();
-		}
-		if(($force OR !is_array($config['userTSconfig'])) AND ($TSconfig = tx_dam::_getTSconfig())) {
-			$config['pageUserTSconfig'] = $config['userTSconfig'] = $TSconfig;
-			$perfomMerge = true;
-		}
-
-		if($force OR !is_array($config['pageTSconfig'])) {
-			if ($pid = tx_dam_db::getPid() AND ($TSconfig = tx_dam::_getTSconfig($pid))) {
-				$config['pageTSconfig'] = $TSconfig;
-				$config['pageUserTSconfig'] = t3lib_div::array_merge_recursive_overrule($config['pageTSconfig'], $config['userTSconfig']);
-				$perfomMerge = true;
-			}
-		}
-
-		if ($perfomMerge) {
-			$config['mergedTSconfig'] = t3lib_div::array_merge_recursive_overrule($config['pageUserTSconfig'], $config['definedTSconfig']);
-		}
+		require_once(PATH_txdam.'lib/class.tx_dam_config.php');
+		tx_dam_config::init($force);
 	}
 
 
@@ -2559,91 +2582,6 @@ class tx_dam {
 	 ***************************************/
 
 
-
-	/**
-	 * get TSConfig values for initialization
-	 *
-	 * @access private
-	 * @param integer $pid If set page TSConfig will be fetched otherwise user TSConfig
-	 * @return array
-	 */
-	function _getTSconfig ($pid=0) {
-		global $TYPO3_CONF_VARS;
-
-		$values = false;
-
-		if (TYPO3_MODE=='FE' AND is_object($GLOBALS['TSFE'])) {
-			$TSconfig = '';
-			if ($pid) {
-				$TSconfig = $GLOBALS['TSFE']->getPagesTSconfig($pid);
-			} else {
-				$TSconfig = $GLOBALS['TSFE']->fe_user->getUserTSconf();
-			}
-
-				// get global config
-			$TSConfValues = tx_dam::_getTSConfigObject('tx_dam', $TSconfig);
-			$global = $TSConfValues['properties'];
-
-				// get plugin config
-			$plugin = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_dam.'];
-
-			$values = array('setup.' => $global, 'plugin.' => $plugin);
-
-			// mod. properties are not used for FE
-
-
-		} elseif (is_object($GLOBALS['BE_USER'])) {
-			$TSconfig = '';
-			if ($pid) {
-				require_once(PATH_t3lib.'class.t3lib_befunc.php');
-				$TSconfig = t3lib_BEfunc::getPagesTSconfig($pid);
-			}
-
-				// get global config
-			$TSConfValues = $GLOBALS['BE_USER']->getTSConfig('tx_dam', $TSconfig);
-			$global = $TSConfValues['properties'];
-
-				// get mod config of dam_* modules
-			$TSConfValues = $GLOBALS['BE_USER']->getTSConfig('mod', $TSconfig);
-			if (is_array($mod = $TSConfValues['properties'])) {
-				foreach($mod as $key => $value) {
-					if (!(substr($key, 0, 7)=='txdamM1')) {
-						unset($mod[$key]);
-					}
-				}
-			}
-			$values = array('setup.' => $global, 'mod.' => $mod);
-		}
-
-		return $values;
-	}
-
-
-	/**
-	 * Returns the value/properties of a TS-object as given by $objectString, eg. 'options.dontMountAdminMounts'
-	 * Nice (general!) function for returning a part of a TypoScript array!
-	 *
-	 * @param	string		$objectString Pointer to an "object" in the TypoScript array, fx. 'options.dontMountAdminMounts'
-	 * @param	array		$config TSconfig array
-	 * @return	array		An array with two keys, "value" and "properties" where "value" is a string with the value of the objectsting and "properties" is an array with the properties of the objectstring.
-	 * @params	array	An array with the TypoScript where the $objectString is located.
-	 */
-	function _getTSConfigObject($objectString, $config)	{
-
-		$TSConf=array();
-		$parts = explode('.',$objectString,2);
-		$key = $parts[0];
-		if (trim($key))	{
-			if (count($parts)>1 && trim($parts[1]))	{
-				// Go on, get the next level
-				if (is_array($config[$key.'.']))	$TSConf = tx_dam::_getTSConfigObject($parts[1],$config[$key.'.']);
-			} else {
-				$TSConf['value']=$config[$key];
-				$TSConf['properties']=$config[$key.'.'];
-			}
-		}
-		return $TSConf;
-	}
 
 
 	/**
@@ -2677,11 +2615,11 @@ class tx_dam {
 					if ($pointer) {
 						$newArr = array();
 						foreach($items as $key => $v) {
-							if ($pointer == $key AND $place=='before') {
+							if ($pointer == $key AND $place === 'before') {
 								$newArr[$idName] = $value;
 							}
 							$newArr[$key] = $v;
-							if ($pointer == $key AND $place=='after') {
+							if ($pointer == $key AND $place === 'after') {
 								$newArr[$idName] = $value;
 							}
 						}

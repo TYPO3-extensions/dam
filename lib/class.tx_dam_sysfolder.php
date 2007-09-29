@@ -67,8 +67,7 @@ class tx_dam_sysfolder {
 	 */
 	function init()	{
 
-// FIXME
-$GLOBALS['TYPO3_DB']->exec_UPDATEquery('pages', 'module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').'', array('doktype'=>'254'));
+		if (!is_object($GLOBALS['TYPO3_DB'])) return false;
 
 		$damFolders = tx_dam_sysfolder::getAvailable();
 		if (!count($damFolders)) {

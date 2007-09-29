@@ -75,7 +75,7 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 	 * @return	boolean Return true if access is granted
 	 */
 	function accessCheck() {
-		return tx_dam::access_checkAction('newFolder');
+		return tx_dam::access_checkFileOperation('newFolder');
 	}
 
 
@@ -148,7 +148,7 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 			function reload(a)	{	//
 				if (!changed || (changed && confirm('.$LANG->JScharCode($LANG->sL('LLL:EXT:lang/locallang_core.xml:mess.redraw')).')))	{
 					var params = "&number="+a;
-					document.location = "'.t3lib_div::linkThisScript().'"+params;
+					document.location.href = "'.t3lib_div::linkThisScript().'"+params;
 				}
 			}
 

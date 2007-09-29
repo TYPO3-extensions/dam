@@ -108,6 +108,11 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 	 * if set files will be checked if index anf if not it will be done in place
 	 */
 	var $enableAutoIndexing = false;
+
+	/**
+	 * if set >0 autindexing will stop after the amount of files
+	 */
+	var $maxAutoIndexingItems = 0;
 	
 	/**
 	 * List of allow regex
@@ -381,7 +386,7 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 							}
 						}
 
-						if($type=='file') {
+						if($type === 'file') {
 							$fileInfo = tx_dam::file_compileInfo($filepath);
 
 							if (is_array($meta = tx_dam::meta_getDataForFile($fileInfo))) {
@@ -405,7 +410,7 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 								$this->autoIndex($fileInfo);
 							}
 						}
-						elseif($type=='dir' OR $type=='link') {
+						elseif($type === 'dir' OR $type === 'link') {
 							$fileInfo = tx_dam::path_compileInfo($filepath);
 						}
 							// the file is valid so we add it to the list
@@ -459,15 +464,18 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 	 * @param array $item
 	 */
 	function autoIndex(&$item) {
+		static $indexed = 0;
+
+		if ($this->maxAutoIndexingItems AND ($indexed >= $this->maxAutoIndexingItems)) return;
 
 			// we don't index indexing setup files
-		if ($item['file_name']=='.indexing.setup.xml') {
+		if ($item['file_name'] === '.indexing.setup.xml') {
 
 		} elseif(!($uid = tx_dam::file_isIndexed($item))) {
 			if ($metaRow = tx_dam::index_autoProcess($item)) {
 				$item = $metaRow['fields'];
-				
 				$item['__isIndexed'] = true;
+				$indexed ++;
 			}
 		}
 	}

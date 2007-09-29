@@ -52,7 +52,7 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 	public function test_file_compileInfo () {
 
 		$filepath = $this->getFixtureFilename();
-		$filename = basename($filepath);
+		$filename = tx_dam::file_basename($filepath);
 
 		$ignoreExistence=true;
 		for ($index = 0; $index < 2; $index++) {
@@ -132,7 +132,7 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 		$cmd = t3lib_exec::getCommand('md5sum');
 		$output = array();
 		$retval = '';
-		exec($cmd.' -b "'.escapeshellcmd($filename).'"', $output, $retval);
+		exec($cmd.' -b '.escapeshellcmd($filename), $output, $retval);
 		$output = explode(' ',$output[0]);
 		$match = array();
 		if (preg_match('#[0-9a-f]{32}#', $output[0], $match)) {
@@ -157,8 +157,8 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 		$GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'] = array();
 
 		$filepath = $this->getFixtureFilename();
-		$filename = basename($filepath);
-		$testpath = dirname($filepath).'/';
+		$filename = tx_dam::file_basename($filepath);
+		$testpath = tx_dam::file_dirname($filepath);
 
 
 		$path = tx_dam::path_makeClean ($testpath);
@@ -183,8 +183,8 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 		$GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'] = array();
 
 		$filepath = $this->getFixtureFilename();
-		$filename = basename($filepath);
-		$testpath = dirname($filepath).'/';
+		$filename = tx_dam::file_basename($filepath);
+		$testpath = tx_dam::file_dirname($filepath);
 
 		$relPath = t3lib_extmgm::siteRelPath('dam').'tests/fixtures/'.$filename;
 
@@ -213,20 +213,83 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] = 25;
 		
 		$filename = 'abcdefghijklmnopqrstuvwxyz.abc';
-		$filename = tx_dam::file_makeCleanName ($filename);
+		$filename = tx_dam::file_makeCleanName ($filename, true);
 		self::assertEquals ($filename, 'abcdefghijklmnopqrstu.abc', 'File name differs: '.$filename.' (abcdefghijklmnopqrstu.abc)');
 		
 		$filename = 'abcdefghijKLMNOPQRSTUVWXYZ.abc';
-		$filename = tx_dam::file_makeCleanName ($filename);
+		$filename = tx_dam::file_makeCleanName ($filename, true);
 		self::assertEquals ($filename, 'abcdefghijKLMNOPQRSTU.abc', 'File name differs: '.$filename.' (abcdefghijKLMNOPQRSTU.abc)');
 		
 		$filename = 'a0-_.,;:#+*=()/!§$%&XYZ.abc';
-		$filename = tx_dam::file_makeCleanName ($filename);
+		$filename = tx_dam::file_makeCleanName ($filename, true);
 		self::assertEquals ($filename, 'a0-_.,;_#+_=()_!§$%&X.abc', 'File name differs: '.$filename.' (a0-_.,;_#+_=()_!$%&X.abc)');
 		
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] = $tempSave;
 	}
 
+
+
+	/**
+	 * tx_dam::file_dirname()
+	 */
+	public function test_file_dirname () {
+		$path = 'hjfds fhsdjka/ fhjkasdhf das/djjghfgh/צהצüצה/hjfds/XXX/';
+		$resultname = tx_dam::file_dirname ($path);
+		self::assertEquals ($resultname, $path, 'Path not equal: '.$resultname.' - '.$path);
+		
+		$path = 'hjfds fhsdjka/ fhjkasdhf das/djjghfgh/צהצüצה/hjfds/XXX/';
+		$filename = 'abcdefghijklmnopqrstuvwxyz.abc';
+		$resultname = tx_dam::file_dirname ($path.$filename);
+		self::assertEquals ($resultname, $path, 'Path not equal: '.$resultname.' - '.$path);
+		
+		$path = '/a/';
+		$filename = 'abcdef ghijklmno pqrstuvwxyz.abc';
+		$resultname = tx_dam::file_dirname ($path.$filename);
+		self::assertEquals ($resultname, $path, 'Path not equal: '.$resultname.' - '.$path);
+		
+		$path = 'a/';
+		$filename = 'צהü';
+		$resultname = tx_dam::file_dirname ($path.$filename);
+		self::assertEquals ($resultname, $path, 'Path not equal: '.$resultname.' - '.$path);
+		
+		$path = '/';
+		$filename = 'צהü ';
+		$resultname = tx_dam::file_dirname ($path.$filename);
+		self::assertEquals ($resultname, $path, 'Path not equal: '.$resultname.' - '.$path);
+		
+		$path = '/';
+		$filename = '-+#.123צהü xxx';
+		$resultname = tx_dam::file_dirname ($path.$filename);
+		self::assertEquals ($resultname, $path, 'Path not equal: '.$resultname.' - '.$path);
+	}
+
+	/**
+	 * tx_dam::file_basename()
+	 */
+	public function test_file_basename () {
+		$path = 'hjfds fhsdjka/ fhjkasdhf das/djjghfgh/צהצüצה/hjfds/XXX/';
+		$filename = 'abcdefghijklmnopqrstuvwxyz.abc';
+		$resultname = tx_dam::file_basename ($path.$filename);
+		self::assertEquals ($resultname, $filename, 'File name not equal: '.$resultname.' - '.$filename);
+		
+		$filename = 'abcdef ghijklmno pqrstuvwxyz.abc';
+		$resultname = tx_dam::file_basename ($path.$filename);
+		self::assertEquals ($resultname, $filename, 'File name not equal: '.$resultname.' - '.$filename);
+		
+		$filename = 'צהü';
+		$resultname = tx_dam::file_basename ($path.$filename);
+		self::assertEquals ($resultname, $filename, 'File name not equal: '.$resultname.' - '.$filename);
+		
+		$filename = 'צהü ';
+		$resultname = tx_dam::file_basename ($path.$filename);
+		self::assertEquals ($resultname, $filename, 'File name not equal: '.$resultname.' - '.$filename);
+		
+		$filename = '-+#.123צהü xxx';
+		$resultname = tx_dam::file_basename ($path.$filename);
+		self::assertEquals ($resultname, $filename, 'File name not equal: '.$resultname.' - '.$filename);
+	}
+	
+	
 
 	/***************************************
 	 *
@@ -235,6 +298,34 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 	 ***************************************/
 
 
+
+	/**
+	 * tx_dam::path_basename()
+	 */
+	public function test_path_basename () {
+		$path = 'hjfds fhsdjka/ fhjkasdhf das/djjghfgh/צהצüצה/hjfds/XXX/';
+		$foldername = 'abcdefghijklmnopqrstuvwxyz.abc';
+		$resultname = tx_dam::path_basename ($path.$foldername);
+		self::assertEquals ($resultname, $foldername, 'Folder name not equal: '.$resultname.' - '.$foldername);
+		
+		$foldername = 'abcdef ghijklmno pqrstuvwxyz.abc';
+		$resultname = tx_dam::path_basename ($path.$foldername.'/');
+		self::assertEquals ($resultname, $foldername, 'Folder name not equal: '.$resultname.' - '.$foldername);
+		
+		$foldername = 'צהü';
+		$resultname = tx_dam::path_basename ($path.$foldername.'/');
+		self::assertEquals ($resultname, $foldername, 'Folder name not equal: '.$resultname.' - '.$foldername);
+		
+		$foldername = 'צהü ';
+		$resultname = tx_dam::path_basename ($path.$foldername.'/');
+		self::assertEquals ($resultname, $foldername, 'Folder name not equal: '.$resultname.' - '.$foldername);
+		
+		$foldername = '-+#.123צהü xxx';
+		$resultname = tx_dam::path_basename ($path.$foldername);
+		self::assertEquals ($resultname, $foldername, 'Folder name not equal: '.$resultname.' - '.$foldername);
+	}
+	
+
 	/**
 	 * tx_dam::path_makeXXX()
 	 */
@@ -242,8 +333,8 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 		$GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'] = array();
 
 		$filepath = $this->getFixtureFilename();
-		$filename = basename($filepath);
-		$testpath = dirname($filepath).'/';
+		$filename = tx_dam::file_basename($filepath);
+		$testpath = tx_dam::file_dirname($filepath);
 
 		$path = tx_dam::path_makeClean ($testpath);
 		$path = tx_dam::path_makeRelative ($path);
@@ -283,8 +374,8 @@ class tx_dam_base_testcase extends tx_dam_testlib {
 		$GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'] = array();
 
 		$filepath = $this->getFixtureFilename();
-		$filename = basename($filepath);
-		$testpath = dirname($filepath).'/';
+		$filename = tx_dam::file_basename($filepath);
+		$testpath = tx_dam::file_dirname($filepath);
 
 		$pathInfo = tx_dam::path_compileInfo($testpath);
 		self::assertTrue (is_array($pathInfo), 'Path not found: '.$testpath);

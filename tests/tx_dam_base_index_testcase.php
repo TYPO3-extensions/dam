@@ -70,20 +70,17 @@ class tx_dam_base_index_testcase extends tx_dam_testlib {
 		
 		$status = tx_dam::index_check('', $hash);
 		self::assertEquals ($status['__status'], TXDAM_file_unknown, 'File: '.$filepath);
-		
-// TODO check indexed		
+	
+// todo: check index_check for indexed file
+
 		$this->removeFixturePathFromFilemount();
 	}
 
 
 	/**
-	 * Tries to find a lost index entry for a lost file and reconnect these items
-	 *
-	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
-	 * @param	string		$hash The hash value will be used to identify the file if the file name was not found. That can happen if the file was renamed or moved without index update.
-	 * @return	array		status: array('__status' => TXDAM_file_notfound,'meta' => array(...));
+	 * tx_dam::index_reconnect()
 	 */
-	public function test_index_reconnect($fileInfo, $hash='') {
+	public function test_index_reconnect() {
 		$this->removeFixtureTempFiles();
 		$this->removeIndexSetup();
 		$this->removeFixturesFromIndex();
@@ -94,7 +91,7 @@ class tx_dam_base_index_testcase extends tx_dam_testlib {
 		$uid = tx_dam::file_isIndexed($filepath);
 		self::assertEquals ($uid, false, 'File index found, but shouldn\'t');
 		
-		tx_dam::config_setValue('setup.indexing.auto.disable', false);
+		tx_dam::config_setValue('setup.indexing.auto', true);
 		$indexed = tx_dam::index_autoProcess($filepath, $reindex=false);
 		self::assertTrue (isset($indexed['isIndexed']), 'File not indexed');
 	
@@ -135,11 +132,11 @@ class tx_dam_base_index_testcase extends tx_dam_testlib {
 		$uid = tx_dam::file_isIndexed($filepath);
 		self::assertFalse ($uid, 'File index found, but shouldn\'t');		
 		
-		tx_dam::config_setValue('setup.indexing.auto.disable', true);
+		tx_dam::config_setValue('setup.indexing.auto', false);
 		$indexed = tx_dam::index_autoProcess($filepath, $reindex=false);
 		self::assertFalse (isset($indexed['isIndexed']), 'File IS indexed but shouldn\'t');	
 		
-		tx_dam::config_setValue('setup.indexing.auto.disable', false);
+		tx_dam::config_setValue('setup.indexing.auto', true);
 		$indexed = tx_dam::index_autoProcess($filepath, $reindex=false);
 		self::assertTrue (isset($indexed['isIndexed']), 'File not indexed');
 		
@@ -201,9 +198,6 @@ class tx_dam_base_index_testcase extends tx_dam_testlib {
 		self::assertTrue ((boolean)$meta['width'], 'Missing value');
 		self::assertTrue ((boolean)$meta['height'], 'Missing value');
 		self::assertTrue ((boolean)$meta['height_unit'], 'Missing value');
-
-#debug($meta);
-#echo nl2br($this->dumpMetaArray($meta));
 				
 		$this->removeFixturePathFromFilemount();
 		$this->removeFixturesFromIndex();
@@ -216,13 +210,13 @@ class tx_dam_base_index_testcase extends tx_dam_testlib {
 			$meta = array(';
 		$start = false;
 		foreach ($meta as $field => $value) {
-			if ($field=='title') $start = true;
+			if ($field==='title') $start = true;
 			if (!$start) continue;
-			if (substr($field,0,6)=='t3ver_') continue;
-			if (substr($field,0,5)=='l18n_') continue;
-			if (substr($field,0,4)=='sys_') continue;
-			if (substr($field,0,3)=='tx_') continue;
-			if ($field=='meta') continue;
+			if (substr($field,0,6)==='t3ver_') continue;
+			if (substr($field,0,5)==='l18n_') continue;
+			if (substr($field,0,4)==='sys_') continue;
+			if (substr($field,0,3)==='tx_') continue;
+			if ($field==='meta') continue;
 			
 			$content .= '
 				\''.$field.'\' => \''.addslashes($value).'\'';

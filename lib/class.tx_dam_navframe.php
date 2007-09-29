@@ -101,9 +101,9 @@ class tx_dam_navframe {
 				var theUrl = top.TS.PATH_typo3+top.currentSubScript+"?"+params;
 
 				if (top.condensedMode)	{
-					top.content.document.location=theUrl;
+					top.content.document.location.href=theUrl;
 				} else {
-					parent.list_frame.document.location=theUrl;
+					parent.list_frame.document.location.href=theUrl;
 				}
 				'.($this->doHighlight?'hilight_row("row"+top.fsMod.recentIds["txdamM1"],highLightID);':'').'
 				'.(!$GLOBALS['CLIENT']['FORMSTYLE'] ? '' : 'if (linkObj) {linkObj.blur();}').'
@@ -119,7 +119,7 @@ class tx_dam_navframe {
 
 
 			function _refresh_nav()	{
-				document.location="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => time()))).'";
+				document.location.href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => time()))).'";
 			}
 
 				// Highlighting rows in the page tree:

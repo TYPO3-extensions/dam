@@ -39,12 +39,12 @@ class tx_dam_config_testcase extends tx_dam_testlib {
 	public function test_config_setValue () {
 		tx_dam::config_init();
 		
-		tx_dam::config_setValue('setup.indexing.auto.disable', true);
-		$value = tx_dam::config_getValue('setup.indexing.auto.disable');
+		tx_dam::config_setValue('setup.indexing.auto', true);
+		$value = tx_dam::config_getValue('setup.indexing.auto');
 		self::assertEquals ($value, true);
 		
-		tx_dam::config_setValue('setup.indexing.auto.disable', false);
-		$value = tx_dam::config_getValue('setup.indexing.auto.disable');
+		tx_dam::config_setValue('setup.indexing.auto', false);
+		$value = tx_dam::config_getValue('setup.indexing.auto');
 		self::assertEquals ($value, false);
 		
 	}

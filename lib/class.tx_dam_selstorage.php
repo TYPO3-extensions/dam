@@ -108,7 +108,7 @@
  *
  */
 
-// TODO localization
+
 
 /**
  * Manage storing and restoring of $GLOBALS['SOBE']->MOD_SETTINGS settings.
@@ -117,6 +117,7 @@
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-BeLib
  * @subpackage GUI
+ * @todo localization
  */
 class tx_dam_selStorage {
 
@@ -427,7 +428,7 @@ class tx_dam_selStorage {
 			$code.= '
 			<div><strong>'.htmlspecialchars($this->msg).'</strong></div>';
 		}
-// TODO need to add parameters
+// todo need to add parameters
 		if ($useOwnForm AND trim($code)) {
 			$code = '
 		<form action="'.t3lib_div::getIndpEnv('SCRIPT_NAME').'" method="post" name="'.$this->formName.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">'.$code.'</form>';

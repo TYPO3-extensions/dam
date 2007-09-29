@@ -42,23 +42,15 @@ class ext_update  {
 	function main()	{
 
 		if (!t3lib_div::GPvar('do_update'))	{
-			$onClick = "document.location='".t3lib_div::linkThisScript(array('do_update'=>1))."'; return false;";
+			$onClick = "document.location.href='".t3lib_div::linkThisScript(array('do_update'=>1))."'; return false;";
 
 			return 'Do you want to perform the database update now?
 
 				<form action=""><input type="submit" value="DO IT" onclick="'.htmlspecialchars($onClick).'"></form>
 			';
 		} else {
-
-				$GLOBALS['TYPO3_DB']->exec_UPDATEquery('pages', 'module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').'', array('doktype'=>'254'));
-
-
-				$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tt_content');
-				if (isset($res['tx_dam_flexform']) AND !isset($res['ce_flexform'])) {
-					$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tt_content CHANGE tx_dam_flexform ce_flexform mediumtext NOT NULL');
-				}
 				
-				return 'DB updated.';
+			return $this->perform_update();
 		}
 	}
 
@@ -68,6 +60,16 @@ class ext_update  {
 	 * @return	boolean
 	 */
 	function access()	{
+		
+		
+		// Just do the upgrade without to ask
+		
+		$this->perform_update();
+		return false;
+		
+		
+		//-------------------------
+		
 		$doit = false;
 		
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('count(*)', 'pages', 'module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').' AND doktype<254');
@@ -79,8 +81,46 @@ class ext_update  {
 			$doit = true;
 		}
 		
+		$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
+		if (!isset($res['sorting_foreign'])) {
+			$doit = true;
+		}
+		
 		return $doit;
 	}
+
+
+
+	/**
+	 * Do the DB update
+	 * 
+	 * @return	string		HTML
+	 */
+	function perform_update()	{
+
+		$content = '';
+		
+		$GLOBALS['TYPO3_DB']->exec_UPDATEquery('pages', 'module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').'', array('doktype'=>'254'));
+		$content .= 'Updated Media folder to be a SysFolder<br />';
+
+		$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tt_content');
+		if (isset($res['tx_dam_flexform']) AND !isset($res['ce_flexform'])) {
+			$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tt_content CHANGE tx_dam_flexform ce_flexform mediumtext NOT NULL');
+			$content .= 'Renamed field tt_content.tx_dam_flexform to ce_flexform<br />';
+		}	
+
+		if (t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
+			$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
+			if (!isset($res['sorting_foreign'])) {
+				$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref CHANGE sorting sorting_foreign int(11) unsigned DEFAULT 0 NOT NULL');
+				$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref ADD sorting int(11) unsigned DEFAULT 0 NOT NULL');
+				$content .= 'Renamed field tx_dam_mm_ref.sorting to sorting_foreign<br />';
+			}
+		}
+		
+		return $content;
+	}
+
 
 }
 

@@ -138,7 +138,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		$this->addColumn('perms', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.xml:c_rw'));
 		$this->addColumn('_CONTROL_', '');
 #		$this->addColumn('_CLIPBOARD_', '');
-// TODO Clipboard
+#TODO Clipboard
 
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist typo3-filelist"';
 	}
@@ -198,7 +198,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 					}
 				break;
 				case 'size':
-					if ($type=='file') {
+					if ($type === 'file') {
 						$columns[$field] = (string)($item[$type.'_size']);
 					}
 					else {
@@ -212,7 +212,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 					$columns[$field] = date($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'], $item[$type.'_mtime']);
 				break;
 				case 'title':
-					if ($type=='file') {
+					if ($type === 'file') {
 						$columns[$field] = $this->linkWrapFile($this->cropTitle($item[$type.'_title'], $field), $item);
 					}
 					else {
@@ -333,13 +333,12 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		$content = '';
 
 		if ($this->showControls) {
-			if (!is_object($actionCall[$item['__type']])) {
+			if (!is_object($actionCall)) {
 				$actionCall[$item['__type']] = t3lib_div::makeInstance('tx_dam_actionCall');
 				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
 				$actionCall[$item['__type']]->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 				$actionCall[$item['__type']]->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
-// TODO pObj exist?
-				$actionCall[$item['__type']]->setEnv('pathInfo', $this->pObj->pathInfo);
+				$actionCall[$item['__type']]->setEnv($this->actionsEnv);
 				$actionCall[$item['__type']]->initActions(true);
 			} elseif ($actionCall[$item['__type']]->itemInfo['__type']!=$item['__type']){
 				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
@@ -356,10 +355,6 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		}
 
 		return $content;
-
-// TODO how to add spacer with actions?
-		$actions[] = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clear.gif', 'width="12" height="12"').' alt="" />';
-
 	}
 
 
@@ -369,47 +364,99 @@ class tx_dam_listfiles extends tx_dam_listbase {
 	 * @return	string		HTML table with the control panel (unless disabled)
 	 */
 	function getHeaderControl() {
+		global $TYPO3_CONF_VARS;
+		
+		static $actionCall = array();;
 
 		$content = '';
 
-		$pathInfo = $this->pathInfo;
-		$path = $pathInfo['dir_path_absolute'];
+		if ($this->showControls) {
+			$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+			$actionCall->setRequest('globalcontrol', $this->actionsEnv['pathInfo']);
+			$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+			$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+			$actionCall->setEnv($this->actionsEnv);
+			$actionCall->initActions(true);
 
-		//
-		// actions
-		//
-
-
-// FIXME use API !!!!
-		if ($this->showControls AND $pathInfo['dir_writable']) {
-			$actions = array();
-			$cmd = 'tx_dam_cmd_foldernew';
-			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&vC='.$GLOBALS['BE_USER']->veriCode().'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
-			$actions[] = '<a href="'.htmlspecialchars($script).'">'.
-						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/new_webfolder.gif', 'width="17" height="12"').' title="'.$GLOBALS['LANG']->getLL('newFolder').'" alt="" valign="top" />'.
-						'</a>';
-
-//			$cmd = 'tx_dam_cmd_filenewtextfile';
-//			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&vC='.$GLOBALS['BE_USER']->veriCode().'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
-//			$actions[] = '<a href="'.htmlspecialchars($script).'">'.
-//						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/new_file.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('newTextFile').'" alt="" valign="top" />'.
-//						'</a>';
-
+			$actions = $actionCall->renderActionsHorizontal(true);
 
 				// Compile items into a DIV-element:
 			$content = '
 												<!-- CONTROL PANEL: path -->
 												<div class="typo3-DBctrlGlobal">'.implode('', $actions).'</div>';
-
 		}
-		return $content;
 
+		return $content;
 	}
 
 
 
 
 
+	/***************************************
+	 *
+	 *	 Misc
+	 *
+	 ***************************************/
+
+
+
+
+	/**
+	 * Returns unix like string of file permission
+	 *
+	 * @param	integer		$perms Permissions eg from fileperms()
+	 * @return	string		Eg. rwxr-x---
+	 */
+	function getFilePermString ($perms) {
+		if (($perms & 0xC000) == 0xC000) {
+			// Socket
+			$info = 's';
+		 } elseif (($perms & 0xA000) == 0xA000) {
+			// Symbolic Link
+			$info = 'l';
+		 } elseif (($perms & 0x8000) == 0x8000) {
+			// Regular
+			$info = '-';
+		 } elseif (($perms & 0x6000) == 0x6000) {
+			// Block special
+			$info = 'b';
+		 } elseif (($perms & 0x4000) == 0x4000) {
+			// Directory
+			$info = 'd';
+		 } elseif (($perms & 0x2000) == 0x2000) {
+			// Character special
+			$info = 'c';
+		 } elseif (($perms & 0x1000) == 0x1000) {
+			// FIFO pipe
+			$info = 'p';
+		 } else {
+			// Unknown
+			$info = 'u';
+		 }
+
+		 // Owner
+		 $info .= (($perms & 0x0100) ? 'r' : '-');
+		 $info .= (($perms & 0x0080) ? 'w' : '-');
+		 $info .= (($perms & 0x0040) ?
+					(($perms & 0x0800) ? 's' : 'x' ) :
+					(($perms & 0x0800) ? 'S' : '-'));
+
+		 // Group
+		 $info .= (($perms & 0x0020) ? 'r' : '-');
+		 $info .= (($perms & 0x0010) ? 'w' : '-');
+		 $info .= (($perms & 0x0008) ?
+					(($perms & 0x0400) ? 's' : 'x' ) :
+					(($perms & 0x0400) ? 'S' : '-'));
+
+		 // World
+		 $info .= (($perms & 0x0004) ? 'r' : '-');
+		 $info .= (($perms & 0x0002) ? 'w' : '-');
+		 $info .= (($perms & 0x0001) ?
+					(($perms & 0x0200) ? 't' : 'x' ) :
+					(($perms & 0x0200) ? 'T' : '-'));
+		return $info;
+	}
 
 }
 

@@ -71,7 +71,7 @@ class tx_dam_browse_folder extends browse_links {
 
 #		$pArr = explode('|', t3lib_div::_GP('bparams'));
 
-		if ($type=='tx_dam_folder') {
+		if ($type === 'tx_dam_folder') {
 			$isValid = true;
 		}
 
@@ -177,7 +177,7 @@ class tx_dam_browse_folder extends browse_links {
 			// Create folder tree:
 		$foldertree = t3lib_div::makeInstance('TBE_FolderTree');
 		$foldertree->thisScript=$this->thisScript;
-		$foldertree->ext_noTempRecyclerDirs = ($this->mode == 'filedrag');
+		$foldertree->ext_noTempRecyclerDirs = ($this->mode === 'filedrag');
 		$tree=$foldertree->getBrowsableTree();
 
 		list(,,$specUid) = explode('_',$this->PM);
@@ -265,7 +265,7 @@ class tx_dam_browse_folder extends browse_links {
 
 			$folderIcon='<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/_icon_webfolders.gif','width="18" height="16"');
 
-// TODO use modes?
+// todo: use modes?
 #			 $fileadminDir = PATH_site.$GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'];
 
 
@@ -279,7 +279,7 @@ class tx_dam_browse_folder extends browse_links {
 				// Traverse the file list:
 			$lines=array();
 			foreach($folder as $filepath)	{
-				$fI=pathinfo($filepath);
+				$path_parts = t3lib_div::split_fileref($filepath);
 
 
 				# $shortFilepath = preg_replace('#^'.preg_quote($fileadminDir).'#','', $filepath);
@@ -297,7 +297,7 @@ class tx_dam_browse_folder extends browse_links {
 
 
 					// Create folder icon:
-				$icon = $folderIcon.' title="'.htmlspecialchars($fI['basename']).'" class="absmiddle" alt="" />';
+				$icon = $folderIcon.' title="'.htmlspecialchars($path_parts['file']).'" class="absmiddle" alt="" />';
 
 					// Create links for adding the file:
 				if (strstr($filepath,',') || strstr($filepath,'|'))	{	// In case an invalid character is in the filepath, display error message:
@@ -310,7 +310,7 @@ class tx_dam_browse_folder extends browse_links {
 				$ATag_e='</a>';
 
 					// Combine the stuff:
-				$filenameAndIcon=$ATag_alt.$icon.htmlspecialchars(t3lib_div::fixed_lgd_cs($fI['basename'],$titleLen)).$ATag_e;
+				$filenameAndIcon=$ATag_alt.$icon.htmlspecialchars(t3lib_div::fixed_lgd_cs($path_parts['file'],$titleLen)).$ATag_e;
 
 
 				$lines[]='
@@ -362,15 +362,14 @@ class tx_dam_browse_folder extends browse_links {
 			$d = dir($path);
 			if (is_object($d))	{
 				while($entry=$d->read()) {
-					if($entry=='.' OR $entry=='..') {
+					if($entry === '.' OR $entry === '..') {
 						continue;
 					}
 					if (@is_dir($path.'/'.$entry))	{
 						$entry = $entry.'/';
-						$fI = pathinfo($entry);
 						$key = md5($path.'/'.$entry);	// Don't change this ever - extensions may depend on the fact that the hash is an md5 of the path! (import/export extension)
 						    $filearray[$key]=($prependPath?$path.'/':'').$entry;
-							if ($order=='mtime') {$sortarray[$key]=filemtime($path.'/'.$entry);}
+							if ($order === 'mtime') {$sortarray[$key]=filemtime($path.'/'.$entry);}
 								elseif ($order)	{$sortarray[$key]=$entry;}
 					}
 				}
@@ -476,7 +475,7 @@ class tx_dam_browse_folder extends browse_links {
 			break;
 			case 'db':
 				$this->allowedTables = $pArr[3];
-				if ($this->allowedTables=='tx_dam') {
+				if ($this->allowedTables === 'tx_dam') {
 					$this->allowedFileTypes = $pArr[4];
 					$this->disallowedFileTypes = $pArr[5];
 				}

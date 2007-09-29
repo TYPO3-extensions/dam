@@ -66,7 +66,7 @@ class tx_dam_cmd_folderdelete extends t3lib_extobjbase {
 	 * @return	boolean Return true if access is granted
 	 */
 	function accessCheck() {
-		return tx_dam::access_checkAction('deleteFolder');
+		return tx_dam::access_checkFileOperation('deleteFolder');
 	}
 
 
@@ -141,7 +141,7 @@ class tx_dam_cmd_folderdelete extends t3lib_extobjbase {
 
 		$content = '';
 
-		if (!$this->path_isEmpty ($this->folder['dir_path_absolute']) AND !tx_dam::access_checkAction('deleteFolderRecursively')) {
+		if (!$this->path_isEmpty ($this->folder['dir_path_absolute']) AND !tx_dam::access_checkFileOperation('deleteFolderRecursively')) {
 
 			$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('actionDenied'), $LANG->getLL('tx_dam_cmd_folderdelete.messageRecursiveDenied',1), $this->pObj->buttonBack(0), 2);
 

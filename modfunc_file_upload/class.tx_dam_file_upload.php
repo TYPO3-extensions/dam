@@ -816,7 +816,6 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 *
 	 ********************************/
 
-// TODO cleanup and use media objects!!
 
 
 //	array of asset items used by some functions to pass meta data
@@ -881,6 +880,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 * @param	string		$uidList Comma list of uid's
 	 * @param	mixed		$res DB result pointer. If set will be used to fetch records instead of the $uidList.
 	 * @return	array		Data
+	 * @todo this could be less lowlevel (media objects?)
 	 */
 	function compileItemArray($uidList, $res=FALSE)	{
 		global $BACK_PATH, $LANG;

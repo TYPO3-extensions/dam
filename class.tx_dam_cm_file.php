@@ -63,8 +63,12 @@ class tx_dam_cm_file {
 
 		if (@is_file($file)) {
 			$item = tx_dam::file_compileInfo($file);
+			$permsEdit = tx_dam::access_checkFile($item) AND tx_dam::access_checkFileOperation('editFile');
+			$permsDelete = tx_dam::access_checkFile($item) AND tx_dam::access_checkFileOperation('deleteFile');
 		} elseif (@is_dir($file)) {
 			$item = tx_dam::path_compileInfo($file);
+			$permsEdit = tx_dam::access_checkPath($item) AND tx_dam::access_checkFileOperation('renameFolder');
+			$permsDelete = tx_dam::access_checkPath($item) AND tx_dam::access_checkFileOperation('deleteFolder');
 		} else {
 			return $menuItems;
 		}
@@ -72,23 +76,26 @@ class tx_dam_cm_file {
 			// just clear the whole menu
 		$menuItems = array();
 
-// TODO perms
-		$permsEdit = 1;
-		$permsDelete = 1;
 
 		$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+				
+		if (is_array($backRef->disabledItems)) {
+			foreach ($backRef->disabledItems as $idName) {
+				$actionCall->removeAction ($idName);
+			}
+		}		
+				
 		$actionCall->setRequest('context', $item);
 		$actionCall->setEnv('returnUrl', t3lib_div::_GP('returnUrl'));
 		$actionCall->setEnv('backPath', $backRef->PH_backPath);
 		$actionCall->setEnv('defaultCmdScript', PATH_txdam_rel.'mod_cmd/index.php');
-#		$actionCall->setEnv('calcPerms', $calcPerms);
+		$actionCall->setEnv('actionPerms',  tx_dam::access_checkFileOperation());
 		$actionCall->setEnv('permsEdit', $permsEdit);
 		$actionCall->setEnv('permsDelete', $permsDelete);
 		$actionCall->setEnv('cmLevel', $backRef->cmLevel);
 		$actionCall->setEnv('cmParent', t3lib_div::_GP('parentname'));
 		$actionCall->initActions(true);
 
-	// TODO set allow deny: $backRef->disabledItems
 
 		$actions = $actionCall->renderActionsContextMenu(true);
 		foreach ($actions as $id => $action) {

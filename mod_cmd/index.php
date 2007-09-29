@@ -168,7 +168,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 * If set to FALSE the user is not allowed to access the current module action.
 	 * Might be set by sub-modules.
 	 * The meaning of this flag is that the submudule might decide that the user don have enough right to perform the action. This can be the
-	 * example: $this->pObj->actionAccess = tx_dam::access_checkAction('deleteFolder');
+	 * example: $this->pObj->actionAccess = tx_dam::access_checkFileOperation('deleteFolder');
 	 */
 	var $actionAccess = NULL;
 
@@ -336,10 +336,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 		$this->actionAccess = $this->extObjAccess();
 
-#debug($this->actionAccess, '$this->actionAccess');
-#debug($this->file, '$this->file');
-#debug($this->folder, '$this->folder');
-#debug($this->record, '$this->record');
+
 
 		if ($this->actionAccess) {
 			$this->accessDenied = array();
@@ -412,15 +409,17 @@ class tx_dam_cmd extends tx_dam_SCbase {
 				var changed = 0;
 
 				function jumpToUrl(URL)	{
-					document.location = URL;
+					document.location.href = URL;
 				}
 
 				function jumpBack()	{
-					document.location = "'.$this->redirect.'";
+					document.location.href = "'.htmlspecialchars($this->redirect).'";
 				}
 
 				function navFrameReload() {
-					top.content.nav_frame.document.refresh_nav();
+					if (top.content && top.content.nav_frame && top.content.nav_frame.refresh_nav)	{
+						// top.content.nav_frame.refresh_nav();
+					}
 				}
 				';
 			$this->doc->postCode.= $this->doc->wrapScriptTags('

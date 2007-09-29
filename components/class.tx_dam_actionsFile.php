@@ -138,7 +138,7 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid) {
-			$valid = ($this->itemInfo['__type'] == 'dir');
+			$valid = ($this->itemInfo['__type'] === 'dir');
 		}
 		return $valid;
 	}
@@ -168,7 +168,7 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 	 * @return	string
 	 */
 	function getLabel () {
-		if ($this->type=='button') {
+		if ($this->type==='button') {
 			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:file');
 		} else {
 			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:newTextFile');
@@ -199,7 +199,7 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&folder='.rawurlencode($path);
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = $script;
 		} else {
 			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
@@ -247,7 +247,7 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'file');
+			$valid = ($this->itemInfo['__type'] === 'file');
 		}
 		return $valid;
 	}
@@ -323,7 +323,7 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 
 		$params = '&edit['.$this->itemInfo['__table'].']['.$this->itemInfo['uid'].']=edit';
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = 'alt_doc.php?'.$params;
 		} else {
 			$onClick = t3lib_BEfunc::editOnClick($params, $this->env['backPath'], -1);
@@ -368,7 +368,7 @@ class tx_dam_action_viewFile extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'file');
+			$valid = ($this->itemInfo['__type'] === 'file');
 		}
 
 		return $valid;
@@ -437,7 +437,7 @@ class tx_dam_action_viewFile extends tx_dam_actionbase {
 		$href = tx_dam::file_relativeSitePath ($this->itemInfo['file_path_absolute'].$this->itemInfo['file_name']);
 		$onClick = "top.openUrlInWindow('".t3lib_div::getIndpEnv('TYPO3_SITE_URL').$href."','WebFile');";
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['onclick'] = $onClick.' return hideCM();';
 		} else {
 			$commands['onclick'] = 'return '.$onClick;
@@ -509,7 +509,7 @@ class tx_dam_action_infoFile extends tx_dam_action_viewFile {
 	 */
 	function getWantedDivider ($type) {
 		$divider = '';
-		if ($type=='context') {
+		if ($type === 'context') {
 			$divider = ':divider';
 		}
 		return $divider;
@@ -527,7 +527,7 @@ class tx_dam_action_infoFile extends tx_dam_action_viewFile {
 		$filename = tx_dam::file_absolutePath($this->itemInfo);
 		$onClick = 'top.launchView(\''.$filename.'\', \'\');';
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['onclick'] = $onClick.' return hideCM();';
 		} else {
 			$commands['onclick'] = $onClick.' return false;';
@@ -571,7 +571,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'file');
+			$valid = ($this->itemInfo['__type'] === 'file');
 		}
 		return $valid;
 	}
@@ -588,7 +588,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid)	{
-			$valid = (($this->itemInfo['__type'] == 'file') OR ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam')) AND ($itemInfo['file_status'] != TXDAM_status_file_missing);
+			$valid = (($this->itemInfo['__type'] === 'file') OR ($this->itemInfo['__type'] === 'record' AND $this->itemInfo['__table'] === 'tx_dam')) AND ($itemInfo['file_status'] != TXDAM_status_file_missing);
 		}
 		return $valid;
 	}
@@ -608,7 +608,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/rename_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="13" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -639,7 +639,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&file='.rawurlencode($filepath);
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = $script;
 		} else {
 			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
@@ -689,7 +689,7 @@ class tx_dam_action_editFile extends tx_dam_action_renameFile {
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 
 		if ($valid) {
-			$valid = ($this->itemInfo['__type'] == 'file' AND t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['SYS']['textfile_ext'], $this->itemInfo['file_type']));
+			$valid = ($this->itemInfo['__type'] === 'file' AND t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['SYS']['textfile_ext'], $this->itemInfo['file_type']));
 		}
 
 		return $valid;
@@ -820,7 +820,7 @@ class tx_dam_action_deleteFile extends tx_dam_action_renameFile {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'file');
+			$valid = ($this->itemInfo['__type'] === 'file');
 		}
 		return $valid;
 	}
@@ -892,7 +892,7 @@ class tx_dam_action_deleteFileQuick extends tx_dam_action_renameFile {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'file');
+			$valid = ($this->itemInfo['__type'] === 'file');
 		}
 		return $valid;
 	}
@@ -934,7 +934,7 @@ class tx_dam_action_deleteFileQuick extends tx_dam_action_renameFile {
 	 * @access private
 	 */
 	function _getCommand() {
-// TODO what about unindexed files without uid
+// todo: what about unindexed files without uid
 		$msg = $GLOBALS['LANG']->JScharCode(sprintf($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:mess.delete'), htmlspecialchars($this->itemInfo['file_name'])));
 		$params = '&cmd[tx_dam]['.$this->itemInfo['uid'].'][delete]=1';
 		$aOnClick = 'if (confirm('.$msg.')) {jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params,-1).'\');} return false;';

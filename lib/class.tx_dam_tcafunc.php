@@ -105,7 +105,7 @@ class tx_dam_tcaFunc {
 		if ($value = $params['config']['itemsProcFunc_conf']['fieldList']) {
 			$fieldList = t3lib_div::trimExplode(',', $value, true);
 		} elseif ($value = $params['config']['itemsProcFunc_conf']['fieldListFromTypes']) {
-			if ($value=='*') {
+			if ($value === '*') {
 				$fieldListFromType = array_keys($TCA[$table]['types']);
 			} else {
 				$fieldListFromType = t3lib_div::trimExplode(',', $value, true);
@@ -131,6 +131,9 @@ class tx_dam_tcaFunc {
 		$fieldExcludeList = tx_dam_tcaFunc::getCleanFieldList($table, $params['config']['itemsProcFunc_conf']['fieldExcludeList']);
 		$fieldList = array_diff($fieldList, $fieldExcludeList);
 
+		if (!method_exists($pObj, 'sL') AND is_object($GLOBALS['LANG'])) {
+			$pObj = & $GLOBALS['LANG'];
+		}
 
 			// add fields to item array
 		foreach ($fieldList as $field) {
@@ -172,8 +175,7 @@ class tx_dam_tcaFunc {
 
 			list($field, $dummy, $palette) = t3lib_div::trimExplode(';', $v);
 
-			if ($includePalettes AND $field=='--palette--' AND $palette) {
-				#debug($TCA[$table]['palettes'][$palette]['showitem']);
+			if ($includePalettes AND $field === '--palette--' AND $palette) {
 				$paletteFieldList = tx_dam_tcaFunc::getTypeFields ($table, $TCA[$table]['palettes'][$palette]['showitem'], false);
 				$fieldList = array_merge($fieldList, $paletteFieldList);
 

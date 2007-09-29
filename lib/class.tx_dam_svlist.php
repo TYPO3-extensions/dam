@@ -205,7 +205,7 @@ class tx_dam_svlist {
 
 		$bgColor = t3lib_div::modifyHTMLcolor($this->pObj->doc->bgColor4,20,20,20);
 
-		if ($type=='typeList') {
+		if ($type === 'typeList') {
 			$bgColor = '#F6CA96';
 			$cells[]=$extIcon;
 			$title='<strong>'.$info['sv']['serviceType'].' (Service Type)</strong>';

@@ -76,7 +76,6 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		return array(
 			'tx_dam_file_list_showThumb' => '',
 			'tx_dam_file_list_showfullTitle' => '',
-			'tx_dam_file_list_showAlternateBgColors' => '',
 			'tx_dam_file_list_showUnixPerms' => '',
 			'tx_dam_file_list_showDetailedSize' => '',
 			'tx_dam_file_list_sortField' => '',
@@ -103,7 +102,6 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
 
 		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showThumb', $LANG->getLL('showThumbnails'));
-		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showAlternateBgColors', $LANG->getLL('showAlternateBgColors'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showfullTitle', $LANG->getLL('showfullTitle'));
 		if ($GLOBALS['BE_USER']->isAdmin()) {
 			$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showUnixPerms', $LANG->getLL('showUnixPerms'));
@@ -147,12 +145,19 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		//
 
 		$dirListFiles = t3lib_div::makeInstance('tx_dam_iterator_dir');
-// TODO TSconfig / option  enableAutoIndexing
-		$dirListFiles->enableAutoIndexing = true;
-// TODO TSconfig / option
-		if (!$BE_USER->isAdmin()) {
+
+		$dirListFiles->enableAutoIndexing = tx_dam::config_checkValueEnabled('setup.indexing.auto', true);
+		$dirListFiles->maxAutoIndexingItems = tx_dam::config_checkValueEnabled('setup.indexing.autoMaxInteractive', 5);
+
+		$displayDotFiles = $this->pObj->config_checkValueEnabled('filesDisplayDotFiles', $BE_USER->isAdmin());
+		if (!$displayDotFiles) {
 			$dirListFiles->excludeByRegex ('^\.');
 		}
+		
+		if ($displayExcludeByRegex = $this->pObj->config_checkValueEnabled('filesDisplayExcludeByRegex')) {
+			$dirListFiles->excludeByRegex ($displayExcludeByRegex);
+		}
+		
 		$dirListFiles->read($this->pObj->pathInfo['dir_path_absolute'], 'file');
 		$sortField = str_replace('file_file_', 'file_', 'file_'.$this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField']);
 		$dirListFiles->sort($sortField, $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
@@ -161,7 +166,11 @@ class tx_dam_file_list extends t3lib_extobjbase {
 
 			// Create filelisting object
 		$filelist = t3lib_div::makeInstance('tx_dam_listfiles');
-
+		
+		$filelist->setActionsEnv(array(
+				'pathInfo' => $this->pObj->pathInfo,
+			));
+				
 		$filelist->setParameterName('form', $this->pObj->formName);
 
 			// Enable/disable display of thumbnails
@@ -169,16 +178,16 @@ class tx_dam_file_list extends t3lib_extobjbase {
 			// Enable/disable display of long titles
 		$filelist->showfullTitle = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showfullTitle'];
 			// Enable/disable display of AlternateBgColors
-		$filelist->showAlternateBgColors = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showAlternateBgColors'];
+		$filelist->showAlternateBgColors = $this->pObj->config_checkValueEnabled('alternateBgColors', true);
 			// Enable/disable display of unix like permission string
 		$filelist->showUnixPerms = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showUnixPerms'];
 			// Display file sizes in bytes or formatted
 		$filelist->showDetailedSize = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showDetailedSize'];
 			// enable context menus
-		$filelist->enableContextMenus = true;
+		$filelist->enableContextMenus = $this->pObj->config_checkValueEnabled('contextMenuOnListItems', true);
 
 
-// TODO Clipboard
+#TODO Clipboard
 $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
@@ -205,14 +214,14 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 //		$filelist->clipObj->initializeClipboard();
 //
 //		$CB = $HTTP_GET_VARS['CB'];
-//		if (t3lib_div::_GP('cmd')=='setCB') $CB['el'] = $filelist->clipObj->cleanUpCBC(array_merge(t3lib_div::_POST('CBH'), t3lib_div::_POST('CBC')), '_FILE');
+//		if (t3lib_div::_GP('cmd') === 'setCB') $CB['el'] = $filelist->clipObj->cleanUpCBC(array_merge(t3lib_div::_POST('CBH'), t3lib_div::_POST('CBC')), '_FILE');
 //		if (!$this->pObj->MOD_SETTINGS['clipBoard'])	$CB['setP'] = 'normal';
 //		$filelist->clipObj->setCmd($CB);
 //		$filelist->clipObj->cleanCurrent();
 //		$filelist->clipObj->endClipboard();	// Saves
 
 			// If the "cmd" was to delete files from the list (clipboard thing), do that:
-//		if (t3lib_div::_GP('cmd')=='delete')	{
+//		if (t3lib_div::_GP('cmd') === 'delete')	{
 //			$items = $filelist->clipObj->cleanUpCBC($HTTP_POST_VARS['CBC'], '_FILE', 1);
 //			if (count($items))	{
 //					// Make command array:
@@ -259,7 +268,7 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 		$content.= $this->pObj->guiItems->getOutput('header');
 
-// TODO move to scbase
+
 		$infoPath = $this->pObj->getFolderNavBar($this->pObj->pathInfo);
 		$infoBytes = $this->renderInfo($dirListFiles->countBytes);
 		$content.= '<div class="typo3-foldernavbar">'.$this->pObj->contentLeftRight($infoPath, $infoBytes).'</div>';

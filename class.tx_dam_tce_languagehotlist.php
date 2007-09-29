@@ -52,7 +52,7 @@
 class tx_dam_tce_languagehotlist {
 
 	function processDatamap_postProcessFieldArray($status, $table, $id, $fieldArray, $tce) {
-		if($table == 'tx_dam' AND $fieldArray['language']) {
+		if($table === 'tx_dam' AND $fieldArray['language']) {
 				// the hotlist will be updated only if the field changed, because only then it's in the $fieldArray
 			tx_staticinfotables_div::updateHotlist ('static_languages', $fieldArray['language'], 'lg_iso_2', 'dam');
 		}

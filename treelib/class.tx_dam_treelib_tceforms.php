@@ -384,7 +384,7 @@ class tx_dam_treelib_tceforms {
 
 					$tree = '';
 
-					if ((string)$treeViewObj->supportMounts=='rootOnly') {
+					if ((string)$treeViewObj->supportMounts === 'rootOnly') {
 						$tree = $treeViewObj->printRootOnly();
 						$this->treeItemC += 1;
 

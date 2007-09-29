@@ -127,15 +127,18 @@ class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db {
 	 * @return	void
 	 */
 	function _fetchCurrent() {
+		
+		if ($this->currentData = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res)) {
+			
+			if ($this->langUid AND $this->table AND $this->currentData) {
+				$this->_makeLanguageOverlay();
+			}
 
-		$this->currentData = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res);
-
-		if ($this->table AND $this->current) {
-			$this->_makeLanguageOverlay();
-		}
-
-		if ($this->conf['callbackFunc_currentData'] AND is_callable($this->conf['callbackFunc_currentData'])) {
-			call_user_func ($this->conf['callbackFunc_currentData'], $this);
+			if ($this->conf['callbackFunc_currentData'] AND is_callable($this->conf['callbackFunc_currentData'])) {
+				call_user_func ($this->conf['callbackFunc_currentData'], $this);
+			}
+		} else {
+			$this->currentData = NULL;
 		}
 	}
 
@@ -146,13 +149,16 @@ class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db {
 	 * @return	void
 	 */
 	function _makeLanguageOverlay() {
-		if ($this->current[$this->languageField]!=$this->langUid) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(implode(',', array_keys($this->current)), $this->table, $this->transOrigPointerField.'='.$this->current['uid']);
-			if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$this->current = $row;
+		
+		if ($this->langUid AND $this->table AND $this->currentData AND $this->currentData[$this->languageField]!=$this->langUid) {
+			
+			$conf['sys_language_uid'] = $this->langUid;
+			if ($row = tx_dam_db::getRecordOverlay($this->table, $this->currentData, $conf, $this->mode)) {
+				$this->currentData = $row;
 			}
 		}
 	}
+	
 }
 
 

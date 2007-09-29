@@ -70,7 +70,7 @@ class tx_dam_previewerMP3 extends tx_dam_previewerProcBase {
 	function isValid($row, $size, $type, $conf=array()) {
 		$valid = false;
 
-		if ($row['file_type'] == 'mp3'
+		if ($row['file_type'] === 'mp3'
 			AND $size <= '200') {
 			 $valid = true;
 		}

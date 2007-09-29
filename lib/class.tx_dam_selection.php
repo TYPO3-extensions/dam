@@ -337,7 +337,7 @@ class tx_dam_selection {
 
 								if ($queryTypeTarget AND $query) {
 									$key = $selectionRuleName.'.'.$id;
-									$queryTypeTarget = $queryTypeTarget=='SELECT' ? 'OR' : $queryTypeTarget;
+									$queryTypeTarget = $queryTypeTarget === 'SELECT' ? 'OR' : $queryTypeTarget;
 									$queryArr[$queryTypeTarget][$key] = $query;
 								}
 							}
@@ -351,6 +351,33 @@ class tx_dam_selection {
 	}
 
 
+
+
+	/**
+	 * Returns an array for the db select array which restrict the access
+	 *
+	 * @return	array		db select array where clauses
+	 */
+	function getRestrictAccessWhereClauseArray() {
+		$queryArr = array();
+
+//		foreach ($this->selectionClasses as $selectionRuleName => $ref) {
+//			$obj = &t3lib_div::getUserObj($this->selectionClasses[$selectionRuleName],'user_',TRUE);
+//			if (is_object($obj) AND method_exists($obj, 'selection_getQueryPartRestrictAccess'))      {
+//				
+//				$mounts = $this->getMountsForSelectionClass($selectionRuleName, $obj->getTreeName());
+//				
+//				list($queryTypeTarget, $query) = $obj->selection_getQueryPartRestrictAccess($selectionRuleName, $mounts, $this->pObj);
+//				if ($queryTypeTarget AND $query) {
+//					$queryArr[$queryTypeTarget]['restrict_'.$selectionRuleName] = $query;
+//				}
+//			}
+//		}
+
+		return $queryArr;
+	}
+	
+	
 	/**
 	 * Get selection array entries for a given selection rule.
 	 *
@@ -397,14 +424,14 @@ class tx_dam_selection {
 
 
 	/**
-	 * TODO setFieldMapping()
+	 * @todo setFieldMapping()
 	 */
 	function setFieldMapping($table, $fieldMapping) {
 		$this->fieldMapping[$table] = $fieldMapping;
 	}
 
 	/**
-	 * TODO getFieldMapping()
+	 * @todo getFieldMapping()
 	 */
 	function getFieldMapping($table, $field) {
 		$fieldMapped = '';
@@ -582,6 +609,61 @@ class tx_dam_selection {
 
 
 
+	/**
+	 * Returns the mounts for the selection classes
+	 *
+	 * @param	string		$classKey: ...
+	 * @param	string		$treeName: ...
+	 * @return	array
+	 * @see tx_dam_browsetrees::getMountsForTreeClass()
+	 */
+	function getMountsForSelectionClass($classKey, $treeName='') {
+		global $BE_USER, $TYPO3_CONF_VARS;
+
+		if(!$treeName) {
+			if (is_object($obj = &t3lib_div::getUserObj($this->selectionClasses [$classKey])))	{
+				$treeName = $obj->getTreeName();
+			}
+		}
+
+		$mounts = array();
+
+		if($GLOBALS['BE_USER']->user['admin']){
+			$mounts = array(0 => 0);
+			return $mounts;
+		}
+
+		if ($GLOBALS['BE_USER']->user['tx_dam_mountpoints']) {
+			 $values = explode(',',$GLOBALS['BE_USER']->user['tx_dam_mountpoints']);
+			 foreach($values as $mount) {
+			 	list($k,$id) = explode(':', $mount);
+			 	if ($k == $treeName) {
+					$mounts[$id] = $id;
+			 	}
+			 }
+		}
+
+		if(is_array($GLOBALS['BE_USER']->userGroups)){
+			foreach($GLOBALS['BE_USER']->userGroups as $group){
+				if ($group['tx_dam_mountpoints']) {
+					$values = explode(',',$group['tx_dam_mountpoints']);
+					 foreach($values as $mount) {
+					 	list($k,$id) = explode(':', $mount);
+					 	if ($k == $treeName) {
+							$mounts[$id] = $id;
+					 	}
+					 }
+				}
+			}
+		}
+
+			// if root is mount just set it and remove all other mounts
+		if(isset($mounts[0])) {
+			$mounts = array(0 => 0);
+		}
+
+		return $mounts;
+	}
 }
 
 

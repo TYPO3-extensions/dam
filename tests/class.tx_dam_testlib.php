@@ -80,8 +80,8 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 	 */
 	protected function addFixturePathToFilemount () {		
 		$filepath = $this->getFixtureFilename();
-		$filename = basename($filepath);
-		$testpath = dirname($filepath).'/';
+		$filename = tx_dam::file_basename($filepath);
+		$testpath = tx_dam::file_dirname($filepath);
 		
 		$this->tempSave['fileadminDir'] = $GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'];
 		$GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'] = tx_dam::path_makeRelative($testpath);
@@ -155,7 +155,7 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 	 */
 	protected function getFixtureTempFilename($type='txt') {
 		$filename = $this->getFixtureFilename($type);
-		$destFile = $this->getFixtureTempSrcPath().basename($filename);
+		$destFile = $this->getFixtureTempSrcPath().tx_dam::file_basename($filename);
 		copy($filename, $destFile);
 		return $destFile;
 	}	
@@ -176,7 +176,7 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 	 * 
 	 */
 	protected function activateIndexSetup($type='set_keyword') {
-		unlink(PATH_txdam.'tests/fixtures/.indexing.setup.xml');
+		@unlink(PATH_txdam.'tests/fixtures/.indexing.setup.xml');
 		copy(PATH_txdam.'tests/fixtures/indexing.setup-'.$type, PATH_txdam.'tests/fixtures/.indexing.setup.xml');
 	}
 	
@@ -185,7 +185,7 @@ class tx_dam_testlib extends tx_t3unit_testcase {
 	 * 
 	 */
 	protected function removeIndexSetup() {
-		unlink(PATH_txdam.'tests/fixtures/.indexing.setup.xml');
+		@unlink(PATH_txdam.'tests/fixtures/.indexing.setup.xml');
 	}
 
 	/**

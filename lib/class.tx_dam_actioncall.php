@@ -182,6 +182,7 @@ class tx_dam_actionCall {
 		$this->classes = is_array($classes) ? $classes : $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['actionClasses'];
 		$this->classes = is_array($this->classes) ? $this->classes : array();
 		$this->env['backPath'] = $GLOBALS['BACK_PATH'];
+		tx_dam::config_init();
 	}
 
 
@@ -210,6 +211,18 @@ class tx_dam_actionCall {
 
 
 	/**
+	 * Remove a "action" class locally.
+	 * This means the action is removed from the instance of this class and not from the system.
+	 *
+	 * @param	string		$idName This is the ID of the action. Chars allowed only: [a-zA-z]
+	 * @return	void
+	 */
+	function removeAction ($idName) {
+		unset($this->classes[$idName]);
+	}
+
+
+	/**
 	 * Set values for the local environment.
 	 * The environment are special keys/values that gives the action information what to do.
 	 *
@@ -221,13 +234,21 @@ class tx_dam_actionCall {
 	 	$env = array();
 
 	 	if (is_array($param1)) {
-	 		$env = $param1;
+	 		foreach ($param1 as $key => $value) {
+		 		if (is_string($value) AND preg_match('#^http://#', $value)) {
+		 				// this append ? to any url so easily &params can be appended
+		 			$value = strpos($value, '?') ? $value : $value.'?';
+		 		}
+		 		$env[$key] = $value;
+	 		}
+	 		
 	 	}
 	 	elseif (!is_array($param1) AND !is_null($param2)) {
 	 		$env[$param1] = $param2;
 	 	}
 	 	$this->env = t3lib_div::array_merge_recursive_overrule($this->env, $env);
 	 }
+
 
 	/**
 	 * Define what type of action are requested
@@ -304,7 +325,7 @@ class tx_dam_actionCall {
 	 */
 	function &current() {
 		$item = current($this->items);
-		if (substr($item,0,2) == '__') {
+		if (substr($item,0,2) === '__') {
 				// returning a reference is not nice but there's no way
 			return $item;
 		}
@@ -344,10 +365,10 @@ class tx_dam_actionCall {
 		while ($valid = $this->valid()) {
 			$item = $this->current();
 
-			if ($this->enableSpacer AND $item == '__spacer') {
+			if ($this->enableSpacer AND $item === '__spacer') {
 				$actions[] = '&nbsp; &nbsp;';
 			}
-			elseif ($this->enableDivider AND $item == '__divider') {
+			elseif ($this->enableDivider AND $item === '__divider') {
 				$actions[] = '&nbsp;<span style="border-left:1px dotted #666">&nbsp;</span>';
 			}
 			elseif (is_object($item)) {
@@ -380,10 +401,10 @@ class tx_dam_actionCall {
 		while ($valid = $this->valid()) {
 			$item = $this->current();
 
-			if ($this->enableSpacer AND $item == '__spacer') {
+			if ($this->enableSpacer AND $item === '__spacer') {
 				$actions['adivider'.(++$divider)]['isDivider'] = true;
 			}
-			elseif ($this->enableDivider AND $item == '__divider') {
+			elseif ($this->enableDivider AND $item === '__divider') {
 				$actions['adivider'.(++$divider)]['isDivider'] = true;
 			}
 			elseif (is_object($item)) {
@@ -417,10 +438,10 @@ class tx_dam_actionCall {
 		while ($valid = $this->valid()) {
 			$item = $this->current();
 
-			if ($this->enableSpacer AND $item == '__spacer') {
+			if ($this->enableSpacer AND $item === '__spacer') {
 				$actions['adivider'.(++$divider)]['isDivider'] = true;
 			}
-			elseif ($this->enableDivider AND $item == '__divider') {
+			elseif ($this->enableDivider AND $item === '__divider') {
 				$actions['adivider'.(++$divider)]['isDivider'] = true;
 			}
 			elseif (is_object($item)) {
@@ -513,10 +534,10 @@ class tx_dam_actionCall {
 			$this->addItem ($idName, $action->getWantedPosition($this->type), $action->getWantedDivider($this->type));
 		}
 			// remove first and last spacer etc
-		while (substr($this->items[0],0,2) == '__') {
+		while (substr($this->items[0],0,2) === '__') {
 			unset($this->items[0]);
 		}	// remove first and last spacer etc
-		while (substr(end($this->items),0,2) == '__') {
+		while (substr(end($this->items),0,2) === '__') {
 			unset($this->items[key($this->items)]);
 		}
 			// remove double spacer etc
@@ -525,9 +546,9 @@ class tx_dam_actionCall {
 			if ($last) {
 				if ($this->items[$last] == $item)
 					unset ($this->items[$last]);
-				if ($this->items[$last] == '__spacer' AND $item == '__divider')
+				if ($this->items[$last] === '__spacer' AND $item === '__divider')
 					unset ($this->items[$last]);
-				if ($this->items[$last] == '__divider' AND $item == '__spacer')
+				if ($this->items[$last] === '__divider' AND $item === '__spacer')
 					unset ($this->items[$key]);
 			}
 			$last = $key;
@@ -566,7 +587,7 @@ class tx_dam_actionCall {
 					$pointer = 0;
 					foreach($this->items as $k => $m)	{
 						if (!strcmp($m, $itemRef))	{
-							$pointer = $place=='after' ? $k+1 : $k;
+							$pointer = $place === 'after' ? $k+1 : $k;
 							$found = true;
 						}
 					}
@@ -606,6 +627,7 @@ class tx_dam_actionCall {
 	 ***************************************/
 
 
+	
 	/**
 	 * Initializes the action objects.
 	 *
@@ -614,16 +636,25 @@ class tx_dam_actionCall {
 	 * @return	void
 	 */
 	function initObjects ($checkForPossiblyValid=false, $keepInvalid=false) {
-
-		$setupAllowDeny = tx_dam::config_getValue('setup.actions.allowDeny.', true);
+		
+		$setupAllowDeny = tx_dam::config_getValue('mod.txdamM1_SHARED.actions', true);
+		$setupAllowDeny = isset($setupAllowDeny[$this->type.'.']) ? $setupAllowDeny[$this->type.'.'] : $setupAllowDeny['shared.'];
+		$setupAllowDenyShared = tx_dam_allowdeny_list::transformSimpleSetup ($setupAllowDeny);
+	
+		
 		list($modName, $modFuncName) = explode('.', $this->moduleName);
-		$setupAllowDenyMod = tx_dam::config_getValue('mod.'.$modName.'.actions.allowDeny.', true);
+		
+		$setupAllowDeny = tx_dam::config_getValue('mod.'.$modName.'.actions', true);
+		$setupAllowDeny = isset($setupAllowDeny[$this->type.'.']) ? $setupAllowDeny[$this->type.'.'] : $setupAllowDeny['shared.'];
+		$setupAllowDenyMod = tx_dam_allowdeny_list::transformSimpleSetup ($setupAllowDeny);
+		
 		if ($modFuncName) {
-			$setupAllowDenyModfunc = tx_dam::config_getValue('mod.'.$this->moduleName.'.actions.allowDeny.', true);
+			$setupAllowDeny = tx_dam::config_getValue('mod.'.$modName.'.modfunc.'.$modFuncName.'.actions', true);
+			$setupAllowDeny = isset($setupAllowDeny[$this->type.'.']) ? $setupAllowDeny[$this->type.'.'] : $setupAllowDeny['shared.'];
+			$setupAllowDenyModfunc = tx_dam_allowdeny_list::transformSimpleSetup ($setupAllowDeny);
 		}
-		$allowDeny = new tx_dam_allowdeny_list(array_keys($this->classes), $setupAllowDeny, $setupAllowDenyMod, $setupAllowDenyModfunc);
+		$allowDeny = new tx_dam_allowdeny_list(array_keys($this->classes), $setupAllowDenyModfunc, $setupAllowDenyMod, $setupAllowDenyShared);
 
-#debug(array($setupAllowDeny, $setupAllowDenyMod, $setupAllowDenyModfunc));
 		foreach ($this->classes as $idName => $classRef) {
 			if ($allowDeny->isAllowed($idName) AND $this->makeObject($idName)) {
 				$this->objects[$idName]->setItemInfo($this->itemInfo);

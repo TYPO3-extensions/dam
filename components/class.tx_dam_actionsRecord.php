@@ -159,7 +159,7 @@ class tx_dam_action_recordBase extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'record'); # AND ($this->itemInfo['__table'] == 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'record'); # AND ($this->itemInfo['__table'] === 'tx_dam');
 		}
 		return $valid;
 	}
@@ -178,7 +178,7 @@ class tx_dam_action_recordBase extends tx_dam_actionbase {
 
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid)	{
-			$valid = (($this->itemInfo['__type'] == 'record') AND $this->itemInfo['__table']);
+			$valid = (($this->itemInfo['__type'] === 'record') AND $this->itemInfo['__table']);
 			if ($valid AND $this->editPermsNeeded) {
 			 	$valid = ($this->env['permsEdit'] AND !$TCA[$this->itemInfo['__table']]['ctrl']['readOnly']);
 			}
@@ -263,10 +263,11 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
 	 * @param	array		$env Environment array. Can be set with setEnv() too.
 	 * @return	boolean
+	 * @todo move language check here if uid is available
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'record'); # AND ($this->itemInfo['__table'] == 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'record'); # AND ($this->itemInfo['__table'] === 'tx_dam');
 		}
 		return $valid;
 	}
@@ -285,9 +286,12 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid)	{
-			$valid = (($this->itemInfo['__type'] == 'record') AND $this->itemInfo['__table']);
+			$valid = (($this->itemInfo['__type'] === 'record') AND $this->itemInfo['__table']);
 			if ($valid AND $this->editPermsNeeded) {
-			 	$valid = ($this->env['permsEdit'] AND !$TCA[$this->itemInfo['__table']]['ctrl']['readOnly']);
+			 	$languageField = $TCA[$this->itemInfo['__table']]['ctrl']['languageField'];
+			 	$valid = ($this->env['permsEdit'] 
+			 			AND !$TCA[$this->itemInfo['__table']]['ctrl']['readOnly']	 	
+			 	 		AND (!isset($this->itemInfo[$languageField]) OR $GLOBALS['BE_USER']->checkLanguageAccess($this->itemInfo[$languageField])));
 			}
 		}
 		return $valid;
@@ -342,10 +346,24 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 	 * @access private
 	 */
 	function _getCommand() {
+/* will show non-editable info
+		$filename = tx_dam::file_absolutePath($this->itemInfo);
 
-		$params = '&edit['.$this->itemInfo['__table'].']['.$this->itemInfo['uid'].']=edit';
+		$param = 'table='.rawurlencode($filename).'&returnUrl='.rawurlencode($this->env['returnUrl']);
+		if ($this->type === 'context') {
+			$commands['url'] = 'show_item.php?'.$param;
+		} else {
+			$commands['onclick'] = 'return jumpExt(\''.$this->env['backPath'].'show_item.php?'.$param.'\');';
+		}
+		
+		return $commands;
 
-		if ($this->type=='context') {
+*/
+
+		$uid = $this->itemInfo['_LOCALIZED_UID'] ? $this->itemInfo['_LOCALIZED_UID'] : $this->itemInfo['uid'];
+		$params = '&edit['.$this->itemInfo['__table'].']['.$uid.']=edit';
+
+		if ($this->type === 'context') {
 			$commands['url'] = 'alt_doc.php?'.$params;
 		} else {
 			$onClick = t3lib_BEfunc::editOnClick($params, $this->env['backPath'], -1);
@@ -355,6 +373,137 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 		return $commands;
 	}
 }
+
+
+
+
+/**
+ * Localize record action
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Component
+ * @subpackage  Action
+ * @see tx_dam_actionbase
+ */
+class tx_dam_action_localizeRec extends tx_dam_action_editRec {
+	
+	
+	/**
+	 * Returns true if the action is of the wanted type
+	 * This method should return true if the action is possibly true.
+	 * This could be the case when a control is wanted for a list of files and in beforhand a check should be done which controls might be work.
+	 * In a second step each file is checked with isValid().
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
+		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
+			$valid = ($this->itemInfo['__type'] === 'record' AND $this->env['currentLanguage']>0); # AND ($this->itemInfo['__table'] === 'tx_dam');
+		}
+		return $valid;
+	}
+	
+
+	/**
+	 * Returns true if the action is of the wanted type
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isValid ($type, $itemInfo=NULL, $env=NULL) {
+		global $TCA;
+
+		$valid = $this->isTypeValid ($type, $itemInfo, $env);
+		if ($valid)	{
+			$valid = (($this->itemInfo['__type'] === 'record') AND $this->itemInfo['__table']);
+			if ($valid AND $this->editPermsNeeded) {
+				
+				$languageField = $TCA[$this->itemInfo['__table']]['ctrl']['languageField'];
+		
+			 	$valid = ($this->env['permsEdit'] 
+				 		AND !$TCA[$this->itemInfo['__table']]['ctrl']['readOnly'] 
+				 		AND ($this->itemInfo[$languageField] != $this->env['currentLanguage'])
+			 		);
+			}
+		}
+		return $valid;
+	}
+	
+	
+	/**
+	 * Returns the icon image tag.
+	 * Additional attributes to the image tagcan be added.
+	 *
+	 * @param	string		$addAttribute Additional attributes
+	 * @return	string
+	 */
+	function getIcon ($addAttribute='') {
+		global $TCA;
+
+		if ($this->disabled) {
+			$iconFile = PATH_txdam_rel.'i/localize_i.gif';
+		} else {
+			$iconFile = PATH_txdam_rel.'i/localize'. (!$TCA[$this->itemInfo['__table']]['ctrl']['readOnly'] ? '' : '_d').'.gif';
+		}
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="18" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+
+		return $icon;
+	}
+	
+
+	/**
+	 * Returns the short label like: Delete
+	 *
+	 * @return	string
+	 */
+	function getLabel () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:langCreateTrans');
+	}
+
+
+	/**
+	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 *
+	 * @return	string
+	 */
+	function getDescription () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:langCreateTrans');
+	}
+
+
+	/**
+	 * Returns a command array for the current type
+	 *
+	 * @return	array		Command array
+	 * @access private
+	 */
+	function _getCommand() {
+
+		$uid = $this->itemInfo['_BASE_REC_UID'] ? $this->itemInfo['_BASE_REC_UID'] : $this->itemInfo['uid'];
+		$href = $GLOBALS['TBE_TEMPLATE']->issueCommand(
+							'&cmd['.$this->itemInfo['__table'].']['.$uid.'][localize]='.$this->env['currentLanguage'],
+							$this->env['returnUrl'].'&justLocalized='.rawurlencode($this->itemInfo['__table'].':'.$uid.':'.$this->env['currentLanguage'])
+						);
+						// justLocalized unused for now
+						// should force the list module to redirect to alt_dec.php after localization. See web list
+							
+
+		if ($this->type === 'context') {
+			$commands['url'] = $href;
+		} else {
+			$commands['href'] = $this->env['backPath'].$href;
+		}
+
+		return $commands;
+	}
+	
+}
+
 
 
 /**
@@ -376,7 +525,6 @@ class tx_dam_action_editRecPopup extends tx_dam_action_editRec {
 	 */
 	function getIcon ($addAttribute='') {
 		global $TCA;
-
 
 		if ($this->disabled) {
 			$iconFile = PATH_txdam_rel.'i/edit_popup_i.gif';
@@ -408,13 +556,15 @@ class tx_dam_action_editRecPopup extends tx_dam_action_editRec {
 	 */
 	function _getCommand() {
 
+		$uid = $this->itemInfo['_LOCALIZED_UID'] ? $this->itemInfo['_LOCALIZED_UID'] : $this->itemInfo['uid'];
+		
 		$params = array();
-		$params['edit['.$this->itemInfo['__table'].']['.$this->itemInfo['uid'].']'] = 'edit';
+		$params['edit['.$this->itemInfo['__table'].']['.$uid.']'] = 'edit';
 		$params['noView'] = 1;
 		$params['returnUrl'] = PATH_txdam_rel.'close.html';
 		$onClick = 'vHWin=window.open(\''.t3lib_div::linkThisUrl($this->env['backPath'].'alt_doc.php', $params).'\',\''.md5(t3lib_div::getIndpEnv('TYPO3_REQUEST_SCRIPT')).'\',\''.($GLOBALS['BE_USER']->uc['edit_wideDocument']?'width=670,height=550':'width=600,height=550').',status=0,menubar=0,scrollbars=1,resizable=1\');vHWin.focus();return false;';
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['onclick'] = $onClick.' return hideCM();';
 		} else {
 			$commands['onclick'] = 'return '.$onClick;
@@ -457,7 +607,7 @@ class tx_dam_action_viewFileRec extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'record' AND $this->itemInfo['__table'] === 'tx_dam');
 		}
 
 		return $valid;
@@ -533,10 +683,10 @@ class tx_dam_action_viewFileRec extends tx_dam_actionbase {
 	 */
 	function _getCommand() {
 
-		$href = tx_dam::file_relativeSitePath ($this->itemInfo['file_path_absolute'].$this->itemInfo['file_name']);
+		$href = tx_dam::file_relativeSitePath ($this->itemInfo);
 		$onClick = "top.openUrlInWindow('".t3lib_div::getIndpEnv('TYPO3_SITE_URL').$href."','WebFile');";
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['onclick'] = $onClick.' return hideCM();';
 		} else {
 			$commands['onclick'] = 'return '.$onClick;
@@ -614,7 +764,7 @@ class tx_dam_action_infoRec extends tx_dam_action_recordBase {
 	 */
 	function getWantedDivider ($type) {
 		$divider = '';
-		if ($type=='context') {
+		if ($type === 'context') {
 			$divider = ':divider';
 		}
 		return $divider;
@@ -635,7 +785,7 @@ class tx_dam_action_infoRec extends tx_dam_action_recordBase {
 		$filename = tx_dam::file_absolutePath($this->itemInfo);
 		$onClick = 'top.launchView(\''.$filename.'\', \'\');';
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['onclick'] = $onClick.' return hideCM();';
 		} else {
 			$commands['onclick'] = $onClick.' return false;';
@@ -706,7 +856,7 @@ class tx_dam_action_revertRec extends tx_dam_action_recordBase {
 	 */
 	function getWantedDivider ($type) {
 		$divider = '';
-		if ($type=='context') {
+		if ($type === 'context') {
 			$divider = 'divider:';
 		}
 		return $divider;
@@ -720,9 +870,10 @@ class tx_dam_action_revertRec extends tx_dam_action_recordBase {
 	 */
 	function _getCommand() {
 
-		$param = 'element='.rawurlencode($this->itemInfo['__table'].':'.$this->itemInfo['uid']);
+		$uid = $this->itemInfo['_LOCALIZED_UID'] ? $this->itemInfo['_LOCALIZED_UID'] : $this->itemInfo['uid'];
+		$param = 'element='.rawurlencode($this->itemInfo['__table'].':'.$uid);
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = 'show_rechis.php?'.$param;
 		} else {
 			$commands['onclick'] = 'return jumpExt(\''.$this->env['backPath'].'show_rechis.php?'.$param.'\',\'#latest\');';
@@ -730,7 +881,6 @@ class tx_dam_action_revertRec extends tx_dam_action_recordBase {
 		return $commands;
 	}
 }
-
 
 
 /**
@@ -844,7 +994,7 @@ class tx_dam_action_hideRec extends tx_dam_action_recordBase {
 		if ($this->itemInfo[$this->_hiddenField]) {
 			$prefix = 'unHide';
 		}
-		$content = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:'.$prefix.($this->itemInfo['__table'] == 'pages' ? 'Page' : ''));
+		$content = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:'.$prefix.($this->itemInfo['__table'] === 'pages' ? 'Page' : ''));
 
 		return $content;
 	}
@@ -863,9 +1013,10 @@ class tx_dam_action_hideRec extends tx_dam_action_recordBase {
 		} else {
 			$params = '1';
 		}
-		$params = '&data['.$this->itemInfo['__table'].']['.$this->itemInfo['uid'].']['.$this->_hiddenField.']='.$params;
+		$uid = $this->itemInfo['_BASE_REC_UID'] ? $this->itemInfo['_BASE_REC_UID'] : $this->itemInfo['uid'];
+		$params = '&data['.$this->itemInfo['__table'].']['.$uid.']['.$this->_hiddenField.']='.$params;
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = $GLOBALS['SOBE']->doc->issueCommand($params, -1);
 		} else {
 			$commands['onclick'] = 'return jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params, -1).'\');';
@@ -956,12 +1107,14 @@ class tx_dam_action_deleteRec extends tx_dam_action_recordBase {
 	 */
 	function _getCommand() {
 
+		$uid = $this->itemInfo['_BASE_REC_UID'] ? $this->itemInfo['_BASE_REC_UID'] : $this->itemInfo['uid'];
+
 		$script = $this->env['defaultCmdScript'];
 		$script .= '?CMD='.$this->cmd;
 		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
-		$script .= '&record['.$this->itemInfo['__table'].']='.$this->itemInfo['uid'];
+		$script .= '&record['.$this->itemInfo['__table'].']='.$uid;
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = $script;
 		} else {
 			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
@@ -993,7 +1146,8 @@ class tx_dam_action_deleteQuickRec extends tx_dam_action_recordBase {
 	 */
 	function _getCommand() {
 
-		$params = '&cmd['.$this->itemInfo['__table'].']['.$this->itemInfo['uid'].'][delete]=1';
+		$uid = $this->itemInfo['_BASE_REC_UID'] ? $this->itemInfo['_BASE_REC_UID'] : $this->itemInfo['uid'];
+		$params = '&cmd['.$this->itemInfo['__table'].']['.$uid.'][delete]=1';
 		$title = $this->itemInfo['title'].' ('.$this->itemInfo['file_name'].')';
 //		$onClick = 'if (confirm('.$GLOBALS['LANG']->JScharCode(sprintf($GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:mess.delete'), $title)).')) {jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params, -1).'\');} return false;';
 		$onClick = 'jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params, -1).'\'); return false;';
@@ -1033,7 +1187,7 @@ class tx_dam_action_renameFileRec extends tx_dam_action_renameFile {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'record' AND $this->itemInfo['__table'] === 'tx_dam');
 		}
 		return $valid;
 	}
@@ -1068,7 +1222,7 @@ class tx_dam_action_replaceFileRec extends tx_dam_action_replaceFile {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam');
+			$valid = ($this->itemInfo['__type'] === 'record' AND $this->itemInfo['__table'] === 'tx_dam');
 		}
 		return $valid;
 	}
@@ -1101,7 +1255,8 @@ class tx_dam_action_lockWarningRec extends tx_dam_action_recordBase {
 	function getIcon ($addAttribute='') {
 		global $TCA;
 
-		if ($this->_lockInfo = t3lib_BEfunc::isRecordLocked($this->itemInfo['__table'], $this->itemInfo['uid'])) {
+		$uid = $this->itemInfo['_LOCALIZED_UID'] ? $this->itemInfo['_LOCALIZED_UID'] : $this->itemInfo['uid'];
+		if ($this->_lockInfo = t3lib_BEfunc::isRecordLocked($this->itemInfo['__table'], $uid)) {
 			$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], 'gfx/recordlock_warning3.gif', 'width="17" height="12"').' title="'.htmlspecialchars($this->getDescription ()).'" alt="" />';
 		}
 

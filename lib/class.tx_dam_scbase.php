@@ -202,13 +202,26 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $TYPO3_CONF_VARS, $FILEMOUNTS;
 
 
-
-		parent::init();
+			// name might be set from outside
+		if (!$this->MCONF['name']) {
+			$this->MCONF = $GLOBALS['MCONF'];
+		}
 
 		tx_dam::config_init();
 
-#		tx_dam::config_setValue('setup.debug', '1');
+		tx_dam::config_setValue('setup.devel', '1');
 
+
+		$this->defaultPid = tx_dam_db::getPid();
+		$this->id = $this->defaultPid;
+		
+			// from parent::init();
+		$this->CMD = t3lib_div::_GP('CMD');
+		$this->perms_clause = $GLOBALS['BE_USER']->getPagePermsClause(1);
+		$this->menuConfig();
+		$this->handleExternalFunctionValue();	
+		
+		
 
 			// include the default language file
 		$GLOBALS['LANG']->includeLLFile('EXT:dam/lib/locallang.xml');
@@ -230,10 +243,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		}
 		$this->checkOrSetPath();
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
-
-
-		$this->defaultPid = tx_dam_db::getPid();
-		$this->id = $this->defaultPid;
 
 
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->defaultPid, $this->perms_clause);
@@ -264,8 +273,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$this->selection = t3lib_div::makeInstance('tx_dam_selectionQuery');
 
-// TODO make configurable
-$maxPages=100;
+
+		$maxPages = $this->config_checkValueEnabled('browserMaxPages', 20);
 		$this->MOD_SETTINGS['tx_dam_resultPointer'] = $this->selection->initPointer($this->MOD_SETTINGS['tx_dam_resultPointer'], $this->MOD_SETTINGS['tx_dam_resultsPerPage'], $maxPages);
 
 		$this->selection->initSelection($this /*$GLOBALS['SOBE']*/,
@@ -281,12 +290,12 @@ $maxPages=100;
 
 
 			// debug output
-		if (tx_dam::config_getValue('setup.debug')) {
+		if (tx_dam::config_getValue('setup.devel')) {
 			$this->debugContent['MOD_SETTINGS'] = '<h4>MOD_SETTINGS</h4>'.t3lib_div::view_array($this->MOD_SETTINGS);
 		}
-
+		
 			// BE Info output
-		if (tx_dam::config_getValue('setup.debug') AND t3lib_extMgm::isLoaded('cc_beinfo')) {
+		if (tx_dam::config_getValue('setup.devel') AND t3lib_extMgm::isLoaded('cc_beinfo')) {
 			require_once(t3lib_extMgm::extPath('cc_beinfo').'class.tx_ccbeinfo.php');
 			$beinfo = t3lib_div::makeInstance('tx_ccbeinfo');
 			$beinfoContent = $beinfo->makeInfo($this);
@@ -295,7 +304,26 @@ $maxPages=100;
 
 	}
 
-
+	/**
+	 * Creates an instance of the class found in $this->extClassConf['name'] in $this->extObj if any (this should hold three keys, "name", "path" and "title" if a "Function menu module" tries to connect...)
+	 * This value in extClassConf might be set by an extension (in a ext_tables/ext_localconf file) which thus "connects" to a module.
+	 * The array $this->extClassConf is set in handleExternalFunctionValue() based on the value of MOD_SETTINGS[function]
+	 * (Should be) called from global scope right after inclusion of files from the ->include_once array.
+	 * If an instance is created it is initiated with $this passed as value and $this->extClassConf as second argument. Further the $this->MOD_SETTING is cleaned up again after calling the init function.
+	 *
+	 * @return	void
+	 * @see handleExternalFunctionValue(), t3lib_extMgm::insertModuleFunction(), $extObj
+	 */
+	function checkExtObj()	{
+		parent::checkExtObj();
+	
+		foreach ($this->MOD_MENU as $key => $value) {
+			$override = $this->config_checkValueEnabled('options.'.$key.'.value', '_magic_MOD_MENU_');
+			if (!is_array($value) AND $override !== '_magic_MOD_MENU_') {
+				$this->MOD_SETTINGS[$key] = $override;
+			}
+		}
+	}
 
 	/**
 	 * Adds items to the ->MOD_MENU array. Used for the function menu selector.
@@ -324,6 +352,13 @@ $maxPages=100;
 						100 => '100',
 						200 => '200',
 					),
+					
+				'tx_dam_list_langSelector' => '',
+				'tx_dam_list_langOverlay' => array (
+						'exclusive' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:langCurrentExclusive'),
+						'andUntranslated' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:langCurrentAndDefault'),
+					),
+					
 			)
 		);
 		parent::menuConfig();
@@ -349,6 +384,7 @@ $maxPages=100;
 	 *
 	 * @return	void
 	 * @see init()
+	 * @todo check path access in modules or set path to a valid path?
 	 */
 	function checkOrSetPath()	{
 		global $FILEMOUNTS;
@@ -373,9 +409,8 @@ $maxPages=100;
 			$this->pathInfo = $pathInfo;
 			$this->pathAccess = false;
 		}
-// TODO check path access in modules or set path to a valid path?
 
-		if (tx_dam::config_getValue('setup.debug')) {
+		if (tx_dam::config_getValue('setup.devel')) {
 			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>'.t3lib_div::view_array($this->pathInfo);
 		}
 	}
@@ -421,13 +456,13 @@ $maxPages=100;
 
 		$this->doc->JScodeArray['jumpToUrl'] = '
 			function jumpToUrl(URL)	{
-				document.location = URL;
+				document.location.href = URL;
 			}';
 
 		$this->doc->JScodeArray['jumpExt'] = '
 			function jumpExt(URL,anchor)	{
 				var anc = anchor?anchor:"";
-				document.location = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
+				document.location.href = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
 			}';
 
 		$this->doc->JScodeArray['redirectUrls'] = $this->doc->redirectUrls($this->linkThisScript());
@@ -519,8 +554,9 @@ $maxPages=100;
 				.typo3-filelist TD.typo3-filelist-item { border-bottom: 1px dotted '.$borderColor.'; }
 				.typo3-filelist TD.c-headLine { background-color: #ccc; font-weight: bold; height: 16px; }
 				';
-
+// todo span.spacer does not work well
 		$this->doc->inDocStylesArray['gui_buttons'] = '
+				.buttonToggleDisplayWrap { display:block; margin: 1em 0 1em 0; }
 				.buttonToggleDisplay { background-color: '.$this->doc->buttonColor.'; border: 1px solid #888; padding: 0px 2px 0px 0px; width:30%; }
 				.buttonToggleDisplay:hover { background-color: '.$this->doc->buttonColorHover.'; }
 				.buttonToggleDisplay a { text-decoration: none; display: block; }
@@ -528,13 +564,12 @@ $maxPages=100;
 
 				.guiElementBox { background-color: '.$this->doc->bgColor4.'; border: 1px solid #aaa; padding: 2px; }
 
-				span.spacer1em { width:1em; height:1em; }
-				span.spacer2em { width:2em; height:1em; }
-				span.spacer3em { width:3em; height:1em; }
+				span.spacer05em { position:relative; margin-left:0.5em; }
+				span.spacer1em  { position:relative; margin-left:1em;}
 
 				.button { white-space:nowrap; padding: 1px 4px 2px 2px; background-color: '.$this->doc->buttonColor.'; border: 1px solid '.$this->doc->buttonColorBorder.'; margin-left: 0.5em; margin-right: 0.55em }
 				.buttonAct { background-color: '.$this->doc->buttonColorAct.'; }
-				.button img { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; }
+				.button img { vertical-align: middle; padding:0px 1px 2px 1px; }
 				.button a { vertical-align: baseline; text-decoration:none; }
 				.button:hover { background-color: '.$this->doc->buttonColorHover.'; }
 				.bgColorBtn { background-color: '.$this->doc->buttonColor.'; }';
@@ -1025,6 +1060,11 @@ $maxPages=100;
 	 * @return	void
 	 */
 	function addOption($type, $paramName, $description, $items=array()) {
+		
+		$this->develAvailableOptions[$paramName] = $description;
+	
+		if (!$this->config_checkValueEnabled('options.'.$paramName, true)) return;
+		
 		$id = 'l'.uniqid('tx_dam_scbase');
 		$idAttr = ' id="'.$id.'"';
 		$descriptionLabel = htmlspecialchars($description);
@@ -1284,7 +1324,7 @@ $maxPages=100;
 		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $extraIconArr);
 		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $cmdIconRight);
 
-		return $this->getHeaderBar($infoHeader, implode('<span class="spacer2em"><span>', $cmdIcons));
+		return $this->getHeaderBar($infoHeader, implode('<span class="spacer05em"><span>', $cmdIcons));
 	}
 
 
@@ -1331,7 +1371,7 @@ $maxPages=100;
 			if ($browsable AND in_array('refresh', $allowedIcons)) {
 				$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/refresh_n.gif', 'width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.reload',1).'" class="absmiddle" alt="" />';
 				$elements['refresh'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('tx_dam_scbase')))).'">'.$icon.'</a>';
-				$elements['refreshSpacer'] = '<span class="spacer2em"><span>';
+				$elements['refreshSpacer'] = '<span class="spacer05em"><span>';
 			}
 
 				// folder up button
@@ -1383,6 +1423,119 @@ $maxPages=100;
 
 
 
+	/***************************
+	 *
+	 * Localization stuff
+	 *
+	 ***************************/
+
+	/**
+	 * Make selector box for creating new translation for a record or switching to edit the record in an existing language.
+	 * Displays only languages which are available for the current page.
+	 *
+	 * @param	array		$langRowsLanguage records including faked record for default language
+	 * @param	integer		$currentLanguage uid of the current language
+	 * @param	boolean		$formFields If true, form-fields will be wrapped around
+	 * @return	string		<select> HTML element (if there were items for the box anyways...)
+	 */
+	function languageSwitch($langRows, $currentLanguage, $formFields = true) {
+		$content = '';
+
+			// page available in other languages than default language?
+		if (is_array($langRows) && count($langRows)) {
+
+			$langSelItems=array();
+			foreach ($langRows as $lang) {
+				$langSelItems[$lang['uid']]=$lang['title'];
+			}
+
+				// If any languages are left, make selector:
+			if (count($langSelItems)>1)		{
+				$content .= $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_general.xml:LGL.language',1).' ';
+				$content .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_langSelector]', $currentLanguage, $langSelItems);
+				if ($currentLanguage>0) {
+					$content .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_langOverlay]', $this->MOD_SETTINGS['tx_dam_list_langOverlay'], $this->MOD_MENU['tx_dam_list_langOverlay']);
+				}
+				if ($formFields) {
+					$content = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$content.'</form>';
+				}
+			}
+		}
+		return $content;
+	}
+
+
+	/**
+	 * Returns sys_language records.
+	 *
+	 * @param	integer		$id Page id: If zero, the query will select all sys_language records from root level which are NOT hidden. If set to another value, the query will select all sys_language records that has a pages_language_overlay record on that page (and is not hidden, unless you are admin user)
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
+	 * @return	array		Language records including faked record for default language
+	 */
+	function getLanguages($id, $mode=TYPO3_MODE)	{
+		global $LANG;
+		
+		static $cache = array();
+		
+		$mode = $mode ? $mode : 'NONE';
+		
+		if (is_array($cache[$mode])) {
+			return $cache[$mode];
+		}
+		
+		$modSharedTSconfig = t3lib_BEfunc::getModTSconfig($id, 'mod.SHARED');
+
+		$languages = array(
+			0 => array(
+				'uid' => 0,
+				'pid' => 0,
+				'hidden' => 0,
+				'title' => strlen($modSharedTSconfig['properties']['defaultLanguageLabel']) ? $modSharedTSconfig['properties']['defaultLanguageLabel'].' ('.$GLOBALS['LANG']->sl('LLL:EXT:lang/locallang_mod_web_list.xml:defaultLanguage').')' : $GLOBALS['LANG']->sl('LLL:EXT:lang/locallang_mod_web_list.xml:defaultLanguage'),
+				'flag' => $modSharedTSconfig['properties']['defaultLanguageFlag'],
+			)
+		);
+
+		$exQ = ' AND sys_language.hidden=0';
+		if ($mode === 'BE' AND $GLOBALS['BE_USER']->isAdmin()) {
+			$exQ = '';
+		}
+		
+		if ($id)	{
+			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+							'sys_language.*',
+							'pages_language_overlay,sys_language',
+							'pages_language_overlay.sys_language_uid=sys_language.uid AND pages_language_overlay.pid='.intval($id).$exQ,
+							'pages_language_overlay.sys_language_uid,sys_language.uid,sys_language.pid,sys_language.tstamp,sys_language.hidden,sys_language.title,sys_language.static_lang_isocode,sys_language.flag',
+							'sys_language.title'
+						);
+		} else {
+			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+							'sys_language.*',
+							'sys_language',
+							'sys_language.hidden=0',
+							'',
+							'sys_language.title'
+						);
+		}
+		if ($rows) {
+			if ($mode === 'BE') {
+				foreach ($rows as $row) {
+					if ($GLOBALS['BE_USER']->checkLanguageAccess($row['uid']))	{
+						$languages[$row['uid']] = $row;
+					}
+				}
+			} else {
+				foreach ($rows as $row) {
+					$languages[$row['uid']] = $row;
+				}
+			}
+		}
+		
+		$cache[$mode] = $languages;
+		
+		return $languages;
+	}
+
 
 
 	/********************************
@@ -1391,6 +1544,40 @@ $maxPages=100;
 	 *
 	 ********************************/
 
+
+	/**
+	 * Check a config value if its enabled
+	 * 
+	 * The typical module path will be used to search for a value
+	 * 
+	 * mod.txdamM1_file
+	 * mod.txdamM1_file.menu.function.tx_dam_file_upload
+	 * 
+	 * Anything except '' and 0 is true
+	 * If the the option is not set the default value will be returned
+	 *
+	 * @param	string		$configPath Pointer to an "object" in the TypoScript array, fx. 'my.option'
+	 * @param	mixed 		$default Default value when option is not set
+	 * @return boolean
+	 */
+	function config_checkValueEnabled($configPath, $default=false) {
+		$enabled='__magic__';
+
+		if ($this->extClassConf['name']) {
+			$path = 'mod.'.$this->MCONF['name'].'.modfunc.'.$this->extClassConf['name'].'.'.$configPath;
+			$enabled = tx_dam::config_checkValueEnabled($path, '__magic__');
+		}
+		if ($enabled==='__magic__') {
+			$path = 'mod.'.$this->MCONF['name'].'.'.$configPath;
+			$enabled = tx_dam::config_checkValueEnabled($path, '__magic__');
+		}
+		if ($enabled==='__magic__') {
+			$path = 'mod.txdamM1_SHARED.'.$configPath;
+			return tx_dam::config_checkValueEnabled($path, $default);
+		}
+	
+		return $enabled;
+	}
 
 
 	/**
@@ -1409,8 +1596,14 @@ $maxPages=100;
 		$this->addDocJavaScript();
 		$this->addDocStyles();
 
+		$collapsed = $this->config_checkValueEnabled('optionsCollapse', true);
+
+		if (!$collapsed) {
+			$displayOpen = true;
+		}
+
 		$content = '';
-		$content.= '<div style="display:block; margin: 1em 0 1em 0;">
+		$content.= '<div class="buttonToggleDisplayWrap">
 						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;" style="white-space:nowrap;">
 						<img id="'.$id.'_toggle" '.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_right.gif', 'width="11" height="10"').' alt="" />
 						'.$title.'</a></div>';
@@ -1631,7 +1824,7 @@ $maxPages=100;
 	function wrapLink_edit($str, $refTable, $id)    {
 		global $BACK_PATH, $BE_USER;
 
-		if($refTable == 'pages') {
+		if($refTable === 'pages') {
 			$onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
 		} else {
 			$params = '&edit['.$refTable.']['.$id.']=edit';
@@ -1669,7 +1862,7 @@ $maxPages=100;
 		global $BACK_PATH, $LANG, $TCA;
 
 			// Create record title or rootline for pages if option is selected
-		if($refTable=='pages' AND $showRootline) {
+		if($refTable === 'pages' AND $showRootline) {
 			$elementTitle = t3lib_BEfunc::getRecordPath($row['uid'], '1=1', 0);
 			$elementTitle = t3lib_div::fixed_lgd_cs($elementTitle, -($BE_USER->uc['titleLen']));
 		} else {
@@ -1677,7 +1870,7 @@ $maxPages=100;
 		}
 
 			// Create icon for record
-		if ($refTable=='tx_dam') {
+		if ($refTable === 'tx_dam') {
 			$elementIcon = tx_dam_guiFunc::icon_getFileTypeImgTag($row, 'class="c-recicon" align="top"');
 			
 		} else {
@@ -1685,7 +1878,7 @@ $maxPages=100;
 			$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
 
 				// Prepend table description for non-pages tables
-			if(!($refTable=='pages')) {
+			if(!($refTable === 'pages')) {
 				$iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
 			}
 				$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');

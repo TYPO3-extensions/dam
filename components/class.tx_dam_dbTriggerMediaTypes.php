@@ -109,7 +109,7 @@ class tx_dam_dbTriggerMediaTypes  {
 				$fields_values['pid'] = tx_dam_db::getPid();
 				$fields_values['parent_id'] = $media_id;
 				$fields_values['tstamp'] = time();
-				$fields_values['title'] = $meta['file_type'];
+				$fields_values['title'] = $meta['file_type'] ? $meta['file_type'] : 'n/a';
 				$fields_values['type'] = $mediaType;
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_metypes_avail', $fields_values);
 				echo $GLOBALS['TYPO3_DB']->sql_error();

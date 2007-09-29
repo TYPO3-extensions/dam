@@ -89,12 +89,14 @@ class tx_dam_upload_status {
 		return $found;
 	}
 
+	/**
+	 * @todo Does this work on windows?
+	 * @todo PHP 5.1 have better upload handling
+	 */
 	function process() {
 
 		$upload_tmp_dir = ini_get('upload_tmp_dir');
 		$upload_tmp_dir = $upload_tmp_dir ? $upload_tmp_dir : '/tmp';
-
-		// TODO Windows?
 
 
 		$files = $this->getUploadFilesStat($upload_tmp_dir);
@@ -134,11 +136,12 @@ class tx_dam_upload_status {
 }
 
 
+$progress = new tx_dam_upload_status;
+$progress->process();
+
+
 //if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_file_upload/upload_status.php'])    {
 //	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_file_upload/upload_status.php']);
 //}
 
-
-$progress = new tx_dam_upload_status;
-$progress->process();
 ?>

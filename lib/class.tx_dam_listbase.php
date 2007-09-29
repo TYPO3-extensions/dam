@@ -123,10 +123,6 @@ class tx_dam_listbase {
 
 
 
-	/**
-	 * enable display of thumbnails for images
-	 */
-	var $showThumbs = true;
 
 	/**
 	 * if set field wrap is enabled
@@ -162,11 +158,21 @@ class tx_dam_listbase {
 	 * max title length if field wrap is disabled
 	 */
 	var $titleLength = 30;
+	
+	/**
+	 * enable display of thumbnails for images
+	 */
+	var $showThumbs = true;
 
 	/**
 	 * enable alternating background colors in table rows
 	 */
 	var $showAlternateBgColors = false;
+
+	/**
+	 * enable display of icon column which is the second
+	 */
+	var $showIcons = true;
 
 	/**
 	 * enable display of actions generally
@@ -179,14 +185,15 @@ class tx_dam_listbase {
 	var $showActions = false;
 
 	/**
-	 * enable display of icon column which is the second
-	 */
-	var $showIcons = true;
-
-	/**
 	 * enable display of multi-actions which is a checkbox for each item and a bar below the list with options process for the selected items
 	 */
 	var $showMultiActions = false;
+
+	/**
+	 * environment array for actions
+	 * @see setActionsEnv()
+	 */
+	var $actionsEnv = array();
 
 	/**
 	 * array of selected items for multi-actions
@@ -271,7 +278,7 @@ class tx_dam_listbase {
 	 );
 
 
-// TODO Clipboard
+#TODO Clipboard
 
 	/**
 	 * If true click menus are generated on files and folders
@@ -410,7 +417,20 @@ class tx_dam_listbase {
 	}
 
 
-
+	/**
+	 * Set action environment
+	 *
+	 * @param	array		$actionsEnv
+	 * @return	void
+	 */
+	function setActionsEnv($actionsEnv) {
+		$this->actionsEnv = $actionsEnv;
+	}
+	
+	
+	
+	
+	
 
 	/***************************************
 	 *
@@ -517,9 +537,9 @@ class tx_dam_listbase {
 
 		$columns = array();
 		foreach($this->columnList as $field => $descr)	{
-			if ($field == '_CLIPBOARD_' AND is_object($this->clipboard))	{
+			if ($field === '_CLIPBOARD_' AND is_object($this->clipboard))	{
 				$columns[$field] = $this->clipboard->getHeaderControl();
-			} elseif ($field == '_CONTROL_')	{
+			} elseif ($field === '_CONTROL_')	{
 				$columns[$field] = $this->getHeaderControl();
 			} else {
 				$columns[$field] = $this->getHeaderColumnControl($field);
@@ -878,7 +898,7 @@ class tx_dam_listbase {
 		<!-- Element, begin: -->
 		<tr'.$trStyle.$trHover.'>'.implode('', $td).'</tr>';
 
-		if ($position == 'top') {
+		if ($position === 'top') {
 			array_unshift($this->tableRows, $out);
 		} else {
 			$this->tableRows[] = $out;
@@ -1236,65 +1256,10 @@ class tx_dam_listbase {
 	}
 
 
-// TODO move to tx_dam_guifunc?
-	/**
-	 * Returns unix like string of file permission
-	 *
-	 * @param	integer		$perms Permissions eg from fileperms()
-	 * @return	string		Eg. rwxr-x---
-	 */
-	function getFilePermString ($perms) {
-		if (($perms & 0xC000) == 0xC000) {
-			// Socket
-			$info = 's';
-		 } elseif (($perms & 0xA000) == 0xA000) {
-			// Symbolic Link
-			$info = 'l';
-		 } elseif (($perms & 0x8000) == 0x8000) {
-			// Regular
-			$info = '-';
-		 } elseif (($perms & 0x6000) == 0x6000) {
-			// Block special
-			$info = 'b';
-		 } elseif (($perms & 0x4000) == 0x4000) {
-			// Directory
-			$info = 'd';
-		 } elseif (($perms & 0x2000) == 0x2000) {
-			// Character special
-			$info = 'c';
-		 } elseif (($perms & 0x1000) == 0x1000) {
-			// FIFO pipe
-			$info = 'p';
-		 } else {
-			// Unknown
-			$info = 'u';
-		 }
-
-		 // Owner
-		 $info .= (($perms & 0x0100) ? 'r' : '-');
-		 $info .= (($perms & 0x0080) ? 'w' : '-');
-		 $info .= (($perms & 0x0040) ?
-					(($perms & 0x0800) ? 's' : 'x' ) :
-					(($perms & 0x0800) ? 'S' : '-'));
-
-		 // Group
-		 $info .= (($perms & 0x0020) ? 'r' : '-');
-		 $info .= (($perms & 0x0010) ? 'w' : '-');
-		 $info .= (($perms & 0x0008) ?
-					(($perms & 0x0400) ? 's' : 'x' ) :
-					(($perms & 0x0400) ? 'S' : '-'));
-
-		 // World
-		 $info .= (($perms & 0x0004) ? 'r' : '-');
-		 $info .= (($perms & 0x0002) ? 'w' : '-');
-		 $info .= (($perms & 0x0001) ?
-					(($perms & 0x0200) ? 't' : 'x' ) :
-					(($perms & 0x0200) ? 'T' : '-'));
-		return $info;
-	}
 
 
-// TODO Clipboard
+
+#TODO Clipboard
 
 
 

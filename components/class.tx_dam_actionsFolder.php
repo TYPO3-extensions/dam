@@ -83,7 +83,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'button', 'context');
+	var $typesAvailable = array('icon', 'button', 'globalcontrol', 'context');
 
 	/**
 	 * Returns true if the action is of the wanted type
@@ -94,9 +94,10 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 * @return	boolean
 	 */
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
+		
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid) {
-			$valid = ($this->itemInfo['__type'] == 'dir');
+			$valid = ($this->itemInfo['__type'] === 'dir');
 		}
 		return $valid;
 	}
@@ -128,7 +129,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 * @return	string
 	 */
 	function getLabel () {
-		if ($this->type=='button') {
+		if ($this->type === 'button') {
 			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:folder');
 		} else {
 			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:newFolder');
@@ -154,7 +155,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 */
 	function getWantedDivider ($type) {
 		$divider = '';
-		if ($type=='context') {
+		if ($type === 'context') {
 			$divider = 'divider:';
 		}
 		return $divider;
@@ -176,7 +177,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&folder='.rawurlencode($path);
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = $script;
 		} else {
 			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
@@ -222,7 +223,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'dir');
+			$valid = ($this->itemInfo['__type'] === 'dir');
 		}
 		return $valid;
 	}
@@ -239,7 +240,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid)	{
-			$valid = ($this->itemInfo['__type'] == 'dir' && !t3lib_div::inList('fileadmin,user_upload,_temp_', $this->itemInfo['dir_name']));
+			$valid = ($this->itemInfo['__type'] === 'dir' && !t3lib_div::inList('fileadmin,user_upload,_temp_', $this->itemInfo['dir_name']));
 		}
 		return $valid;
 	}
@@ -259,7 +260,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/rename_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="13" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -299,7 +300,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&folder='.rawurlencode($path);
 
-		if ($this->type=='context') {
+		if ($this->type === 'context') {
 			$commands['url'] = $script;
 		} else {
 			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);

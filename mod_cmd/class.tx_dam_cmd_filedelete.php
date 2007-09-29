@@ -72,7 +72,7 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	 * @return	boolean Return true if access is granted
 	 */
 	function accessCheck() {
-		return tx_dam::access_checkAction('deleteFile');
+		return tx_dam::access_checkFileOperation('deleteFile');
 	}
 
 

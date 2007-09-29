@@ -1,8 +1,67 @@
+06-12-07 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_image generate checksum for thumbs.php. Needed for t3 4.0.3
+
+06-12-05 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: finished several TSconfig options which enables/disables actions in modules
+	* Change: renamed tx_dam:access_checkAction to tx_dam::access_checkFileOperation
+	* Added: if devel option is enabled modules show a 'Module Info' box which displays keys needed for configuration in TSconfig
+
+06-12-04 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: Media>Tools>Configuration. Displays the current DAM setup (from TSconfig)
+	* Change: Media>Tools>Categories rebuild the tree now instead of cleaning it.
+	* Added: TSconfig setup can be choosen in EM now
+	* Change : use escapeshellarg() where needed
+	* Added: an additional file with meta information can be passed to indexing
+	* Added: RTE image browser for htmlArea
+	* Added: EM Option to enable RTE image browser
+
+06-12-03 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: added tons of TSconfig options. Have a look in the manual
+	* Change: make use of the file icons theme in the folder tree
+	* Change: move tx_dam::config_* into own class
+	* Added: make use of plugin.tx_dam.pid
+	* Change: cleaned up tx_dam_db::getPid()
+	* Added: Categories show the BE users language now when in sys_language the iso code is set and match - little tricky
+
+06-12-01 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: added workaround for htmlarea EB
+	* Added: manual updates and cleanups
+	
+06-11-30 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: file link browser XCLASS for htmlarea
+	* Added: tx_dam_action_localizeRec localization action
+	* Change: overhauled localization in list module. Needs still testing but should work better now
+	* Change: thumbs module has a language selector now
+	* Fix: #4287: In multilingual environments wrong pictures are displayed in the non-default languages
+	* Change: Removed modfunc_list_editsel. Function is integrated in list module now
+	* Fix: listmodul showed never more that 30 records at once
+
+06-11-29 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: remove options to select alternate bg colors for rows. TSconfig used now
+	* Change: removed alt_db_navframe XCLASS. Hiding the media folder when it is a mount is fixed in 4.0.3
+
+06-11-28 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: use lock() while indexing instead of sem_* functions
+	* Fix: meta collect with dry run did not use a unique id for each meta entry
+	* Fix: 'create new text file' returns to list now
+
+06-11-26 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: removed usage of pathinfo() because of problems with utf-8 in some PHP versions
+
 06-11-25 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: tx_dam_action_renameFileRec for list module
 	* Added: tx_dam_action_replaceFileRec for list module
-	* Added: tx_dam::icon_getFileTypeImgTag() redner enable fields now when in BE mode
+	* Added: tx_dam::icon_getFileTypeImgTag() render enable fields now when in BE mode
 	* Change: File and folder icons are fully themable for FE and BE. dam_fileicons ext show how
 	
 06-11-24 Rene Fritz  <r.fritz@colorcube.de>
@@ -12,7 +71,7 @@
 	* Fix: #4263: DAM Media Browser doesn't select any file, if disallowed_types are defined in TCA
 	* Fix: #4232: The umlaute of selected categories are shown in uft-chars with BE in utf8
 	* Fix: #4368: Renaming of folders fails
-	*Change: once again checked all occurencies of t3lib_div::makeInstance and added global $TYPO3_CONF_VARS; to make XCLASSes work
+	* Change: once again checked all occurencies of t3lib_div::makeInstance and added global $TYPO3_CONF_VARS; to make XCLASSes work
 
 06-11-22 Rene Fritz  <r.fritz@colorcube.de>
 
@@ -42,7 +101,7 @@
 	* Added: Possibility to define file extensions that define what files should be skipped while indexing: $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['skipFileTypes']
 	* Added: file_compileInfo() return $fileInfo['file_extension'] now
 	* Added: added Info main module as placeholder for submodules
-	* Change: removed 'devel' option from ext_conf_template.txt
+	* Change: removed 'debug' option from ext_conf_template.txt
 	* Added: more locallang labels in tools modules
 	* Added: top bars in tools modules - like all others
 
