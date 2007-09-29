@@ -35,37 +35,37 @@
  *
  *
  *   98: class tx_dam_file_upload extends t3lib_extobjbase
- *  114:     function modMenu()
+ *  110:     function modMenu()
  *  135:     function head()
- *  154:     function startUploads()
- *  160:     function hideUploadForm()
- *  164:     function processReqChange()
- *  181:     function loadXMLDoc(url)
- *  204:     function uploadprogress(response)
- *  224:     function isprocessing()
- *  229:     function getprogress()
- *  237:     function collectBatchItems()
- *  271:     function main()
- *  407:     function uploadForm($path, $uploadFields=5)
- *  490:     function uploadProcessing()
+ *  156:     function startUploads()
+ *  162:     function hideUploadForm()
+ *  166:     function processReqChange()
+ *  183:     function loadXMLDoc(url)
+ *  206:     function uploadprogress(response)
+ *  226:     function isprocessing()
+ *  231:     function getprogress()
+ *  239:     function collectBatchItems()
+ *  273:     function main()
+ *  414:     function getInfoHeaderBar($browseable=true, $cmdIcons = array())
+ *  434:     function uploadForm($path, $uploadFields=5)
+ *  517:     function uploadProcessing()
  *
  *              SECTION: GUI helper
- *  560:     function getLogMessages($log)
- *  586:     function getUploadedFileList($files)
- *  663:     function getBatchSubmitButton($uidList)
+ *  583:     function getLogMessages($log)
+ *  609:     function getUploadedFileList($files)
+ *  689:     function getBatchSubmitButton($uidList)
  *
  *              SECTION: misc helper
- *  697:     function getFilesFromLog($log)
- *  715:     function getMaxUploadSize()
+ *  723:     function getFilesFromLog($log)
  *
  *              SECTION: Indexing and DB
- *  751:     function indexUploadedFiles($fileList)
- *  825:     function getUIDsFromItemarray($itemArr, $makeList=TRUE)
- *  844:     function getErrorMsgFromItem ($itemArr)
- *  864:     function compileItemArray($uidList, $res=FALSE)
+ *  752:     function indexUploadedFiles($fileList)
+ *  834:     function getUIDsFromItemarray($itemArr, $makeList=TRUE)
+ *  853:     function getErrorMsgFromItem ($itemArr)
+ *  873:     function compileItemArray($uidList, $res=FALSE)
  *
  *              SECTION: Arrays and Lists
- *  908:     function array_copy_list($target, $source, $keys='')
+ *  917:     function array_copy_list($target, $source, $keys='')
  *
  * TOTAL FUNCTIONS: 23
  * (This index is automatically created/updated by the script "update-class-index")
@@ -98,10 +98,6 @@ require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 class tx_dam_file_upload extends t3lib_extobjbase {
 
 
-	/**
-	 * The target path for upload
-	 */
-	var $target;
 
 	var $enableBatchProcessing = true;
 
@@ -117,6 +113,10 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		return array(
 			'tx_dam_file_upload_overwrite' => '',
 			'tx_dam_file_upload_showBrowser' => '',
+			'tx_dam_file_uploadTarget' =>  array(
+						'filemount' => $LANG->getLL('tx_dam_file_upload.uploadTargetFilemount'),
+						'incoming' => $LANG->getLL('tx_dam_file_upload.uploadTargetIncoming'),
+					),
 			'tx_dam_file_uploadFields' =>  array(
 						5 => '5 '.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.files'),
 						10 => '10 '.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.files'),
@@ -134,6 +134,8 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 */
 	function head()	{
 		global $BE_USER, $LANG, $BACK_PATH, $FILEMOUNTS, $TYPO3_CONF_VARS;
+
+		$this->uploadsFolder = $this->pObj->pathInfo['dir_path_absolute'];
 
 		//
 		// Init gui items and ...
@@ -272,6 +274,11 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		global $LANG, $FILEMOUNTS, $TYPO3_CONF_VARS;
 
 		$content = '';
+		$header = '';
+
+
+
+
 
 		$uidList = $GLOBALS['TYPO3_DB']->cleanIntList(t3lib_div::_POST('batch_items'));
 
@@ -279,12 +286,11 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 				// Output header with path info and folder browser
 			$cmdIcons = array('back' => '&nbsp;&nbsp;&nbsp;'.$this->pObj->btn_back());
-			$content .= $this->pObj->getPathInfoHeaderBar($this->pObj->pathInfo, FALSE, $cmdIcons);
+			$header = $this->getInfoHeaderBar(false, $cmdIcons);
 			$content .= $this->pObj->doc->spacer(10);
 
 			require_once(PATH_txdam.'lib/class.tx_dam_batchprocess.php');
 			$batch = t3lib_div::makeInstance(tx_dam_batchProcess);
-
 
 
 			if($batch->processGP()) {
@@ -326,10 +332,17 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		} elseif (is_array(t3lib_div::_GP('file'))) {
 
 			//
-			// Upload processing: move files and sho result
+			// Upload processing: move files and show result
 			//
 
+				// Output header with path info
+			$cmdIcons = array();
+			$cmdIcons['back'] = '&nbsp;&nbsp;&nbsp;'.$this->pObj->btn_back();
+			$header = $this->getInfoHeaderBar(false, $cmdIcons);
+
 			$content .= $this->uploadProcessing();
+
+
 
 		} else {
 
@@ -342,14 +355,8 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			$this->pObj->addOption('funcCheck', 'tx_dam_file_upload_showBrowser', $LANG->getLL('tx_dam_file_upload.showBrowser'));
 
 
-
 				// Output header with path info
-			$cmdIcons = array();
-			if (!$this->pObj->MOD_SETTINGS['tx_dam_file_upload_showBrowser']) {
-					// disable refresh button if no file browser
-				$cmdIcons['refresh'] = '';
-			}
-			$content .= $this->pObj->getPathInfoHeaderBar($this->pObj->pathInfo, TRUE, $cmdIcons);
+			$header = $this->getInfoHeaderBar();
 
 
 				// for display of uploading progress
@@ -381,7 +388,8 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 
 				// Upload form
-			$content .= $this->pObj->doc->section('', $this->uploadForm($this->pObj->pathInfo['dir_path_absolute'], $this->pObj->MOD_SETTINGS['tx_dam_file_uploadFields']));
+			$content .= $this->pObj->doc->spacer(10);
+			$content .= $this->pObj->doc->section('', $this->uploadForm($this->uploadsFolder, $this->pObj->MOD_SETTINGS['tx_dam_file_uploadFields']));
 
 
 				// Show browseable file list
@@ -394,9 +402,28 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 		}
 
-		return $content;
+		return $header.$content;
 
 	}
+
+	/**
+	 * Create the Module header
+	 *
+	 * @return	string		HTML content
+	 */
+	function getInfoHeaderBar($browseable=true, $cmdIcons = array()) {
+		$content = '';
+
+		if (!$this->pObj->MOD_SETTINGS['tx_dam_file_upload_showBrowser']) {
+				// disable refresh button if no file browser
+			$cmdIcons['refresh'] = '';
+		}
+
+		$content .= $this->pObj->getPathInfoHeaderBar($this->pObj->pathInfo, $browseable, $cmdIcons);
+
+		return $content;
+	}
+
 
 
 	/**
@@ -423,7 +450,8 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		$select = t3lib_BEfunc::getFuncMenu($this->pObj->addParams,'SET[tx_dam_file_uploadFields]', $this->pObj->MOD_SETTINGS['tx_dam_file_uploadFields'], $this->pObj->MOD_MENU['tx_dam_file_uploadFields']);
 
 		$content .= $this->pObj->doc->spacer(5);
-		$content .= $this->pObj->doc->funcMenu('', '<div id="c-select">'.$select.'<div>');
+		#$content .= $this->pObj->doc->funcMenu('', '<div id="c-select">'.$select.'<div>');
+		$content .= $select;
 
 
 
@@ -449,12 +477,11 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			';
 		}
 
-#		$code .= $this->pObj->doc->spacer(5);
 
 
 
 
-		if ($upload_max_filesize = $this->getMaxUploadSize()) {
+		if ($upload_max_filesize = tx_dam_extFileFunctions::getMaxUploadSize()) {
 			$code .= '
 				<input type="hidden" name="MAX_FILE_SIZE" value="'.$upload_max_filesize.'" />
 				<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeHint',1), t3lib_div::formatSize($upload_max_filesize)).'</p>
@@ -492,44 +519,40 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 		$content = '';
 
-		//
-		// Processing uploads
-		//
-
-		$file = t3lib_div::makeInstance('tx_dam_tce_file');
-		$file->init();
-		$file->overwriteExistingFiles($this->pObj->MOD_SETTINGS['tx_dam_file_upload_overwrite']);
-		$log = $file->process();
+			// Processing uploads
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+		$TCEfile->overwriteExistingFiles($this->pObj->MOD_SETTINGS['tx_dam_file_upload_overwrite']);
+		$log = $TCEfile->process();
 
 
+			// Indexing and error output
+		if (count($log['cmd']['upload']) AND ($files=$this->getFilesFromLog($log['cmd']['upload']))) {
+
+			$indexData = $this->indexUploadedFiles($files);
 
 
-		//
-		// Content output
-		//
+			if ($indexData['files']) {
+				$uidList = $this->getUIDsFromItemArray($indexData['files']);
 
+				$code = $this->getUploadedFileList($indexData['files']);
+				$code .= $this->pObj->doc->spacer(5);
+				$code .= $this->getBatchSubmitButton($uidList);
 
-			// Output header with path info
-		$cmdIcons = array();
-		$cmdIcons['back'] = '&nbsp;&nbsp;&nbsp;'.$this->pObj->btn_back();
-		$content .= $this->pObj->getPathInfoHeaderBar($this->pObj->pathInfo, FALSE, $cmdIcons);
+				$content .= $this->pObj->doc->spacer(5);
+				$content .= $this->pObj->doc->section($LANG->getLL('tx_dam_file_upload.uploadFiles'), $code);
 
-		if (count($log['cmd']['upload']) AND ($files = $this->getFilesFromLog($log['cmd']['upload']))) {
+			}
 
-			$files = $this->indexUploadedFiles($files);
-			$uidList = $this->getUIDsFromItemArray($files);
-
-			$code = $this->getUploadedFileList($files);
-			$code .= $this->pObj->doc->spacer(5);
-			$code .= $this->getBatchSubmitButton($uidList);
-
-			$content .= $this->pObj->doc->spacer(5);
-			$content .= $this->pObj->doc->section('Uploaded files:', $code);
+			if ($indexData['errors']) {
+				$content .= $this->pObj->doc->spacer(10);
+				$content .= $this->pObj->doc->section($LANG->getLL('tx_dam_file_upload.indexingFailed'), '<p>'.implode('<br />', $indexData['errors']).'</p>');
+			}
 
 		} else {
 
 			$content .= $this->pObj->doc->spacer(10);
-			$content .= $this->pObj->doc->section($LANG->getLL('tx_dam_file_upload.uploadNothing'), '<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeExceeded',1), t3lib_div::formatSize($this->getMaxUploadSize())).'</p>');
+			$content .= $this->pObj->doc->section($LANG->getLL('tx_dam_file_upload.uploadNothing'), '<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeExceeded',1), t3lib_div::formatSize(tx_dam_extFileFunctions::getMaxUploadSize())).'</p>');
 		}
 
 
@@ -618,10 +641,10 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		$table[$tr][$td++] = $LANG->getLL('c_size');
 		# $table[$tr][$td++] = $LANG->getLL('c_rw');
 		$table[$tr][$td++] = '&nbsp;';
-		$tr++;
 
 
 		foreach ($files as $item) {
+			$tr++;
 
 			$row = $item['meta'];
 
@@ -630,7 +653,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 				// Add row to table
 			$td=0;
-			if ($item['uid']) {
+			if ($row['uid']) {
 				#$table[$tr][$td++] = $this->pObj->doc->icons(-1); // Ok;
 				$table[$tr][$td++] = $this->enableBatchProcessing ? '<input type="checkbox" name="process_recs[]" value="'.$row['uid'].'" />': '';
 				$table[$tr][$td++] = $fileIcon;
@@ -650,11 +673,14 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 				$table[$tr][$td++] = htmlspecialchars($this->getErrorMsgFromItem($item));
 			}
 
-			$tr++;
 		}
 
 			// render table
-		$code = $this->pObj->doc->table($table, $tableLayout);
+		if ($tr) {
+			$code = $this->pObj->doc->table($table, $tableLayout);
+		} else {
+			$code = false;
+		}
 
 		return $code;
 	}
@@ -707,31 +733,6 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	}
 
 
-	/**
-	 * Return max upload file size
-	 *
-	 * @return integer Maximum file size for uploads in bytes
-	 */
-	function getMaxUploadSize() {
-		$upload_max_filesize = ini_get('upload_max_filesize');
-		$match = array();
-		if (preg_match('#(M|MB)$#i', $upload_max_filesize, $match)) {
-			$upload_max_filesize = intval($upload_max_filesize)*1048576;
-		} elseif (preg_match('#(k|kB)$#i', $upload_max_filesize, $match)) {
-			$upload_max_filesize = intval($upload_max_filesize)*1024;
-		}
-
-		$maxFileSize = intval($GLOBALS['TYPO3_CONF_VARS']['BE']['maxFileSize'])*1024;
-
-		if (min($maxFileSize, $upload_max_filesize)==0) {
-			$upload_max_filesize = max($maxFileSize, $upload_max_filesize);
-		} else {
-			$upload_max_filesize = min($maxFileSize, $upload_max_filesize);
-		}
-		return $upload_max_filesize;
-	}
-
-
 
 
 	/********************************
@@ -752,42 +753,46 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		global $BACK_PATH, $LANG, $TYPO3_CONF_VARS;
 
 		$files = array();
+		$errors = array();
 
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
 		$index->setDefaultSetup(tx_dam::path_makeAbsolute($this->pObj->path));
+		$index->enableReindexing(2);
 		$index->initEnabledRules();
 
 		$index->setRunType('auto');
 
-		$indexedFiles = $index->indexFiles($fileList, $this->pObj->defaultPid);
+		$index->enableMetaCollect();
 
 
-		$fieldList = tx_dam_db::getMetaInfoFieldList(FALSE);
-		foreach ($indexedFiles as $k => $data) {
 
-			$metaRec = tx_dam::meta_getDataByUid ($data['uid'], '*');
+		$index->indexFiles($fileList, $this->pObj->defaultPid);
 
-			$fi = array();
-			if(is_array($metaRec) AND $metaRec['uid']) {
-				$metaRec = $this->array_copy_list(array(), $metaRec, $fieldList);
+
+		foreach ($index->meta as $data) {
+
+			if($data['failure']) {
+				$meta = $data['file'];
 			} else {
-				$fI = pathinfo($data['orig_filename']);
-				$metaRec = array();
-				$metaRec['file_name'] = $fI['basename'];
-				$metaRec['file_type'] = $fI['extension'];
+				$meta = $data['fields'];
 			}
 
 			$files[] = array(
-				'uid' => $metaRec['uid'],
-				'meta' => $metaRec,
-				'errors' => $data['errors'],
+				'uid' => $meta['uid'],
+				'meta' => $meta,
+				'errors' => $data['failure'],
+				'isIndexed' => $data['isIndexed'],
 			);
+
+			if ($data['failure']) {
+				$errors[] = $data['failure'];
+			}
 
 		}
 
-		return $files;
+		return array('files' => $files, 'errors' => $errors);
 	}
 
 

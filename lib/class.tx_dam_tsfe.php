@@ -33,12 +33,16 @@
  *
  *
  *
- *   56: class tx_dam_tsfe
+ *   60: class tx_dam_tsfe
+ *
+ *              SECTION: TypoScript functions
+ *   85:     function fetchFileList ($content, $conf)
  *
  *              SECTION: Misc functions
- *   81:     function fetchFileList ($content, $conf)
+ *  129:     function initLangObject()
+ *  155:     function getFieldLabel($field, $table='tx_dam')
  *
- * TOTAL FUNCTIONS: 1
+ * TOTAL FUNCTIONS: 3
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -138,6 +142,27 @@ class tx_dam_tsfe {
 				$GLOBALS['LANG']->init($GLOBALS['TSFE']->config['config']['language']);
 			}
 		}
+	}
+
+
+	/**
+	 * Get a language label for a table field
+	 * appended ':' will be removed
+	 *
+	 * @param string $field
+	 * @param string $table Default: tx_dam
+	 */
+	function getFieldLabel($field, $table='tx_dam') {
+		global $TCA;
+
+		if (!is_object($GLOBALS['LANG'])) tx_dam_tsfe::initLangObject();
+
+		t3lib_div::loadTCA('tx_dam');
+
+		$label = $TCA[$table]['columns'][$field]['label'];
+		$label = $GLOBALS['LANG']->sL($label);
+		$label = preg_replace('#:$#', '', $label);
+		return $label;
 	}
 
 }

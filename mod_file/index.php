@@ -34,18 +34,13 @@
  *
  *
  *
- *   79: class tx_dam_file_module1 extends tx_dam_SCbase
- *   98:     function init()
- *  143:     function menuConfig()
- *  158:     function main()
- *  196:     function jumpToUrl(URL)
- *  257:     function printContent()
+ *   74: class tx_dam_mod_file extends tx_dam_SCbase
+ *   88:     function init()
+ *  111:     function main()
+ *  201:     function printContent()
  *
- *              SECTION: GUI
- *  283:     function getPathInfoHeader($path, $browsable=FALSE, $extraIconArr=array())
- *
- * TOTAL FUNCTIONS: 6
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -83,6 +78,7 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 	 */
 	var $basicFF;
 
+	var $formName = 'editform';
 
 	/**
 	 * Initializes the backend module
@@ -134,25 +130,13 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 			// Output page header
 			//
 
-			$this->doc->form = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 			$this->addDocStyles();
-
-				// JavaScript
-			$this->doc->JScodeArray['jumpToUrl'] = '
-				var script_ended = 0;
-				var changed = 0;
-
-				function jumpToUrl(URL)	{
-					document.location = URL;
-				}
-				';
-
-			$this->doc->postCode.= $this->doc->wrapScriptTags('
-				script_ended = 1;');
-
+			$this->addDocJavaScript();
 
 			$this->extObjHeader();
+
+			$this->doc->form = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="'.$this->formName.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 				// Draw the header.
 			$this->content.= $this->doc->startPage($LANG->getLL('title'));
@@ -173,6 +157,7 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 			//
 
 			$this->extObjContent();
+
 
 
 			//

@@ -33,70 +33,71 @@
  *
  *
  *
- *  119: class tx_dam_action_newTextfile extends tx_dam_actionbase
- *  137:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  152:     function getIcon ($addAttribute='')
- *  169:     function getLabel ()
- *  178:     function getDescription ()
- *  188:     function _getCommand()
+ *  120: class tx_dam_action_newTextfile extends tx_dam_actionbase
+ *  138:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  153:     function getIcon ($addAttribute='')
+ *  170:     function getLabel ()
+ *  183:     function getDescription ()
+ *  193:     function _getCommand()
  *
  *
- *  213: class tx_dam_action_editFileRecord extends tx_dam_actionbase
- *  238:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
- *  254:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  282:     function getIcon ($addAttribute='')
- *  301:     function getDescription ()
- *  312:     function _getCommand()
+ *  223: class tx_dam_action_editFileRecord extends tx_dam_actionbase
+ *  248:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
+ *  264:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  289:     function getIcon ($addAttribute='')
+ *  308:     function getLabel ()
+ *  319:     function _getCommand()
  *
  *
- *  334: class tx_dam_action_viewFile extends tx_dam_actionbase
- *  356:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
- *  373:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  395:     function getIcon ($addAttribute='')
- *  411:     function getDescription ()
- *  424:     function _getCommand()
+ *  344: class tx_dam_action_viewFile extends tx_dam_actionbase
+ *  366:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
+ *  383:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  405:     function getIcon ($addAttribute='')
+ *  421:     function getLabel ()
+ *  432:     function _getCommand()
  *
  *
- *  448: class tx_dam_action_infoFile extends tx_dam_action_viewFile
- *  466:     function getIcon ($addAttribute='')
- *  485:     function getDescription ()
- *  496:     function _getCommand()
+ *  459: class tx_dam_action_infoFile extends tx_dam_action_viewFile
+ *  477:     function getIcon ($addAttribute='')
+ *  496:     function getLabel ()
+ *  507:     function getWantedDivider ($type)
+ *  522:     function _getCommand()
  *
  *
- *  517: class tx_dam_action_renameFile extends tx_dam_actionbase
- *  539:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
- *  555:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  571:     function getIcon ($addAttribute='')
- *  589:     function getDescription ()
- *  600:     function _getCommand()
+ *  547: class tx_dam_action_renameFile extends tx_dam_actionbase
+ *  569:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
+ *  585:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  601:     function getIcon ($addAttribute='')
+ *  619:     function getLabel ()
+ *  630:     function _getCommand()
  *
  *
- *  632: class tx_dam_action_editFile extends tx_dam_action_renameFile
- *  651:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  669:     function getIcon ($addAttribute='')
- *  687:     function getDescription ()
+ *  666: class tx_dam_action_editFile extends tx_dam_action_renameFile
+ *  685:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  703:     function getIcon ($addAttribute='')
+ *  721:     function getLabel ()
  *
  *
- *  707: class tx_dam_action_replaceFile extends tx_dam_action_renameFile
- *  725:     function getIcon ($addAttribute='')
- *  743:     function getDescription ()
+ *  741: class tx_dam_action_replaceFile extends tx_dam_action_renameFile
+ *  759:     function getIcon ($addAttribute='')
+ *  777:     function getLabel ()
  *
  *
- *  763: class tx_dam_action_deleteFile extends tx_dam_action_renameFile
- *  781:     function getIcon ($addAttribute='')
- *  799:     function getDescription ()
+ *  797: class tx_dam_action_deleteFile extends tx_dam_action_renameFile
+ *  815:     function getIcon ($addAttribute='')
+ *  833:     function getLabel ()
  *
  *
- *  817: class tx_dam_action_deleteFileQuick extends tx_dam_action_renameFile
- *  839:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
- *  853:     function getIcon ($addAttribute='')
- *  871:     function getDescription ()
- *  882:     function _getCommand()
+ *  851: class tx_dam_action_deleteFileQuick extends tx_dam_action_renameFile
+ *  873:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
+ *  887:     function getIcon ($addAttribute='')
+ *  905:     function getDescription ()
+ *  916:     function _getCommand()
  *
  *
- *  897: class tx_dam_actionsFile
+ *  931: class tx_dam_actionsFile
  *
- * TOTAL FUNCTIONS: 34
+ * TOTAL FUNCTIONS: 35
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -124,7 +125,7 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'button');
+	var $typesAvailable = array('icon', 'button', 'context');
 
 	/**
 	 * Returns true if the action is of the wanted type
@@ -156,7 +157,7 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 		} else {
 			$iconFile = 'gfx/new_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -167,7 +168,11 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 	 * @return	string
 	 */
 	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:file');
+		if ($this->type=='button') {
+			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:file');
+		} else {
+			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:newTextFile');
+		}
 	}
 
 	/**
@@ -191,10 +196,15 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 
 		$script = $this->env['defaultCmdScript'];
 		$script .= '?CMD='.$this->cmd;
+		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&folder='.rawurlencode($path);
-		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
-		$commands['href'] = $script;
+		if ($this->type=='context') {
+			$commands['url'] = $script;
+		} else {
+			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
+			$commands['href'] = $script;
+		}
 
 		return $commands;
 	}
@@ -216,10 +226,10 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 	/**
-	 * If set the action is for itmes with edit permissions only
+	 * If set the action is for items with edit permissions only
 	 * @access private
 	 */
 	var $editPermsNeeded = true;
@@ -257,9 +267,6 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 		$valid = ($this->isTypeValid ($type, $itemInfo, $env) AND $this->itemInfo['uid']);
 		if ($valid AND $this->editPermsNeeded) {
 
-			if (!isset($this->env['permsEdit'])) {
-				$this->env['permsEdit'] = ($GLOBALS['SOBE']->calcPerms & 16);
-			}
 			if (!isset($this->itemInfo['__table'])) {
 				$this->itemInfo['__table'] = 'tx_dam';
 			}
@@ -287,18 +294,18 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 		} else {
 			$iconFile = 'gfx/edit2'. (!$TCA[$this->itemInfo['__table']]['ctrl']['readOnly'] ? '' : '_d').'.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="11" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="11" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
+	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:edit');
 	}
 
@@ -312,10 +319,13 @@ class tx_dam_action_editFileRecord extends tx_dam_actionbase {
 	function _getCommand() {
 
 		$params = '&edit['.$this->itemInfo['__table'].']['.$this->itemInfo['uid'].']=edit';
-		$onClick = t3lib_BEfunc::editOnClick($params, $GLOBALS['BACK_PATH'], -1);
 
-		$commands['href'] = '#';
-		$commands['onclick'] = $onClick;
+		if ($this->type=='context') {
+			$commands['url'] = 'alt_doc.php?'.$params;
+		} else {
+			$onClick = t3lib_BEfunc::editOnClick($params, $this->env['backPath'], -1);
+			$commands['onclick'] = $onClick;
+		}
 
 		return $commands;
 	}
@@ -339,7 +349,7 @@ class tx_dam_action_viewFile extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -398,21 +408,19 @@ class tx_dam_action_viewFile extends tx_dam_actionbase {
 		} else {
 			$iconFile = 'gfx/zoom.gif';
 		}
-		$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon =	'<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
+	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:viewFile');
 	}
-
-
 
 
 	/**
@@ -424,10 +432,13 @@ class tx_dam_action_viewFile extends tx_dam_actionbase {
 	function _getCommand() {
 
 		$href = tx_dam::file_relativeSitePath ($this->itemInfo['file_path_absolute'].$this->itemInfo['file_name']);
-		$aOnClick = "return top.openUrlInWindow('".t3lib_div::getIndpEnv('TYPO3_SITE_URL').$href."','WebFile');";
+		$onClick = "top.openUrlInWindow('".t3lib_div::getIndpEnv('TYPO3_SITE_URL').$href."','WebFile');";
 
-		$commands['href'] = '#';
-		$commands['aTagAttribute'] = 'onclick="'.htmlspecialchars($aOnClick).'"';
+		if ($this->type=='context') {
+			$commands['onclick'] = $onClick.' return hideCM();';
+		} else {
+			$commands['onclick'] = 'return '.$onClick;
+		}
 
 		return $commands;
 	}
@@ -449,7 +460,7 @@ class tx_dam_action_infoFile extends tx_dam_action_viewFile {
 
 
 	/**
-	 * If set the action is for itmes with edit permissions only
+	 * If set the action is for items with edit permissions only
 	 * @access private
 	 */
 	var $editPermsNeeded = false;
@@ -471,19 +482,34 @@ class tx_dam_action_infoFile extends tx_dam_action_viewFile {
 		} else {
 			$iconFile = 'gfx/zoom2.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
+	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo');
+	}
+
+
+	/**
+	 * Tells if a spacer/margin is wanted before/after the action
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: "divider:spacer". Divider before and spacer after
+	 */
+	function getWantedDivider ($type) {
+		$divider = '';
+		if ($type=='context') {
+			$divider = ':divider';
+		}
+		return $divider;
 	}
 
 
@@ -495,10 +521,14 @@ class tx_dam_action_infoFile extends tx_dam_action_viewFile {
 	 */
 	function _getCommand() {
 
-		$commands['href'] = '#';
+		$filename = tx_dam::file_absolutePath($this->itemInfo);
+		$onClick = 'top.launchView(\''.$filename.'\', \'\');';
 
-		$filename = $this->itemInfo['file_path_absolute'].$this->itemInfo['file_name'];
-		$commands['onclick'] = 'top.launchView(\''.$filename.'\', \'\'); return false;';
+		if ($this->type=='context') {
+			$commands['onclick'] = $onClick.' return hideCM();';
+		} else {
+			$commands['onclick'] = $onClick.' return false;';
+		}
 
 		return $commands;
 	}
@@ -522,7 +552,7 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -575,18 +605,18 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/rename_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
+	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.rename');
 	}
 
@@ -603,10 +633,15 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 
 		$script = $this->env['defaultCmdScript'];
 		$script .= '?CMD='.$this->cmd;
+		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
 		$script .= '&file='.rawurlencode($filepath);
-		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
-		$commands['href'] = $script;
+		if ($this->type=='context') {
+			$commands['url'] = $script;
+		} else {
+			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
+			$commands['href'] = $script;
+		}
 
 		return $commands;
 	}
@@ -636,7 +671,7 @@ class tx_dam_action_editFile extends tx_dam_action_renameFile {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -672,19 +707,19 @@ class tx_dam_action_editFile extends tx_dam_action_renameFile {
 		} else {
 			$iconFile = 'gfx/edit_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:editFile');
+	function getLabel () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:editFile');
 	}
 
 }
@@ -711,7 +746,7 @@ class tx_dam_action_replaceFile extends tx_dam_action_renameFile {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -728,18 +763,18 @@ class tx_dam_action_replaceFile extends tx_dam_action_renameFile {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/replace_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="15" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="15" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
+	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:replaceFile');
 	}
 
@@ -767,7 +802,7 @@ class tx_dam_action_deleteFile extends tx_dam_action_renameFile {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -784,18 +819,18 @@ class tx_dam_action_deleteFile extends tx_dam_action_renameFile {
 		} else {
 			$iconFile = 'gfx/delete_record.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
 
 
 	/**
-	 * Returns a short description for tooltips for example like: Delete folder recursivley
+	 * Returns the short label like: Delete
 	 *
 	 * @return	string
 	 */
-	function getDescription () {
+	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.delete');
 	}
 }
@@ -856,7 +891,7 @@ class tx_dam_action_deleteFileQuick extends tx_dam_action_renameFile {
 		} else {
 			$iconFile = 'gfx/delete_record.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}

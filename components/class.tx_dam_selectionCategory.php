@@ -38,13 +38,13 @@
  *   87:     function tx_dam_selectionCategory()
  *
  *              SECTION: DAM specific functions
- *  137:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
- *  166:     function getControl($title,$row)
+ *  143:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damSel)
+ *  176:     function getControl($title,$row)
  *
  *              SECTION: categories
- *  213:     function uniqueList()
- *  245:     function getSubRecords ($uidList, $level=1, $fields='*', $table='tx_dam_cat', $where='')
- *  277:     function getSubRecordsIdList($uidList, $level=1, $table='tx_dam_cat', $where='')
+ *  222:     function uniqueList()
+ *  254:     function getSubRecords ($uidList, $level=1, $fields='*', $table='tx_dam_cat', $where='')
+ *  286:     function getSubRecordsIdList($uidList, $level=1, $table='tx_dam_cat', $where='')
  *
  * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the script "update-class-index")
@@ -106,7 +106,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 
 		if(TYPO3_MODE=='FE') {
 			$this->clause = $GLOBALS['TSFE']->sys_page->enableFields($this->table);
-// FIXME ...
+// FIXME ... sys_language_uid
 			$this->clause .= ' AND sys_language_uid=0';
 		} else {
 			$this->clause = ' AND deleted=0';
@@ -140,8 +140,10 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @return	string
 	 * @see tx_dam_SCbase::getWhereClausePart()
 	 */
-	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
+	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damSel)      {
 		static $alias='a';
+
+		$this->damSel = & $damSel;
 
 		$depth = isset($this->TSconfig['sublevelDepth']) ? intval($this->TSconfig['sublevelDepth']) : 99;
 
@@ -153,7 +155,8 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign IN ('.$catUidList.')';
 		}
 
-		$damObj->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam', 'tx_dam_mm_cat_'.$alias);
+// TODO ?		$damSel->qg->addEnableFields('tx_dam_cat');
+		$this->damSel->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam', 'tx_dam_mm_cat_'.$alias);
 
 		$alias = chr(ord($alias)+1);
 
@@ -257,7 +260,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			$newIdList = array();
 			t3lib_div::loadTCA($table);
 			$ctrl = $GLOBALS['TCA'][$table]['ctrl'];
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, $ctrl['treeParentField'].' IN ('.$uidList.') '.$where.' AND NOT '.$table.'.'.$ctrl['delete']);
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, $ctrl['treeParentField'].' IN ('.$uidList.') '.$where.$this->damSel->qg->enableFields($table));
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$rows[$row['uid']] = $row;
 				$newIdList[] = $row['uid'];

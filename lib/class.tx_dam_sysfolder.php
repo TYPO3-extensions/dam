@@ -35,10 +35,10 @@
  *
  *   60: class tx_dam_sysfolder
  *   68:     function init()
- *   86:     function getAvailable()
- *  100:     function getPidList()
- *  111:     function create($pid=0)
- *  135:     function collectLostRecords($pid=NULL, $forceAll=true)
+ *   90:     function getAvailable()
+ *  104:     function getPidList()
+ *  115:     function create($pid=0)
+ *  139:     function collectLostRecords($pid=NULL, $forceAll=true)
  *
  * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
@@ -66,6 +66,10 @@ class tx_dam_sysfolder {
 	 * @return	integer		The uid of the default sysfolder
 	 */
 	function init()	{
+
+// FIXME
+$GLOBALS['TYPO3_DB']->exec_UPDATEquery('pages', 'module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').'', array('doktype'=>'254'));
+
 		$damFolders = tx_dam_sysfolder::getAvailable();
 		if (!count($damFolders)) {
 				// creates a DAM folder on the fly
@@ -85,7 +89,7 @@ class tx_dam_sysfolder {
 	 */
 	function getAvailable() {
 		$rows=array();
-		if ($damFolders = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,pid,title', 'pages', 'doktype=2 and module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').' AND deleted=0', '', '', '', 'uid')) {
+		if ($damFolders = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,pid,title,doktype', 'pages', 'module='.$GLOBALS['TYPO3_DB']->fullQuoteStr('dam', 'pages').' AND deleted=0', '', '', '', 'uid')) {
 			$rows = $damFolders;
 		}
 		return $rows;
@@ -116,7 +120,7 @@ class tx_dam_sysfolder {
 		$fields_values['perms_group'] = 31;
 		$fields_values['perms_everybody'] = 31;
 		$fields_values['title'] = 'Media';
-		$fields_values['doktype'] = 2;
+		$fields_values['doktype'] = 254; // sysfolder
 		$fields_values['module'] = 'dam';
 		$fields_values['crdate'] = time();
 		$fields_values['tstamp'] = time();
@@ -134,16 +138,21 @@ class tx_dam_sysfolder {
 	 */
 	function collectLostRecords($pid=NULL, $forceAll=true)	{
 
-		$pid = $pid ? $pid : tx_damdb::getPid();
+		$pid = $pid ? $pid : tx_dam_db::getPid();
 
 		if ($pid) {
+
+			$mediaTables = tx_dam::register_getEntries('mediaTable');
+			$values = array ('pid' => $pid);
+
 			if($forceAll) {
-// TODO what about other (selection) tables
-				$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', '', array('pid' => $pid));
-				$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_cat', '', array('pid' => $pid));
+				foreach ($mediaTables as $table) {
+					$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($table, $table.'.pid NOT IN ('.tx_dam_sysfolder::getPidList().')', $values);
+				}
 			} else {
-				$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'pid=0', array('pid' => $pid));
-				$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_cat', 'pid=0', array('pid' => $pid));
+				foreach ($mediaTables as $table) {
+					$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($table, $table.'.pid=0', $values);
+				}
 			}
 		}
 	}

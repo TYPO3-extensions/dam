@@ -39,7 +39,7 @@
  *   94:     function selection_getItemTitle($id, $value)
  *  112:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
  *  138:     function makeSearchQueryPart($table, $fields, $searchString)
- *  163:     function getSearchFields($table, $searchString)
+ *  164:     function getSearchFields($table, $searchString)
  *
  * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")

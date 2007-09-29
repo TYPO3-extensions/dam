@@ -39,7 +39,7 @@
  * @package DAM-Mod
  * @subpackage file
  */
-class upload_status {
+class tx_dam_upload_status {
 
 	/**
 	 * Formats the input integer $sizeInBytes as bytes/kilobytes/megabytes (-/K/M)
@@ -139,6 +139,6 @@ class upload_status {
 //}
 
 
-$progress = new upload_status;
+$progress = new tx_dam_upload_status;
 $progress->process();
 ?>

@@ -35,7 +35,7 @@
             <label index="tx_dam_cmd_filereplace.title">Replace file</label>
             <label index="tx_dam_cmd_filedelete.warning">Warning</label>
             <label index="tx_dam_cmd_filedelete.title">Delete file</label>
-            <label index="tx_dam_cmd_filedelete.message">Are you sure to delete the file and it's meta data?</label>
+            <label index="tx_dam_cmd_filedelete.message">Are you sure to delete the file(s) and it's meta data?</label>
             <label index="tx_dam_cmd_filedelete.messageReferencesUsed">File is in use as content!</label>
             <label index="tx_dam_cmd_filedelete.messageReferencesDelete">Deleting the file will remove the media item from the content elements.</label>
             <label index="tx_dam_cmd_filedelete.messageReferences">The file is used in following content elements.</label>
@@ -58,7 +58,7 @@
             <label index="tx_dam_cmd_filereplace.title">Datei ersetzen</label>
             <label index="tx_dam_cmd_filedelete.warning">Achtung</label>
             <label index="tx_dam_cmd_filedelete.title">Datei löschen</label>
-            <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher das Sie die Datei und zugehörige Meta-Daten löschen wollen?</label>
+            <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher das Sie die Datei(en) und zugehörige Meta-Daten löschen wollen?</label>
             <label index="tx_dam_cmd_filedelete.messageReferencesUsed">Datei wird als Inhalt verwendet!</label>
             <label index="tx_dam_cmd_filedelete.messageReferencesDelete">Wird die Datei gelöscht, so wird sie auch aus den Inhaltselementen entfernt.</label>
             <label index="tx_dam_cmd_filedelete.messageReferences">Die Datei wird in folgenden Inhaltselementen verwendet.</label>

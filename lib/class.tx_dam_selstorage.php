@@ -44,19 +44,19 @@
  *  121: class tx_dam_selStorage
  *
  *              SECTION: Init / setup
- *  160:     function init()
+ *  166:     function init()
  *
  *              SECTION: Process storage array
- *  186:     function initStorage()
- *  215:     function cleanupStorageArray($storedSettings)
- *  237:     function compileEntry($data)
- *  261:     function processStoreControl()
+ *  190:     function initStorage($uidList='', $pidList='')
+ *  226:     function cleanupStorageArray($storedSettings)
+ *  248:     function compileEntry($data)
+ *  272:     function processStoreControl()
  *
  *              SECTION: GUI
- *  343:     function getStoreControl($showElements='load,remove,save', $useOwnForm=TRUE)
+ *  354:     function getStoreControl($showElements='load,remove,save', $useOwnForm=TRUE)
  *
  *              SECTION: Misc
- *  445:     function processEntry($storageArr)
+ *  456:     function processEntry($storageArr)
  *
  * TOTAL FUNCTIONS: 7
  * (This index is automatically created/updated by the script "update-class-index")

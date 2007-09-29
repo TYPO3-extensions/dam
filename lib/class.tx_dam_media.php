@@ -33,43 +33,55 @@
  *
  *
  *
- *   92: class tx_dam_media
+ *  104: class tx_dam_media
  *
  *              SECTION: Initialization
- *  186:     function tx_dam_media ()
- *  201:     function __construct($file = null, $hash=false, $autoIndex=true)
- *  217:     function fetchIndexFromFilename ($file, $hash=false, $autoIndex=true)
- *  237:     function fetchIndexFromMetaUID ($uid)
- *  253:     function fetchFileInfo ($fileInfo=NULL, $ignoreExistence=true)
+ *  226:     function tx_dam_media ()
+ *  241:     function __construct($file = null, $hash=false, $autoIndex=true)
+ *  257:     function setMode($mode=TYPO3_MODE)
+ *  268:     function setWantedVariant($conf='auto')
+ *  298:     function fetchIndexFromFilename ($file, $hash=false, $autoIndex=true)
+ *  320:     function fetchIndexFromMetaUID ($uid)
+ *  342:     function fetchFileinfo ($fileInfo=NULL, $ignoreExistence=true)
  *
  *              SECTION: Meta data
- *  292:     function fetchFullMetaData ($uid=NULL)
- *  309:     function setMetaData ($meta)
+ *  383:     function fetchFullMetaData ($uid=NULL)
+ *  403:     function setMetaData ($meta)
  *
  *              SECTION: Get Meta data
- *  345:     function getTypeAll ()
- *  364:     function getType ()
- *  381:     function getMeta ($field)
- *  403:     function getDescription ($field)
- *  424:     function getDownloadName ()
- *  435:     function getPathAbsolute ()
- *  445:     function getPathForSite ()
+ *  434:     function getID ()
+ *  456:     function getTypeAll ()
+ *  475:     function getType ()
+ *  491:     function getMimeContentType ()
+ *  511:     function getInfo ($field)
+ *  525:     function getMeta ($field)
+ *  542:     function getMetaInfo ($field)
+ *  568:     function getContent ($field, $conf=array())
+ *  655:     function getFormatedValue ($field, $format, $config='')
+ *  671:     function getDownloadName ()
+ *  682:     function getPathForSite ()
+ *  694:     function getMetaArray ()
+ *  708:     function getInfoArray ()
+ *  722:     function getMetaInfoArray ()
+ *
+ *              SECTION: Misc ouput stuff
+ *  743:     function getFieldLabel ($field, $removeColon=false, $hsc=true)
  *
  *              SECTION: Set Meta data
- *  473:     function setMeta ($field, $value)
+ *  769:     function setMeta ($field, $value)
  *
  *              SECTION: Update DB meta data
- *  495:     function updateIndex ()
- *  506:     function updateIndexFileInfo ()
- *  521:     function updateAuto ()
- *  531:     function updateHash ()
+ *  791:     function updateIndex ()
+ *  802:     function updateIndexFileInfo ()
+ *  817:     function updateAuto ()
+ *  827:     function updateHash ()
  *
  *              SECTION: Indexing
- *  551:     function index ()
- *  558:     function reindex ()
- *  565:     function autoIndex()
+ *  847:     function index ()
+ *  854:     function reindex ()
+ *  861:     function autoIndex()
  *
- * TOTAL FUNCTIONS: 22
+ * TOTAL FUNCTIONS: 32
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -119,6 +131,11 @@ class tx_dam_media {
 	var $filename = NULL;
 
 	/**
+	 * filename with absolute path
+	 */
+	var $filepath = NULL;
+
+	/**
 	 * Path to file in normalized format which is relative if possible and is like the stored path in the meta data.
 	 */
 	var $pathNormalized = NULL;
@@ -149,7 +166,7 @@ class tx_dam_media {
 
 
 
-// TODO:
+// TODO: $isIndexed, $isAutoIndexed, $isAutoUpdated, ....
 
 	/**
 	 * If the file is already indexed or not.
@@ -305,7 +322,7 @@ var $doAutoMetaUpdate = false;
 			$this->setMetaData ($row);
 			$this->isFullMetaData = true;
 			$this->isIndexed = true;
-			$this->isAvailable = file_exists($this->getPathAbsolute());
+			$this->isAvailable = file_exists($this->filepath);
 		} else {
 			$this->isAvailable = false;
 		}
@@ -330,7 +347,7 @@ var $doAutoMetaUpdate = false;
 			$info = $fileInfo;
 
 		} else {
-			$fileInfo = $fileInfo ? $fileInfo : $this->getPathAbsolute();
+			$fileInfo = $fileInfo ? $fileInfo : $this->filepath;
 			$info = tx_dam::file_compileInfo ($fileInfo, $ignoreExistence);
 		}
 
@@ -339,6 +356,7 @@ var $doAutoMetaUpdate = false;
 			$this->filename = $this->fileInfo['file_name'];
 			$this->pathNormalized = $this->fileInfo['file_path'];
 			$this->pathAbsolute = $this->fileInfo['file_path_absolute'];
+			$this->filepath = $this->pathAbsolute.$this->filename;
 			$this->isAvailable = $this->fileInfo['__exists'];
 		}
 
@@ -390,6 +408,7 @@ var $doAutoMetaUpdate = false;
 			$this->filename = $this->meta['file_name'];
 			$this->pathNormalized = $this->meta['file_path'];
 			$this->pathAbsolute = tx_dam::path_makeAbsolute($this->meta['file_path']);
+			$this->filepath = $this->pathAbsolute.$this->filename;
 			if ($this->isAvailable==NULL) {
 				$this->fetchFileInfo();
 			}
@@ -544,7 +563,7 @@ var $doAutoMetaUpdate = false;
 	 * @param	string		$field Field name to get meta data from. These are database fields.
 	 * @param	array		$conf Additional configuration options for the field rendering (if supported for field)
 	 * @return	mixed		Meta data value.
-	 * @todo
+	 * @todo getContent(): more fields and user fields
 	 */
 	function getContent ($field, $conf=array())	{
 		require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
@@ -555,22 +574,35 @@ var $doAutoMetaUpdate = false;
 		switch ($field) {
 			case 'file_size':
 				if (!$conf['format']) $conf['format'] = 'filesize';
+				$content = $this->getMetaInfo($field);
 				break;
 
 			case '__image_thumbnailImgTag':
-				$content = tx_dam_guifunc::image_thumbnailImgTag($this->getMetaInfoArray(), $conf['size'], $conf['imgAttributes'], $conf['iconAttributes'], $conf['makeFileIcon']);
+				$content = tx_dam_image::previewImgTag($this->getMetaInfoArray(), $conf['size'], $conf['imgAttributes']);
 				$hsc = false;
 				break;
 
-			case '__icon_getFileTypeImgTag':
-				$content = tx_dam_guifunc::icon_getFileTypeImgTag($this->getMetaInfoArray(), $conf['iconAttributes']);
+			case '__image_thumbnailImgUrl':
+				$content = tx_dam_image::previewImgUrl($this->getMetaInfoArray(), $conf['size'], $conf['imgAttributes']);
 				$hsc = false;
+				break;
+
+			case '__image_thumbnailImg':
+				$content = tx_dam_image::preview($this->getMetaInfoArray(), $conf['size'], $conf['imgAttributes']);
+					// This is an array - return directly
+				return $content;
 				break;
 
 			case 'caption':
 				$caption = $this->getMeta('caption');
 				if (!$caption) $caption = $this->getMeta('description');
 				$content = $caption;
+				break;
+
+			case 'alt_text':
+				$alt_text = $this->getMeta('alt_text');
+				if (!$alt_text) $alt_text = $this->getMeta('title');
+				$content = $alt_text;
 				break;
 
 			case 'media_type':
@@ -643,16 +675,6 @@ var $doAutoMetaUpdate = false;
 
 
 	/**
-	 * Returns a file path with absolute path.
-	 *
-	 * @return	string		Absolute path to file
-	 */
-	function getPathAbsolute () {
-		return $this->pathAbsolute.$this->filename;
-	}
-
-
-	/**
 	 * Returns a file path relative to PATH_site or getIndpEnv('TYPO3_SITE_URL').
 	 *
 	 * @return	string		Relative path to file
@@ -704,6 +726,28 @@ var $doAutoMetaUpdate = false;
 
 
 
+	/***************************************
+	 *
+	 *	 Misc ouput stuff
+	 *
+	 ***************************************/
+
+
+	/**
+	 * Returns the TCA label for a field in the current language with the $LANG object
+	 *
+	 * @param string $field
+	 * @param boolean $hsc
+	 * @return string Field label
+	 */
+	function getFieldLabel ($field, $removeColon=false, $hsc=true) {
+		global $LANG, $TCA;
+
+		t3lib_div::loadTCA('tx_dam');
+		$label = $LANG->sl($TCA['tx_dam']['columns'][$field]['label'], $hsc);
+		$label = $removeColon ? preg_replace('#:$#', '', $label) : $label;
+		return $label;
+	}
 
 
 

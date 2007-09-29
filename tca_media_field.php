@@ -29,8 +29,9 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] =
 # OLD:				'MM_ident' => 'relation_field_or_other_ident', #### has to be changed in table
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
-				'allowed_types' => '',	// Must be empty for disallowed to work.
+				'allowed_types' => '',
 				'disallowed_types' => 'php,php3',
+
 				'max_size' => 10000,
 				'show_thumbs' => 1,
 				'size' => 5,
@@ -63,6 +64,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] =
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
 				'allowed_types' => $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],
+
 				'max_size' => '1000',
 				'show_thumbs' => 1,
 				'size' => 5,
@@ -157,13 +159,13 @@ function txdam_getMediaTCA($type, $MM_ident='') {
 }
 
 /**
- * Adds an entry to the "ds" array of the tt_content field "tx_dam_flexform".
+ * Adds an entry to the "ds" array of the tt_content field "ce_flexform".
  *
  * @param	string		The same value as the key for the plugin
  * @param	string		Either a reference to a flex-form XML file (eg. "FILE:EXT:newloginbox/flexform_ds.xml") or the XML directly.
  * @return	void
  */
-function txdam_addCTypeFlexFormValue($piKeyToMatch,$value,$field='tx_dam_flexform')	{
+function txdam_addCTypeFlexFormValue($piKeyToMatch,$value,$field='ce_flexform')	{
 	global $TCA;
 	t3lib_div::loadTCA('tt_content');
 
@@ -171,4 +173,7 @@ function txdam_addCTypeFlexFormValue($piKeyToMatch,$value,$field='tx_dam_flexfor
 		$TCA['tt_content']['columns'][$field]['config']['ds'][$piKeyToMatch] = $value;
 	}
 }
+
+
+
 ?>

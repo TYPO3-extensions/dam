@@ -22,9 +22,27 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
- * Module extension (addition to function menu) 'Cron Job' for the 'dam_cron' extension.
+ * Module extension (addition to function menu) 'Media>Tools>Indexing Setup'
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage tools
+ */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   61: class tx_dam_tools_indexsetup extends tx_damindex_index
+ *   70:     function modMenu()
+ *   90:     function head()
+ *  109:     function getCurrentFunc()
+ *  130:     function moduleContent($header='', $description='', $lastStep=4)
+ *  320:     function makeSetupfilenameForPath($path)
+ *
+ * TOTAL FUNCTIONS: 5
+ * (This index is automatically created/updated by the script "update-class-index")
+ *
  */
 
 
@@ -36,13 +54,13 @@ require_once(t3lib_extMgm::extPath('dam_index').'modfunc_index/class.tx_damindex
 $LANG->includeLLFile('EXT:dam_index/modfunc_index/locallang.xml');
 
 /**
- * Module 'Tools>Media>Cron job'
+ * Module 'Media>Tools>Indexing Setup'
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
  */
 class tx_dam_tools_indexsetup extends tx_damindex_index {
 
-	var$cronUploadsFolder = 'uploads/tx_damcron/';
+	var $cronUploadsFolder = 'uploads/tx_dam/cron/';
 
 	/**
 	 * Function menu initialization
@@ -79,6 +97,11 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 
 		$this->pObj->guiCmdIconsDeny[] = 'popup';
 
+		$this->cronUploadsFolder = PATH_site.$this->cronUploadsFolder;
+		if(!is_dir($this->cronUploadsFolder)) {
+			t3lib_div::mkdir ($this->cronUploadsFolder);
+		}
+
 		return parent::head();
 	}
 
@@ -113,7 +136,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 		switch($this->getCurrentFunc())    {
 			case 'index':
 			case 'index1':
-				$content.= parent::moduleContent('Indexing start point', '<p style="margin:0.8em 0 1.2em 0">With this wizard similar to the indexing wizard you can define and save a setup for a stand-alone indexing script usable for cron jobs.</p>');
+				$content.= parent::moduleContent($LANG->getLL('tx_dam_tools_indexsetup.start_point'), '<p style="margin:0.8em 0 1.2em 0">'.$LANG->getLL('tx_dam_tools_indexsetup.desc', true).'</p>');
 			break;
 
 			//
@@ -136,11 +159,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 
 				$content.= $this->pObj->doc->spacer(10);
 
-				$rec=array_merge($this->index->dataPreset,$this->index->dataPostset);
-
-// TODO This is quick'n'dirty. The function simply modifies the comma separated UIDs in the category key into a comma separated list of UID|CategoryTitle pairs which can then be displayed in the form
-$rec = $this->modifyValuesForDisplay($rec);
-
+				$rec = array_merge($this->index->dataPreset,$this->index->dataPostset);
 
 				$fixedFields = array_keys($this->index->dataPostset);
 				$content.= '<strong>Meta data preset:</strong><br /><table border="0" cellpadding="4" width="100%"><tr><td bgcolor="'.$this->pObj->doc->bgColor3dim.'">'.
@@ -180,7 +199,7 @@ $rec = $this->modifyValuesForDisplay($rec);
 				if (t3lib_extMgm::isLoaded('dam_cron')) {
 					$content.= $this->pObj->doc->section('CRON','',0,1);
 
-					$path = PATH_site.$this->cronUploadsFolder;
+					$path = $this->cronUploadsFolder;
 
 					$filename = $this->makeSetupfilenameForPath($this->pObj->path);
 					$content .= '</form>';
@@ -203,11 +222,9 @@ $rec = $this->modifyValuesForDisplay($rec);
 				$extraSetup = '';
 
 				$this->index->setPath($this->pObj->path);
-				$this->index->setRecursive($this->index->ruleConf['tx_damindex_rule_recursive']['enabled']);
+				$this->index->setOptionsFromRules();
 				$this->index->setPID($this->pObj->defaultPid);
 				$this->index->enableMetaCollect(TRUE);
-				$this->index->setDryRun($this->index->ruleConf['tx_damindex_rule_dryRun']['enabled']);
-				$this->index->enableReindexing($this->index->ruleConf['tx_damindex_rule_doReindexing']['enabled']);
 				$setup = $this->index->serializeSetup($extraSetup, false);
 
 
@@ -229,18 +246,16 @@ $rec = $this->modifyValuesForDisplay($rec);
 					$path = tx_dam::path_makeAbsolute($this->pObj->path);
 					$filename = $path.'.indexing.setup.xml';
 				} else {
-					$path = PATH_site.$this->cronUploadsFolder;
+					$path = $this->cronUploadsFolder;
 					$filename = t3lib_div::_GP('filename');
 					$filename = $filename ? $filename : $this->makeSetupfilenameForPath($this->pObj->path);
 					$filename = $path.$filename.'.xml';
 				}
 
 				$this->index->setPath($this->pObj->path);
-				$this->index->setRecursive($this->index->ruleConf['tx_damindex_rule_recursive']['enabled']);
+				$this->index->setOptionsFromRules();
 				$this->index->setPID($this->pObj->defaultPid);
 				$this->index->enableMetaCollect(TRUE);
-				$this->index->setDryRun($this->index->ruleConf['tx_damindex_rule_dryRun']['enabled']);
-				$this->index->enableReindexing($this->index->ruleConf['tx_damindex_rule_doReindexing']['enabled']);
 				$setup = $this->index->serializeSetup($extraSetup);
 
 				if ($handle = fopen($filename, 'wb')) {
@@ -261,7 +276,7 @@ $rec = $this->modifyValuesForDisplay($rec);
 				$content.= $this->pObj->getHeaderBar('', implode('&nbsp;',$this->cmdIcons));
 				$content.= $this->pObj->doc->spacer(10);
 
-				$files = t3lib_div::getFilesInDir(PATH_site.$this->cronUploadsFolder,'xml',1,1);
+				$files = t3lib_div::getFilesInDir($this->cronUploadsFolder,'xml',1,1);
 
 				$out = '';
 				foreach ($files as $file) {
@@ -307,29 +322,6 @@ $rec = $this->modifyValuesForDisplay($rec);
 		$filename = preg_replace('#_$#','',$filename);
 		$filename = preg_replace('#^_#','',$filename);
 		return $filename;
-	}
-
-// TODO -------------- quick fix - needs to be done right
-
-
-	/**
-	 * Modifies values posted during the indexing process from step 3 to step 4
-	 * Used to display selected Categories in step 4
-	 *
-	 * @param	string		Path
-	 * @return	string		Output
-	 */
-	function modifyValuesForDisplay ($rec) {
-		$tmp = array();
-		if ($rec['category'] AND !strpos($rec['category'],'|')) {
-			$cats = implode(',',t3lib_div::trimExplode(',',$rec['category'],1));
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,title','tx_dam_cat','uid IN ('.$cats.')');
-			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-				$tmp[] = $row['uid'].'|'.$row['title'];
-			}
-			$rec['category'] = implode(',',$tmp);
-		}
-		return $rec;
 	}
 
 }

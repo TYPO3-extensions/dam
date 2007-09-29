@@ -33,75 +33,103 @@
  *
  *
  *
- *  125: class tx_dam
+ *  154: class tx_dam
  *
  *              SECTION: File related function
- *  144:     function file_isIndexed($fileInfo)
- *  165:     function file_compileInfo ($filename, $ignoreExistence=false)
- *  206:     function file_getType ($filename)
- *  228:     function file_calcHash ($fileInfo)
- *  261:     function file_normalizePath ($filename)
- *  276:     function file_absolutePath ($fileInfo)
- *  297:     function file_relativeSitePath ($fileInfo)
+ *  173:     function file_isIndexed($fileInfo)
+ *  194:     function file_compileInfo ($filename, $ignoreExistence=false)
+ *  243:     function file_getType ($fileInfo)
+ *  272:     function file_calcHash ($fileInfo)
+ *  305:     function file_normalizePath ($filename)
+ *  320:     function file_absolutePath ($fileInfo)
+ *  341:     function file_relativeSitePath ($fileInfo)
+ *  365:     function file_url ($fileInfo)
+ *  381:     function file_makeCleanName ($filename, $crop=true)
  *
  *              SECTION: Path related function
- *  332:     function path_makeRelative ($path, $mountpath=NULL)
- *  351:     function path_makeAbsolute ($path, $mountpath=NULL)
- *  371:     function path_makeClean ($path)
- *  405:     function path_compileInfo ($path)
+ *  425:     function path_makeRelative ($path, $mountpath=NULL)
+ *  444:     function path_makeAbsolute ($path, $mountpath=NULL)
+ *  468:     function path_makeClean ($path)
+ *  507:     function path_compileInfo ($path)
+ *
+ *              SECTION: Access check related function
+ *  602:     function access_checkPath($path)
+ *  624:     function access_checkFile ($fileInfo, $ignoreMissingFile=false)
+ *  647:     function access_checkAction ($action, $setup=NULL)
+ *  703:     function access_isProtectedFile ($fileInfo)
  *
  *              SECTION: Meta data related function
- *  485:     function meta_getDataForFile($fileInfo, $fields='', $ignoreExistence=false)
- *  517:     function meta_getDataByUid ($uid, $fields='')
- *  541:     function meta_getDataByHash ($hash, $fields='')
- *  565:     function meta_findDataForFile($fileInfo, $hash='', $fields='')
- *  647:     function meta_getDataVariant ($row, $language)
- *  692:     function meta_updateStatus ($meta, $markMissingDeleted=NULL)
+ *  734:     function meta_getDataForFile($fileInfo, $fields='', $ignoreExistence=false, $mode=TYPO3_MODE)
+ *  774:     function meta_findDataForUploadsFile($fileInfo, $uploadsPath='', $fields='', $mode=TYPO3_MODE)
+ *  809:     function meta_getDataByUid ($uid, $fields='', $mode=TYPO3_MODE)
+ *  837:     function meta_getDataByHash ($hash, $fields='', $mode=TYPO3_MODE)
+ *  865:     function meta_findDataForFile($fileInfo, $hash='', $fields='', $mode=TYPO3_MODE)
+ *  947:     function meta_getVariant ($row, $conf, $mode=TYPO3_MODE)
+ * 1011:     function meta_updateStatus ($meta, $markMissingDeleted=true)
  *
  *              SECTION: Media objects functions
- *  730:     function media_getForFile($fileInfo, $hash=false)
- *  747:     function media_getByUid ($uid)
- *  765:     function media_getByHash ($hash)
+ * 1051:     function media_getForFile($fileInfo, $hash=false, $mode=TYPO3_MODE)
+ * 1070:     function media_getByUid ($uid, $mode=TYPO3_MODE)
+ * 1090:     function media_getByHash ($hash, $mode=TYPO3_MODE)
+ * 1122:     function media_getForUploadsFile($file, $uploadPath='', $mode=TYPO3_MODE)
  *
  *              SECTION: Indexing functions
- *  800:     function index_check ($fileInfo, $hash='')
- *  846:     function index_reconnect($fileInfo, $hash='')
- *  876:     function index_autoProcess($filename, $reindex=false)
- *  929:     function index_process ($filename, $setup=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)
+ * 1156:     function index_check ($fileInfo, $hash='')
+ * 1202:     function index_reconnect($fileInfo, $hash='')
+ * 1248:     function index_autoProcess($filename, $reindex=false)
+ * 1307:     function index_process ($filename, $setup=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)
+ *
+ *              SECTION: process file or folder changes like rename
+ * 1355:     function process_deleteFile($filename, $getFullErrorLogEntry=FALSE)
+ * 1405:     function process_renameFile($oldPath, $newName, $additionalMeta='', $getFullErrorLogEntry=FALSE)
+ * 1476:     function process_moveFile($oldFilePath, $newPath, $allowNewName=FALSE, $getFullErrorLogEntry=FALSE)
+ * 1529:     function process_createFile($filename, $content='', $getFullErrorLogEntry=FALSE)
+ * 1579:     function process_editFile($filename, $content='', $getFullErrorLogEntry=FALSE)
+ * 1631:     function process_replaceFile($meta, $upload_data, $getFullErrorLogEntry=FALSE)
+ * 1717:     function process_renameFolder($oldPath, $newName, $getFullErrorLogEntry=FALSE)
+ * 1768:     function process_deleteFolder($path, $getFullErrorLogEntry=FALSE)
+ * 1808:     function _callProcessPostTrigger()
  *
  *              SECTION: Notify the DAM about file or folder changes
- *  968:     function notify_fileChanged ($filename)
- *  986:     function notify_fileMoved ($src, $dest)
- * 1012:     function notify_fileDeleted ($filename)
+ * 1844:     function notify_fileChanged ($filename)
+ * 1862:     function notify_fileMoved ($src, $dest)
+ * 1903:     function notify_fileDeleted ($filename, $recyclerPath='')
  *
  *              SECTION: Converter for names and codes of data formats
- * 1039:     function convert_mediaType($type)
+ * 1967:     function convert_mediaType($type)
  *
  *              SECTION: Icon functions
- * 1070:     function icon_getFileType ($mimeType, $absolutePath=false)
- * 1123:     function icon_getFolder($pathInfo, $absolutePath=false)
- * 1166:     function icon_getFileTypeImgTag($infoArr, $addAttrib='')
+ * 1998:     function icon_getFileType ($mimeType, $absolutePath=false)
+ * 2067:     function icon_getFolder($pathInfo, $absolutePath=false)
+ * 2113:     function icon_getFileTypeImgTag($infoArr, $addAttrib='')
+ *
+ *              SECTION: Misc Tools
+ * 2152:     function tools_findFileInPath($fileName, $path, $walkUp=true, $basePath='')
  *
  *              SECTION: Register functions like selection classes, indexing rules, viewer, editors
- * 1200:     function register_dbTrigger ($idName, $class, $position='')
- * 1212:     function register_selection ($idName, $class, $position='')
- * 1225:     function register_indexingRule ($idName, $class, $position='')
- * 1239:     function register_fileType ($fileExtension, $mimeType, $mediaType='')
- * 1259:     function register_previewer ($idName, $class, $position='')
- * 1273:     function register_editor ($idName, $class, $position='')
- * 1287:     function register_action ($idName, $class, $position='')
- * 1298:     function register_fileIconPath ($path)
+ * 2202:     function register_dbTrigger ($idName, $class, $position='')
+ * 2219:     function register_fileTrigger ($idName, $class, $position='')
+ * 2231:     function register_selection ($idName, $class, $position='')
+ * 2244:     function register_indexingRule ($idName, $class, $position='')
+ * 2258:     function register_fileType ($fileExtension, $mimeType, $mediaType='')
+ * 2279:     function register_previewer ($idName, $class, $position='')
+ * 2293:     function register_editor ($idName, $class, $position='')
+ * 2307:     function register_action ($idName, $class, $position='')
+ * 2318:     function register_fileIconPath ($path)
+ * 2336:     function register_mediaTable ($table, $position='')
+ * 2347:     function register_getEntries($type)
  *
  *              SECTION: Configuration
- * 1328:     function config_getValue($configPath='', $getProperties=false)
- * 1360:     function config_setValue($configPath='', $value='')
- * 1401:     function config_init($force=false)
+ * 2386:     function config_getValue($configPath='', $getProperties=false)
+ * 2418:     function config_setValue($configPath='', $value='')
+ * 2460:     function config_init($force=false)
  *
  *              SECTION: Internal
- * 1449:     function _getTSconfig ($pid=0)
- * 1488:     function _addItem($idName, $value, &$items, $position='')
+ * 2509:     function _getTSconfig ($pid=0)
+ * 2570:     function _getTSConfigObject($objectString, $config)
+ * 2598:     function _addItem($idName, $value, &$items, $position='')
  *
- * TOTAL FUNCTIONS: 44
+ * TOTAL FUNCTIONS: 66
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -110,6 +138,7 @@
 
 require_once(PATH_txdam.'lib/tx_dam_types.php');
 require_once(PATH_txdam.'lib/class.tx_dam_db.php');
+require_once (PATH_txdam.'lib/class.tx_dam_allowdeny.php');
 
 
 /**
@@ -171,9 +200,11 @@ class tx_dam {
 			$fileInfo = array();
 			$fileInfo['__type'] = 'file';
 			$fileInfo['__exists'] = @is_file($filename);
-			$fileInfo['file_name'] = basename($filename);
+			$path_parts = pathinfo($filename);
+			$fileInfo['file_name'] = $path_parts['basename'];
+			$fileInfo['file_extension'] = $path_parts['extension'];
 			$fileInfo['file_title'] = $fileInfo['file_name'];
-			$fileInfo['file_path_absolute'] = dirname($filename).'/';
+			$fileInfo['file_path_absolute'] = $path_parts['dirname'].'/';
 			$fileInfo['file_path'] = tx_dam::path_makeRelative ($fileInfo['file_path_absolute']);
 			$fileInfo['file_path_relative'] = $fileInfo['file_path'];
 
@@ -332,7 +363,7 @@ class tx_dam {
 	 * @return	string		URL to file
 	 */
 	function file_url ($fileInfo) {
-
+// TODO use download framework
 		$file_url = t3lib_div::getIndpEnv('TYPO3_SITE_URL').tx_dam::file_relativeSitePath ($fileInfo);
 
 		return $file_url;
@@ -359,14 +390,14 @@ class tx_dam {
 			$filename .= '_';
 		}
 
-		$maxInputNameLen = $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] ? $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] : 60;
-		if (strlen($filename) > $maxInputNameLen) {
+		$maxFileNameLength = $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] ? $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] : 60;
+		if ($crop AND strlen($filename) > $maxFileNameLength) {
 			$path_parts = pathinfo($filename);
 			if ($extLen = strlen($path_parts['extension'])) {
 				$extLen += 1;
-				$filename = substr ($path_parts['basename'], 0, $maxInputNameLen-$extLen).'.'.$path_parts['extension'];
+				$filename = substr ($path_parts['basename'], 0, $maxFileNameLength-$extLen).'.'.$path_parts['extension'];
 			} else {
-				$filename = substr ($path_parts['basename'], 0, $maxInputNameLen);
+				$filename = substr ($path_parts['basename'], 0, $maxFileNameLength);
 			}
 		}
 
@@ -436,6 +467,7 @@ class tx_dam {
 	 */
 	function path_makeClean ($path) {
 		if ($path) {
+			$path = str_replace('/./', '/', $path);
 			$path = t3lib_div::resolveBackPath($path);
 			$path = preg_replace('#[\/\. ]*$#', '', $path).'/';
 			$path = str_replace('//', '/', $path);
@@ -470,16 +502,14 @@ class tx_dam {
 	 *
 	 * @param	string		$path Path to a folder (not file)
 	 * @return	array		Info array
+	 * @todo localization of TEMP, RECYCLER
 	 */
 	function path_compileInfo ($path) {
 		global $FILEMOUNTS, $TYPO3_CONF_VARS;
 
-
-			// cache entries
-		static $pathInfoCache = array();
-
-		if (isset($pathInfoCache[$path])) {
-			return $pathInfoCache[$path];
+			// cache entries - static would work too but couldn't be flushed then
+		if (isset($GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'][$path])) {
+			return $GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'][$path];
 		}
 
 
@@ -534,7 +564,6 @@ class tx_dam {
 
 			// ksort($pathInfo);
 
-// TODO localization
 			if ($pathInfo['dir_name']=='_temp_')	{
 				$pathInfo['dir_title'] = 'TEMP';
 			}
@@ -543,7 +572,7 @@ class tx_dam {
 			}
 
 		}
-		$pathInfoCache[$path] = $pathInfo;
+		$GLOBALS['T3_VAR']['ext']['dam']['pathInfoCache'][$path] = $pathInfo;
 
 		return $pathInfo;
 	}
@@ -594,14 +623,12 @@ class tx_dam {
 	 */
 	function access_checkFile ($fileInfo, $ignoreMissingFile=false) {
 
-		if (is_array($fileInfo) AND !isset($fileInfo['file_accessable'])) {
-			$fileInfo = tx_dam::file_compileInfo($fileInfo['file_path'].$fileInfo['file_name'], $ignoreMissingFile);
-		} else {
+		if (!is_array($fileInfo) OR !isset($fileInfo['file_accessable'])) {
 			$fileInfo = tx_dam::file_compileInfo($fileInfo, $ignoreMissingFile);
 		}
 
 		if ($fileInfo['__exists'] OR $ignoreMissingFile)	{
-			return $fileInfo['file_accessable'];
+			return (boolean)$fileInfo['file_accessable'];
 		}
 		return false;
 	}
@@ -615,10 +642,10 @@ class tx_dam {
 	 * @param 	string 		$action Action name: deleteFile, moveFolder, ... .If empty the whole permission array will be returned.
 	 * @param	integer		$setup File permission integer from BE_USER object.
 	 * @see t3lib_extFileFunctions::init_actionPerms()
+	 * @todo implement for FE
 	 */
 	function access_checkAction ($action, $setup=NULL) {
 
-// TODO FE
 		if (!is_object($GLOBALS['BE_USER'])) {
 			return false;
 		}
@@ -626,6 +653,11 @@ class tx_dam {
 		if ($action AND $GLOBALS['BE_USER']->isAdmin()) {
 			return true;
 		}
+
+		$setup = tx_dam::config_getValue('actions.allowDeny', true);
+		$allowDeny = new tx_dam_allowdeny(NULL, $setup);
+		$actionPerms = $allowDeny->getAllowed();
+// TODO test tx_dam_allowdeny
 
 		$setup = $setup ? $setup : $GLOBALS['BE_USER']->user['fileoper_perms'];
 
@@ -654,7 +686,6 @@ class tx_dam {
 			$actionPerms['deleteFolderRecursively']=1;
 		}
 
-
 		if ($action) {
 			return $actionPerms[$action];
 		} else {
@@ -672,7 +703,7 @@ class tx_dam {
 	function access_isProtectedFile ($fileInfo) {
 
 		$path = tx_dam::path_makeAbsolute($path);
-
+// TODO check for real protection
 		$htaccessPath = tx_dam::tools_findFileInPath('.htaccess', $path);
 
 		return false;
@@ -780,7 +811,7 @@ class tx_dam {
 
 		if($uid = intval($uid)) {
 			$where = array();
-			$where['file_name'] = 'uid='.$uid;
+			$where['file_name'] = 'tx_dam.uid='.$uid;
 			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
 			if ($rows = tx_dam_db::getDataWhere($fields, $where, '', '', '1')) {
 				reset ($rows);
@@ -840,12 +871,11 @@ class tx_dam {
 
 		if (is_array($fileInfo)) {
 
-			if (!$hash AND @is_file($fileInfo['file_path'].$fileInfo['file_name'])) {
+			if (!$hash AND @is_file(tx_dam::file_absolutePath($fileInfo))) {
 				$hash = tx_dam::file_calcHash ($fileInfo);
 			}
 
 			$fields = $fields ? $fields : tx_dam_db::getMetaInfoFieldList();
-
 
 			$where = array();
 			$where['enableFields'] = '';
@@ -862,7 +892,8 @@ class tx_dam {
 			for ($index = 0; $index < 3; $index++) {
 
 				$rowsResult = tx_dam_db::getDataWhere($fields, $where, '', '', '1');
-				if(is_array($rowsResult)) {
+				if($rowsResult) {
+
 					$rows = array();
 					foreach ($rowsResult as $row) {
 							// the file itself - we're done
@@ -871,7 +902,7 @@ class tx_dam {
 							break;
 						}
 							// a lost file
-						if(!(@is_file($row['file_path'].$row['file_name']))) {
+						if(!(@is_file(tx_dam::file_absolutePath($row)))) {
 							$rows[$row['uid']] = $row;
 							continue;
 						}
@@ -910,13 +941,16 @@ class tx_dam {
 	 * Later this function may support versions too.
 	 *
 	 * @param	array		$row Meta data record array with 'uid' field
-	 * @param	mixed		$language The uid of the sys_language or the ISO code
+	 * @param	mixed		$conf
 	 * @return	array		Meta data array or false
 	 */
-	function meta_getDataVariant ($row, $language) {
+	function meta_getVariant ($row, $conf, $mode=TYPO3_MODE) {
 		$row = false;
 
 // TODO hohooOOOO
+
+			// The uid of the sys_language or the ISO code
+		$language = $conf['language'];
 
 /*
 
@@ -971,10 +1005,13 @@ class tx_dam {
 	 * Checks if a file was changed or if it's missing and updates the status accordingly
 	 *
 	 * @param	array		$row Meta data record array with 'uid' field
+	 * @param	boolean		$markMissingDeleted If set (default) a record will be marked deleted if a file is missing
 	 * @return	integer		New status value eg. TXDAM_status_file_changed, TXDAM_status_file_missing
 	 */
-	function meta_updateStatus ($meta, $markMissingDeleted=NULL) {
+	function meta_updateStatus ($meta, $markMissingDeleted=true) {
 		$status = TXDAM_status_file_ok;
+
+		if (!$meta['uid']) return false;
 
 		$filepath = tx_dam::file_absolutePath ($meta);
 		$fileInfo = tx_dam::file_compileInfo ($filepath);
@@ -991,7 +1028,6 @@ class tx_dam {
 
 		return $status;
 	}
-
 
 
 
@@ -1165,18 +1201,33 @@ class tx_dam {
 	 */
 	function index_reconnect($fileInfo, $hash='') {
 
+		if (!is_array($fileInfo)) {
+			$fileInfo = tx_dam::file_compileInfo ($fileInfo, true);
+		}
+
 		$status = array(
 				'__status' => TXDAM_file_unknown,
 				'meta' => array(),
 			);
 
-		$metaArr = tx_dam::meta_findDataForFile($fileInfo, $hash);
+		$metaArr = tx_dam::meta_findDataForFile($fileInfo, $hash, 'uid,file_name,file_path,deleted');
+
 		foreach ($metaArr as $meta) {
+
 			$srcInfo = tx_dam::file_compileInfo ($meta, true);
+
 			if (!$srcInfo['__exists']) {
+
+				if ($meta['deleted']) {
+						// setting the record undeleted right away ...
+					$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'tx_dam.uid='.$meta['uid'], array('deleted' => 0));
+				}
+
+				tx_dam::notify_fileMoved (tx_dam::file_absolutePath($srcInfo), tx_dam::file_absolutePath($fileInfo));
+				$meta = tx_dam::meta_getDataByUid($meta['uid']);
 				$status['meta'] = $meta;
-				tx_dam::notify_fileMoved (tx_dam::file_pathAbsolute($srcInfo), tx_dam::file_pathAbsolute($fileInfo));
 				$status['__status'] = TXDAM_file_changed;
+
 				break;
 			}
 		}
@@ -1185,27 +1236,29 @@ class tx_dam {
 
 
 
-
 	/**
 	 * Process auto indexing for the given file.
+	 * This should be used to index files easily.
+	 * When auto indexing is disabled the indexing will not be processed.
 	 *
 	 * @param	string		$filename Filename with path
 	 * @param	boolean		$reindex If set already indexed files will be reindexed
-	 * @return	array		Meta data array. $meta['fields'] has the record data. Returns false when nothing was indexed.
+	 * @return	array		Meta data array. $meta['fields'] has the record data. Returns false when nothing was indexed but file might be in index already.
 	 */
 	function index_autoProcess($filename, $reindex=false) {
 		global $TYPO3_CONF_VARS;
-
-		static $index;
 
 
 			// disable auto indexing by setup
 		if(tx_dam::config_getValue('setup.indexing.auto.disable')) {
 			return false;
-
 		}
 
 		$filename = tx_dam::file_absolutePath($filename);
+
+		if (!@is_file($filename)) {
+			return false;
+		}
 
 			// we don't index indexing setup files
 		if (basename($filename)=='.indexing.setup.xml') {
@@ -1221,9 +1274,9 @@ class tx_dam {
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
-
 		$index->setDefaultSetup(dirname($filename));
 		$index->initEnabledRules();
+		$index->enableReindexing($reindex);
 
 			// overrule some parameter from setup
 		$index->setPath($filename);
@@ -1240,6 +1293,8 @@ class tx_dam {
 
 	/**
 	 * Process indexing for the given file, folder or a list of files and folders.
+	 * This function can be used if a setup for indexing is available of callback function shall be used.
+	 * But simply a file name can be passed to and everything goes automatically.
 	 *
 	 * @param	mixed		$filename A single filename or folder path or a list of files and path as array
 	 * @param	mixed		$setup Setup as string (serialized setup) or array. See tx_dam_indexing::restoreSerializedSetup()
@@ -1247,10 +1302,11 @@ class tx_dam {
 	 * @param	mixed		$metaCallbackFunc Callback function which will be called during indexing to allow modifications to the meta data.
 	 * @param	mixed		$filePreprocessingCallbackFunc Callback function for pre processing the to be indexed file.
 	 * @return	array		Info array about indexed files and meta data records.
+	 * @todo how to set run type???
 	 */
 	function index_process ($filename, $setup=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL) {
 		global $TYPO3_CONF_VARS;
-// TODO how to set run type???
+
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
@@ -1263,6 +1319,7 @@ class tx_dam {
 		}
 		$index->setPID();
 		$index->initEnabledRules();
+		$index->setOptionsFromRules();
 
 		if(is_array($filename)) {
 			$index->setPathsList($filename);
@@ -1285,6 +1342,7 @@ class tx_dam {
 	 *   process file or folder changes like rename
 	 *
 	 ***************************************/
+
 
 	/**
 	 * Delete a file and process DB update
@@ -1406,6 +1464,61 @@ class tx_dam {
 
 
 	/**
+	 * Rename a file and process DB update
+	 *
+	 * @param	string		$oldFilePath File path
+	 * @param	string		$newPath New path. This is a directory path where the file should be moved to.
+	 * @param	boolean		$allowNewName If set and the target already exists a new name will be created.
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_moveFile($oldFilePath, $newPath, $allowNewName=FALSE, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = true;
+
+		$oldFilePath = tx_dam::file_absolutePath($oldFilePath);
+		$newPath = tx_dam::path_makeAbsolute($newPath);
+
+		if (basename($oldFilePath) !== $newPath) {
+
+			$error = false;
+
+				// Init TCE-file-functions object:
+			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+			$TCEfile->init();
+
+				// Processing rename folder
+			$cmd = array();
+			$cmd['move']['NONE']['data'] = $oldFilePath;
+			$cmd['move']['NONE']['target'] = $newPath;
+			$cmd['move']['NONE']['altName'] = $allowNewName;
+
+			$TCEfile->setCmdmap($cmd);
+			$TCEfile->process();
+			if ($TCEfile->errors()) {
+				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+			}
+			// already done in tx_dam_tce_file:
+			// tx_dam::notify_fileMoved($oldPath, $newPath);
+		}
+
+
+		if (!$error) {
+			$info = array(
+					'target_file' => $oldFilePath,
+					'new_file' => $newPath.basename($oldFilePath),
+				);
+			tx_dam::_callProcessPostTrigger('moveFile', $info);
+		}
+
+		return $error;
+	}
+
+
+	/**
 	 * Creates a new file
 	 *
 	 * @param 	array 	$filename Filename
@@ -1459,7 +1572,7 @@ class tx_dam {
 	 * Updates a text files content
 	 *
 	 * @param 	array 	$filename Filename
-	 * @param 	array 	$content Content for the file
+	 * @param 	string 	$content Content for the file
 	 * @return	mixed		error message or error array
 	 * @see tx_dam_tce_file::getLastError()
 	 */
@@ -1490,7 +1603,7 @@ class tx_dam {
 				// index the file
 			$setup = array(
 				'recursive' => false,
-				'doReindexing' => true,
+				'doReindexing' => 1,
 				);
 			tx_dam::index_process ($filepath, $setup);
 		}
@@ -1507,7 +1620,7 @@ class tx_dam {
 
 
 	/**
-	 * Replace a file and process indexing and DB update
+	 * Replace a file with an uploaded file and process indexing and DB update
 	 * Important: $meta['uid'] have to be used in the upload data like this $upload_data['upload'][$meta['uid']]
 	 *
 	 * @param 	array 	$meta Meta data array
@@ -1566,17 +1679,11 @@ class tx_dam {
 						}
 					}
 				}
-
+// TODO make default reindexing value configureable
 					// reindex the file
 				$setup = array(
 						'recursive' => false,
-						'doReindexing' => true,
-						'ruleConf' => array(
-							'tx_damindex_rule_doReindexing' => array(
-								'enabled' => true,	// overwrite meta data
-								'mode' => '2',	// overwrite meta data
-							),
-						)
+						'doReindexing' => 2,
 					);
 				tx_dam::index_process ($newFile, $setup);
 
@@ -1707,8 +1814,8 @@ class tx_dam {
 				if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
 					if (method_exists($obj, 'processPostTrigger')) {
     					$args = func_get_args();
-						call_user_func_array(array(&$obj, 'actionPostTrigger'), $args);
-						#$obj->actionPostTrigger('replaceFile', ...);
+						call_user_func_array(array(&$obj, 'processPostTrigger'), $args);
+						#$obj->processPostTrigger('replaceFile', ...);
 					}
 				}
 			}
@@ -1753,18 +1860,25 @@ class tx_dam {
 	 * @return	void
 	 */
 	function notify_fileMoved ($src, $dest) {
+
 		if (@is_file($dest)) {
-			if ($uid = tx_dam::file_isIndexed($src)) {
-				$fileInfo = file_compileInfo ($dest);
-				if ($fileInfo['__exists']) {
-					$values = array();
-					$values['uid'] = $uid;
-					$values['deleted'] = '0';
-					$values['file_name'] = $fileInfo['file_name'];
-					$values['file_path'] = $fileInfo['file_path'];
-					$values['file_mtime'] = $fileInfo['file_mtime'];
-					tx_dam_db::insertUpdateData($values);
+
+			if ($meta = tx_dam::meta_getDataForFile($src, 'uid,file_name,file_dl_name', true)) {
+
+				$fileInfo = tx_dam::file_compileInfo ($dest);
+
+				$values = array();
+				$values['uid'] = $meta['uid'];
+				$values['deleted'] = '0';
+				$values['file_name'] = $fileInfo['file_name'];
+				$values['file_path'] = $fileInfo['file_path'];
+				$values['file_mtime'] = $fileInfo['file_mtime'];
+				if ($meta['file_dl_name']==$meta['file_name']) {
+					$values['file_dl_name'] = $fileInfo['file_name'];
 				}
+
+				tx_dam_db::insertUpdateData($values);
+
 			} else {
 					// file is not yet indexed
 				tx_dam::index_autoProcess($dest);
@@ -1818,7 +1932,7 @@ class tx_dam {
 			tx_dam_db::insertUpdateData($fields_values);
 
 			// TODO delete child elements and their MM-relation
-			// files stay at their physical storage position (usually uploads/tx_dam/_uid_/)
+			// files stay at their physical storage position (usually uploads/tx_dam/storage/_uid_/)
 
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam', 'parent_id='.intval($uid));
 			while ($childRow = $GLOBALS['TYPO3_DB']->sql_fetch_row($res)) {
@@ -1883,15 +1997,22 @@ class tx_dam {
 	 */
 	function icon_getFileType ($mimeType, $absolutePath=false) {
 		static $iconCache = array();
+		static $iconCacheRel = array();
 
 		$iconfile = false;
 
 		if (is_array($mimeType)) {
 
-			if ($cached = $iconCache[$mimeType['file_type']]) {
+			if (!$absolutePath AND $cached = $iconCacheRel[$mimeType['file_type']]) {
+				return $cached;
+
+			} elseif (!$absolutePath AND $cached = $iconCacheRel['_mtype_'.$mimeType['media_type']]) {
+				return $cached;
+
+			} elseif ($cached = $iconCache[$mimeType['file_type']]) {
 				$iconfile = $cached;
 
-			} elseif ($cached = $iconCache[$mimeType['__'.$mimeType['media_type']]]) {
+			} elseif ($cached = $iconCache['_mtype_'.$mimeType['media_type']]) {
 				$iconfile = $cached;
 
 			} else {
@@ -1899,7 +2020,8 @@ class tx_dam {
 				foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'] as $pathIcons ) {
 					if (@file_exists($pathIcons.$mimeType['file_type'].'.gif')) {
 						$iconfile = $pathIcons.$mimeType['file_type'].'.gif';
-						$iconCache[$mimeType['file_type']] = $iconfile;
+						$cacheKey = $mimeType['file_type'];
+						$iconCache[$cacheKey] = $iconfile;
 						break;
 					}
 				}
@@ -1908,21 +2030,25 @@ class tx_dam {
 					foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'] as $pathIcons ) {
 						if (@file_exists($pathIcons.'mtype_'.$mediaType.'.gif')) {
 							$iconfile = $pathIcons.'mtype_'.$mediaType.'.gif';
-							$iconCache['__'.$mimeType['media_type']] = $iconfile;
+							$cacheKey = '_mtype_'.$mimeType['media_type'];
+							$iconCache[$cacheKey] = $iconfile;
+						break;
 						}
 					}
 				}
+
+				if (!$iconfile) {
+					$iconfile = PATH_txdam.'i/18/'.'mtype_undefined.gif';
+					$cacheKey = '__undefined';
+				}
 			}
 		}
-		if (!$iconfile) {
-			$iconfile = PATH_txdam.'i/18/'.'mtype_undefined.gif';
-		}
-		if (!$absolutePath) {
 
-// TODO could be cached too
+		if (!$absolutePath) {
 			$iconfile = preg_replace('#^'.preg_quote(PATH_site).'#', '', $iconfile);
 	 		if (TYPO3_MODE=='BE') {
 				$iconfile = '../'.$iconfile;
+				$iconCacheRel[$cacheKey] = $iconfile;
 			}
 		}
 
@@ -2137,8 +2263,7 @@ class tx_dam {
 		}
 	}
 
-// TODO register name as LANG ressource? Or put it into the class?
-// TODO make it possible to register media_types?
+
 	/**
 	 * Register a class which renders a "previewer".
 	 * A previewer will render a - yes - preview of a file. This can be a thumbnail or a small embedded mp3 player.
@@ -2148,6 +2273,8 @@ class tx_dam {
 	 * @param	string		$class Function/Method reference, '[file-reference":"]["&"]class/function["->"method-name]'. See t3lib_div::callUserFunction().
 	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
 	 * @return	void
+	 * @todo register name as LANG ressource? Or put it into the class?
+	 * @todo make it possible to register media_types?
 	 */
 	function register_previewer ($idName, $class, $position='') {
 		tx_dam::_addItem($idName, $class, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['previewerClasses'], $position);
@@ -2426,6 +2553,7 @@ class tx_dam {
 			}
 			$values = array('setup.' => $global, 'mod.' => $mod);
 		}
+
 		return $values;
 	}
 

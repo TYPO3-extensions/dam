@@ -34,36 +34,37 @@
  *
  *
  *
- *   82: class tx_dam_querygen
- *  102:     function tx_dam_querygen()
+ *   83: class tx_dam_querygen
+ *  103:     function tx_dam_querygen()
  *
  *              SECTION: Initialize
- *  122:     function init($table='')
- *  156:     function initBESelect($table='', $pidList='')
- *  175:     function initFESelect($table='', $pidList='')
+ *  123:     function init($table='')
+ *  157:     function initBESelect($table='', $pidList='')
+ *  176:     function initFESelect($table='', $pidList='')
  *
  *              SECTION: Modify query definition
- *  196:     function setCount($count=false)
- *  212:     function addSelectFields($fields='*', $table='')
- *  225:     function addPidList($pidList='', $table='')
- *  239:     function addEnableFields($table='')
- *  251:     function addOrderBy ($orderBy, $table='')
- *  264:     function addLimit ($limit, $begin='')
- *  279:     function addWhere($where, $type='WHERE', $key='')
- *  298:     function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')
- *  320:     function addMMJoin($mmtable, $local_table='')
- *  333:     function mergeWhere($where)
+ *  197:     function setCount($count=false)
+ *  213:     function addSelectFields($fields='*', $table='')
+ *  226:     function addPidList($pidList='', $table='')
+ *  240:     function addEnableFields($table='')
+ *  252:     function addOrderBy ($orderBy, $table='')
+ *  265:     function addLimit ($limit, $begin='')
+ *  280:     function addWhere($where, $type='WHERE', $key='')
+ *  299:     function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')
+ *  321:     function addMMJoin($mmtable, $local_table='', $mmtableAlias='')
+ *  336:     function mergeWhere($where)
+ *  348:     function hasWhere()
  *
  *              SECTION: Create query from definition
- *  354:     function getQuery()
- *  375:     function getQueryParts()
+ *  372:     function getQuery()
+ *  393:     function getQueryParts()
  *
  *              SECTION: helper functions
- *  497:     function makeSearchQueryPart($table, $searchString)
- *  536:     function compileFieldList($table, $fields)
- *  562:     function enableFields($table='')
+ *  518:     function makeSearchQueryPart($table, $searchString)
+ *  558:     function compileFieldList($table, $fields)
+ *  584:     function enableFields($table='')
  *
- * TOTAL FUNCTIONS: 19
+ * TOTAL FUNCTIONS: 20
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -140,7 +141,7 @@ class tx_dam_querygen {
 			'enableFields' => array(),
 			'GROUPBY' => array(),
 			'ORDERBY' => array(),
-			'LIMIT' => array(),
+			'LIMIT' => '',
 		);
 		$this->addSelectFields();
 	}
@@ -263,7 +264,7 @@ class tx_dam_querygen {
 	 */
 	function addLimit ($limit, $begin='') {
 		if($limit) {
-			$this->query['LIMIT'] = array((intval($begin)?$begin.',':'').$limit);
+			$this->query['LIMIT'] = (intval($begin)?$begin.',':'').$limit;
 		}
 	}
 
@@ -490,7 +491,7 @@ class tx_dam_querygen {
 				$queryParts['ORDERBY'] = implode (',',$select['ORDERBY']);
 			}
 			if(count($select['LIMIT']) AND !$count) {
-				$queryParts['LIMIT'] = implode (' ',$select['LIMIT']); // TODO ???
+				$queryParts['LIMIT'] = $select['LIMIT'];
 			}
 		}
 
@@ -508,7 +509,7 @@ class tx_dam_querygen {
 
 
 	/**
-	 * Creates part of query for searching after a word ($this->searchString) fields in input table
+	 * Creates part of query for searching after a word ($searchString) fields in input table
 	 *
 	 * @param	string		Table, in which the fields are being searched.
 	 * @param	string		search string
@@ -584,7 +585,7 @@ class tx_dam_querygen {
 		$table = $table ? $table : $this->table;
 
 		$enableFields = tx_dam_db::enableFields($table, $this->mode);
-		return $enableFields? ' AND '.$enableFields : '';
+		return $enableFields ? ' AND '.$enableFields : '';
 	}
 }
 

@@ -35,18 +35,18 @@
  *
  *   73: class tx_dam_batchProcess
  *  105:     function processGP()
- *  139:     function runBatch($res)
- *  155:     function getProcessFieldList()
+ *  135:     function runBatch($res)
+ *  152:     function getProcessFieldList()
  *
  *              SECTION: GUI misc
  *  174:     function showPresetForm()
  *  208:     function showResult()
- *  227:     function getPresetForm ($rec, $fixedFields, $description)
- *  287:     function getResultTable()
+ *  228:     function getPresetForm ($rec, $fixedFields, $description)
+ *  289:     function getResultTable()
  *
  *              SECTION: this and that
- *  354:     function getFormSetup()
- *  380:     function extractFormData($data, $appendFieldsArr)
+ *  356:     function getFormSetup()
+ *  382:     function extractFormData($data, $appendFieldsArr)
  *  417:     function saveFormSetup()
  *
  * TOTAL FUNCTIONS: 10
@@ -235,14 +235,15 @@ class tx_dam_batchProcess {
 		$rec['uid'] = 1;
 		$rec['pid'] = 1;
 		$rec['media_type'] = 0;
+		$rec = tx_dam_db::evalData('tx_dam', $rec);
 
 
 		require_once (PATH_txdam.'lib/class.tx_dam_simpleforms.php');
 		$form = t3lib_div::makeInstance('tx_dam_simpleForms');
 		$form->initDefaultBEmode();
 		$form->setVirtualTable('tx_dam_simpleforms', 'tx_dam');
-		$form->removeRequired($TCA['tx_dam_simpleforms']);
-		$form->removeTreeViewBrowseable($TCA['tx_dam_simpleforms']);
+		$form->removeRequired();
+		$form->removeTreeViewBrowseable();
 		$form->tx_dam_fixedFields = $fixedFields;
 
 			// add message for checkboxes
@@ -261,12 +262,12 @@ class tx_dam_batchProcess {
 		$columnsOnly = $TCA['tx_dam']['txdamInterface']['index_fieldList'];
 
 		if ($columnsOnly)	{
-			$content.= $form->getListedFields('tx_dam_simpleforms', $rec, $columnsOnly);
+			$content.= $form->getFormFromList($rec, $columnsOnly);
 		} else {
-			$content.= $form->getMainFields('tx_dam_simpleforms', $rec);
+			$content.= $form->getForm($rec);
 		}
 
-		$content = $form->wrapTotal($content, $rec, 'tx_dam_simpleforms');
+		$content = $form->wrapTotal($content, $rec);
 
 		$GLOBALS['SOBE']->doc->JScode .='
 		'.$form->printNeededJSFunctions_top();

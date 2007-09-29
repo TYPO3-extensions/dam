@@ -22,7 +22,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
- * Module 'Media>Info'
+ * Module 'Media>Tools'
  * Part of the DAM (digital asset management) extension.
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
@@ -34,13 +34,12 @@
  *
  *
  *
- *   71: class tx_daminfo_module1 extends tx_dam_SCbase
+ *   70: class tx_dam_tools extends tx_dam_SCbase
  *   79:     function main()
- *  104:     function jumpToUrl(URL)
- *  157:     function printContent()
+ *  173:     function printContent()
  *
- * TOTAL FUNCTIONS: 3
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -80,9 +79,6 @@ class tx_dam_tools extends tx_dam_SCbase {
 	function main()	{
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
 
-		parent::init();
-
-
 			// Init guiRenderList object:
 
 		$this->guiItems = t3lib_div::makeInstance('tx_dam_guiRenderList');
@@ -108,20 +104,11 @@ class tx_dam_tools extends tx_dam_SCbase {
 			// Output page header
 			//
 
-			$this->doc->form='<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->doc->form = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
-				// JavaScript
-			$this->doc->JScodeArray['jumpToUrl'] = '
-				var script_ended = 0;
-				var changed = 0;
+			$this->addDocStyles();
+			$this->addDocJavaScript();
 
-				function jumpToUrl(URL)	{
-					document.location = URL;
-				}
-				';
-
-			$this->doc->postCode.= $this->doc->wrapScriptTags('
-				script_ended = 1;');
 
 
 			$this->extObjHeader();

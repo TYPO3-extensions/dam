@@ -24,13 +24,26 @@
 /**
  * Base class for element browser trees
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
+ *
+ *   61: class tx_dam_treelib_ebtreeview extends t3lib_treeView
+ *   78:     function setTable($table)
+ *
+ *              SECTION: element browser specific functions
+ *  110:     function wrapTitle($title,$row)
+ *  139:     function PM_ATagWrap($icon,$cmd,$bMark='')
+ *  156:     function printTree($treeArr='')
+ *  218:     function getJumpToParam($row)
+ *  229:     function ext_isLinkable($row)
+ *
+ * TOTAL FUNCTIONS: 6
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 

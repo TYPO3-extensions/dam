@@ -35,12 +35,13 @@
  *
  *
  *   64: class tx_dam_cmd_filereplace extends t3lib_extobjbase
- *   75:     function head()
- *  101:     function main()
- *  158:     function uploadForm()
- *  193:     function replaceFile()
+ *   72:     function accessCheck()
+ *   82:     function head()
+ *   92:     function getContextHelp()
+ *  103:     function main()
+ *  154:     function renderForm()
  *
- * TOTAL FUNCTIONS: 4
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -89,7 +90,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-// TODO csh
+#TODO csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_delete', $GLOBALS['BACK_PATH'],'');
 	}
 
@@ -161,9 +162,9 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($this->meta);
 		$msg[] = '&nbsp;';
-// TODO onclick="changed=1;" unused?
+
 		$msg[] = '
-				<input type="file" name="upload_'.$id.'"'.$this->pObj->doc->formWidth(35).' size="50" onclick="changed=1;" />
+				<input type="file" name="upload_'.$id.'"'.$this->pObj->doc->formWidth(35).' size="50" />
 				<input type="hidden" name="data[upload]['.$id.'][target]" value="'.htmlspecialchars($path).'" />
 				<input type="hidden" name="data[upload]['.$id.'][data]" value="'.$id.'" />';
 

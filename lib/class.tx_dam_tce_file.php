@@ -45,29 +45,36 @@
  *
  *
  *
- *   84: class tx_dam_extFileFunctions extends t3lib_extFileFunctions
- *   98:     function processData()
+ *   91: class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions
+ *  113:     function processData()
  *
  *              SECTION: File operation functions
- *  169:     function func_delete($cmds)
- *  257:     function func_upload($cmds, $id)
- *  350:     function getMaxUploadSize()
- *  378:     function func_rename($cmds, $id)
- *  498:     function writeLog($action,$error,$details_nr,$details,$data, $actionName='', $id='')
- *  519:     function errors()
- *  529:     function getLastError($getFullLogEntry=FALSE)
+ *  201:     function func_delete($cmds, $id)
+ *  313:     function func_upload($cmds, $id)
+ *  406:     function getMaxUploadSize()
+ *  443:     function func_newfile($cmds, $id)
+ *  522:     function func_edit($cmds, $id)
+ *  578:     function func_move($cmds, $id)
+ *  701:     function func_rename($cmds, $id)
+ *  830:     function writeLog($action,$error,$details_nr,$details,$data, $actionName='', $id='')
+ *  852:     function errors()
+ *  863:     function getLastError($getFullErrorLogEntry=FALSE)
  *
  *
- *  558: class tx_dam_tce_file
- *  578:     function init($file='')
- *  614:     function overwriteExistingFiles($overwriteExistingFiles)
- *  625:     function setCmdmap($fileCmds)
- *  634:     function initClipboard()
- *  656:     function process()
- *  670:     function errors()
- *  680:     function getLastError($getFullLogEntry=FALSE)
+ *  882: class tx_dam_extFileFunctions extends ux_t3lib_extFileFunctions
+ *  894:     function initBE($mounts=NULL, $f_ext=NULL)
  *
- * TOTAL FUNCTIONS: 15
+ *
+ *  923: class tx_dam_tce_file
+ *  943:     function init($file='')
+ *  979:     function overwriteExistingFiles($overwriteExistingFiles)
+ *  990:     function setCmdmap($fileCmds)
+ *  999:     function initClipboard()
+ * 1023:     function process()
+ * 1037:     function errors()
+ * 1047:     function getLastError($getFullErrorLogEntry=FALSE)
+ *
+ * TOTAL FUNCTIONS: 19
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -157,7 +164,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 						}
 
 							// hook
-						if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses']) AND count($TYPO3_CONF_VARS['EXTCONF']['dam']['processTriggerClasses']))	{
+						if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses']) AND count($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses']))	{
 							foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses'] as $classKey => $classRef)	{
 								if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
 									if (method_exists($obj, 'filePostTrigger')) {
@@ -220,13 +227,12 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 			$newCmds['data']=$theFile;
 			$newCmds['target']=$recyclerPath;
 			$newCmds['altName']=1;
-			$this->func_move($newCmds);
+			$theDestFile = $this->func_move($newCmds);
 			$this->writelog(4,0,4,'Item "%s" moved to recycler at "%s"',array($theFile,$recyclerPath), 'delete', $id);
 
-// TODO moved file might have a new name!!!!!
 
 				// add file to log entry
-			$this->log['cmd']['delete'][$id]['target_file'] = $theFile;
+			$this->log['cmd']['delete'][$id]['target_file'] = $theDestFile;
 			$this->log['cmd']['delete'][$id]['target_path'] = $recyclerPath;
 
 				// update meta data
@@ -317,9 +323,9 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 			// filesize of the uploaded file
 		$theFileSize = $_FILES['upload_'.$id]['size'];
 			// The original filename
-// TODO  stripslashes needed ??
-		$theName = $this->cleanFileName(stripslashes($_FILES['upload_'.$id]['name']));
-// TODO format
+
+		$theName = $this->cleanFileName($_FILES['upload_'.$id]['name']);
+
 			// main log entry
 		$this->log['cmd']['upload'][$id] = array(
 				'errors' => array(),
@@ -406,7 +412,17 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 			$upload_max_filesize = intval($upload_max_filesize)*1024;
 		}
 
-		$maxFileSize = $this->maxUploadFileSize*1024;
+		$post_max_size = ini_get('post_max_size');
+		$match = array();
+		if (preg_match('#(M|MB)$#i', $post_max_size, $match)) {
+			$post_max_size = intval($post_max_size)*1048576;
+		} elseif (preg_match('#(k|kB)$#i', $post_max_size, $match)) {
+			$post_max_size = intval($post_max_size)*1024;
+		}
+
+		$upload_max_filesize = min($post_max_size, $upload_max_filesize);
+
+		$maxFileSize = intval($this->maxUploadFileSize)*1024;
 		$maxFileSize = $maxFileSize ? $maxFileSize : intval($GLOBALS['TYPO3_CONF_VARS']['BE']['maxFileSize'])*1024;
 
 		if (min($maxFileSize, $upload_max_filesize)==0) {
@@ -480,7 +496,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		}
 
 		if (!t3lib_div::inList($extListTxt, $fI['fileext']))	{
-			$this->writelog(8,1,107,'Fileextension "%s" is not a textfile format! (%s)',Array($fI['fileext'], $extListTxt), 'newfile', $id);
+			$this->writelog(8,1,107,'Fileextension "%s" is not a textfile format! (%s)',array($fI['fileext'], $extListTxt), 'newfile', $id);
 			return;
 		}
 
@@ -550,6 +566,128 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		clearstatcache();
 		$this->writelog(9,0,1,'File saved to "%s", bytes: %s, MD5: %s ', array($fileInfo['file'],@filesize($theTarget),md5($content)), 'edit', $id);
 		return true;
+	}
+
+
+	/**
+	 * Moving files and folders (action=3)
+	 *
+	 * @param	array		$cmds['data'] is the file/folder to move. $cmds['target'] is the path where to move to. $cmds['altName'] (boolean): If set, another filename is found in case the target already exists
+	 * @return	string		Returns the new filename upon success
+	 */
+	function func_move($cmds, $id)	{
+
+		if (!$this->isInit) return FALSE;
+
+			// Initialize and check basic conditions:
+		$theFile = $cmds['data'];
+		$theDest = $this->is_directory($cmds['target']);	// Clean up destination directory
+		$altName = $cmds['altName'];
+
+
+
+			// main log entry
+		$this->log['cmd']['move'][$id] = array(
+				'errors' => array(),
+				'orig_filename' => $theFile,
+				'target_file' => '',
+				'target_path' => $theDest,
+				);
+
+
+
+		if (!$theDest)	{
+			$this->writelog(3,2,100,'Destination "%s" was not a directory',array($cmds['target']), 'move', $id);
+			return FALSE;
+		}
+		if (!$this->isPathValid($theFile) || !$this->isPathValid($theDest))	{
+			$this->writelog(3,2,101,'Target or destination had invalid path (".." and "//" is not allowed in path). T="%s", D="%s"',array($theFile,$theDest), 'move', $id);
+			return FALSE;
+		}
+
+			// Processing of file or directory:
+		if (@is_file($theFile))	{	// If we are moving a file...
+			if ($this->actionPerms['moveFile'])	{
+				if (filesize($theFile) < ($this->maxMoveFileSize*1024))	{
+					$fI = t3lib_div::split_fileref($theFile);
+					if ($altName)	{	// If altName is set, we're allowed to create a new filename if the file already existed
+						$theDestFile = $this->getUniqueName($fI['file'], $theDest);
+						$fI = t3lib_div::split_fileref($theDestFile);
+					} else {
+						$theDestFile = $theDest.'/'.$fI['file'];
+					}
+					if ($theDestFile && !@file_exists($theDestFile))	{
+						if ($this->checkIfAllowed($fI['fileext'], $theDest, $fI['file'])) {
+							if ($this->checkPathAgainstMounts($theDestFile) && $this->checkPathAgainstMounts($theFile))	{
+								if ($this->PHPFileFunctions)	{
+									rename($theFile, $theDestFile);
+								} else {
+									$cmd = 'mv "'.$theFile.'" "'.$theDestFile.'"';
+									exec($cmd);
+								}
+								clearstatcache();
+								if (@is_file($theDestFile))	{
+
+										// update meta data
+									if ($this->processMetaUpdate) {
+										tx_dam::notify_fileMoved($theFile, $theDestFile);
+									}
+
+									$this->writelog(3,0,1,'File "%s" moved to "%s"',array($theFile,$theDestFile), 'move', $id);
+									return $theDestFile;
+								} else $this->writelog(3,2,109,'File "%s" WAS NOT moved to "%s"! Write-permission problem?',array($theFile,$theDestFile), 'move', $id);
+							} else $this->writelog(3,1,110,'Target or destination was not within your mountpoints! T="%s", D="%s"',array($theFile,$theDestFile), 'move', $id);
+						} else $this->writelog(3,1,111,'Fileextension "%s" is not allowed in "%s"!',array($fI['fileext'],$theDest.'/'), 'move', $id);
+					} else $this->writelog(3,1,112,'File "%s" already exists!',array($theDestFile), 'move', $id);
+				} else $this->writelog(3,1,113,'File "%s" exceeds the size-limit of %s bytes',array($theFile,$this->maxMoveFileSize*1024), 'move', $id);
+			} else $this->writelog(3,1,114,'You are not allowed to move files','', 'move', $id);
+			// FINISHED moving file
+
+		} elseif (@is_dir($theFile)) {	// if we're moving a folder
+			if ($this->actionPerms['moveFolder'])	{
+				$theFile = $this->is_directory($theFile);
+				if ($theFile)	{
+					$fI = t3lib_div::split_fileref($theFile);
+					if ($altName)	{	// If altName is set, we're allowed to create a new filename if the file already existed
+						$theDestFile = $this->getUniqueName($fI['file'], $theDest);
+						$fI = t3lib_div::split_fileref($theDestFile);
+					} else {
+						$theDestFile = $theDest.'/'.$fI['file'];
+					}
+					if ($theDestFile && !@file_exists($theDestFile))	{
+						if (!t3lib_div::isFirstPartOfStr($theDestFile.'/',$theFile.'/'))	{			// Check if the one folder is inside the other or on the same level... to target/dest is the same?
+							if ($this->checkIfFullAccess($theDest) || $this->is_webPath($theDestFile)==$this->is_webPath($theFile))	{	// // no moving of folders between spaces
+								if ($this->checkPathAgainstMounts($theDestFile) && $this->checkPathAgainstMounts($theFile))	{
+									if ($this->PHPFileFunctions)	{
+										rename($theFile, $theDestFile);
+									} else {
+										$cmd = 'mv "'.$theFile.'" "'.$theDestFile.'"';
+										$errArr = array();
+										$retVar = 0;
+										exec($cmd,$errArr,$retVar);
+									}
+									clearstatcache();
+									if (@is_dir($theDestFile))	{
+
+											// update meta data
+										if ($this->processMetaUpdate) {
+											tx_dam::notify_fileMoved($theFile, $theDestFile);
+										}
+
+										$this->writelog(3,0,2,'Directory "%s" moved to "%s"',array($theFile,$theDestFile), 'move', $id);
+										return $theDestFile;
+									} else $this->writelog(3,2,119,'Directory "%s" WAS NOT moved to "%s"! Write-permission problem?',array($theFile,$theDestFile), 'move', $id);
+								} else $this->writelog(3,1,120,'Target or destination was not within your mountpoints! T="%s", D="%s"',array($theFile,$theDestFile), 'move', $id);
+							} else $this->writelog(3,1,121,'You don\'t have full access to the destination directory "%s"!',array($theDest.'/'), 'move', $id);
+						} else $this->writelog(3,1,122,'Destination cannot be inside the target! D="%s", T="%s"',array($theDestFile.'/',$theFile.'/'), 'move', $id);
+					} else $this->writelog(3,1,123,'Target "%s" already exists!',array($theDestFile), 'move', $id);
+				} else $this->writelog(3,2,124,'Target seemed not to be a directory! (Shouldn\'t happen here!)','', 'move', $id);
+			} else $this->writelog(3,1,125,'You are not allowed to move directories','', 'move', $id);
+			// FINISHED moving directory
+
+		} else {
+			$this->writelog(3,2,130,'The item "%s" was not a file or directory!',array($theFile), 'move', $id);
+		}
 	}
 
 
@@ -742,6 +880,31 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
  * @ignore
  */
 class tx_dam_extFileFunctions extends ux_t3lib_extFileFunctions	{
+
+
+	/**
+	 * This function should be called to initialise the internal arrays $this->mounts and $this->f_ext
+	 * In comparison to init() this method initializes for the current BE_USER automatically
+	 *
+	 * @param	array		Contains the paths of the file mounts for the current BE user. Normally $GLOBALS['FILEMOUNTS'] is passed. This variable is set during backend user initialization; $FILEMOUNTS = $BE_USER->returnFilemounts(); (see typo3/init.php)
+	 * @param	array		Array with information about allowed and denied file extensions. Typically passed: $TYPO3_CONF_VARS['BE']['fileExtensions']
+	 * @return	void
+	 * @see init
+	 */
+	function initBE($mounts=NULL, $f_ext=NULL)	{
+		global $FILEMOUNTS, $TYPO3_CONF_VARS, $BE_USER;
+
+		if ($mounts==NULL) {
+			$mounts = $FILEMOUNTS;
+		}
+		if ($f_ext==NULL) {
+			$f_ext = $TYPO3_CONF_VARS['BE']['fileExtensions'];
+		}
+
+		$this->init($mounts, $f_ext);
+
+		$this->init_actionPerms($BE_USER->user['fileoper_perms']);
+	}
 }
 
 
@@ -866,11 +1029,11 @@ class tx_dam_tce_file {
 		return $this->fileProcessor->log;
 	}
 
-		/**
- * Check if an error occured while processing
- *
- * @return	integer		Number of errors
- */
+	/**
+	 * Check if an error occured while processing
+	 *
+	 * @return	integer		Number of errors
+	 */
 	function errors() {
 		return $this->fileProcessor->errors();
 	}
@@ -884,6 +1047,7 @@ class tx_dam_tce_file {
 	function getLastError($getFullErrorLogEntry=FALSE) {
 		return $this->fileProcessor->getLastError($getFullErrorLogEntry);
 	}
+
 }
 
 

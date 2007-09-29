@@ -34,30 +34,31 @@
  *
  *
  *
- *   80: class tx_dam_selectionFolder extends t3lib_folderTree
- *  121:     function tx_dam_selectionFolder()
- *  137:     function getId ($row)
- *  149:     function getJumpToParam($row, $command='SELECT')
- *  163:     function PM_ATagWrap($icon,$cmd,$bMark='')
- *  189:     function wrapTitle($title,$row,$bank=0)
- *  212:     function getControl($title,$row)
- *  240:     function printTree($treeArr='')
- *  291:     function setMounts($mountpoints)
- *  304:     function getTreeTitle()
- *  313:     function getDefaultIcon()
- *  323:     function getTreeName()
+ *   81: class tx_dam_selectionFolder extends t3lib_folderTree
+ *  122:     function tx_dam_selectionFolder()
+ *  140:     function getId ($row)
+ *  152:     function getJumpToParam($row, $command='SELECT')
+ *  166:     function PM_ATagWrap($icon,$cmd,$bMark='')
+ *  192:     function wrapTitle($title,$row,$bank=0)
+ *  215:     function getControl($title,$row)
+ *  242:     function printTree($treeArr='')
+ *  293:     function setMounts($mountpoints)
+ *  306:     function getTreeTitle()
+ *  315:     function getDefaultIcon()
+ *  325:     function getTreeName()
  *
  *              SECTION: DAM specific functions
- *  342:     function selection_getItemTitle($id)
- *  360:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
+ *  344:     function selection_getItemTitle($id)
+ *  356:     function selection_getItemIcon($id, $value)
+ *  377:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
  *
  *              SECTION: element browser specific functions
- *  388:     function eb_wrapTitle($title,$row)
- *  403:     function eb_PM_ATagWrap($icon,$cmd,$bMark='')
- *  419:     function eb_printTree($treeArr='')
- *  481:     function ext_isLinkable($v)
+ *  406:     function eb_wrapTitle($title,$row)
+ *  421:     function eb_PM_ATagWrap($icon,$cmd,$bMark='')
+ *  437:     function eb_printTree($treeArr='')
+ *  496:     function ext_isLinkable($v)
  *
- * TOTAL FUNCTIONS: 17
+ * TOTAL FUNCTIONS: 18
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -212,20 +213,19 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 * @return	string
 	 */
 	function getControl($title,$row) {
-		global $BACK_PATH;
 		$control = '';
-	// TODO skinning
+
 		if (!t3lib_div::_GP('folderOnly') AND $this->modeSelIcons) {
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
-			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/plus.gif"  width="8" height="11" border="0" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/plus.gif', 'width="8" height="11"').' border="0" alt="" />';
 			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'AND').'\',this,\''.$this->treeName.'\');';
-			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/equals.gif"  width="8" height="11" border="0" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/equals.gif', 'width="8" height="11"').' border="0" alt="" />';
 			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
-			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/minus.gif"  width="8" height="11" border="0" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' border="0" alt="" />';
 			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 		}
 
@@ -437,20 +437,17 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	function eb_printTree($treeArr='')	{
 		global  $BE_USER;
 
-		$titleLen=intval($BE_USER->uc['titleLen']);
-
 		if (!is_array($treeArr))	$treeArr=$this->tree;
 
 		$out='';
 		$c=0;
+		$cmpItem = '';
+		$cmpPath = '';
 
-// TODO			// Preparing the current-path string (if found in the listing we will see a red blinking arrow).
-		if (!$GLOBALS['SOBE']->curUrlInfo['value'])	{
-			$cmpPath='';
-		} else if (substr(trim($GLOBALS['SOBE']->curUrlInfo['info']),-1)!='/')	{
-			$cmpPath=PATH_site.dirname($GLOBALS['SOBE']->curUrlInfo['info']).'/';
-		} else {
-			$cmpPath=PATH_site.$GLOBALS['SOBE']->curUrlInfo['info'];
+		$selection = $GLOBALS['SOBE']->browser->damSC->selection->sl->sel;
+		if (is_array($selection['SELECT'][$this->treeName])) {
+			$cmpItem = key($selection['SELECT'][$this->treeName]);
+			$cmpPath = tx_dam::path_makeAbsolute($cmpItem);
 		}
 
 			// Traverse rows for the tree and print them into table rows:
@@ -459,7 +456,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
 
 				// Creating blinking arrow, if applicable:
-			if ($GLOBALS['SOBE']->curUrlInfo['act']=='file' && $cmpPath==$v['row']['path'])	{
+			if ($cmpPath && $GLOBALS['SOBE']->act =='file' && $cmpPath==$v['row']['path'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
 			} else {
@@ -472,7 +469,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 				// Put table row with folder together:
 			$out.='
 				<tr class="'.$bgColorClass.'">
-					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle(t3lib_div::fixed_lgd_cs($v['row']['title'], $titleLen), $v['row']).'</td>
+					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle(t3lib_div::fixed_lgd_cs($v['row']['title'], $BE_USER->uc['titleLen']), $v['row']).'</td>
 					'.$arrCol.'
 					<td width="1%">'.$cEbullet.'</td>
 				</tr>';

@@ -43,18 +43,18 @@
  *  127:     function __construct()
  *
  *              SECTION: Set data
- *  169:     function setPathInfo($pathInfo)
+ *  166:     function setPathInfo($pathInfo)
  *
  *              SECTION: Column rendering
- *  191:     function getItemColumns ($item)
+ *  188:     function getItemColumns ($item)
  *
  *              SECTION: Column rendering
- *  275:     function getItemAction ($item)
- *  286:     function getItemIcon ($item)
+ *  272:     function getItemAction ($item)
+ *  283:     function getItemIcon ($item)
  *
  *              SECTION: Controls
- *  355:     function getItemControl($item)
- *  395:     function getHeaderControl()
+ *  349:     function getItemControl($item)
+ *  390:     function getHeaderControl()
  *
  * TOTAL FUNCTIONS: 8
  * (This index is automatically created/updated by the script "update-class-index")
@@ -143,11 +143,6 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		$this->addColumn('_CONTROL_', '');
 #		$this->addColumn('_CLIPBOARD_', '');
 
-		if (!count($this->showControls)) {
-			$this->showControls = array('viewPage','editPage','newPage','unHidePage','movePage','pasteIntoPage','clearPageCache',
-							'refresh',
-							'permsRec','revertRec','editRec','infoRec','newRec','sortRec','unHideRec','delRec');
-		}
 
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist typo3-filelist"';
 	}
@@ -322,18 +317,15 @@ class tx_dam_listfiles extends tx_dam_listbase {
 			}
 
 
-
-			$icon = tx_dam::icon_getFileType($item);
-
 			$iconTag = tx_dam::icon_getFileTypeImgTag($item, $titleAttr);
-			if ($this->clickMenus) $theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconTag, $item);
+			if ($this->enableContextMenus) $iconTag = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconTag, tx_dam::file_absolutePath($item));
 			$iconTag .= $attachToIcon;
 		}
 		else {
 
-			$icon = tx_dam::icon_getFolder($item);
-			$iconTag = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $icon, 'width="18" height="16"').' title="'.htmlspecialchars($item[$type.'_title']).'" alt="" />';
-			if ($this->clickMenus) $theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconTag, $item);
+			$titleAttr = 'title="'.htmlspecialchars($item[$type.'_title']).'"';
+			$iconTag = tx_dam::icon_getFileTypeImgTag($item, $titleAttr);
+			if ($this->enableContextMenus) $iconTag = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconTag, tx_dam::path_makeAbsolute($item));
 		}
 		return $iconTag;
 	}
@@ -362,18 +354,18 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		if ($this->showControls) {
 			if (!is_object($actionCall[$item['__type']])) {
 				$actionCall[$item['__type']] = t3lib_div::makeInstance('tx_dam_actionCall');
-				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']), '', $GLOBALS['MCONF']['name']);
+				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
 				$actionCall[$item['__type']]->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 				$actionCall[$item['__type']]->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
 // TODO pObj exist?
 				$actionCall[$item['__type']]->setEnv('pathInfo', $this->pObj->pathInfo);
 				$actionCall[$item['__type']]->initActions(true);
 			} elseif ($actionCall[$item['__type']]->itemInfo['__type']!=$item['__type']){
-				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']), '', $GLOBALS['MCONF']['name']);
+				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
 				$actionCall[$item['__type']]->initActions(true);
 			}
-// TODO set allow deny: $this->showControls
-			$actionCall[$item['__type']]->setRequest('control', $item, '', $GLOBALS['MCONF']['name']);
+
+			$actionCall[$item['__type']]->setRequest('control', $item);
 			$actions = $actionCall[$item['__type']]->renderActionsHorizontal(true);
 
 				// Compile items into a DIV-element:
@@ -411,13 +403,13 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		if ($this->showControls AND $pathInfo['dir_writable']) {
 			$actions = array();
 			$cmd = 'tx_dam_cmd_foldernew';
-			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&vC='.$GLOBALS['BE_USER']->veriCode().'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 			$actions[] = '<a href="'.htmlspecialchars($script).'">'.
 						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/new_webfolder.gif', 'width="17" height="12"').' title="'.$GLOBALS['LANG']->getLL('newFolder').'" alt="" valign="top" />'.
 						'</a>';
 
 //			$cmd = 'tx_dam_cmd_filenewtextfile';
-//			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+//			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&vC='.$GLOBALS['BE_USER']->veriCode().'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 //			$actions[] = '<a href="'.htmlspecialchars($script).'">'.
 //						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/new_file.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('newTextFile').'" alt="" valign="top" />'.
 //						'</a>';

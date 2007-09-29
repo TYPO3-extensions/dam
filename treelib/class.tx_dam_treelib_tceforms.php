@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,7 +26,7 @@
 ***************************************************************/
 /**
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */
 /**
@@ -65,7 +65,7 @@
  *              SECTION: Data tools
  *  578:     function getMountsForTree($treeName, $userMountField='tx_dam_mountpoints', $groupMountField='tx_dam_mountpoints')
  *  631:     function processItemArray($treeViewObj)
- *  664:     function getItemFormElValueIdArr ($itemFormElValue)
+ *  674:     function getItemFormElValueIdArr ($itemFormElValue)
  *
  * TOTAL FUNCTIONS: 19
  * (This index is automatically created/updated by the script "update-class-index")
@@ -89,7 +89,7 @@
  *
  * That means the script do not know anything about trees. It just set parameters and render the field with TCEforms.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */
 class tx_dam_treelib_tceforms {

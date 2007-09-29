@@ -34,21 +34,19 @@
  *
  *
  *
- *   73: class tx_dam_list_list extends t3lib_extobjbase
- *   80:     function modMenu()
- *   98:     function head()
- *  123:     function main()
- *  296:     function jumpExt(URL,anchor)
+ *   71: class tx_dam_list_list extends t3lib_extobjbase
+ *   78:     function modMenu()
+ *   97:     function head()
+ *  125:     function main()
  *
  *              SECTION: selector for fields to display
- *  347:     function fieldSelectBox($table, $allFields, $selectedFields, $formFields = true)
- *  407:     function makeAllFieldList($table, $dontCheckUser = false, $useExludeFieldList = true)
+ *  406:     function fieldSelectBox($table, $allFields, $selectedFields, $formFields = true)
  *
  *              SECTION: Localization stuff
- *  467:     function languageSwitch($pid, $currentLanguage, $formFields = true)
- *  501:     function getLanguages($id)
+ *  475:     function languageSwitch($pid, $currentLanguage, $formFields = true)
+ *  509:     function getLanguages($id)
  *
- * TOTAL FUNCTIONS: 8
+ * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -82,6 +80,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 		return array(
 			'tx_dam_list_list_showThumb' => '',
+			'tx_dam_list_list_showMultiAction' => '',
 			'tx_dam_list_list_showAlternateBgColors' => '',
 			'tx_dam_list_list_sortField' => '',
 			'tx_dam_list_list_sortRev' => '',
@@ -110,7 +109,10 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems->registerFunc('getStoreControl', 'footer');
 
+			// add some options
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_showThumb', $LANG->getLL('showThumbnails'));
+// TODO hide when tsconfig disables function
+		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_showMultiAction', $LANG->getLL('showMultiAction'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_list_showAlternateBgColors', $LANG->getLL('showAlternateBgColors'));
 	}
 
@@ -125,9 +127,10 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 		$content = '';
 
-
 		$table = 'tx_dam';
-		t3lib_div::loadTCA($table);
+
+
+
 
 
 		//
@@ -140,7 +143,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		$langQuery = '';
 		if ($lang = intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector'])) {
 
-			$lgOvlFields = tx_dam_db::getLanguageOverlayFields ('tx_dam', 'tx_dam_lgovl');
+			$lgOvlFields = tx_dam_db::getLanguageOverlayFields ($table, 'tx_dam_lgovl');
 
 			$languageField = $TCA[$table]['ctrl']['languageField'];
 			$transOrigPointerField = $TCA[$table]['ctrl']['transOrigPointerField'];
@@ -160,7 +163,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 
 		//
-		// Use the current selection to create a query and count selected records
+		// Add the current selection to the query
 		//
 
 		$this->pObj->selection->addSelectionToQuery();
@@ -180,7 +183,67 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		$content.= $this->pObj->guiItems->getOutput('header');
 		$content.= $this->pObj->doc->spacer(10);
 
+			// any records found?
 		if($this->pObj->selection->pointer->countTotal) {
+
+
+
+			//
+			// init db list object
+			//
+
+			$dblist = t3lib_div::makeInstance('tx_dam_listrecords');
+			$dblist->setParameterName('form', $this->pObj->formName);
+			$dblist->init($table);
+
+
+			//
+			// process multi action if needed
+			//
+
+			if ($processAction = $dblist->getMultiActionCommand()) {
+
+				if ($processAction['onItems']=='_all') {
+
+					$uidList = array();
+					$res = $this->pObj->selection->execSelectionQuery();
+
+					while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+						$uidList[] = $row['uid'];
+					}
+					$itemList = implode(',', $uidList);
+				} else {
+					$itemList = $processAction['onItems'];
+					$uidList = t3lib_div::trimExplode(',', $itemList, true);
+				}
+
+				if ($uidList) {
+					switch ($processAction['actionType']) {
+						case 'url':
+							$url = str_replace('###ITEMLIST###', $itemList, $processAction['action']);
+							header('Location: '.$url);
+							exit;
+						break;
+						case 'tce-data':
+							$params = '';
+							foreach ($uidList as $uid) {
+								$params .= str_replace('###UID###', $uid, $processAction['action']);
+							}
+							$url = $GLOBALS['SOBE']->doc->issueCommand($params, -1);
+
+
+							$url = $BACK_PATH.'tce_db.php?&redirect='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).'&vC='.$BE_USER->veriCode().'&prErr=1&uPT=1'.$params;
+
+							header('Location: '.$url);
+							exit;
+						break;
+					}
+				}
+			}
+
+
+
+			t3lib_div::loadTCA($table);
 
 
 			//
@@ -189,7 +252,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 			$titleColumn = $TCA[$table]['ctrl']['label'];
 
-			$allFields = $this->makeAllFieldList($table);
+			$allFields = tx_dam_db::getFieldListForUser($table);
 
 			$selectedFields = t3lib_div::_GP('tx_dam_list_displayFields');
 			$selectedFields = is_array($selectedFields) ? $selectedFields : explode(',', $this->pObj->MOD_SETTINGS['tx_dam_list_displayFields']);
@@ -214,7 +277,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			// set query and sorting
 			//
 
-			$orderBy = ($TCA['tx_dam']['ctrl']['sortby']) ? 'tx_dam.'.$TCA['tx_dam']['ctrl']['sortby'] : 'tx_dam.sorting';
+			$orderBy = ($TCA[$table]['ctrl']['sortby']) ? 'tx_dam.'.$TCA[$table]['ctrl']['sortby'] : 'tx_dam.title';
 
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'])	{
 				if (in_array($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'], $allFields))	{
@@ -228,8 +291,6 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			$this->pObj->selection->qg->addOrderBy($orderBy);
 
 
-
-
 			//
 			// exec query
 			//
@@ -237,12 +298,15 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			$this->pObj->selection->addLimitToQuery();
 			$res = $this->pObj->selection->execSelectionQuery();
 
+
 			//
 			// init iterator for query
 			//
 
-			$dbIterator = new tx_dam_iterator_db($res, $this->pObj->selection->pointer->countTotal);
-#			$dbIterator = new tx_dam_iterator_db_lang_ovl($res, $this->pObj->selection->pointer->countTotal);
+			$conf = array(	'table' => 'tx_dam',
+							'countTotal' => $this->pObj->selection->pointer->countTotal	);
+			$dbIterator =& new tx_dam_iterator_db($res, $conf);
+#			$dbIterator =& new tx_dam_iterator_db_lang_ovl($res, $conf);
 #			$dbIterator->initLanguageOverlay($table, $this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']);
 
 
@@ -250,8 +314,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			// make db list
 			//
 
-			$dblist = t3lib_div::makeInstance('tx_dam_listrecords');
-			$dblist->init('tx_dam', $dbIterator);
+			$dblist->setDataObject($dbIterator);
 
 				// add columns to list
 			$dblist->clearColumns();
@@ -266,9 +329,13 @@ class tx_dam_list_list extends t3lib_extobjbase {
 					$cc++;
 				}
 			}
-
+// TODO Tsconfig allow/deny: showMultiActions, enableContextMenus
+				// enable display of action column
 			$dblist->showActions = true;
-
+				// enable display of multi actions
+			$dblist->showMultiActions = $this->pObj->MOD_SETTINGS['tx_dam_list_list_showMultiAction'];
+				// enable context menus
+			$dblist->enableContextMenus = true;
 				// Enable/disable display of thumbnails
 			$dblist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_list_list_showThumb'];
 				// Enable/disable display of AlternateBgColors
@@ -280,7 +347,8 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 			$dblist->setPointer($this->pObj->selection->pointer);
 			$dblist->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_list_list_sortRev']);
-			$dblist->setParameterNames('SET[tx_dam_list_list_sortField]', 'SET[tx_dam_list_list_sortRev]');
+			$dblist->setParameterName('sortField', 'SET[tx_dam_list_list_sortField]');
+			$dblist->setParameterName('sortRev', 'SET[tx_dam_list_list_sortRev]');
 			$this->pObj->doc->JScodeArray['dblist-JsCode'] = $dblist->getJsCode();
 
 
@@ -291,25 +359,15 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 
 
-				// JavaScript
-			$this->pObj->doc->JScodeArray['redirectUrls'] = $this->pObj->doc->redirectUrls(t3lib_div::getIndpEnv('REQUEST_URI'));
-			$this->pObj->doc->JScodeArray['jumpExt'] = '
-				function jumpExt(URL,anchor)	{
-					var anc = anchor?anchor:"";
-					document.location = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
-				}
-				';
-
-
-			$content.= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="dblistForm">';
+			#$content.= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="'.$dblist->paramName['form'].'">';
 			if ($languageSwitch = $this->languageSwitch($this->pObj->defaultPid, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']))) {
 				$content.= '<div style="margin:0 0.5em 0.4em auto; text-align:right;">'.$languageSwitch.'</div>';
 			}
 			$content.= $dblist->getListTable();
-			$content.= '<input type="hidden" name="cmd_table"><input type="hidden" name="cmd"></form>';
+			#$content.= '<input type="hidden" name="cmd_table"><input type="hidden" name="cmd"></form>';
 
 
-			$fieldSelectBoxContent = $this->fieldSelectBox($table, $this->makeAllFieldList($table), $selectedFields);
+			$fieldSelectBoxContent = $this->fieldSelectBox($table, $allFields, $selectedFields);
 			$content.= $this->pObj->buttonToggleDisplay('fieldselector', $LANG->getLL('field_selector'), $fieldSelectBoxContent);
 
 
@@ -356,8 +414,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		}
 
 
-		// TODO ??
-		// Add pseudo "control" fields
+		// TODO Add pseudo "control" fields ??
 		#		$fields['_PATH_'] = '_PATH_';
 		#		$fields['_LOCALIZATION_'] = '_LOCALIZATION_';
 		#		$fields['_CONTROL_'] = '_CONTROL_';
@@ -396,56 +453,6 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		return $content;
 	}
 
-
-	/**
-	 * Makes the list of fields the user can select/view for a table
-	 *
-	 * @param	string		Table name
-	 * @param	boolean		If set, users access to the field (non-exclude-fields) is NOT checked.
-	 * @param	boolean		$useExludeFieldList: ...
-	 * @return	array		Array, where values are fieldnames to include in query
-	 */
-	function makeAllFieldList($table, $dontCheckUser = false, $useExludeFieldList = true) {
-		global $TCA, $BE_USER;
-
-			// Init fieldlist array:
-		$fieldListArr = array();
-
-			// Check table:
-		if (is_array($TCA[$table])) {
-			t3lib_div::loadTCA($table);
-
-			$exludeFieldList = t3lib_div::trimExplode(',', $TCA[$table]['interface']['excludeFieldList'],1);
-
-				// Traverse configured columns and add them to field array, if available for user.
-			foreach ($TCA[$table]['columns'] as $fN => $fieldValue) {
-				if (($dontCheckUser || ((!$fieldValue['exclude'] || $BE_USER->check('non_exclude_fields', $table.':'.$fN)) && $fieldValue['config']['type'] != 'passthrough')) AND (!$useExludeFieldList || !in_array($fN, $exludeFieldList))) {
-					$fieldListArr[$fN] = $fN;
-				}
-			}
-
-				// Add special fields:
-			if ($dontCheckUser || $BE_USER->isAdmin()) {
-				$fieldListArr['uid'] = 'uid';
-				$fieldListArr['pid'] = 'pid';
-				if ($TCA[$table]['ctrl']['tstamp'])
-					$fieldListArr[$TCA[$table]['ctrl']['tstamp']] = $TCA[$table]['ctrl']['tstamp'];
-				if ($TCA[$table]['ctrl']['crdate'])
-					$fieldListArr[$TCA[$table]['ctrl']['tstamp']] = $TCA[$table]['ctrl']['tstamp'];
-				if ($TCA[$table]['ctrl']['cruser_id'])
-					$fieldListArr[$TCA[$table]['ctrl']['cruser_id']] = $TCA[$table]['ctrl']['cruser_id'];
-				if ($TCA[$table]['ctrl']['sortby'])
-					$fieldListArr[$TCA[$table]['ctrl']['cruser_id']] = $TCA[$table]['ctrl']['sortby'];
-				if ($TCA[$table]['ctrl']['versioning'])
-					$fieldListArr['t3ver_id'] = 't3ver_id';
-			}
-		}
-			// doesn't make sense, does it?
-		unset ($fieldListArr['l18n_parent']);
-		unset ($fieldListArr['l18n_diffsource']);
-
-		return $fieldListArr;
-	}
 
 
 

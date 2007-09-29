@@ -23,12 +23,12 @@
 ***************************************************************/
 
 /**
- * @author	2005 Rene Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  */
+ 
+require_once (PATH_txdam.'tests/class.tx_dam_testlib.php');
 
-require_once (PATH_txdam.'lib/class.tx_dam_db.php');
-
-class tx_dam_db_testcase extends tx_t3unit_testcase {
+class tx_dam_db_testcase extends tx_dam_testlib {
 
 
 

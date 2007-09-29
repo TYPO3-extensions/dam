@@ -33,45 +33,57 @@
  *
  *
  *
- *   91: class tx_dam_db
+ *  103: class tx_dam_db
  *
  *              SECTION: DAM record access
- *  116:     function getDataWhere ($select_fields, $whereClauses=array(), $groupBy='', $orderBy='', $limit='')
+ *  128:     function getDataWhere ($select_fields, $whereClauses=array(), $groupBy='', $orderBy='', $limit='')
+ *  165:     function fillWhereClauseArray($whereClauses=array())
  *
  *              SECTION: DAM record write/update
- *  176:     function insertUpdateData($meta)
- *  245:     function insertRecordRaw($meta)
- *  267:     function mergeAndUpdateData($rowSource, $replaceData, $appendData, $transformSourceData=true)
+ *  205:     function insertUpdateData($meta)
+ *  302:     function getLastError ()
+ *  327:     function insertRecordRaw($meta)
+ *  349:     function mergeAndUpdateData($rowSource, $replaceData, $appendData, $transformSourceData=true)
+ *  407:     function getUpdateData($row, $replaceData, $appendData)
  *
- *              SECTION: Update status
- *  395:     function updateStatus($uid, $status, $fileInfo=NULL, $hash=NULL, $deleted=NULL)
+ *              SECTION: Update
+ *  500:     function updateStatus($uid, $status, $fileInfo=NULL, $hash=NULL, $deleted=NULL)
+ *  528:     function updateFilePath($oldPath, $newPath)
+ *  554:     function updateFilePathSetDeleted($path)
  *
  *              SECTION: References
- *  450:     function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClause='', $groupBy='', $orderBy='', $limit=1000)
- *  519:     function getMetaForUploads ($fileList, $uploadsPath='')
- *  559:     function getMediaUsageReferences($uidList, $local_table='', $MM_ident='', $fields='', $whereClause='', $groupBy='', $orderBy='', $limit=1000)
- *  632:     function getMediaUsageUploads($uidList, $tableConf='', $uploadsFolder='uploads/pics/', $orderBy='', $limit=1000)
- *  682:     function trackingUploadsFile($fileInfo, $hash='')
+ *  603:     function referencesQuery($local_table, $local_uid, $foreign_table, $foreign_uid, $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000)
+ *  698:     function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000)
+ *  727:     function getReferencesUidArray($foreign_table, $foreign_uid, $MM_ident)
+ *  742:     function getReferencesUidList($foreign_table, $foreign_uid, $MM_ident)
+ *  762:     function getMetaForUploads ($fileList, $uploadsPath='', $fields='', $whereClauses=array())
+ *  819:     function getMediaUsageReferences($uidList, $foreign_table='', $MM_ident='', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000)
+ *  855:     function getMediaUsageUploads($uidList, $tableConf='', $uploadsPath='uploads/pics/', $orderBy='', $limit=1000)
+ *  905:     function trackingUploadsFile($fileInfo, $hash='')
  *
  *              SECTION: DAM sysfolder
- *  727:     function getPidList ()
- *  740:     function getPid ()
+ *  950:     function getPidList ()
+ *  963:     function getPid ()
  *
  *              SECTION: Meta field lists and arrays
- *  774:     function setMetaDefaultFields($meta, $force=false)
- *  797:     function getMetaInfoFieldList($prependTableName=TRUE, $addFields=array())
+ * 1007:     function setMetaDefaultFields($meta, $force=false)
+ * 1032:     function getMetaInfoFieldList($prependTableName=TRUE, $addFields=array())
  *
  *              SECTION: General field lists and arrays (TCA)
- *  847:     function compileFieldList($table, $fields, $checkTCA=TRUE, $prependTableName=TRUE)
- *  881:     function cleanupRecordArray($table, $row)
- *  899:     function cleanupFieldList($table, $fields)
- *  921:     function getTCAFieldListArray($table, $mainFieldsOnly=FALSE, $addFields=array())
- *  975:     function getLanguageOverlayFields ($table, $prependTableName='', $reprocess=false)
+ * 1082:     function compileFieldList($table, $fields, $checkTCA=TRUE, $prependTableName=TRUE)
+ * 1116:     function cleanupRecordArray($table, $row)
+ * 1134:     function cleanupFieldList($table, $fields)
+ * 1156:     function getTCAFieldListArray($table, $mainFieldsOnly=FALSE, $addFields=array())
+ * 1210:     function getLanguageOverlayFields ($table, $prependTableName='', $reprocess=false)
+ * 1254:     function getFieldListForUser($table, $dontCheckUser = false, $useExludeFieldList = true)
  *
  *              SECTION: Helper
- * 1028:     function stripLabelFromGroupData($data)
+ * 1325:     function evalData($table, $fieldArray)
+ * 1361:     function stripLabelFromGroupData($data)
+ * 1384:     function enableFields($table, $mode=TYPO3_MODE)
+ * 1404:     function deleteClause($table,$tableAlias='')
  *
- * TOTAL FUNCTIONS: 20
+ * TOTAL FUNCTIONS: 32
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -128,7 +140,7 @@ class tx_dam_db {
 												$orderBy,
 												$limit
 											);
-		//debug ($GLOBALS['TYPO3_DB']->SELECTquery($select_fields, 'tx_dam', implode(' AND ', $where), $groupBy, $orderBy, $limit), 'getDataWhere');
+		#debug ($GLOBALS['TYPO3_DB']->SELECTquery($select_fields, 'tx_dam', implode(' AND ', $where), $groupBy, $orderBy, $limit), 'getDataWhere');
 
 		if ($res) {
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
@@ -226,6 +238,8 @@ class tx_dam_db {
 			$data['tx_dam'][$id] = $meta;
 		}
 
+		if ($TYPO3_CONF_VARS['SC_OPTIONS']['ext/dam/lib/class.tx_dam_db.php']['writeDevLog']) 	t3lib_div::devLog('insertUpdateData(): uid='.$id, 'tx_dam_db', 0, array('cmd'=>$cmd,'data'=>$data));
+
 		$tce->start($data, $cmd, $GLOBALS['BE_USER']);
 
 			// data change - always before a deletion
@@ -254,7 +268,9 @@ class tx_dam_db {
 
 			} else {
 				// That shouldn't happen - really
-				debug('Inserting meta record failed. See log for reason!');
+				#debug($tce->errorLog);
+
+				return false;
 			}
 
 		} else {
@@ -274,6 +290,29 @@ class tx_dam_db {
 		}
 
 		return $id;
+	}
+
+
+	/**
+	 * Returns the last error message
+	 * This is currently from sys_log only and makes sense when insertUpdateData() failed
+	 *
+	 * @return array Error type, Error message
+	 */
+	function getLastError () {
+		$res_log = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+					'*',
+					'sys_log',
+					#'type=1 AND userid='.intval($this->BE_USER->user['uid']).' AND tstamp='.intval($GLOBALS['EXEC_TIME']).'	AND error!=0'
+					'tstamp='.intval($GLOBALS['EXEC_TIME']).' AND error!=0',
+					'','',1
+				);
+		$error = false;
+		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_log)) {
+			$log_data = unserialize($row['log_data']);
+			$error = array($row['error'], sprintf($row['details'], $log_data[0],$log_data[1],$log_data[2],$log_data[3],$log_data[4]));
+		}
+		return $error;
 	}
 
 
@@ -459,22 +498,22 @@ class tx_dam_db {
 	 * @return	void
 	 */
 	function updateStatus($uid, $status, $fileInfo=NULL, $hash=NULL, $deleted=NULL)	{
-		$values = array();
-		$values['tstamp'] = time();
+		$meta = array();
+		$meta['tstamp'] = time();
 		if (isset($deleted)) {
-			$values['deleted'] = $deleted;
+			$meta['deleted'] = $deleted;
 		}
-		$values['file_status'] = $status;
+		$meta['file_status'] = $status;
 		if ($fileInfo) {
 			$fileInfo = tx_dam_db::cleanupRecordArray('tx_dam', $fileInfo);
-			$values = array_merge($values, $fileInfo);
-			$values['date_mod'] = $values['file_mtime'];
+			$meta = array_merge($meta, $fileInfo);
+			$meta['date_mod'] = $meta['file_mtime'];
 		}
 		if ($hash) {
-			$values['file_hash'] = $hash;
+			$meta['file_hash'] = $hash;
 		}
 
-		return $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.intval($uid), $values);
+		return $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.intval($uid), $meta);
 	}
 
 
@@ -484,10 +523,9 @@ class tx_dam_db {
 	 * @param	string		$oldPath old path
 	 * @param	string		$newPath new path
 	 * @return	void
+	 * @todo use tx_dam_db::insertUpdateData() ? That might trigger something we don't want to be triggered
 	 */
 	function updateFilePath($oldPath, $newPath)	{
-
-		// TODO use tx_dam_db::insertUpdateData() ?
 
 		$oldPath = tx_dam::path_makeRelative($oldPath);
 		$newPath = tx_dam::path_makeRelative($newPath);
@@ -526,7 +564,7 @@ class tx_dam_db {
 		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($path, 'tx_dam');
 		$where['file_path'] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
 
-		$rows = tx_dam_db::getDataWhere ('uid', $where);
+		$rows = tx_dam_db::getDataWhere ('tx_dam.uid', $where);
 
 		foreach($rows as $row) {
 			$row['deleted'] = '1';
@@ -623,6 +661,8 @@ class tx_dam_db {
 			$limit
 		);
 
+		echo $GLOBALS['TYPO3_DB']->sql_error();
+
 		return $res;
 	}
 
@@ -660,16 +700,34 @@ class tx_dam_db {
 		$fields = $fields ? $fields : tx_dam_db::getMetaInfoFieldList();
 		$local_table= 'tx_dam';
 
-		$res = tx_dam_db::referencesQuery($local_table, '', $foreign_table, $foreign_uid, $MM_ident, $MM_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
-
 		$files = array();
 		$rows = array();
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			$files[$row['uid']] = $row['file_path'].$row['file_name'];
-			$rows[$row['uid']] = $row;
+
+		$res = tx_dam_db::referencesQuery($local_table, '', $foreign_table, $foreign_uid, $MM_ident, $MM_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
+
+		if ($res) {
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				$files[$row['uid']] = $row['file_path'].$row['file_name'];
+				$rows[$row['uid']] = $row;
+			}
 		}
 
 		return array('files' => $files, 'rows' => $rows);
+	}
+
+
+	/**
+	 * Make an array of uid's by a mm-relation to the tx_dam table which is used to get eg. the references tt_content<>tx_dam
+	 *
+	 * @param	string		$foreign_table Table name to get references for. Eg tt_content
+	 * @param	integer		$foreign_uid The uid of the referenced record
+	 * @param	mixed		$MM_ident Array of field/value pairs that should match in MM table. If it is a string, it will be used as value for the field 'ident'.
+	 * @return	array		uid array
+	 */
+	function getReferencesUidArray($foreign_table, $foreign_uid, $MM_ident) {
+		$result = tx_dam_db::getReferencedFiles($foreign_table, $foreign_uid, $MM_ident, '', 'tx_dam.uid');
+		$uidList = array_keys($result['rows']);
+		return $uidList;
 	}
 
 
@@ -682,7 +740,7 @@ class tx_dam_db {
 	 * @return	string		uid comma list
 	 */
 	function getReferencesUidList($foreign_table, $foreign_uid, $MM_ident) {
-		$result = tx_dam_db::getReferencedFiles($foreign_table, $foreign_uid, $MM_ident, '', 'uid');
+		$result = tx_dam_db::getReferencedFiles($foreign_table, $foreign_uid, $MM_ident, '', 'tx_dam.uid');
 		$uidList = implode(',',array_keys($result['rows']));
 		return $uidList;
 	}
@@ -768,8 +826,10 @@ class tx_dam_db {
 		$res = tx_dam_db::referencesQuery($local_table, $uidList, $foreign_table, '', $MM_ident, $MM_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
 
 		$rows = array();
-		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			$rows[] = $row;
+		if ($res) {
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+				$rows[] = $row;
+			}
 		}
 
 		return $rows;
@@ -903,9 +963,8 @@ class tx_dam_db {
 	function getPid () {
 		global $TYPO3_CONF_VARS;
 
-// TODO
+// TODO get pid from TS
 
-//use TS:
 //
 //  plugin.tx_dam.defaults {
 //  // The pid of the media folder. Needs to be set when multiple media folders exist
@@ -1184,6 +1243,66 @@ class tx_dam_db {
 	}
 
 
+	/**
+	 * Makes the list of fields the user can select/view for a table
+	 *
+	 * @param	string		Table name
+	 * @param	boolean		If set, users access to the field (non-exclude-fields) is NOT checked.
+	 * @param	boolean		$useExludeFieldList: ...
+	 * @return	array		Array, where values are fieldnames to include in query
+	 */
+	function getFieldListForUser($table, $dontCheckUser = false, $useExludeFieldList = true) {
+		global $TCA, $BE_USER;
+
+			// Init fieldlist array:
+		$fieldListArr = array();
+
+			// Check table:
+		if (is_array($TCA[$table])) {
+			t3lib_div::loadTCA($table);
+
+			$exludeFieldList = t3lib_div::trimExplode(',', $TCA[$table]['interface']['excludeFieldList'],1);
+
+				// Traverse configured columns and add them to field array, if available for user.
+			foreach ($TCA[$table]['columns'] as $fN => $fieldValue) {
+				if (($dontCheckUser || ((!$fieldValue['exclude'] || $BE_USER->check('non_exclude_fields', $table.':'.$fN)) && $fieldValue['config']['type'] != 'passthrough')) AND (!$useExludeFieldList || !in_array($fN, $exludeFieldList))) {
+					$fieldListArr[$fN] = $fN;
+				}
+			}
+
+				// Add special fields:
+			if ($dontCheckUser || $BE_USER->isAdmin()) {
+				$fieldListArr['uid'] = 'uid';
+				$fieldListArr['pid'] = 'pid';
+				if ($TCA[$table]['ctrl']['tstamp'])
+					$fieldListArr[$TCA[$table]['ctrl']['tstamp']] = $TCA[$table]['ctrl']['tstamp'];
+				if ($TCA[$table]['ctrl']['crdate'])
+					$fieldListArr[$TCA[$table]['ctrl']['tstamp']] = $TCA[$table]['ctrl']['tstamp'];
+				if ($TCA[$table]['ctrl']['cruser_id'])
+					$fieldListArr[$TCA[$table]['ctrl']['cruser_id']] = $TCA[$table]['ctrl']['cruser_id'];
+				if ($TCA[$table]['ctrl']['sortby'])
+					$fieldListArr[$TCA[$table]['ctrl']['cruser_id']] = $TCA[$table]['ctrl']['sortby'];
+				if ($TCA[$table]['ctrl']['versioning'])
+					$fieldListArr['t3ver_id'] = 't3ver_id';
+
+				if ($TCA[$table]['ctrl']['versioningWS'])	{
+					$fieldListArr['t3ver_id']='t3ver_id';
+					$fieldListArr['t3ver_state']='t3ver_state';
+					$fieldListArr['t3ver_wsid']='t3ver_wsid';
+					if ($table==='pages')	{
+						$fieldListArr['t3ver_swapmode']='t3ver_swapmode';
+					}
+				}
+
+			}
+		}
+			// doesn't make sense, does it?
+		unset ($fieldListArr['l18n_parent']);
+		unset ($fieldListArr['l18n_diffsource']);
+
+		return $fieldListArr;
+	}
+
 
 
 
@@ -1193,6 +1312,44 @@ class tx_dam_db {
 	 *	 Helper
 	 *
 	 ***************************************/
+
+
+	/**
+	 * Evaluates record data using tcemain
+	 * This is normally not needed because it's done automatically by tcemain, but it's helpful when using tceforms without tcemain
+	 * MM fields are NOT evaluated they are passed through. That makes sense when used the data with tceforms.
+	 *
+	 * @param array $fieldArray
+	 * @return array
+	 */
+	function evalData($table, $fieldArray) {
+		global $TCA;
+
+			// Load TCA configuration for the given field:
+		t3lib_div::loadTCA($table);
+
+			// Create an instance of TCEmain and check the value:
+		require_once(PATH_t3lib.'class.t3lib_tcemain.php');
+		$TCEmain = t3lib_div::makeInstance ('t3lib_tcemain');
+
+			// Traverse record and input-process each value:
+		foreach($fieldArray as $field => $fieldValue)	{
+			if (isset($TCA[$table]['columns'][$field]))	{
+				$tcaFieldConf = $TCA[$table]['columns'][$field]['config'];
+
+				if ($tcaFieldConf['MM']) {
+					continue;
+				}
+
+				$res = array();
+				$res = $TCEmain->checkValue_SW ($res, $fieldValue, $tcaFieldConf['config'], $table, -1, null, null, -1, null, null, null, null);
+				if (isset($res['value']))	{
+					$fieldArray[$field] = $res['value'];
+				}
+			}
+		}
+		return $fieldArray;
+	}
 
 
 	/**

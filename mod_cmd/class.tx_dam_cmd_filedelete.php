@@ -34,14 +34,15 @@
  *
  *
  *
- *   64: class tx_dam_cmd_filedelete extends t3lib_extobjbase
- *   75:     function head()
- *  101:     function main()
- *  158:     function deleteForm()
- *  196:     function deleteFile()
- *  272:     function getReferencesTable()
+ *   65: class tx_dam_cmd_filedelete extends t3lib_extobjbase
+ *   74:     function accessCheck()
+ *   84:     function head()
+ *   94:     function getContextHelp()
+ *  105:     function main()
+ *  172:     function renderFormSingle($id, $meta)
+ *  224:     function renderFormMulti($items)
  *
- * TOTAL FUNCTIONS: 5
+ * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -91,7 +92,7 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-// TODO csh
+#TODO csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_delete', $GLOBALS['BACK_PATH'],'');
 	}
 
@@ -106,41 +107,57 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 		$content = '';
 
-			// Cleaning and checking target
-		if ($this->pObj->file[0]) {
-			$this->file = tx_dam::file_compileInfo($this->pObj->file[0], true);
-			$this->meta = tx_dam::meta_getDataForFile($this->file, '*');
-		} elseif ($id = intval($this->pObj->record['tx_dam'][0])) {
-			$this->meta = tx_dam::meta_getDataByUid($id, '*');
-			$this->file = tx_dam::file_compileInfo($this->meta, true);
-		}
-		if (!is_array($this->meta)) {
-			$fileType = tx_dam::file_getType ($this->file);
-			$this->meta = array_merge($this->file, $fileType);
-			$this->meta['uid'] = 0;
-		}
+		$items = $this->pObj->compileFilesAndRecordsData();
 
-		if ($this->file['file_accessable']) {
 
-			if (is_array($this->pObj->data) AND $this->pObj->data['delete']) {
 
-				$error = tx_dam::process_deleteFile($this->file);
+		//
+		// perform delete files(s)
+		//
 
-				if ($error) {
-					$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), $this->pObj->buttonBack(0), 2);
+		if (count($items) AND is_array($this->pObj->data) AND $this->pObj->data['delete']) {
 
+			$errors = array();
+
+			foreach ($this->pObj->data['delete'] as $id => $filepath) {
+				if ($items[$id] AND $items[$id]['file_accessable']) {
+					if ($error = tx_dam::process_deleteFile($items[$id])) {
+						$errors[] = htmlspecialchars($error);
+					}
 				} else {
-					$this->pObj->redirect();
+					$errors[] = $LANG->getLL('accessDenied', true).htmlspecialchars(' ('.$filepath.')');
 				}
-
-
-			} else {
-				$content.=  $this->renderForm();
 			}
 
-		} else {
-				// this should have happen in index.php already
-			$content.= $this->pObj->accessDeniedMessage($this->file['file_name']);
+			if ($errors) {
+				$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), implode('<br />', $error), $this->pObj->buttonBack(0), 2);
+
+			} else {
+				$this->pObj->redirect();
+			}
+		}
+
+
+		//
+		// display forms
+		//
+
+		if (count($items) == 1) {
+			reset($items);
+			$item = current($items);
+			if ($item['file_accessable']) {
+
+				$content.=  $this->renderFormSingle(key($items), $item);
+
+			} else {
+					// this should have happen in index.php already
+				$content.= $this->pObj->accessDeniedMessage($item['file_name']);
+			}
+
+		} elseif (count($items) > 1) {
+			// multi action
+
+			$content.=  $this->renderFormMulti($items);
 		}
 
 		return $content;
@@ -148,21 +165,20 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 
 	/**
-	 * Rendering the delete file form
+	 * Rendering the delete file form for a single item
 	 *
 	 * @return	string		HTML content
 	 */
-	function renderForm()	{
+	function renderFormSingle($id, $meta)	{
 		global  $BACK_PATH, $LANG;
 
-		$id = $this->meta['uid'];
-		$filepath = tx_dam::file_absolutePath($this->file);
+		$filepath = tx_dam::file_absolutePath($meta);
 
 		$content = '';
 
 
-		if ($this->meta['uid']) {
-			$references = tx_dam_guiFunc::getReferencesTable($this->meta['uid']);
+		if ($meta['uid']) {
+			$references = tx_dam_guiFunc::getReferencesTable($meta['uid']);
 			if ($references) {
 				$msg = $LANG->getLL('tx_dam_cmd_filedelete.messageReferences',1);
 				$msg .= $GLOBALS['SOBE']->doc->spacer(5);
@@ -173,7 +189,7 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 		$msg = array();
 
-		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($this->meta);
+		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($meta);
 
 		if ($references) {
 			$msg[] = '&nbsp;';
@@ -200,6 +216,115 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	}
 
 
+	/**
+	 * Rendering the delete file form for a multiple items
+	 *
+	 * @return	string		HTML content
+	 */
+	function renderFormMulti($items)	{
+		global  $BACK_PATH, $LANG, $TCA;
+
+		$content = '';
+
+		$references = 0;
+
+
+		$referencedIcon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/is_referenced.gif', 'width="15" height="12"').' title="'.$LANG->getLL('tx_dam_cmd_filedelete.messageReferencesUsed',1).'" alt="" />';
+
+			// init table layout
+		$tableLayout = array(
+			'table' => array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
+			'0' => array(
+				'defCol' => array('<th nowrap="nowrap" class="bgColor5">','</th>'),
+				'0' => array('<th width="1%" class="bgColor5">','</th>'),
+				'1' => array('<th width="1%" class="bgColor5">','</th>'),
+				'3' => array('<th width="1%" class="bgColor5">','</th>'),
+				'4' => array('<th width="1%" class="bgColor5">','</th>'),
+				'5' => array('<th width="1%" class="bgColor5">','</th>'),
+			),
+			'defRow' => array(
+				'defCol' => array('<td nowrap="nowrap" class="bgColor4">','</td>'),
+				'3' => array('<td style="text-align:center" class="bgColor4">','</td>'),
+				'4' => array('<td style="padding:0 5px 0 5px" class="bgColor4">','</td>'),
+				'5' => array('<td style="text-align:center" class="bgColor1">','</td>'),
+			),
+		);
+
+		$cTable=array();
+		$tr = 0;
+		$td = 0;
+
+		$cTable[$tr][$td++] = '&nbsp;';
+		$cTable[$tr][$td++] = '&nbsp;';
+		$cTable[$tr][$td++] = $LANG->sL($TCA['tx_dam']['columns']['title']['label'],1);
+		$cTable[$tr][$td++] = '&nbsp;';
+		$cTable[$tr][$td++] = '&nbsp;';
+		$cTable[$tr][$td++] = '&nbsp;';
+		$cTable[$tr][$td++] = $LANG->sL($TCA['tx_dam']['columns']['file_path']['label'],1);
+
+		$tr++;
+
+
+
+		foreach ($items as $id => $meta) {
+			$filepath = tx_dam::file_absolutePath($meta);
+			if ($meta['file_accessable']) {
+				$checkbox = '<input type="checkbox" name="data[delete]['.$id.'][data]" value="'.htmlspecialchars($filepath).'"  checked="checked" />';
+			} else {
+				$checkbox = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' title="'.$LANG->getLL('accessDenied', true).'" alt="" />';
+			}
+
+			$title = $meta['title'] ? $meta['title'] : $meta['file_name'];
+			$title = t3lib_div::fixed_lgd_cs($title,50);
+
+			$icon = tx_dam_guiFunc::icon_getFileTypeImgTag($meta, 'class="c-recicon"', false);
+
+			$info = $GLOBALS['SOBE']->btn_infoFile($meta);
+
+			if ($meta['uid'] AND $ref=tx_dam_db::getMediaUsageReferences($meta['uid'])) {
+				$references += count($ref);
+			}
+
+				// Add row to table
+			$td=0;
+			$cTable[$tr][$td++] = $checkbox;
+			$cTable[$tr][$td++] = $icon;
+			$cTable[$tr][$td++] = htmlspecialchars($title);
+			$cTable[$tr][$td++] = htmlspecialchars(strtoupper($meta['file_type']));
+			$cTable[$tr][$td++] = ($ref ? $referencedIcon : '');
+			$cTable[$tr][$td++] = $info;
+			$cTable[$tr][$td++] = htmlspecialchars(t3lib_div::fixed_lgd_cs($meta['file_path'],-15));
+			$tr++;
+		}
+
+		$itemTable = $this->pObj->doc->table($cTable, $tableLayout);
+
+
+
+		$msg = array();
+
+		if ($references) {
+			$msg[] = '&nbsp;';
+			$msg[] = '<strong><span class="typo3-red">'.$LANG->getLL('labelWarning',1).'</span> '.$LANG->getLL('tx_dam_cmd_filedelete.messageReferencesUsed',1).'</strong>';
+			$msg[] = $LANG->getLL('tx_dam_cmd_filedelete.messageReferencesDelete',1);
+		}
+
+		$msg[] = '&nbsp;';
+		$msg[] = $LANG->getLL('tx_dam_cmd_filedelete.message',1);
+
+		$buttons = '
+			<input type="hidden" name="data[delete]['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
+			<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filedelete.submit',1).'" />
+			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+
+		$msg[] = '&nbsp;';
+		$msg[] = $itemTable;
+
+		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
+
+
+		return $content;
+	}
 }
 
 

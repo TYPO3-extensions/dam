@@ -32,6 +32,33 @@
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
+ *
+ *   93: class tx_dam_cmd extends tx_dam_SCbase
+ *  202:     function init()
+ *  289:     function handleExternalFunctionValue($MM_key='function', $MS_value=NULL)
+ *  317:     function main()
+ *  414:     function jumpToUrl(URL)
+ *  418:     function jumpBack()
+ *  422:     function navFrameReload()
+ *  473:     function printContent()
+ *
+ *              SECTION: misc stuff
+ *  496:     function extObjAccess()
+ *  511:     function redirect($updateNavFrame=false)
+ *
+ *              SECTION: Item stuff
+ *  537:     function compileFilesAndRecordsData()
+ *
+ *              SECTION: GUI stuff
+ *  580:     function makePageHeader()
+ *  597:     function wrongCommandMessage()
+ *  622:     function accessDeniedMessage($msg='')
+ *  636:     function buttonBack($linesBefore=1)
+ *  659:     function getFormInputField ($field, $value, $size=0)
+ *
+ * TOTAL FUNCTIONS: 15
+ * (This index is automatically created/updated by the script "update-class-index")
+ *
  */
 
 
@@ -175,17 +202,15 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	function init()	{
 		global $BE_USER, $TYPO3_CONF_VARS, $FILEMOUNTS;
 
-// TODO veriCode needed and working?
-		$this->vC = t3lib_div::_GP('vC');
 
 			// Checking referer / executing
 		$refInfo=parse_url(t3lib_div::getIndpEnv('HTTP_REFERER'));
+		$vC = t3lib_div::_GP('vC');
 		$httpHost = t3lib_div::getIndpEnv('TYPO3_HOST_ONLY');
-		if ($httpHost!=$refInfo['host'] && $this->vC!=$BE_USER->veriCode() && !$TYPO3_CONF_VARS['SYS']['doNotCheckReferer'])	{
+		if ($httpHost!=$refInfo['host'] && $vC!=$BE_USER->veriCode() && !$TYPO3_CONF_VARS['SYS']['doNotCheckReferer'])	{
 			t3lib_BEfunc::typo3PrintError ('Access Error','Referer did not match and veriCode was not valid either!','');
 			exit;
 		}
-
 
 
 			// Initialize file GPvar
@@ -212,10 +237,8 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			}
 
 			foreach ($this->record as $table => $uidList) {
-				if (is_array($GLOBALS['TCA'][$table])) {
-					if($uidList = $GLOBALS['TYPO3_DB']->cleanIntList($uidList)) {
-						$this->record[$table] = explode(',', $uidList);
-					}
+				if (is_array($GLOBALS['TCA'][$table]) AND $uidList=$GLOBALS['TYPO3_DB']->cleanIntList($uidList)) {
+					$this->record[$table] = explode(',', $uidList);
 				} else {
 					unset($this->record[$table]);
 				}
@@ -313,10 +336,10 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 		$this->actionAccess = $this->extObjAccess();
 
-//debug($this->actionAccess, '$this->actionAccess');
-//debug($this->file, '$this->file');
-//debug($this->folder, '$this->folder');
-//debug($this->record, '$this->record');
+#debug($this->actionAccess, '$this->actionAccess');
+#debug($this->file, '$this->file');
+#debug($this->folder, '$this->folder');
+#debug($this->record, '$this->record');
 
 		if ($this->actionAccess) {
 			$this->accessDenied = array();
@@ -351,7 +374,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 					$where = array();
 					$where['enableFields'] = tx_dam_db::deleteClause($table);
 					$where['pidList'] = $table.'.pid IN ('.$this->defaultPid.')';
-					$where['uid'] = $table.'.uid in ('.implode(',',$uidList).')';
+					$where['uid'] = $table.'.uid IN ('.implode(',',$uidList).')';
 
 					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid', $table, implode(' AND ', $where), '', '', '', 'uid');
 					if ($rows) {
@@ -433,7 +456,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			} else {
 				$accessDeniedInfo[] = '<p>'.sprintf($LANG->getLL('messageCmdDenied', 1),$this->pageTitle).'</p>';
 			}
-// file do not exist ...
+				// file do not exist ...
 			$this->content.= $this->accessDeniedMessage(implode('', $accessDeniedInfo));
 		}
 
@@ -458,11 +481,11 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 
 
-	//*******************************
-	//
-	//	misc stuff
-	//
-	//*******************************
+	/********************************
+	 *
+	 *	misc stuff
+	 *
+	 ********************************/
 
 
 	/**
@@ -500,14 +523,53 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 
 
+	/********************************
+	 *
+	 *	Item stuff
+	 *
+	 ********************************/
+
+	/**
+	 * Compiles meta/fielInfo data for file and record items
+	 *
+	 * @return array Item array. Key is uid or md5 of filepath
+	 */
+	function compileFilesAndRecordsData() {
+
+		$items = array();
+
+		if (count($this->file)) {
+			foreach ($this->file as $filepath) {
+				$fileInfo = tx_dam::file_compileInfo($filepath, true);
+				$meta = tx_dam::meta_getDataForFile($fileInfo, '*');
+				if (!is_array($meta)) {
+					$fileType = tx_dam::file_getType ($filepath);
+					$meta = array_merge($fileInfo, $fileType);
+					$meta['uid'] = 0;
+				}
+				$id = $meta['uid'] ? $meta['uid'] : md5(tx_dam::file_absolutePath($fileInfo));
+				$items[$id] = array_merge($meta, $fileInfo);
+			}
+
+		} elseif (count($this->record['tx_dam'])) {
+			foreach ($this->record['tx_dam'] as $uid) {
+				if ($meta = tx_dam::meta_getDataByUid($uid, '*')) {
+					$fileInfo = tx_dam::file_compileInfo($meta, true);
+					$items[$meta['uid']] = array_merge($meta, $fileInfo);
+				}
+			}
+		}
+
+		return $items;
+	}
 
 
-	//*******************************
-	//
-	//	GUI stuff
-	//
-	//*******************************
 
+	/********************************
+	 *
+	 *	GUI stuff
+	 *
+	 ********************************/
 
 
 	/**
@@ -611,6 +673,8 @@ class tx_dam_cmd extends tx_dam_SCbase {
 				</div>';
 	}
 }
+
+
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php'])    {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php']);

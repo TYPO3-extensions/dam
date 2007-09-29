@@ -34,13 +34,15 @@
  *
  *
  *
- *   38: class tx_dam_cmd_folderdelete extends t3lib_extobjbase
- *   46:     function head()
- *   56:     function main()
- *   72:     function renderForm()
- *   91:     function processDelete()
+ *   60: class tx_dam_cmd_folderdelete extends t3lib_extobjbase
+ *   68:     function accessCheck()
+ *   78:     function head()
+ *   88:     function getContextHelp()
+ *   99:     function main()
+ *  138:     function renderForm()
+ *  188:     function path_isEmpty ($path)
  *
- * TOTAL FUNCTIONS: 4
+ * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -84,7 +86,7 @@ class tx_dam_cmd_folderdelete extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-// TODO csh
+#TODO csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
 	}
 

@@ -34,76 +34,85 @@
  *
  *
  *
- *  125: class tx_dam_indexing
+ *  134: class tx_dam_indexing
  *
  *              SECTION: Init and setup functions
- *  207:     function init()
- *  222:     function clearCollectedMeta()
- *  233:     function enableMetaCollect($metaCollect=TRUE)
- *  244:     function setIndexRun($tstamp=0)
- *  255:     function setRunType($type)
- *  266:     function setPath($path)
- *  277:     function setPathsList($pathlist)
- *  288:     function setRecursive($recursive=true)
- *  299:     function setPID($pid)
- *  310:     function setDryRun($dryRun=TRUE)
- *  321:     function enableReindexing($doReindexing=TRUE)
- *  331:     function isDryRun()
+ *  231:     function init()
+ *  260:     function clearCollectedMeta()
+ *  272:     function enableMetaCollect($metaCollect=TRUE)
+ *  283:     function setIndexRun($tstamp=0)
+ *  294:     function setRunType($type)
+ *  307:     function setPath($path)
+ *  320:     function setPathsList($pathlist)
+ *  333:     function setRecursive($recursive=true)
+ *  346:     function setPID($pid=0)
+ *  363:     function setDryRun($dryRun=TRUE)
+ *  380:     function enableReindexing($doReindexing=1)
+ *  393:     function setOptionsFromRules()
+ *  406:     function isDryRun()
  *
  *              SECTION: Setup re-storing functions
- *  352:     function serializeSetup($extraSetup='', $serializeData=true)
- *  375:     function restoreSerializedSetup($setup)
- *  406:     function getExtraSetup()
+ *  427:     function serializeSetup($extraSetup='', $serializeData=true)
+ *  454:     function restoreSerializedSetup($setup)
+ *  498:     function getExtraSetup()
  *
  *              SECTION: Setting/searching for default setup, eg. from file setup
- *  432:     function findSetupInPath($path, $walkUp=true, $basePath='')
- *  464:     function setDefaultSetup($path=false, $walkUp=true, $basePath='')
+ *  524:     function findSetupInPath($path, $walkUp=true, $basePath='')
+ *  545:     function setDefaultSetup($path=false, $walkUp=true, $basePath='')
  *
  *              SECTION: Main indexing functions
- *  498:     function indexUsingCurrentSetup($callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)
- *  517:     function indexFiles($files, $pid=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)
- *  586:     function indexFile($pathname, $crdate=0, $pid=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL, $metaPreset=array())
+ *  582:     function indexUsingCurrentSetup($callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)
+ *  606:     function indexFiles($files, $pid=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)
+ *  661:     function skipThisFile($fileInfo)
+ *  681:     function indexFile($pathname, $crdate=0, $pid=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL, $metaPreset=array())
  *
  *              SECTION: Indexing rules
- *  749:     function mergeRuleConf($ruleOpt)
- *  774:     function initEnabledRules()
- *  804:     function initAvailableRules()
- *  845:     function rulesCallback ($type, $meta, $pathname)
+ *  918:     function mergeRuleConf($ruleOpt='')
+ *  947:     function initEnabledRules()
+ *  976:     function initAvailableRules()
+ * 1024:     function rulesCallback ($type, $meta, $pathname)
  *
  *              SECTION: Collecting file meta data
- *  886:     function getFileMetaInfo($pathname, $meta)
- *  978:     function getMetaLanguage($meta)
- *  999:     function getFileNodeInfo($pathname, $calcHash=false)
- * 1023:     function getFileMimeType($pathname)
- * 1098:     function getFileTextExcerpt($pathname, $file_type, $limit=64000)
- * 1126:     function getWantedCharset()
- * 1141:     function processTextExcerpt($textExcerpt, $limit=64000)
- * 1165:     function getImageDimensions($pathname,$file_type='')
- * 1184:     function getDefaultRecord($table='tx_dam')
- * 1207:     function makeTitleFromFilename ($title)
- * 1222:     function listBeautify($list)
+ * 1071:     function getFileMetaInfo($pathname, $meta)
+ * 1171:     function getMetaLanguage($meta)
+ * 1195:     function getFileNodeInfo($pathname, $calcHash=false)
+ * 1223:     function getFileMimeType($pathname)
+ * 1308:     function getFileTextExcerpt($pathname, $file_type, $limit=64000)
+ * 1337:     function getWantedCharset()
+ * 1352:     function processTextExcerpt($textExcerpt, $limit=64000)
+ * 1376:     function getImageDimensions($pathname, $metaInfo=array())
+ * 1466:     function getDefaultRecord($table='tx_dam')
+ * 1492:     function makeTitleFromFilename ($title)
+ * 1513:     function listBeautify($list)
  *
  *              SECTION: Files, folders and paths
- * 1249:     function getFilesInDir($path, $recursive=FALSE, $filearray=array(), $maxDirs=999)
- * 1279:     function collectFiles($path, $recursive=false, $filearray=array())
- * 1301:     function collectFilesByPathList($pathlist, $recursive)
+ * 1540:     function getFilesInDir($path, $recursive=FALSE, $filearray=array(), $maxDirs=999)
+ * 1570:     function collectFiles($path, $recursive=false, $filearray=array())
+ * 1595:     function collectFilesByPathList($pathlist, $recursive)
  *
  *              SECTION: Rendering the option form and info
- * 1326:     function getIndexingOptionsForm()
- * 1347:     function getIndexingOptionsInfo()
- * 1374:     function formatOptionsFormRow ($varname, $setup, $title, $desc='', $options='')
+ * 1622:     function getIndexingOptionsForm()
+ * 1643:     function getIndexingOptionsInfo()
+ * 1670:     function formatOptionsFormRow ($varname, $setup, $title, $desc='', $options='')
+ *
+ *              SECTION: XML <> Array
+ * 1735:     function array2xml($array, $options=array(), $level=0, $stackData=array())
  *
  *              SECTION: Collect some stats
- * 1427:     function statBegin()
- * 1438:     function statMeta($meta)
- * 1455:     function statEnd()
- * 1464:     function statClear()
+ * 1878:     function statBegin()
+ * 1893:     function statMeta($meta)
+ * 1912:     function statEnd()
+ * 1923:     function statClear()
+ *
+ *              SECTION: Locking
+ * 1947:     function lock ($filename)
+ * 1978:     function unlock($sem_id)
  *
  *              SECTION: Logging
- * 1490:     function writeLog($indexRun, $type, $message, $itemCount, $error)
- * 1515:     function log($message, $itemCount, $error)
+ * 2008:     function writeLog($indexRun, $type, $message, $itemCount, $error)
+ * 2033:     function log($message, $itemCount, $error)
  *
- * TOTAL FUNCTIONS: 47
+ * TOTAL FUNCTIONS: 52
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -193,6 +202,11 @@ class tx_dam_indexing {
 	 */
 	 var $indexRunType = 'unkn';
 
+	 /**
+	  * Array of file extensions that define what files should be skipped while indexing
+	  */
+	var $skipFileTypes = array();
+
 	/**
 	 * used to collect some statistics
 	 */
@@ -215,12 +229,22 @@ class tx_dam_indexing {
 	 * @return	void
 	 */
 	function init()	{
+		global $TYPO3_CONF_VARS;
+			// enable dev logging if set
+		if ($TYPO3_CONF_VARS['SC_OPTIONS']['ext/dam/lib/class.tx_dam_indexing.php']['writeDevLog']) $this->writeDevLog = TRUE;
+		if (TYPO3_DLOG) $this->writeDevLog = TRUE;
+
+		if ($this->writeDevLog AND !isset($TYPO3_CONF_VARS['EXTCONF']['cc_devlog']['pid'])) 	$TYPO3_CONF_VARS['EXTCONF']['cc_devlog']['pid'] = tx_dam_db::getPid();
+		if ($this->writeDevLog) 	t3lib_div::devLog('## Beginning of dam indexing logging.', 'tx_dam_indexing');
+
 		$this->ruleConf = array();
 		$this->dataPreset = array();
 		$this->dataPostset = array();
 		$this->dataAppend = array();
 		$this->stat = array();
 		$this->indexRun = time();
+
+		$this->skipFileTypes = t3lib_div::trimExplode(',', $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['skipFileTypes'], true);
 
 		$this->clearCollectedMeta();
 
@@ -242,7 +266,7 @@ class tx_dam_indexing {
 	/**
 	 * Should the indexed meta data collected into $this->meta?
 	 *
-	 * @param	boolean		If set the indexed meta data collected into $this->meta
+	 * @param	boolean		$metaCollect If set the indexed meta data collected into $this->meta
 	 * @return	void
 	 */
 	function enableMetaCollect($metaCollect=TRUE)	{
@@ -269,46 +293,54 @@ class tx_dam_indexing {
 	 */
 	function setRunType($type)	{
 		$this->indexRunType = $type;
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('setRunType(): '.$this->indexRunType, 'tx_dam_indexing');
 	}
 
 
 	/**
 	 * Set the folder to index
 	 *
-	 * @param	string		the folder to index
+	 * @param	string		$paththe folder to index
 	 * @return	void
 	 */
 	function setPath($path)	{
 		$this->pathlist = array($path);
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('setPath(): '.$path, 'tx_dam_indexing');
 	}
 
 
 	/**
 	 * Set the list of folders and files to index
 	 *
-	 * @param	array		the list of folders and files to index
+	 * @param	array		$pathlist the list of folders and files to index
 	 * @return	void
 	 */
 	function setPathsList($pathlist)	{
 		$this->pathlist = $pathlist;
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('setPathsList()', 'tx_dam_indexing', 0, $this->pathlist);
 	}
 
 
 	/**
 	 * Set the the paths to be be traversed recursivley (or not)
 	 *
-	 * @param	boolean		If set the paths will be traversed recursivley
+	 * @param	boolean		$recursive If set the paths will be traversed recursivley
 	 * @return	void
 	 */
 	function setRecursive($recursive=true)	{
 		$this->recursive = $recursive;
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('setRecursive(): '.($this->recursive?'true':'false'), 'tx_dam_indexing');
 	}
 
 
 	/**
 	 * Set Pid of the sysfolder where the DAM records should be written
 	 *
-	 * @param	integer		page id
+	 * @param	integer		$pid page id
 	 * @return	void
 	 */
 	function setPID($pid=0)	{
@@ -317,28 +349,52 @@ class tx_dam_indexing {
 		} elseif ($pid) {
 			$this->pid = $pid;
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('setPID(): '.$this->pid, 'tx_dam_indexing');
 	}
 
 
 	/**
 	 * Set dry run
 	 *
-	 * @param	boolean		If set indexed data will not be written to db
+	 * @param	boolean		$dryRun If set indexed data will not be written to db
 	 * @return	void
 	 */
 	function setDryRun($dryRun=TRUE)	{
 		$this->dryRun = $dryRun;
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('setDryRun(): '.($this->dryRun?'true':'false'), 'tx_dam_indexing');
+	}
+
+// TODO use constants
+	/**
+	 * Enable reindexing
+	 * Modes:
+	 * 1 = overwrite empty fields
+	 * 2 = overwrite fields but preserve data when no new data is available
+	 * 99 = overwrite index completely
+	 *
+	 * @param	integer		$doReindexing If set already indexed files will be reindexed. Value defines mode
+	 * @return	void
+	 */
+	function enableReindexing($doReindexing=1)	{
+		$this->doReindexing = $doReindexing;
+		$this->ruleConf['tx_damindex_rule_doReindexing']['enabled'] = $doReindexing;
+		$this->ruleConf['tx_damindex_rule_doReindexing']['mode'] = $doReindexing;
+		if ($this->writeDevLog) 	t3lib_div::devLog('enableReindexing(): '.($this->doReindexing?'true':'false'), 'tx_dam_indexing');
 	}
 
 
 	/**
-	 * Do reindexing
+	 * Will set main options automatically from $this->ruleConf: doReindexing, dryRun, setRecursive
 	 *
-	 * @param	boolean		If set already indexed files will be reindexed
 	 * @return	void
 	 */
-	function enableReindexing($doReindexing=TRUE)	{
-		$this->doReindexing = $doReindexing;
+	function setOptionsFromRules()	{
+		if ($this->writeDevLog) 	t3lib_div::devLog('setOptionsFromRules()', 'tx_dam_indexing');
+		$this->enableReindexing(($this->ruleConf['tx_damindex_rule_doReindexing']['enabled'] ? intval($this->ruleConf['tx_damindex_rule_doReindexing']['mode']) : false));
+		$this->setRecursive($this->ruleConf['tx_damindex_rule_recursive']['enabled']);
+		$this->setDryRun($this->ruleConf['tx_damindex_rule_dryRun']['enabled']);
 	}
 
 
@@ -382,6 +438,9 @@ class tx_dam_indexing {
 			'collectMeta' => $this->collectMeta,
 			'extraSetup' => $extraSetup,
 			);
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('serializeSetup', 'tx_dam_indexing', 0, $setup);
+
 		return $serializeData ? t3lib_div::array2xml($setup) : $setup;
 	}
 
@@ -402,6 +461,8 @@ class tx_dam_indexing {
 		if(is_array($setup)) {
 			$isValid = true;
 
+			if ($this->writeDevLog) 	t3lib_div::devLog('restoreSerializedSetup: valid', 'tx_dam_indexing', 0, $setup);
+
 			$this->pid = $setup['pid'];
 			$this->pathlist = $setup['pathlist'];
 
@@ -411,7 +472,7 @@ class tx_dam_indexing {
 			$this->dataPostset = $setup['dataPostset'];
 			$this->dataAppend = $setup['dataAppend'];
 			$this->dryRun = $setup['dryRun'];
-			$this->doReindexing = $setup['doReindexing'];
+			$this->enableReindexing($setup['doReindexing']);
 			$this->collectMeta = $setup['collectMeta'];
 
 			$this->extraSetup = $setup['extraSetup'];
@@ -421,7 +482,10 @@ class tx_dam_indexing {
 			if (!is_array($this->dataPostset)) $this->dataPostset = array();
 			if (!is_array($this->dataAppend)) $this->dataAppend = array();
 
+		} else {
+			if ($this->writeDevLog) 	t3lib_div::devLog('restoreSerializedSetup: invalid', 'tx_dam_indexing', 1, $setup);
 		}
+
 		return $isValid;
 	}
 
@@ -462,24 +526,11 @@ class tx_dam_indexing {
 		$fileName = '.indexing.setup.xml';
 
 		$path = tx_dam::path_makeAbsolute($path);
+		$filepath = tx_dam::tools_findFileInPath($fileName, $path, $walkUp, $basePath);
 
-		return tx_dam::tools_findFileInPath($fileName, $path, $walkUp, $basePath);
+		if ($this->writeDevLog) 	t3lib_div::devLog('findSetupInPath(): '.($filepath?'true':'false'), 'tx_dam_indexing', 0, $filepath);
 
-//		if (is_file($path.$fileName) AND is_readable($path.$fileName)) {
-//
-//			$setup = t3lib_div::getUrl($path.$fileName);
-//			return $setup;
-//		}
-//
-//		if (!$walkUp OR ($path == $basePath)) {
-//			return false;
-//		}
-//
-//		if (tx_dam::path_makeRelative($path)=='') {
-//			return false;
-//		}
-//
-//		return $this->findSetupInPath(dirname($path), $walkUp, $basePath);
+		return $filepath;
 	}
 
 
@@ -503,9 +554,11 @@ class tx_dam_indexing {
 
 		if ($setup) {
 			$this->restoreSerializedSetup($setup);
-		} else {
+			if ($this->writeDevLog) 	t3lib_div::devLog('setDefaultSetup: used setup from folder', 'tx_dam_indexing', 0, $setup);
 
+		} else {
 			$this->restoreSerializedSetup($TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['defaultSetup']);
+			if ($this->writeDevLog) 	t3lib_div::devLog('setDefaultSetup: used default setup', 'tx_dam_indexing', 0, $TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['defaultSetup']);
 		}
 	}
 
@@ -528,8 +581,13 @@ class tx_dam_indexing {
 	 */
 	function indexUsingCurrentSetup($callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)	{
 		if(is_array($this->pathlist) AND count($this->pathlist) AND $this->pid) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('indexUsingCurrentSetup: pathlist and pid, alright', 'tx_dam_indexing', 0, $this->pathlist);
+
 			$files = $this->collectFilesByPathList($this->pathlist, $this->recursive);
 			return $this->indexFiles($files, $this->pid, $callbackFunc, $metaCallbackFunc, $filePreprocessingCallbackFunc);
+
+		} else {
+			if ($this->writeDevLog) 	t3lib_div::devLog('indexUsingCurrentSetup: no pathlist or pid', 'tx_dam_indexing', 1, $this->serializeSetup());
 		}
 	}
 
@@ -548,6 +606,7 @@ class tx_dam_indexing {
 	function indexFiles($files, $pid=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)	{
 
 		if (is_array($files) && count($files)) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('indexFiles(): have files to index', 'tx_dam_indexing', 0, $files);
 
 			$this->setIndexRun();
 
@@ -557,27 +616,30 @@ class tx_dam_indexing {
 
 			$this->initEnabledRules();
 
-			foreach($this->rules as $classname => $setup)	{
-				$this->rules[$classname]['obj']->preIndexing();
+			foreach($this->rules as $ruleId => $setup)	{
+				$this->rules[$ruleId]['obj']->preIndexing();
 			}
 
 			foreach($files as $key => $pathname) {
+
+				if ($this->writeDevLog) 	t3lib_div::devLog('indexFiles(): '.$pathname, 'tx_dam_indexing');
 
 // TODO search for default setup for THIS file path
 // cache path setup in array
 				$meta = $this->indexFile($pathname, $this->indexRun, $pid, $metaCallbackFunc, $filePreprocessingCallbackFunc);
 
-				if($callbackFunc) {
+				if($meta AND $callbackFunc) {
 					call_user_func ($callbackFunc, 'postTrigger', $meta, $pathname, $key, $this);
+					if ($this->writeDevLog) 	t3lib_div::devLog('indexFiles(): call_user_func: '.@get_class($callbackFunc[0]).'->'.$callbackFunc[1].' (postTrigger)', 'tx_dam_indexing');
 				}
 
 			}
 
-			foreach($this->rules as $classname => $setup)	{
-				$this->rules[$classname]['obj']->postIndexing($this->infoList);
+			foreach($this->rules as $ruleId => $setup)	{
+				$this->rules[$ruleId]['obj']->postIndexing($this->infoList);
 			}
 
-			$this->statEnd($meta);
+			$this->statEnd();
 
 			if($this->stat['newIndexed']) {
 				$this->log ('New files indexed', $this->stat['newIndexed'], 0);
@@ -590,7 +652,18 @@ class tx_dam_indexing {
 	}
 
 
-
+	/**
+	 * Detects if this file should be skipped while indexing
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @return boolean
+	 */
+	function skipThisFile($fileInfo) {
+		if (in_array($fileInfo['file_extension'], $this->skipFileTypes)) {
+			return true;
+		}
+		return false;
+	}
 
 
 	/**
@@ -606,7 +679,9 @@ class tx_dam_indexing {
 	 * @return	array		Meta data array. $meta['fields'] has the record data.
 	 */
 	function indexFile($pathname, $crdate=0, $pid=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL, $metaPreset=array())	{
-		global $BE_USER;
+
+
+		$pathname = tx_dam::file_absolutePath($pathname);
 
 
 			// locks the indexing for the current file
@@ -614,38 +689,57 @@ class tx_dam_indexing {
 			// This means the indexing goes then
 		$lockId = $this->lock($pathname);
 
-
 		$pid = is_null($pid) ? $this->pid : $pid;
 
 		if ($filePreprocessingCallbackFunc) {
 			call_user_func ($filePreprocessingCallbackFunc, 'filePreprocessing', $pathname, $this);
+
+			if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): call filePreprocessingCallbackFunc', 'tx_dam_indexing', 0, $filePreprocessingCallbackFunc);
 		}
 
-// might be possible to have $pathname call by reference and change the filename - usable for copying files before indexing??? Needs to be tested.
-// Answer: Note that the parameters for call_user_func() are not passed by reference.
+		// might be possible to have $pathname call by reference and change the filename - usable for copying files before indexing??? Needs to be tested.
+		// Answer: Note that the parameters for call_user_func() are not passed by reference.
 
-		if (is_array($meta = $this->getFileNodeInfo($pathname, true))) {
+		$meta = $this->getFileNodeInfo($pathname, true);
 
+		if ($this->skipThisFile($meta['file'])) {
+
+			unset($meta);
+			$this->log ('Skipped file: '.$pathname, 1, 0);
+			if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): file skipped: '.$pathname, 'tx_dam_indexing');
+
+		} elseif (is_array($meta)) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('indexFile() - got file node info: '.$pathname, 'tx_dam_indexing', 0, $meta);
+
+			if ($this->writeDevLog AND $metaPreset) 	t3lib_div::devLog('indexFile: use meta preset', 'tx_dam_indexing', 0, $metaPreset);
 			$meta = t3lib_div::array_merge_recursive_overrule($metaPreset, $meta);
 
 			$status = tx_dam::index_check ($meta['fields'], $meta['fields']['file_hash']);
 			$uid = intval($status['meta']['uid']);
 
 			if ($uid) {
+				if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): file already indexed (uid:'.$uid.')', 'tx_dam_indexing', 0, $status);
 
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_dam', 'uid='.intval($uid));
 				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+
+				if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): fetch index data for reindexing', 'tx_dam_indexing', 0, $row);
 
 					// this is needed for fields like group/MM
 				require_once (PATH_t3lib.'class.t3lib_transferdata.php');
 				$processData = t3lib_div::makeInstance('t3lib_transferData');
 				$row = $processData->renderRecordRaw('tx_dam', $row['uid'], $row['pid'], $row);
 
+				if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): call t3lib_transferdata->renderRecordRaw() for data from index', 'tx_dam_indexing', 0, $row);
+
 					// index rule use 'row' for merging
 				$meta['row'] = $row;
+				$meta['indexExist'] = true;
 				$meta['reindexed'] = $this->doReindexing;
 			} else {
 				$uid = 'NEW';
+				$meta['indexExist'] = false;
+				$meta['reindexed'] = false;
 			}
 
 // TODO handle TXDAM_file_missing and reconnect file to index
@@ -673,20 +767,20 @@ class tx_dam_indexing {
 
 				$meta['fields']['search_content'] = $meta['textExtract'];
 
-				$meta['fields']['abstract'] = $meta['fields']['abstract']?$meta['fields']['abstract']:trim($meta['fields']['search_content']);
+				$meta['fields']['abstract'] = $meta['fields']['abstract'] ? $meta['fields']['abstract'] : trim($meta['fields']['search_content']);
 
 
 				$meta['fields']['language'] = $this->getMetaLanguage($meta);
 
 
-				$meta['fields']['file_dl_name'] = $meta['fields']['file_dl_name']?$meta['fields']['file_dl_name']:$meta['fields']['file_name'];
+				$meta['fields']['file_dl_name'] = $meta['fields']['file_dl_name'] ? $meta['fields']['file_dl_name'] : $meta['fields']['file_name'];
 
-				$meta['fields']['crdate'] = $crdate?$crdate:time();
+				$meta['fields']['crdate'] = $crdate ? $crdate : time();
 				$meta['fields']['tstamp'] = time();
-				$meta['fields']['cruser_id'] = intval($BE_USER->user['uid']);
+				$meta['fields']['cruser_id'] = intval($GLOBALS['BE_USER']->user['uid']);
 
-				$meta['fields']['date_cr'] = $meta['fields']['date_cr']?$meta['fields']['date_cr']:time();
-				$meta['fields']['date_mod'] = $meta['fields']['date_mod']?$meta['fields']['date_mod']:$meta['fields']['date_cr'];
+				$meta['fields']['date_cr'] = $meta['fields']['date_cr'] ? $meta['fields']['date_cr'] : time();
+				$meta['fields']['date_mod'] = $meta['fields']['date_mod'] ? $meta['fields']['date_mod'] : $meta['fields']['date_cr'];
 
 // TODO category handling - merging?
 
@@ -699,25 +793,41 @@ class tx_dam_indexing {
 				}
 
 				$fieldsUpdated = tx_dam_db::getUpdateData($meta['fields'], $this->dataPostset, $this->dataAppend);
-				$meta['fields'] = array_merge($meta['fields'],$fieldsUpdated);
+				$meta['fields'] = array_merge($meta['fields'], $fieldsUpdated);
 
 
 				$meta = $this->rulesCallback('process', $meta, $pathname);
 				if ($metaCallbackFunc) {
 					$meta = call_user_func ($metaCallbackFunc, 'process', $meta, $pathname, $this);
+					if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): call_user_func: '.@get_class($metaCallbackFunc[0]).'->'.$metaCallbackFunc[1].' (process)', 'tx_dam_indexing', 0, $meta);
+
 				}
 
+				$meta['failure'] = false;
 				if (!$this->dryRun) {
+
+					if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): call tx_dam_db::insertUpdateData()', 'tx_dam_indexing', 0, $meta['fields']);
+
 					$meta['fields']['uid'] = tx_dam_db::insertUpdateData($meta['fields']);
-					if (!$meta['fields']['uid']) {
-						$this->log ('Meta record could not be inserted: '.$pathname, 1, 1);
+
+					if (!intval($meta['fields']['uid'])) {
+						list($error, $errorMsg) = tx_dam_db::getLastError();
+						$meta['failure'] = 'Meta record could not be inserted: '.$errorMsg;
+						$this->log ('Meta record could not be inserted: '.$pathname.'. '.$errorMsg, 1, 1);
+					} else {
+						if ($this->writeDevLog) 	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_dam', 'uid='.intval($meta['fields']['uid']));
+						if ($this->writeDevLog) 	$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+						if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): written to index', 'tx_dam_indexing', 0, $row);
 					}
 				}
 
-				if($meta['fields']['uid']) {
+				if(intval($meta['fields']['uid'])) {
+					$meta['isIndexed'] = true;
 					$this->infoList[] = array(
 						'uid' => $meta['fields']['uid'],
 						'title' => $meta['fields']['title'],
+						'file_name' => $meta['fields']['file_name'],
+						'file_path' => $meta['fields']['file_path'],
 						'reindexed' => $meta['reindexed'],
 						);
 					$this->stat['newIndexed'] += ($meta['reindexed'] ? 0 : 1);
@@ -727,10 +837,11 @@ class tx_dam_indexing {
 				$meta = $this->rulesCallback('post', $meta, $pathname);
 				if ($metaCallbackFunc) {
 					$meta = call_user_func ($metaCallbackFunc, 'post', $meta, $pathname, $this);
+					if ($this->writeDevLog) 	t3lib_div::devLog('indexFile(): call_user_func: '.@get_class($metaCallbackFunc[0]).'->'.$metaCallbackFunc[1].' (post)', 'tx_dam_indexing', 0, $meta);
 				}
 
+				$currentUid = $meta['fields']['uid'] ? $meta['fields']['uid'] : '_NO_UID_'.(string)($this->noIdCounter++);
 				if ($this->collectMeta) {
-					$currentUid = $meta['fields']['uid'];
 					$this->meta[$currentUid] = $meta;
 				}
 
@@ -742,7 +853,7 @@ class tx_dam_indexing {
 
 						if (file_exists($pathname)) {
 							if ($meta['fields']['file_hash'] AND $fileDef['fileStorageType'] == 'moveToInternal') {
-								$storageFolder = PATH_site.'uploads/tx_dam/'.$meta['fields']['file_hash'].'/';
+								$storageFolder = PATH_site.'uploads/tx_dam/storage/'.$meta['fields']['file_hash'].'/';
 								$targetFile = $storageFolder.basename($pathname);
 								if(!is_dir($storageFolder)) {
 									t3lib_div::mkdir ($storageFolder);
@@ -761,7 +872,6 @@ class tx_dam_indexing {
 				$this->statMeta($meta);
 
 				$this->unlock($lockId);
-
 				return $meta;
 
 
@@ -776,10 +886,10 @@ class tx_dam_indexing {
 			}
 
 		} else {
-			if(!is_file($pathname)) {
+			if(!@is_file($pathname)) {
 				$this->log ('Is not a file: '.$pathname, 1, 1);
 
-			} elseif (!is_readable($pathname)) {
+			} elseif (!@is_readable($pathname)) {
 				$this->log ('Is not readable: '.$pathname, 1, 1);
 			}
 		}
@@ -806,20 +916,25 @@ class tx_dam_indexing {
 	 * @return	void
 	 */
 	function mergeRuleConf($ruleOpt='') {
-			// walk through the index rules
-		$this->initAvailableRules();
-		foreach($this->rules as $classname => $setup)	{
 
-			if (is_array($ruleOpt) AND is_array($ruleOpt[$classname])) {
+		if ($this->writeDevLog AND $ruleOpt) 	t3lib_div::devLog('mergeRuleConf() conf passed', 'tx_dam_indexing', 0, $ruleOpt);
+
+		$this->initAvailableRules();
+
+		foreach($this->rules as $ruleId => $setup)	{
+
+			if (is_array($ruleOpt) AND is_array($ruleOpt[$ruleId])) {
 					// this is set in the class itself
-				unset($ruleOpt[$classname]['shy']);
-				$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $ruleOpt[$classname]);
+				unset($ruleOpt[$ruleId]['shy']);
+				$this->rules[$ruleId]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$ruleId]['obj']->setup, $ruleOpt[$ruleId]);
 			} else {
-				$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $this->ruleConf[$classname]);
+				$this->rules[$ruleId]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$ruleId]['obj']->setup, $this->ruleConf[$ruleId]);
 			}
-			$this->rules[$classname]['obj']->processOptionsForm();
-			$this->ruleConf[$classname] = $this->rules[$classname]['obj']->setup;
+			$this->rules[$ruleId]['obj']->processOptionsForm();
+			$this->ruleConf[$ruleId] = $this->rules[$ruleId]['obj']->setup;
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('mergeRuleConf()', 'tx_dam_indexing', 0, $this->ruleConf);
 	}
 
 
@@ -834,23 +949,22 @@ class tx_dam_indexing {
 
 		$this->initAvailableRules();
 
-		$this->rules=array();
+		$this->rules = array();
 		if (is_array($this->ruleConf))	{
-			foreach($this->ruleConf as $classname => $setup)	{
+			foreach($this->ruleConf as $ruleId => $setup)	{
 
-				if ($setup['enabled'] AND is_object($obj = &t3lib_div::getUserObj($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'][$classname],'user_',TRUE)))      {
+				if ($setup['enabled'] AND is_object($obj = &t3lib_div::getUserObj($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'][$ruleId],'user_',TRUE)))      {
 
-					$this->rules[$classname]['obj'] = &$obj;
-					if (is_array($this->ruleConf[$classname])) {
-						$this->rules[$classname]['obj']->setup = array_merge($this->rules[$classname]['obj']->setup, $this->ruleConf[$classname]);
+					$this->rules[$ruleId]['obj'] = &$obj;
+					if (is_array($this->ruleConf[$ruleId])) {
+						$this->rules[$ruleId]['obj']->setup = array_merge($this->rules[$ruleId]['obj']->setup, $this->ruleConf[$ruleId]);
 					}
-					$this->rules[$classname]['shy'] = $this->rules[$classname]['obj']->setup['shy'];
-					$this->rules[$classname]['title'] = $this->rules[$classname]['obj']->getTitle();
-					$this->rules[$classname]['desc'] = $this->rules[$classname]['obj']->getDescription();
-
+					$this->rules[$ruleId]['shy'] = $this->rules[$ruleId]['obj']->setup['shy'];
 				}
 			}
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('initEnabledRules()', 'tx_dam_indexing', 0, $this->rules);
 	}
 
 
@@ -866,26 +980,33 @@ class tx_dam_indexing {
 				// init already done
 			return;
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('initAvailableRules()', 'tx_dam_indexing', 0, $TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses']);
+
 		$this->rules=array();
+
 		if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses']))	{
-			foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'] as $classname => $classfile)	{
-				if (is_object($obj = &t3lib_div::getUserObj($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'][$classname])))      {
+			foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'] as $ruleId => $classfile)	{
+
+				if ($this->writeDevLog) 	t3lib_div::devLog('initAvailableRules(): '.$ruleId.' '.$classfile, 'tx_dam_indexing');
+
+				if (is_object($obj = &t3lib_div::getUserObj($classfile)))      {
 
 						// this is set in the class itself
-					unset($this->ruleConf[$classname]['shy']);
+					unset($this->ruleConf[$ruleId]['shy']);
 
-					$this->rules[$classname]['obj'] = &$obj;
+					$this->rules[$ruleId]['obj'] = &$obj;
+
+
 // TODO maybe a bug? when is that not an array???? PHP5 bug?
-					if (is_array($this->ruleConf[$classname])) {
-						$this->rules[$classname]['obj']->setup = array_merge($this->rules[$classname]['obj']->setup, $this->ruleConf[$classname]);
+					if (is_array($this->ruleConf[$ruleId])) {
+						$this->rules[$ruleId]['obj']->setup = array_merge($this->rules[$ruleId]['obj']->setup, $this->ruleConf[$ruleId]);
 					} else {
-						$this->ruleConf[$classname] = $this->rules[$classname]['obj']->setup;
+						$this->ruleConf[$ruleId] = $this->rules[$ruleId]['obj']->setup;
 					}
 
 						// visible
-					$this->rules[$classname]['shy'] = $this->rules[$classname]['obj']->setup['shy'];
-					$this->rules[$classname]['title'] = $this->rules[$classname]['obj']->getTitle();
-					$this->rules[$classname]['desc'] = $this->rules[$classname]['obj']->getDescription();
+					$this->rules[$ruleId]['shy'] = $this->rules[$ruleId]['obj']->setup['shy'];
 				}
 			}
 		}
@@ -901,6 +1022,9 @@ class tx_dam_indexing {
 	 * @return	array		file meta information
 	 */
 	function rulesCallback ($type, $meta, $pathname) {
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('rulesCallback(): '.$type, 'tx_dam_indexing', 0);
+
 		if (is_array($this->rules)) {
 			foreach($this->rules as $rule)	{
 				switch ($type) {
@@ -908,17 +1032,20 @@ class tx_dam_indexing {
 					case 'process':
 					default:
 						if(is_callable(array($rule['obj'], 'processMeta'))) {
+							if ($this->writeDevLog) 	t3lib_div::devLog('rulesCallback(): '.get_class($rule['obj']).'->processMeta', 'tx_dam_indexing', 0, $meta);
 							$meta = $rule['obj']->processMeta($meta, $pathname, $this);
 						}
 					break;
 
 					case 'post':
 						if(is_callable(array($rule['obj'], 'postProcessMeta'))) {
+							if ($this->writeDevLog) 	t3lib_div::devLog('rulesCallback(): '.get_class($rule['obj']).'->postProcessMeta', 'tx_dam_indexing', 0, $meta);
 							$meta = $rule['obj']->postProcessMeta($meta, $pathname, $this);
 						}
 					break;
 				}
 			}
+			if ($this->writeDevLog) 	t3lib_div::devLog('rulesCallback(): finished', 'tx_dam_indexing', 0, $meta);
 		}
 		return $meta;
 	}
@@ -977,16 +1104,21 @@ class tx_dam_indexing {
 			}
 
 
-// TODO should iptc or exif come first? I guess IPTC is more important while it is edited by hand normally. Also exif and iptc should not conflict.
-			$metaExtractServices = array(TXDAM_mtype_image => 'image:exif, image:iptc');
-// TODO should be possible to register other services too
-
 
 				// make simple image size detection if not yet done
 			if ($meta['fields']['media_type'] == TXDAM_mtype_image AND intval($meta['fields']['hpixels']) == 0) {
-				$imgsize = $this->getImageDimensions ($pathname);
+				$imgsize = $this->getImageDimensions ($pathname, $meta);
 				$meta = t3lib_div::array_merge_recursive_overrule($meta, $imgsize);
 			}
+
+
+			if ($meta['fields']['meta']['xmp']) {
+				$metaExtractServices = array(TXDAM_mtype_image => 'image:exif');
+			} else {
+				$metaExtractServices = array(TXDAM_mtype_image => 'image:exif, image:iptc');
+			}
+// TODO should be possible to register other services too
+
 
 					// read exif, iptc data
 			if ($metaExtractServices[$meta['fields']['media_type']]) {	// 2
@@ -1012,7 +1144,7 @@ class tx_dam_indexing {
 				// convert extra meta data to xml
 			if (is_array($meta['fields']['meta'])) {
 					// content in array is expected as utf-8 because of xml functions
-				$meta['fields']['meta'] = t3lib_div::array2xml($meta['fields']['meta']);
+				$meta['fields']['meta'] = $this->array2xml($meta['fields']['meta']);
 			}
 
 			// If no title then the file-name is set as title. This will raise the hits considerably if the search matches the document name.
@@ -1023,6 +1155,9 @@ class tx_dam_indexing {
 			$meta['fields']['keywords'] = $this->listBeautify($meta['fields']['keywords']);
 
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('getFileMetaInfo()', 'tx_dam_indexing', 0, $meta);
+
 		return $meta;
 	}
 
@@ -1037,11 +1172,14 @@ class tx_dam_indexing {
 		$language = '';
 
 		if ($meta['fields']['search_content'] AND is_object($serviceObj = t3lib_div::makeInstanceService('textLang'))) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('getMetaLanguage() call service : '.$serviceObj->getServiceTitle().' ('.$serviceObj->getServiceKey().')', 'tx_dam_indexing');
 			$serviceObj->process($meta['fields']['search_content']);
 			$language = $serviceObj->getOutput();
 			$serviceObj->__destruct();
 			unset($serviceObj);
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('getMetaLanguage(): '.$language, 'tx_dam_indexing');
 
 		return $language;
 	}
@@ -1062,11 +1200,15 @@ class tx_dam_indexing {
 
 		if (is_array($fileInfo) && $fileInfo['__exists']) {
 			$meta = array();
-			$meta['fields'] = $fileInfo;
 			if($calcHash) {
-				$meta['fields']['file_hash'] = tx_dam::file_calcHash($fileInfo);
+				$fileInfo['file_hash'] = tx_dam::file_calcHash($fileInfo);
 			}
+			$meta['fields'] = $fileInfo;
+			$meta['file'] = $fileInfo;
 		}
+
+		if ($this->writeDevLog AND $meta) 	t3lib_div::devLog('getFileNodeInfo()', 'tx_dam_indexing', 0, $fileInfo);
+		if ($this->writeDevLog AND !$meta) 	t3lib_div::devLog('getFileNodeInfo() failed', 'tx_dam_indexing', 1, $fileInfo);
 
 		return $meta;
 	}
@@ -1080,6 +1222,9 @@ class tx_dam_indexing {
 	 */
 	function getFileMimeType($pathname)	{
 
+			// this will be called from tx_dam therefore $pathname can be a fileInfo array
+		$pathname = tx_dam::file_absolutePath($pathname);
+
 		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
 
 		$mimeType = array();
@@ -1090,17 +1235,21 @@ class tx_dam_indexing {
 
 		$fileinfo = pathinfo($pathname);
 		$mimeType['file_type'] = strtolower($fileinfo['extension']);
+			// cleanup bakup files extension
+		$mimeType['file_type'] = preg_replace('#\~$#', '', $mimeType['file_type']);
 
 			// try first to get the mime type by extension with own array
 			// I made the experience that it is a bit safer than with 'file'
 		if (isset($TX_DAM['file2mime'][$mimeType['file_type']])) {
 
 			$mt = $TX_DAM['file2mime'][$mimeType['file_type']];
+			if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used builtin conversion table', 'tx_dam_indexing');
 
 			// next try
 		} elseif(function_exists('mime_content_type')) {
 				// available in PHP 4.3.0
 			$mt = mime_content_type($pathname);
+			if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used mime_content_type()', 'tx_dam_indexing');
 
 			// last chance
 		} else {
@@ -1125,6 +1274,7 @@ class tx_dam_indexing {
 					}
 				}
 			}
+			if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used t3lib_exec::getCommand(\'file\')', 'tx_dam_indexing');
 		}
 
 		$mtarr = explode ('/', $mt);
@@ -1138,6 +1288,8 @@ class tx_dam_indexing {
 		if ($mimeType['file_type'] == '') {
 			$mimeType['file_type'] = array_search($mimeType['fulltype'], $TX_DAM['file2mime'], true);
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType()', 'tx_dam_indexing', 0, $mimeType);
 
 		unset($mimeType['fulltype']);
 
@@ -1158,6 +1310,7 @@ class tx_dam_indexing {
 		$textExcerpt = FALSE;
 
 		if (is_object($serviceObj = t3lib_div::makeInstanceService('textExtract',$file_type))) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('getFileTextExcerpt() call service : '.$serviceObj->getServiceTitle().' ('.$serviceObj->getServiceKey().')', 'tx_dam_indexing');
 
 			$conf = array();
 
@@ -1216,18 +1369,89 @@ class tx_dam_indexing {
 	 * get the image size of an file in pixels
 	 * TODO use service?
 	 *
-	 * @param	string		file with absolut path
-	 * @param	string		file type like 'jpg'
+	 * @param	string		$pathnamefile with absolut path
+	 * @param	array		$metaInfo
 	 * @return	array
 	 */
-	function getImageDimensions($pathname,$file_type='') {
+	function getImageDimensions($pathname, $metaInfo=array()) {
 		$meta = array();
 
-		if(function_exists('getimagesize')) {
-			$size = getImageSize($pathname);
+		if ($GLOBALS['TYPO3_CONF_VARS']['GFX']['im'])	{
+			$frame = $GLOBALS['TYPO3_CONF_VARS']['GFX']['im_noFramePrepended']?'':'[0]';
+			$format = 'magic:%m \npage_size:%P \npage_geometry:%g \nsize:%wx%h \nx-resolution:%x \ny-resolution:%y \nimage_depth:%z \nquantum_depth:%q \ncolorspace:%r \nbounding_box:%@';
+			$cmd = t3lib_div::imageMagickCommand('identify', '-format '.escapeshellarg($format).' '.escapeshellarg($pathname).$frame);
+			$output = array();
+			exec($cmd, $output);
+			foreach($output as $line)	{
+				list($key, $value) = explode(':', $line);
+				$value = trim($value);
+				if ($value) {
+					switch (trim($key)) {
+						case 'size':
+									$size = explode('x', $value);
+									if (intval($size[0]) && intval($size[1]))	{
+										$meta['fields']['hpixels'] = $size[0];
+										$meta['fields']['vpixels'] = $size[1];
+									}
+							break;
+						case 'x-resolution':
+									$res = explode(' ', $value);
+									$meta['fields']['hres'] = intval($res[0]);
+							break;
+						case 'y-resolution':
+									$res = explode(' ', $value);
+									$meta['fields']['vres'] = intval($res[0]);
+							break;
+						case 'colorspace':
+									if (preg_match('#[a-z]+Class[a-z]+#i', $value, $matches)) {
+										switch ($matches[0]) {
+											case 'DirectClassGray':
+											case 'DirectClassGrayMatte':
+												$meta['fields']['color_space'] = 'grey';
+												break;
+											case 'DirectClassCMYK':
+												$meta['fields']['color_space'] = 'CMYK';
+												break;
+											case 'PseudoClassRGB':
+												$meta['fields']['color_space'] = 'indx';
+												break;
+
+											case 'DirectClassRGB':
+											case 'DirectClassRGBMatte':
+											default:
+												$meta['fields']['color_space'] = 'RGB';
+												break;
+										}
+									}
+							break;
+
+						default:
+							break;
+					}
+				}
+			}
+		}
+
+		if(!$meta['fields']['hpixels'] AND function_exists('getimagesize')) {
+			$size = @getImageSize($pathname);
 			$meta['fields']['hpixels'] = $size[0];
 			$meta['fields']['vpixels'] = $size[1];
+			$meta['fields']['hres'] = 72;
+			$meta['fields']['vres'] = 72;
+			if ($metaInfo['fields']['file_type']=='gif') {
+				$meta['fields']['color_space'] = 'indx';
+			} else {
+				$meta['fields']['color_space'] = 'RGB';
+			}
 		}
+
+		if (!$meta['fields']['height_unit'] AND $meta['fields']['hres'] AND $meta['fields']['vres']) {
+			$meta['fields']['height_unit'] = 'mm';
+			$meta['fields']['width'] = intval(round($meta['fields']['hpixels']/$meta['fields']['hres']*25.4));
+			$meta['fields']['height'] = intval(round($meta['fields']['vpixels']/$meta['fields']['vres']*25.4));
+		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('getImageDimensions(): '.$meta['fields']['hpixels'].'x'.$meta['fields']['vpixels'], 'tx_dam_indexing', 0, $meta);
 
 		return $meta;
 	}
@@ -1252,6 +1476,9 @@ class tx_dam_indexing {
 				}
 			}
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('getDefaultRecord()', 'tx_dam_indexing', 0, $row);
+
 		return $row;
 	}
 
@@ -1263,12 +1490,16 @@ class tx_dam_indexing {
 	 * @return	string		Title string
 	 */
 	function makeTitleFromFilename ($title) {
+		$orgTitle = $title;
 		$extpos = strrpos($title,'.');
 		$title = $extpos ? substr($title, 0, $extpos) : $title; // remove extension
 		$title = str_replace('_',' ',$title);	// Substituting "_" for " " because many filenames may have this instead of a space char.
 		$title = str_replace('%20',' ',$title);
 			// studly caps: add spaces
 		$title = preg_replace('#([a-z])([A-Z])#', '\\1 \\2', $title);
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('makeTitleFromFilename(): '.$orgTitle.' > '.$title, 'tx_dam_indexing');
+
 		return $title;
 	}
 
@@ -1347,6 +1578,9 @@ class tx_dam_indexing {
 				$filearray = $this->getFilesInDir($path, $recursive, $filearray);
 			}
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('collectFiles(): '.$path, 'tx_dam_indexing', 0, $filearray);
+
 		return $filearray;
 	}
 
@@ -1354,7 +1588,7 @@ class tx_dam_indexing {
 	/**
 	 * Returns an array with files collected from a list (array) of paths and files
 	 *
-	 * @param	string		Path/file list
+	 * @param	array		Path/file list
 	 * @param	boolean		Go recursive into subfolder?
 	 * @return	array		Array of file paths
 	 */
@@ -1364,6 +1598,8 @@ class tx_dam_indexing {
 		foreach($pathlist as $path) {
 			$filearray = $this->collectFiles($path, $recursive, $filearray);
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('collectFilesByPathList()', 'tx_dam_indexing', 0, $pathlist);
 
 		return $filearray;
 	}
@@ -1387,11 +1623,11 @@ class tx_dam_indexing {
 			// walk through the index rules
 		$this->initAvailableRules();
 		$optContent='';
-		foreach($this->rules as $classname => $setup)	{
-			$options = $this->rules[$classname]['obj']->getOptionsForm();
-			$optContent .= $this->formatOptionsFormRow ('[rules]['.$classname.']',
-										$this->rules[$classname]['obj']->setup,
-										$this->rules[$classname]['title'],	$this->rules[$classname]['desc'],
+		foreach($this->rules as $ruleId => $setup)	{
+			$options = $this->rules[$ruleId]['obj']->getOptionsForm();
+			$optContent .= $this->formatOptionsFormRow ('[rules]['.$ruleId.']',
+										$this->rules[$ruleId]['obj']->setup,
+										$this->rules[$ruleId]['obj']->getTitle(),	$this->rules[$ruleId]['obj']->getDescription(),
 										$options);
 		}
 		return $optContent;
@@ -1408,13 +1644,13 @@ class tx_dam_indexing {
 			// walk through the index rules
 		$optContent = '';
 		$this->initEnabledRules();
-		foreach($this->rules as $classname => $setup)	{
+		foreach($this->rules as $ruleId => $setup)	{
 
-			if(!$this->rules[$classname]['shy']) {
+			if(!$this->rules[$ruleId]['shy']) {
 				$optContent .= $this->formatOptionsFormRow ('info',
 											array(),
-											$this->rules[$classname]['title'],	'',
-											$this->rules[$classname]['obj']->getOptionsInfo());
+											$this->rules[$ruleId]['obj']->getTitle(),	'',
+											$this->rules[$ruleId]['obj']->getOptionsInfo());
 			}
 		}
 		return $optContent;
@@ -1474,6 +1710,161 @@ class tx_dam_indexing {
 
 	/***************************************
 	 *
+	 *	 XML <> Array
+	 *
+	 ***************************************/
+
+
+
+	/**
+	 * Converts a PHP array into an XML string.
+	 *
+	 * The XML output is optimized for readability since associative keys are used as tagnames.
+	 * This also means that only alphanumeric characters are allowed in the tag names AND only keys NOT starting with numbers (so watch your usage of keys!). However there are options you can set to avoid this problem.
+	 * Numeric keys are stored with the default tagname "numIndex" but can be overridden to other formats)
+	 * The function handles input values from the PHP array in a binary-safe way; All characters below 32 (except 9,10,13) will trigger the content to be converted to a base64-string
+	 * The PHP variable type of the data IS preserved as long as the types are strings, arrays, integers and booleans. Strings are the default type unless the "type" attribute is set.
+	 *
+	 * @param	array		The input PHP array with any kind of data; text, binary, integers. Not objects though.
+	 * @param	array		Options for the compilation. Key "useNindex" => 0/1 (boolean: whether to use "n0, n1, n2" for num. indexes); Key "useIndexTagForNum" => "[tag for numerical indexes]"; Key "useIndexTagForAssoc" => "[tag for associative indexes"; Key "parentTagMap" => array('parentTag' => 'thisLevelTag')
+	 * @param	integer		Current recursion level. Don't change, stay at zero!
+	 * @param	string		Stack data. Don't touch.
+	 * @return	string		An XML string made from the input content in the array.
+	 * @see xml2array()
+	 */
+	function array2xml($array, $options=array(), $level=0, $stackData=array())	{
+		$docTag='phparray';
+		// tag-prefix, eg. a namespace prefix like "T3:"
+		$NSprefix='';
+		// If set, the number of spaces corresponding to this number is used for indenting, otherwise a single chr(9) (TAB) is used
+		$spaceInd=0;
+
+			// The list of byte values which will trigger binary-safe storage. If any value has one of these char values in it, it will be encoded in base64
+		$binaryChars = chr(0).chr(1).chr(2).chr(3).chr(4).chr(5).chr(6).chr(7).chr(8).
+						chr(11).chr(12).chr(14).chr(15).chr(16).chr(17).chr(18).chr(19).
+						chr(20).chr(21).chr(22).chr(23).chr(24).chr(25).chr(26).chr(27).chr(28).chr(29).
+						chr(30).chr(31);
+			// Set indenting mode:
+		$indentChar = $spaceInd ? ' ' : chr(9);
+		$indentN = $spaceInd>0 ? $spaceInd : 1;
+
+			// Init output variable:
+		$output='';
+
+			// Traverse the input array
+		if (is_array($array))	{
+			foreach($array as $k=>$v)	{
+				$attr = '';
+				$tagName = $k;
+
+					// Construct the tag name.
+				if(isset($options['grandParentTagMap'][$stackData['grandParentTagName'].'/'.$stackData['parentTagName']])) {		// Use tag based on grand-parent + parent tag name
+					$attr.=' index="'.htmlspecialchars($tagName).'"';
+					$tagName = (string)$options['grandParentTagMap'][$stackData['grandParentTagName'].'/'.$stackData['parentTagName']];
+				}elseif(isset($options['parentTagMap'][$stackData['parentTagName'].':_IS_NUM']) && t3lib_div::testInt($tagName)) {		// Use tag based on parent tag name + if current tag is numeric
+					$attr.=' index="'.htmlspecialchars($tagName).'"';
+					$tagName = (string)$options['parentTagMap'][$stackData['parentTagName'].':_IS_NUM'];
+				}elseif(isset($options['parentTagMap'][$stackData['parentTagName'].':'.$tagName])) {		// Use tag based on parent tag name + current tag
+					$attr.=' index="'.htmlspecialchars($tagName).'"';
+					$tagName = (string)$options['parentTagMap'][$stackData['parentTagName'].':'.$tagName];
+				} elseif(isset($options['parentTagMap'][$stackData['parentTagName']])) {		// Use tag based on parent tag name:
+					$attr.=' index="'.htmlspecialchars($tagName).'"';
+					$tagName = (string)$options['parentTagMap'][$stackData['parentTagName']];
+				} elseif (!strcmp(intval($tagName),$tagName))	{	// If integer...;
+					if ($options['useNindex']) {	// If numeric key, prefix "n"
+						$tagName = 'n'.$tagName;
+					} else {	// Use special tag for num. keys:
+						$attr.=' index="'.$tagName.'"';
+						$tagName = $options['useIndexTagForNum'] ? $options['useIndexTagForNum'] : 'numIndex';
+					}
+				} elseif($options['useIndexTagForAssoc']) {		// Use tag for all associative keys:
+					$attr.=' index="'.htmlspecialchars($tagName).'"';
+					$tagName = $options['useIndexTagForAssoc'];
+				}
+
+					// The tag name is cleaned up so only alphanumeric chars (plus -_) are in there and not longer than 100 chars either.
+				$tagName = str_replace(':','-',$tagName);
+				$tagName = substr(ereg_replace('[^[:alnum:]_-]','',$tagName),0,100);
+
+					// If the value is an array then we will call this function recursively:
+				if (is_array($v))	{
+
+						// Sub elements:
+					if ($options['alt_options'][$stackData['path'].'/'.$tagName])	{
+						$subOptions = $options['alt_options'][$stackData['path'].'/'.$tagName];
+						$clearStackPath = $subOptions['clearStackPath'];
+					} else {
+						$subOptions = $options;
+						$clearStackPath = FALSE;
+					}
+
+					$content = chr(10).
+								$this->array2xml(
+									$v,
+									$subOptions,
+									$level+1,
+									array(
+										'parentTagName' => $tagName,
+										'grandParentTagName' => $stackData['parentTagName'],
+										'path' => $clearStackPath ? '' : $stackData['path'].'/'.$tagName,
+									)
+								).
+								str_pad('',($level+1)*$indentN,$indentChar);
+					if ((int)$options['disableTypeAttrib']!=2)	{	// Do not set "type = array". Makes prettier XML but means that empty arrays are not restored with xml2array
+						$attr.=' type="array"';
+					}
+				} else {	// Just a value:
+
+						// Look for binary chars:
+					if (strcspn($v,$binaryChars) != strlen($v))	{	// Go for base64 encoding if the initial segment NOT matching any binary char has the same length as the whole string!
+							// If the value contained binary chars then we base64-encode it an set an attribute to notify this situation:
+						$content = chr(10).chunk_split(base64_encode($v));
+						$attr.=' base64="1"';
+
+					} elseif(preg_match('#(<xml|<rdf|xmlns:)#', $v)) {
+						// just embed XML
+						$content = '<xml>'.chr(10).$v.chr(10).'</xml>';
+
+					} else {
+							// Otherwise, just htmlspecialchar the stuff:
+						$content = htmlspecialchars($v);
+						$dType = gettype($v);
+						if ($dType!='string' && !$options['disableTypeAttrib'])	{ $attr.=' type="'.$dType.'"'; }
+					}
+				}
+
+					// Add the element to the output string:
+				$output.=str_pad('',($level+1)*$indentN,$indentChar).'<'.$NSprefix.$tagName.$attr.'>'.$content.'</'.$NSprefix.$tagName.'>'.chr(10);
+			}
+		}
+
+			// If we are at the outer-most level, then we finally wrap it all in the document tags and return that as the value:
+		if (!$level)	{
+
+				// Figure out charset if not given explicitly:
+			if (!$charset = $options['charset'])	{
+				if ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'])	{	// First priority: forceCharset! If set, this will be authoritative!
+					$charset = $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'];
+				} elseif (is_object($GLOBALS['LANG']))	{
+					$charset = $GLOBALS['LANG']->charSet;	// If "LANG" is around, that will hold the current charset
+				} else {
+					$charset = 'utf-8';	// THIS is just a hopeful guess!
+				}
+			}
+
+			$output = '<?xml version="1.0" encoding="'.htmlspecialchars($charset).'" standalone="yes" ?>'.chr(10).
+				'<'.$docTag.'>'.chr(10).
+				$output.
+				'</'.$docTag.'>';
+		}
+
+		return $output;
+	}
+
+
+
+	/***************************************
+	 *
 	 *	 Collect some stats
 	 *
 	 ***************************************/
@@ -1489,6 +1880,8 @@ class tx_dam_indexing {
 		$this->stat['totalStartTime'] = $this->stat['totalStartTime'] ? $this->stat['totalStartTime'] : $this->statmtime;
 		$this->stat['newIndexed'] = 0;
 		$this->stat['reIndexed'] = 0;
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('statBegin() :'.$this->stat['totalStartTime'], 'tx_dam_indexing', 0, $this->stat);
 	}
 
 	/**
@@ -1507,6 +1900,8 @@ class tx_dam_indexing {
 			$this->stat['textExtract']++;
 		}
 		$this->stat['totalCount']++;
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('statMeta(): '.$this->stat['totalTime'], 'tx_dam_indexing', 0, $this->stat);
 	}
 
 	/**
@@ -1516,6 +1911,8 @@ class tx_dam_indexing {
 	 */
 	function statEnd() {
 		$this->stat['totalTime'] = t3lib_div::milliseconds()-$this->stat['totalStartTime'];
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('statMeta(): '.$this->stat['totalTime'], 'tx_dam_indexing', 0, $this->stat);
 	}
 
 	/**
@@ -1525,6 +1922,8 @@ class tx_dam_indexing {
 	 */
 	function statClear() {
 		$this->stat = array();
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('statClear()', 'tx_dam_indexing');
 	}
 
 
@@ -1549,7 +1948,10 @@ class tx_dam_indexing {
 		$sem_id = 0;
 
 			// just no locking if the needed functions are not available
-		if( !function_exists('ftok') ) return $sem_id;
+		if( !function_exists('ftok') OR !function_exists('sem_get') ) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('lock(): failed (PHP function missing)', 'tx_dam_indexing', 1);
+			return $sem_id;
+		}
 
 			// get semaphore key
 		if ($sem_key = ftok($filename, 'I')) {
@@ -1559,6 +1961,9 @@ class tx_dam_indexing {
 				// acquire semaphore lock
 			sem_acquire($sem_id);
 		}
+
+		if ($this->writeDevLog) 	t3lib_div::devLog('lock(): id '.$sem_id, 'tx_dam_indexing');
+
 			// return sem_id
 		return $sem_id;
 	}
@@ -1574,6 +1979,7 @@ class tx_dam_indexing {
 			// release semaphore lock
 		if ($sem_id) {
 			sem_release($sem_id);
+			if ($this->writeDevLog) 	t3lib_div::devLog('unlock(): id '.$sem_id, 'tx_dam_indexing');
 		}
 	}
 

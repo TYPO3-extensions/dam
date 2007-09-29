@@ -34,17 +34,16 @@
  *
  *
  *
- *   65: class tx_dam_list_editsel extends t3lib_extobjbase
- *   72:     function modMenu()
- *   91:     function head()
- *  116:     function main()
- *  278:     function jumpExt(URL,anchor)
+ *   64: class tx_dam_list_editsel extends t3lib_extobjbase
+ *   71:     function modMenu()
+ *   90:     function head()
+ *  115:     function main()
+ *  294:     function jumpExt(URL,anchor)
  *
- *              SECTION: internal
- *  316:     function fieldSelectBox($table, $allFields, $selectedFields, $formFields = 1)
- *  374:     function makeAllFieldList($table, $dontCheckUser = false, $useExludeFieldList = true)
+ *              SECTION: selector for fields to display
+ *  334:     function fieldSelectBox($table, $allFields, $selectedFields, $formFields = true)
  *
- * TOTAL FUNCTIONS: 6
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -84,7 +83,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 
 	/**
-	 * Do some init things and aet some styles in HTML header
+	 * Initialize the class and set some HTML header code
 	 *
 	 * @return	void
 	 */
@@ -114,10 +113,11 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $BE_USER, $LANG, $TCA;
+		global $BE_USER, $LANG, $BACK_PATH, $TCA;
 
 		$content = '';
 
+		$table = 'tx_dam';
 
 		//
 		// get records by query depending on option 'Show deselected only'
@@ -164,7 +164,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		// current selection box
 		//
 
-		$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
+		$content.= $this->pObj->getCurrentSelectionBox();
 		$content.= $this->pObj->doc->spacer(25);
 
 
@@ -172,7 +172,6 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		if($this->pObj->selection->pointer->countTotal) {
 
 
-			$table = 'tx_dam';
 			t3lib_div::loadTCA($table);
 
 
@@ -182,7 +181,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 			$titleColumn = $TCA[$table]['ctrl']['label'];
 
-			$allFields = $this->makeAllFieldList($table);
+			$allFields = tx_dam_db::getFieldListForUser($table);
 
 			$selectedFields = t3lib_div::_GP('tx_dam_list_displayFields');
 			$selectedFields = is_array($selectedFields) ? $selectedFields : explode(',', $this->pObj->MOD_SETTINGS['tx_dam_list_displayFields']);
@@ -191,9 +190,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				// remove fields that can not be selected
 			if (is_array($selectedFields)) {
 				$selectedFields = array_intersect($allFields, $selectedFields);
-				if(!count($selectedFields)) {
-					$selectedFields[] = $titleColumn;
-				}
+				$selectedFields = array_merge(array($titleColumn), $selectedFields);
 			} else {
 				$selectedFields = array();
 				$selectedFields[] = $titleColumn;
@@ -211,7 +208,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 			//
 
 
-			$orderBy = ($TCA['tx_dam']['ctrl']['sortby']) ? 'tx_dam.'.$TCA['tx_dam']['ctrl']['sortby'] : 'tx_dam.sorting';
+			$orderBy = ($TCA[$table]['ctrl']['sortby']) ? 'tx_dam.'.$TCA[$table]['ctrl']['sortby'] : 'tx_dam.title';
 
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'])	{
 				if (in_array($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'], $allFields))	{
@@ -224,16 +221,32 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 			$this->pObj->selection->qg->addSelectFields($queryFieldList);
 			$this->pObj->selection->qg->addOrderBy($orderBy);
 
+
+
+
+			//
+			// exec query
+			//
+
 			$this->pObj->selection->addLimitToQuery();
 			$res = $this->pObj->selection->execSelectionQuery();
 
+			//
+			// init iterator for query
+			//
+
+			$conf = array(	'table' => 'tx_dam',
+							'countTotal' => $this->pObj->selection->pointer->countTotal	);
+			$dbIterator =& new tx_dam_iterator_db($res, $conf);
 
 
-
-			$dbObj = new tx_dam_iterator_db($res, $this->pObj->selection->pointer->countTotal);
+			//
+			// make db list
+			//
 
 			$dblist = t3lib_div::makeInstance('tx_dam_listrecords');
-			$dblist->init('tx_dam', $dbObj);
+			$dblist->init($table, $dbIterator);
+			$dblist->setDataObject($dbIterator);
 
 				// add columns to list
 			$dblist->clearColumns();
@@ -249,19 +262,22 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				}
 			}
 
+				// enable display of action column
 			$dblist->showActions = true;
-
+				// enable context menus
+			$dblist->enableContextMenus = true;
 				// Enable/disable display of thumbnails
 			$dblist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_list_list_showThumb'];
 				// Enable/disable display of AlternateBgColors
 			$dblist->showAlternateBgColors = $this->pObj->MOD_SETTINGS['tx_dam_list_list_showAlternateBgColors'];
 
-			#$dblist->showAlternateBgColors = $this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
+// TODO $dblist->showAlternateBgColors = $this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
 
 
 			$dblist->setPointer($this->pObj->selection->pointer);
 			$dblist->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_list_list_sortRev']);
-			$dblist->setParameterNames('SET[tx_dam_list_list_sortField]', 'SET[tx_dam_list_list_sortRev]');
+			$dblist->setParameterName('sortField', 'SET[tx_dam_list_list_sortField]');
+			$dblist->setParameterName('sortRev', 'SET[tx_dam_list_list_sortRev]');
 
 
 
@@ -282,12 +298,12 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				';
 
 
-			$content.= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="dblistForm">';
+			#$content.= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="dblistForm">';
 			$content.= $dblist->getListTable();
-			$content.= '<input type="hidden" name="cmd_table"><input type="hidden" name="cmd"></form>';
+			#$content.= '<input type="hidden" name="cmd_table"><input type="hidden" name="cmd"></form>';
 
 
-			$fieldSelectBoxContent = $this->fieldSelectBox($table, $this->makeAllFieldList($table), $selectedFields);
+			$fieldSelectBoxContent = $this->fieldSelectBox($table, $allFields, $selectedFields);
 			$content.= $this->pObj->buttonToggleDisplay('fieldselector', $LANG->getLL('field_selector'), $fieldSelectBoxContent);
 
 
@@ -301,7 +317,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 	/********************************
 	 *
-	 * internal
+	 * selector for fields to display
 	 *
 	 ********************************/
 
@@ -310,10 +326,12 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 	 * Create the selector box for selecting fields to display from a table:
 	 *
 	 * @param	string		Table name
-	 * @param	boolean		If true, form-fields will be wrapped around the table.
+	 * @param	array		all fields
+	 * @param	array		selected fields
+	 * @param	boolean		If true, form-fields will be wrapped around
 	 * @return	string		HTML table with the selector box (name: displayFields['.$table.'][])
 	 */
-	function fieldSelectBox($table, $allFields, $selectedFields, $formFields = 1) {
+	function fieldSelectBox($table, $allFields, $selectedFields, $formFields = true) {
 		global $TCA, $LANG;
 
 		t3lib_div::loadTCA($table);
@@ -363,55 +381,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				';
 		return $content;
 	}
-	/**
-	 * Makes the list of fields the user can select/view for a table
-	 *
-	 * @param	string		Table name
-	 * @param	boolean		If set, users access to the field (non-exclude-fields) is NOT checked.
-	 * @param	boolean		$useExludeFieldList: ...
-	 * @return	array		Array, where values are fieldnames to include in query
-	 */
-	function makeAllFieldList($table, $dontCheckUser = false, $useExludeFieldList = true) {
-		global $TCA, $BE_USER;
 
-			// Init fieldlist array:
-		$fieldListArr = array();
-
-			// Check table:
-		if (is_array($TCA[$table])) {
-			t3lib_div::loadTCA($table);
-
-			$exludeFieldList = t3lib_div::trimExplode(',', $TCA[$table]['interface']['excludeFieldList'],1);
-
-				// Traverse configured columns and add them to field array, if available for user.
-			foreach ($TCA[$table]['columns'] as $fN => $fieldValue) {
-				if (($dontCheckUser || ((!$fieldValue['exclude'] || $BE_USER->check('non_exclude_fields', $table.':'.$fN)) && $fieldValue['config']['type'] != 'passthrough')) AND (!$useExludeFieldList || !in_array($fN, $exludeFieldList))) {
-					$fieldListArr[$fN] = $fN;
-				}
-			}
-
-				// Add special fields:
-			if ($dontCheckUser || $BE_USER->isAdmin()) {
-				$fieldListArr['uid'] = 'uid';
-				$fieldListArr['pid'] = 'pid';
-				if ($TCA[$table]['ctrl']['tstamp'])
-					$fieldListArr[$TCA[$table]['ctrl']['tstamp']] = $TCA[$table]['ctrl']['tstamp'];
-				if ($TCA[$table]['ctrl']['crdate'])
-					$fieldListArr[$TCA[$table]['ctrl']['tstamp']] = $TCA[$table]['ctrl']['tstamp'];
-				if ($TCA[$table]['ctrl']['cruser_id'])
-					$fieldListArr[$TCA[$table]['ctrl']['cruser_id']] = $TCA[$table]['ctrl']['cruser_id'];
-				if ($TCA[$table]['ctrl']['sortby'])
-					$fieldListArr[$TCA[$table]['ctrl']['cruser_id']] = $TCA[$table]['ctrl']['sortby'];
-				if ($TCA[$table]['ctrl']['versioning'])
-					$fieldListArr['t3ver_id'] = 't3ver_id';
-			}
-		}
-			// doesn't make sense, does it?
-		unset ($fieldListArr['l18n_parent']);
-		unset ($fieldListArr['l18n_diffsource']);
-
-		return $fieldListArr;
-	}
 }
 
 

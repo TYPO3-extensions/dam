@@ -21,7 +21,7 @@ CREATE TABLE be_users (
 CREATE TABLE tt_content (
     tx_dam_images int(11) unsigned DEFAULT '0' NOT NULL,
     tx_dam_files int(11) unsigned DEFAULT '0' NOT NULL,
-    tx_dam_flexform mediumtext NOT NULL,
+    ce_flexform mediumtext NOT NULL,
 );
 
 
@@ -62,7 +62,7 @@ CREATE TABLE tx_dam (
   hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
   starttime int(11) unsigned DEFAULT '0' NOT NULL,
   endtime int(11) unsigned DEFAULT '0' NOT NULL,
-  fe_group int(11) DEFAULT '0' NOT NULL,
+  fe_group varchar(100) DEFAULT '0' NOT NULL,
 
   # languages
   sys_language_uid int(11) DEFAULT '0' NOT NULL,
@@ -78,7 +78,6 @@ CREATE TABLE tx_dam (
   t3ver_stage tinyint(4) DEFAULT '0' NOT NULL,
   t3ver_count int(11) DEFAULT '0' NOT NULL,
   t3ver_tstamp int(11) DEFAULT '0' NOT NULL,
-
 
   # Inspired by dublin core
   #
@@ -108,7 +107,7 @@ CREATE TABLE tx_dam (
   file_type_version varchar(9) DEFAULT '' NOT NULL,
 
   file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path tinytext NOT NULL,
+  file_path varchar(255) DEFAULT '' NOT NULL,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
   file_mtime int(11) unsigned DEFAULT '0' NOT NULL,
   file_inode int(11) DEFAULT '0' NOT NULL,
@@ -220,8 +219,12 @@ CREATE TABLE tx_dam (
 
   PRIMARY KEY (uid),
   KEY parent (pid),
-  KEY media_type (media_type)
-  KEY t3ver_oid (t3ver_oid)
+  KEY media_type (media_type),
+  KEY t3ver_oid (t3ver_oid),
+  KEY file_type (file_type),
+  KEY file_hash (file_hash),
+  KEY file_name (file_name),
+  KEY file_path (file_path)
 );
 
 
@@ -257,7 +260,7 @@ CREATE TABLE tx_dam_cat (
   cruser_id int(11) unsigned DEFAULT '0' NOT NULL,
 
   hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
-  fe_group int(11) DEFAULT '0' NOT NULL,
+  fe_group varchar(100) DEFAULT '0' NOT NULL,
 
   title tinytext NOT NULL,
   nav_title tinytext NOT NULL,
@@ -397,5 +400,3 @@ CREATE TABLE tx_dam_selection (
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
-
-

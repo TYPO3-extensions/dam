@@ -34,13 +34,14 @@
  *
  *
  *
- *   65: class tx_dam_cmd_filenew extends t3lib_extobjbase
- *   76:     function head()
- *  107:     function main()
- *  150:     function editForm()
- *  197:     function renameFile()
+ *   66: class tx_dam_cmd_filenew extends t3lib_extobjbase
+ *   74:     function accessCheck()
+ *   84:     function head()
+ *   94:     function getContextHelp()
+ *  105:     function main()
+ *  144:     function renderForm()
  *
- * TOTAL FUNCTIONS: 4
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -91,7 +92,7 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-// TODO csh
+#TODO csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
 	}
 
