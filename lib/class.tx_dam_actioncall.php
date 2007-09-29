@@ -138,6 +138,7 @@ class tx_dam_actionCall {
 	 var $env = array(
 	 	'returnUrl' => '',
 	 	'defaultCmdScript' => '',
+	 	'defaultEditScript' => '',
 	 	'backPath' => '',
 	 	);
 

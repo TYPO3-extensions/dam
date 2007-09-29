@@ -1041,10 +1041,10 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 	}
 }
 
-
-// class tx_dam_tce_extfilefunc {
-// }
-
+/*
+class tx_dam_tce_extfilefunc {
+}
+*/
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/binding/tce/class.tx_dam_tce_extfilefunc.php'])    {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/binding/tce/class.tx_dam_tce_extfilefunc.php']);

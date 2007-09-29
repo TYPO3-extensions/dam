@@ -352,6 +352,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				$actionCall->setRequest('control', array('__type' => 'record', '__table' => $table));
 				$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 				$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+				$actionCall->setEnv('defaultEditScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_edit/index.php');
 				$actionCall->setEnv('calcPerms', $this->calcPerms);
 				$actionCall->setEnv('permsEdit', $permsEdit);
 				$actionCall->setEnv('permsDelete', $permsDelete);

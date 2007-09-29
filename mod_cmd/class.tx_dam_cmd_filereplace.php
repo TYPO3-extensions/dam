@@ -90,7 +90,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 	 * @return	string HTML
 	 */
 	function getContextHelp() {
-#TODO csh
+// todo csh
 #		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_delete', $GLOBALS['BACK_PATH'],'');
 	}
 
@@ -139,7 +139,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 		} else {
 				// this should have happen in index.php already
-			$content.= $this->pObj->accessDeniedMessage($this->file['file_name']);
+			$content.= $this->pObj->accessDeniedMessageBox($this->file['file_name']);
 		}
 
 		return $content;

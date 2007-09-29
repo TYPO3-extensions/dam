@@ -492,7 +492,10 @@ class tx_dam_treelib_tceforms {
 			list($width, $height) = $this->calcFrameSizeCSS();
 		}
 
-		$iFrameParameter = $this->getIFrameParameter($this->table, $this->field, $this->row['uid']);
+
+		$table = $GLOBALS['TCA'][$this->table]['orig_table'] ? $GLOBALS['TCA'][$this->table]['orig_table'] : $this->table;
+
+		$iFrameParameter = $this->getIFrameParameter($table, $this->field, $this->row['uid']);
 
 		$divStyle = 'height:'.$height.'; width:'.$width.'; border:solid 1px #000; background:#fff;';
 		$iFrame = '<iframe src="'.htmlspecialchars($this->treeBrowserScript.'?'.$iFrameParameter).'" name="'.$this->PA['itemFormElName'].'_selTree" border="1" style="'.htmlspecialchars($divStyle).'">';
@@ -512,10 +515,18 @@ class tx_dam_treelib_tceforms {
 	 */
 	function getIFrameParameter ($table, $field, $uid) {
 		$params = array();
+			
+		$config = '';
+		if ($GLOBALS['TCA'][$table]['columns'][$field]['config']['type'] == 'flex') {
+			$config = base64_encode(serialize($this->PA['fieldConf']));			
+		}
+		
 		$params['table'] = $table;
 		$params['field'] = $field;
 		$params['uid'] = $uid;
-		$params['seckey'] = t3lib_div::shortMD5($table.'|'.$field.'|'.$uid.'|'.$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']);
+		$params['elname'] = $this->PA['itemFormElName'];
+		$params['config'] = $config;
+		$params['seckey'] = t3lib_div::shortMD5(implode('|', $params).'|'.$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey']);
 		return t3lib_div::implodeArrayForUrl('', $params);
 	}
 
@@ -619,6 +630,30 @@ class tx_dam_treelib_tceforms {
 	}
 
 
+	/**
+	 * Process selected items in $this->itemArray
+	 * Get names for items, return and store the result in $this->itemArrayProcessed
+	 *
+	 * @param 	array 	$browseTrees Array of browse trees: array($treeName => $treeViewObj)
+	 * @return 	array 
+	 */
+	function processItemArrayForBrowseableTrees ($browseTrees) {
+
+		$this->itemArrayProcessed = array();
+
+		if (is_array($browseTrees)) {
+			foreach($browseTrees as $treeName => $treeViewObj)	{
+
+				if ($treeViewObj->isTCEFormsSelectClass) {
+					$treeViewObj->mode = 'tceformsSelect';
+
+						// process selected items - get names
+					$this->processItemArray($treeViewObj);
+				}
+			}
+		}
+		return $this->itemArrayProcessed;
+	}
 
 
 	/**
@@ -640,7 +675,8 @@ class tx_dam_treelib_tceforms {
 				if (is_null($treeId)) {
 
 						// single tree
-					$itemName = $treeViewObj->getTitleStr($treeViewObj->recs[$itemId]);
+					# $itemName = $treeViewObj->getTitleStr($treeViewObj->recs[$itemId]);
+					$itemName = $treeViewObj->getTitleStr($treeViewObj->getRecord($itemId));
 					$this->itemArrayProcessed[$tk] = $itemId.'|'.$itemName;
 
 				} else {
@@ -651,7 +687,8 @@ class tx_dam_treelib_tceforms {
 						if(isset($treeViewObj->recs[$treeId]) OR $treeId==0) {
 							$itemName = $treeViewObj->getTreeTitle();
 							if ($treeId) {
-								$itemTitle = $treeViewObj->getTitleStr($treeViewObj->recs[$treeId]);
+								# $itemTitle = $treeViewObj->getTitleStr($treeViewObj->recs[$treeId]);
+								$itemTitle = $treeViewObj->getTitleStr($treeViewObj->getRecord($treeId));
 								$itemName .= $itemTitle ? ': '.$itemTitle : '';
 							} else {
 								$itemName .= ' (Root)';
@@ -664,6 +701,7 @@ class tx_dam_treelib_tceforms {
 		}
 
 	}
+
 
 
 	/**

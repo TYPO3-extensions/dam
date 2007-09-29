@@ -139,7 +139,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		$this->addColumn('perms', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.xml:c_rw'));
 		$this->addColumn('_CONTROL_', '');
 #		$this->addColumn('_CLIPBOARD_', '');
-#TODO Clipboard
+// todo Clipboard
 
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist typo3-filelist"';
 	}
@@ -383,6 +383,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']));
 				$actionCall[$item['__type']]->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 				$actionCall[$item['__type']]->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+				$actionCall[$item['__type']]->setEnv('defaultEditScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_edit/index.php');
 				$actionCall[$item['__type']]->setEnv($this->actionsEnv);
 				$actionCall[$item['__type']]->initActions(true);
 			} elseif ($actionCall[$item['__type']]->itemInfo['__type']!=$item['__type']){

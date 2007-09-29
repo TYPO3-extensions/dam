@@ -137,7 +137,7 @@ class tx_dam_tsfe {
 
 			if ($GLOBALS['TSFE']->sys_language_isocode) {
 				$GLOBALS['LANG']->init($GLOBALS['TSFE']->sys_language_isocode);
-				if($isoCode = $this->csConvObj->isoArray[$GLOBALS['TSFE']->sys_language_isocode]) {
+				if($isoCode = $GLOBALS['LANG']->csConvObj->isoArray[$GLOBALS['TSFE']->sys_language_isocode]) {
 					$GLOBALS['LANG']->init($isoCode);
 				}
 			} else {

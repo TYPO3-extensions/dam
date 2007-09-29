@@ -1279,6 +1279,153 @@ class tx_dam_action_lockWarningRec extends tx_dam_action_recordBase {
 }
 
 
+
+
+
+	/***************************************
+	 *
+	 *   editors
+	 *
+	 ***************************************/
+
+
+
+
+
+
+/**
+ * Edit file action
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Component
+ * @subpackage  Action
+ * @see tx_dam_actionbase
+ */
+class tx_dam_action_editFileRec extends tx_dam_actionbase {
+
+	var $cmd = '';
+
+	/**
+	 * Defines the types that the object can render
+	 * @var array
+	 */
+	var $typesAvailable = array('icon', 'control', 'context');
+
+
+	/**
+	 * Returns true if the action is of the wanted type
+	 * This method should return true if the action is possibly true.
+	 * This could be the case when a control is wanted for a list of files and in beforhand a check should be done which controls might be work.
+	 * In a second step each file is checked with isValid().
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
+		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
+			$valid = ($this->itemInfo['__type'] === 'record' AND $this->itemInfo['__table'] === 'tx_dam');
+		}
+		return $valid;
+	}
+
+	/**
+	 * Returns true if the action is of the wanted type
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isValid ($type, $itemInfo=NULL, $env=NULL) {
+		static $editorList=array();
+		
+		$valid = false;
+
+		if ($this->isTypeValid ($type, $itemInfo, $env) AND $this->itemInfo['__type'] === 'record' AND $this->itemInfo['__table'] === 'tx_dam') {
+
+			if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['editorClasses']))	{
+				foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['editorClasses'] as $idName => $classRessource)	{
+					if (!is_object($editorList[$idName])) {
+						$editorList[$idName] = t3lib_div::getUserObj($classRessource);
+					}
+					if (is_object($editorList[$idName])) {
+						if ($editorList[$idName]->isValid($itemInfo)) {
+							$valid = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return $valid;
+	}
+
+
+	/**
+	 * Returns the icon image tag.
+	 * Additional attributes to the image tagcan be added.
+	 *
+	 * @param	string		$addAttribute Additional attributes
+	 * @return	string
+	 */
+	function getIcon ($addAttribute='') {
+
+		if ($this->disabled) {
+			// edit_file_i.gif does not work - icon processing is broken, default.gif will be returned
+			$iconFile = PATH_txdam_rel.'i/edit_file_i_.gif';
+		} else {
+			$iconFile = PATH_txdam_rel.'i/edit_file.gif';
+		}
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+
+		return $icon;
+	}
+
+
+	/**
+	 * Returns the short label like: Delete
+	 *
+	 * @return	string
+	 */
+	function getLabel () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:dam/mod_edit/locallang.xml:tx_dam_edit.title');
+	}
+
+
+	/**
+	 * Returns a command array for the current type
+	 *
+	 * @return	array		Command array
+	 * @access private
+	 */
+	function _getCommand() {
+
+		$uid = $this->itemInfo['_BASE_REC_UID'] ? $this->itemInfo['_BASE_REC_UID'] : $this->itemInfo['uid'];
+
+		$script = $this->env['defaultEditScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
+		$script .= '&record['.$this->itemInfo['__table'].']='.$uid;
+
+		if ($this->type === 'context') {
+			$commands['url'] = $script;
+		} else {
+			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
+			$commands['href'] = $script;
+		}
+
+		return $commands;
+	}
+}
+
+
+
+
+
+
 class tx_dam_actionsRecord {
 }
 

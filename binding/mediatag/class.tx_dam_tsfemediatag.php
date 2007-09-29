@@ -43,9 +43,11 @@ class tx_dam_tsfemediatag {
 	function main($content,$conf)	{
 		
 		$this->conf = $conf;
-		
+
 			// get link text
-		$linktxt = $this->cObj->stdWrap($conf['tag.']['value'], $conf['tag.']);
+		$conf_tag = $conf['tag.'];
+		unset ($conf_tag['typolink.']);
+		$linktxt = $this->cObj->stdWrap($conf['tag.']['value'], $conf_tag);
 		
 			// create link
 		$content = $this->typoLink($linktxt, $conf['tag.']['typolink.']);
@@ -86,6 +88,7 @@ class tx_dam_tsfemediatag {
 	function typoLink($linktxt, $conf)	{
 		$finalTagParts = array();
 		$finalTagParts['aTagParams'] = $this->cObj->getATagParams($conf);
+
 
 		$link_param = trim($this->cObj->stdWrap($conf['parameter'],$conf['parameter.']));
 

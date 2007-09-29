@@ -89,6 +89,7 @@ class tx_dam_cm_file {
 		$actionCall->setEnv('returnUrl', t3lib_div::_GP('returnUrl'));
 		$actionCall->setEnv('backPath', $backRef->PH_backPath);
 		$actionCall->setEnv('defaultCmdScript', PATH_txdam_rel.'mod_cmd/index.php');
+		$actionCall->setEnv('defaultEditScript', PATH_txdam_rel.'mod_edit/index.php');
 		$actionCall->setEnv('actionPerms',  tx_dam::access_checkFileOperation());
 		$actionCall->setEnv('permsEdit', $permsEdit);
 		$actionCall->setEnv('permsDelete', $permsDelete);
@@ -142,8 +143,8 @@ class tx_dam_cm_file {
 
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/class.tx_dam_cm_file.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/class.tx_dam_cm_file.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/binding/be/class.tx_dam_cm_file.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/binding/be/class.tx_dam_cm_file.php']);
 }
 
 ?>

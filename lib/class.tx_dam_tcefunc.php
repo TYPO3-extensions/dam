@@ -170,13 +170,12 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$renderBrowseTrees->init ($PA, $fObj);
 		$renderBrowseTrees->setIFrameTreeBrowserScript($this->tceforms->backPath.PATH_txdam_rel.'mod_treebrowser/index.php');
 
-		$renderBrowseTrees->renderBrowsableTrees($browseTree);
-
 
 		if (!$disabled) {
 			if ($renderBrowseTrees->isIFrameContentRendering()) {
 
 					// just the trees are needed - we're inside of an iframe!
+				$renderBrowseTrees->renderBrowsableTrees($browseTree);
 				return $renderBrowseTrees->getTreeContent();
 
 			} elseif ($renderBrowseTrees->isIFrameRendering()) {
@@ -194,14 +193,16 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 			} else {
 					// tree frame <div>
+				$renderBrowseTrees->renderBrowsableTrees($browseTree);
 				$thumbnails = $renderBrowseTrees->renderDivBox();
 			}
 		}
 
 
 			// get selected processed items
-		$itemArray = $renderBrowseTrees->getItemArrayProcessed();
-
+		# $itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue']);
+		# $itemArray = $renderBrowseTrees->getItemArrayProcessed();
+		$itemArray = $renderBrowseTrees->processItemArrayForBrowseableTrees($browseTree);
 
 		//
 		// process selected values
@@ -240,7 +241,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$item .= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'"'.$disabled.' />';
 
 		$params = array(
-			'size' => $config['size'],
+			'size' => ($disabled ? count($disabled) : $config['size']),
 			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'], 0),
 			'style' => ' style="width:200px;"',
 			'dontShowMoveIcons' => ($maxitems<=1),
@@ -254,6 +255,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			'readOnly' => $disabled,
 			'thumbnails' => $thumbnails
 		);
+
 		$item .= $this->tceforms->dbFileIcons($PA['itemFormElName'], $config['internal_type'], $config['allowed'], $itemArray, '', $params, $PA['onFocus']);
 
 			// Wizards:
@@ -315,6 +317,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			if ($renderBrowseTrees->isIFrameContentRendering()) {
 
 					// just the trees are needed - we're inside of an iframe!
+				$renderBrowseTrees->renderBrowsableMountTrees($browseTrees->treeObjArr);
 				return $renderBrowseTrees->getTreeContent();
 
 			} elseif ($renderBrowseTrees->isIFrameRendering()) {
@@ -332,13 +335,16 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 			} else {
 					// tree frame <div>
+				$renderBrowseTrees->renderBrowsableMountTrees($browseTrees->treeObjArr);
 				$thumbnails = $renderBrowseTrees->renderDivBox();
 			}
 		}
 
-
 			// get selected processed items
-		$itemArray = $renderBrowseTrees->getItemArrayProcessed();
+		# $itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue']);
+		# $itemArray = $renderBrowseTrees->getItemArrayProcessed();
+		$itemArray = $renderBrowseTrees->processItemArrayForBrowseableTrees($browseTrees->treeObjArr);
+
 
 
 		//
@@ -930,11 +936,11 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		global $TYPO3_CONF_VARS;
 
 			// description of exif data
-		$metaDesc['exif']['ExposureMode'] = array(
+		$metaDesc['EXIF']['ExposureMode'] = array(
 		   'Auto Exposure',
 		   'Manual Exposure',
 		   'Auto bracket');
-		$metaDesc['exif']['MeteringMode'] = array(
+		$metaDesc['EXIF']['MeteringMode'] = array(
 		   'unknown',
 		   'Average',
 		   'CenterWeightedAverage',
@@ -942,7 +948,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		   'MultiSpot',
 		   'Pattern',
 		   'Partial');
-		$metaDesc['exif']['SensingMethod'] = array(
+		$metaDesc['EXIF']['SensingMethod'] = array(
 		   '',
 		   'Not defined',
 		   'One-chip color area sensor',
@@ -951,12 +957,12 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		   'Color sequential area sensor',
 		   'Trilinear sensor',
 		   'Color sequential linear sensor');
-		$metaDesc['exif']['SubjectDistanceRange'] = array(
+		$metaDesc['EXIF']['SubjectDistanceRange'] = array(
 		   'unknown',
 		   'Macro',
 		   'Close view',
 		   'Distant view');
-		$metaDesc['exif']['ExposureProgram'] = array(
+		$metaDesc['EXIF']['ExposureProgram'] = array(
 		   'Not defined',
 		   'Manual',
 		   'Normal program',
@@ -993,6 +999,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					if (is_array($metaDesc[$key])) {	// exif, iptc
 
 						foreach ($value as $dataKey => $dataVal) {
+							$key = strtoupper($key);
 							if (is_array($metaDesc[$key][$dataKey])) {	// description found?
 								$value[$dataKey] = $metaDesc[$key][$dataKey][$dataVal];	// apply
 							}
@@ -1243,7 +1250,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				}
 			}
 			
-#TODO Clipboard
+// todo Clipboard
 			$clipElements = $this->tceforms->getClipboardElements($allowed, $mode);
 			if (count($clipElements))	{
 				$aOnClick = '';

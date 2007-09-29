@@ -302,8 +302,8 @@ if (TYPO3_MODE === 'BE')	{
 	tx_dam::register_action ('tx_dam_action_newTextfile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_newTextfile');
 	tx_dam::register_action ('tx_dam_action_editFileRecord',  'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFileRecord');
 	tx_dam::register_action ('tx_dam_action_viewFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_viewFile');
+	tx_dam::register_action ('tx_dam_action_editFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFile');
 	tx_dam::register_action ('tx_dam_action_infoFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_infoFile');
-#	tx_dam::register_action ('tx_dam_action_editFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFile');
 	tx_dam::register_action ('tx_dam_action_renameFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_renameFile');
 	tx_dam::register_action ('tx_dam_action_replaceFile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_replaceFile');
 	tx_dam::register_action ('tx_dam_action_deleteFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFile');
@@ -313,6 +313,7 @@ if (TYPO3_MODE === 'BE')	{
 	tx_dam::register_action ('tx_dam_action_editRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRec');
 	tx_dam::register_action ('tx_dam_action_editRecPopup',    'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editRecPopup');
 	tx_dam::register_action ('tx_dam_action_viewFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_viewFileRec');
+	tx_dam::register_action ('tx_dam_action_editFileRec',     'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_editFileRec');
 	tx_dam::register_action ('tx_dam_action_infoRec',         'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_infoRec');
 	tx_dam::register_action ('tx_dam_action_cmSubFile',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_cmSubFile');
 	tx_dam::register_action ('tx_dam_action_revertRec',       'EXT:dam/components/class.tx_dam_actionsRecord.php:&tx_dam_action_revertRec');
@@ -337,6 +338,10 @@ if (TYPO3_MODE === 'BE')	{
 
 	tx_dam::register_previewer ('tx_dam_previewerImage', 'EXT:dam/components/class.tx_dam_previewerImage.php:&tx_dam_previewerImage');
 	tx_dam::register_previewer ('tx_dam_previewerMP3',   'EXT:dam/components/class.tx_dam_previewerMP3.php:&tx_dam_previewerMP3');
+	
+	
+	
+	tx_dam::register_editor ('tx_dam_edit_text',   'EXT:dam/mod_edit/class.tx_dam_edit_text.php:&tx_dam_edit_text');
 
 }
 
