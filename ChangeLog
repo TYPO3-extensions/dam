@@ -1,3 +1,18 @@
+06-11-24 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: added check to tx_dam_tce_process if a file exists that should be deleted
+	* Fix: #4263: DAM Media Browser doesn't select any file, if disallowed_types are defined in TCA
+	* Fix: #4231: resultsPerPage does not work correctly
+	* Fix: #4232: The umlaute of selected categories are shown in uft-chars with BE in utf8
+
+06-09-13 Rene Fritz  <r.fritz@colorcube.de>
+
+	* change: field file_path is changed to varchar(255) and defined as index (including file_name and other) which will speed up things!!
+
+06-09-07 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: element browser works now mit allowed_types = '*, -php'
+
 06-09-01 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_batchprocess. Old stored data was used in batch processing when field was set empty

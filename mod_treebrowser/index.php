@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,7 +26,7 @@
 ***************************************************************/
 /**
 
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Mod
  * @ignore
  */
@@ -55,7 +55,7 @@ require_once (PATH_txdam.'treelib/class.tx_dam_treelib_browser.php');
 /**
  * Script Class for the treeview in TCEforms elements
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Mod
  * @ignore
  */

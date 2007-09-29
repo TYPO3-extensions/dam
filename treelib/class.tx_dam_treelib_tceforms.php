@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2006 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -26,7 +26,7 @@
 ***************************************************************/
 /**
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */
 /**
@@ -89,7 +89,7 @@
  *
  * That means the script do not know anything about trees. It just set parameters and render the field with TCEforms.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */
 class tx_dam_treelib_tceforms {

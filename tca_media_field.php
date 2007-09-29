@@ -29,7 +29,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] =
 # OLD:				'MM_ident' => 'relation_field_or_other_ident', #### has to be changed in table
 				'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
-				'allowed_types' => '',	// Must be empty for disallowed to work.
+				'allowed_types' => '',	// can be be empty for disallowed to work.
 				'disallowed_types' => 'php,php3',
 				'max_size' => 10000,
 				'show_thumbs' => 1,

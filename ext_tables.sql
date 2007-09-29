@@ -91,7 +91,7 @@ CREATE TABLE tx_dam (
   file_type_version varchar(9) DEFAULT '' NOT NULL,
 
   file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path tinytext NOT NULL,
+  file_path varchar(255) DEFAULT '' NOT NULL,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
   file_mtime int(11) unsigned DEFAULT '0' NOT NULL,
   file_inode int(11) DEFAULT '0' NOT NULL,
@@ -203,8 +203,12 @@ CREATE TABLE tx_dam (
 
   PRIMARY KEY (uid),
   KEY parent (pid),
-  KEY media_type (media_type)
-  KEY t3ver_oid (t3ver_oid)
+  KEY media_type (media_type),
+  KEY t3ver_oid (t3ver_oid),
+  KEY file_type (file_type),
+  KEY file_hash (file_hash),
+  KEY file_name (file_name),
+  KEY file_path (file_path)
 );
 
 

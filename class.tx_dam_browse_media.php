@@ -96,6 +96,7 @@ class tx_dam_browse_media extends browse_links {
 	var $damSC = false;
 
 
+	var $MCONF_name = 'txdam_elbrowser';
 
 	/**
 	 * Check if this object should be rendered.
@@ -132,7 +133,7 @@ class tx_dam_browse_media extends browse_links {
 		if (!is_object($this->damSC)) {
 			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');
 			$this->damSC = t3lib_div::makeInstance('tx_dam_SCbase');
-			$this->damSC->MCONF['name'] = 'elbrowser';
+			$this->damSC->MCONF['name'] = $this->MCONF_name;
 			$this->damSC->menuConfig();
 			$this->damSC->init();
 			$this->damSC->doc = &$this->doc;
@@ -308,11 +309,11 @@ class tx_dam_browse_media extends browse_links {
  	/**
 	 * TYPO3 Element Browser: Showing the DAM trees, allowing you to browse for media records.
 	 *
-	 * @param	string		$allowedFileTypes Comma list of allowed file types
-	 * @param	string		$disallowedFileTypes Comma list of disallowed file types
+	 * @param	array		$allowedFileTypes Array list of allowed file types
+	 * @param	array		$disallowedFileTypes Array list of disallowed file types
 	 * @return	string		HTML content for the module
 	 */
-	function dam_select($allowedFileTypes='', $disallowedFileTypes='')	{
+	function dam_select($allowedFileTypes=array(), $disallowedFileTypes=array())	{
 		global $BE_USER;
 
 		$content = '';
@@ -325,8 +326,19 @@ class tx_dam_browse_media extends browse_links {
 
 		$files = $this->getFileListArr($allowedFileTypes, $disallowedFileTypes, $this->mode);
 
+		$allowed = array();
+		if ($allowedFileTypes) {
+			$allowed[] = implode(' ', $allowedFileTypes);
+		} else {
+			$allowed[] = '*';
+		}
+		if ($disallowedFileTypes) {
+			$allowed[] = implode(' -', $disallowedFileTypes);
+		}
+		$allowed = implode(' / -', $allowed);
+
 		$fileList = '';
-		$fileList .= $this->barheader(($allowedFileTypes ? $allowedFileTypes.' ' : ''));
+		$fileList .= $this->barheader(($allowed ? $allowed.' ' : ''));
 		$fileList .= '<br/>';
 		$fileList .= $this->renderFileList($files, $this->mode);
 
@@ -521,13 +533,14 @@ class tx_dam_browse_media extends browse_links {
  	/**
 	 * Display uploads module
 	 *
-	 * @param	string		$allowedFileTypes Comma list of allowed file types
-	 * @param	string		$disallowedFileTypes Comma list of disallowed file types
+	 * @param	array		$allowedFileTypes Array list of allowed file types
+	 * @param	array		$disallowedFileTypes Array list of disallowed file types
 	 * @return	string		HTML content for the module
 	 */
-	function dam_upload($allowedFileTypes='', $disallowedFileTypes='')	{
+	function dam_upload($allowedFileTypes=array(), $disallowedFileTypes=array())	{
 		global $BE_USER, $FILEMOUNTS, $TYPO3_CONF_VARS;
 
+// TODO use $allowedFileTypes, $disallowedFileTypes
 
 		$content = '';
 
@@ -612,8 +625,8 @@ class tx_dam_browse_media extends browse_links {
 	/**
 	 * Makes a DAM db query and collects data to be used in EB display
 	 *
-	 * @param	string		$allowedFileTypes Comma list of allowed file types
-	 * @param	string		$disallowedFileTypes Comma list of disallowed file types
+	 * @param	array		$allowedFileTypes Array list of allowed file types
+	 * @param	array		$disallowedFileTypes Array list of disallowed file types
 	 * @param	string		$mode EB mode: "db", "file", ...
 	 * @return	array		Array of file elements
 	 */
@@ -629,12 +642,12 @@ class tx_dam_browse_media extends browse_links {
 		$this->damSC->selection->qg->query['FROM']['tx_dam'] = tx_dam_db::getMetaInfoFieldList(true, array('hpixels','vpixels','caption'));
 		#$this->damSC->selection->qg->addSelectFields(...
 		if ($allowedFileTypes) {
-			$extList = '"'.implode ('","', explode(',',$allowedFileTypes)).'"';
+			$extList = '"'.implode ('","', $allowedFileTypes).'"';
 			$this->damSC->selection->qg->addWhere('AND tx_dam.file_type IN ('.$extList.')', 'WHERE', 'tx_dam.file_type');
 		}
 		if ($disallowedFileTypes) {
-			$extList = '"'.implode ('","', explode(',',$disallowedFileTypes)).'"';
-			$this->damSC->selection->qg->addWhere('AND NOT tx_dam.file_type IN ('.$extList.')', 'WHERE', 'NOT tx_dam.file_type');
+			$extList = '"'.implode ('","', $disallowedFileTypes).'"';
+			$this->damSC->selection->qg->addWhere('AND tx_dam.file_type NOT IN ('.$extList.')', 'WHERE', 'NOT tx_dam.file_type');
 		}
 		$this->damSC->selection->execSelectionQuery(TRUE);
 
@@ -748,16 +761,18 @@ class tx_dam_browse_media extends browse_links {
 				'act' => '',
 				'mode' => '',
 				'bparams' => '',
+				'txdamSel' => '',
 				);
-			$MCONF['name']='tx_dam_browse';
 			$settings = t3lib_div::_GP('SET');
 				// save params in session
 			if ($this->act) $settings['act'] = $this->act;
 			if ($this->mode) $settings['mode'] = $this->mode;
 			if ($this->bparams) $settings['bparams'] = $this->bparams;
 
-			$MOD_SETTINGS = t3lib_BEfunc::getModuleData($MOD_MENU, $settings, $MCONF['name']);
-			$this->damSC->MOD_SETTINGS = $MOD_SETTINGS;
+			$MOD_SETTINGS = $GLOBALS['BE_USER']->getModuleData('txdamM1_list', '');
+			$MOD_SETTINGS = is_array($MOD_SETTINGS) ? $MOD_SETTINGS : array();
+			$MOD_SETTINGS = array_merge($MOD_SETTINGS, t3lib_BEfunc::getModuleData($MOD_MENU, $settings, $this->MCONF_name));
+			$GLOBALS['SOBE']->MOD_SETTINGS = $this->damSC->MOD_SETTINGS = $MOD_SETTINGS;
 		}
 		if($key) {
 			return $MOD_SETTINGS[$key];
@@ -791,24 +806,44 @@ class tx_dam_browse_media extends browse_links {
 		$pArr = explode('|', $this->bparams);
 		$this->formFieldName = $pArr[0];
 
+		$this->allowedFileTypes = array();
+		$this->disallowedFileTypes = array();
+
 		switch((string)$this->mode)	{
 			case 'rte':
 			break;
 			case 'db':
 				$this->allowedTables = $pArr[3];
 				if ($this->allowedTables=='tx_dam') {
-					$this->allowedFileTypes = $pArr[4];
-					$this->disallowedFileTypes = $pArr[5];
+					$this->allowedFileTypes = t3lib_div::trimExplode(',', $pArr[4], true);
+					$this->disallowedFileTypes = t3lib_div::trimExplode(',', $pArr[5], true);
 				}
 			break;
 			case 'file':
 			case 'filedrag':
 				$this->allowedTables = $pArr[3];
-				$this->allowedFileTypes = $pArr[3];
+				$this->allowedFileTypes = t3lib_div::trimExplode(',', $pArr[3], true);
 			break;
 			case 'wizard':
 			break;
 		}
+
+		if ($this->allowedFileTypes) {
+			$allAllowed = false;
+			foreach ($this->allowedFileTypes as $key => $type) {
+				if ($type=='*') {
+					$allAllowed = true;
+				} elseif (substr($type,0,1)=='-') {
+					unset($this->allowedFileTypes[$key]);
+					$this->disallowedFileTypes[] = substr($type,1);
+				}
+			}
+
+			if ($allAllowed) {
+				$this->allowedFileTypes = array();
+			}
+		}
+
 	}
 
 
