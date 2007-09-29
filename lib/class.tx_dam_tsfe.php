@@ -127,6 +127,8 @@ class tx_dam_tsfe {
 	 * @return void
 	 */
 	function initLangObject() {
+		global $TYPO3_CONF_VARS;
+		
 		if (TYPO3_MODE=='FE') {
 			if (!is_object($GLOBALS['LANG']))	{
 				require_once(PATH_site.TYPO3_mainDir.'sysext/lang/lang.php');

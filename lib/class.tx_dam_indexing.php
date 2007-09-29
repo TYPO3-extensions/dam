@@ -679,7 +679,8 @@ class tx_dam_indexing {
 	 * @return	array		Meta data array. $meta['fields'] has the record data.
 	 */
 	function indexFile($pathname, $crdate=0, $pid=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL, $metaPreset=array())	{
-
+		global $TYPO3_CONF_VARS;
+		
 
 		$pathname = tx_dam::file_absolutePath($pathname);
 
@@ -1069,6 +1070,8 @@ class tx_dam_indexing {
 	 * @return	array		file meta information
 	 */
 	function getFileMetaInfo($pathname, $meta)	{
+		global $TYPO3_CONF_VARS;
+		
 
 		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
 
@@ -1169,6 +1172,8 @@ class tx_dam_indexing {
 	 * @return	string		language iso code
 	 */
 	function getMetaLanguage($meta)	{
+		global $TYPO3_CONF_VARS;
+		
 		$language = '';
 
 		if ($meta['fields']['search_content'] AND is_object($serviceObj = t3lib_div::makeInstanceService('textLang'))) {
@@ -1306,6 +1311,8 @@ class tx_dam_indexing {
 	 * @return	string		text excerpt of false
 	 */
 	function getFileTextExcerpt($pathname, $file_type, $limit=64000) {
+		global $TYPO3_CONF_VARS;
+		
 
 		$textExcerpt = FALSE;
 

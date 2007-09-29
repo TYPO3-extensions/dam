@@ -52,16 +52,16 @@ require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 
+$BE_USER->modAccess($MCONF,1);
+
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
 
+require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
+
+
 $LANG->includeLLFile('EXT:dam/mod_file/locallang.xml');
 
-
-$BE_USER->modAccess($MCONF,1);
-
-
-require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
 
 
 /**

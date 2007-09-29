@@ -127,6 +127,8 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 	 * @return void
 	 */
 	function _filebrowser_makeDataList($pathInfo) {
+		global $TYPO3_CONF_VARS;
+		
 		//
 		// fetches files and folder
 		//

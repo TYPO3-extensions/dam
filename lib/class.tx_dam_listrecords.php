@@ -448,14 +448,14 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		}
 
 		$titletext = t3lib_BEfunc::getRecordIconAltText($item, $this->table);
-		$itemIcon = t3lib_iconWorks::getIconImage($this->table, $item, $GLOBALS['BACK_PATH'] ,'title="'.$titletext.'"');
+		$itemIcon = tx_dam::icon_getFileTypeImgTag($item, 'title="'.$titletext.'"');
 		if ($this->enableContextMenus) $itemIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($itemIcon, $this->table, $item['uid']);
 
 		if (!is_file(tx_dam::file_absolutePath($item))) {
 			$item['file_status'] = TXDAM_status_file_missing;
 			$itemIcon.= $iconNotIndexed;
 		}
-#		$itemIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($itemIcon, $this->table, $item['uid']);
+
 		return $itemIcon;
 	}
 
@@ -552,6 +552,8 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 * @return	string		HTML table with the control panel (unless disabled)
 	 */
 	function getItemControl($item)	{
+		global $TYPO3_CONF_VARS;
+		
 		static $actionCall;
 
 		$content = '';
@@ -611,6 +613,8 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 * @see renderMultiActionBar()
 	 */
 	function getMultiActions() {
+		global $TYPO3_CONF_VARS;
+		
 
 		$permsEdit = ($this->calcPerms & 16);
 		$permsDelete = ($this->calcPerms & 16);

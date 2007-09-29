@@ -130,6 +130,8 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)	{
+		global $TYPO3_CONF_VARS;
+		
 		$this->SOBE = & $SOBE;
 
 		$this->sl = t3lib_div::makeInstance('tx_dam_selection');
@@ -143,6 +145,8 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function initQueryGen()	{
+		global $TYPO3_CONF_VARS;
+		
 		$this->qg = t3lib_div::makeInstance('tx_dam_querygen');
 	}
 

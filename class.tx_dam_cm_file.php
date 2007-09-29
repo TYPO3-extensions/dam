@@ -46,7 +46,8 @@ require_once (PATH_txdam.'lib/class.tx_dam_actioncall.php');
 class tx_dam_cm_file {
 
 	function main(&$backRef, $menuItems, $file, $uid)	{
-		global $BE_USER, $TCA, $LANG;
+		global $BE_USER, $TCA, $LANG, $TYPO3_CONF_VARS;
+		
 
 
 			// Returns directly, because the clicked item was not a file

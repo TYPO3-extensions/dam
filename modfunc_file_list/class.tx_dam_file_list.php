@@ -56,7 +56,7 @@ require_once (PATH_txdam.'lib/class.tx_dam_iterator_dir.php');
 require_once (PATH_txdam.'lib/class.tx_dam_listfiles.php');
 
 /**
- * Module extension (addition to function menu) 'List' for the 'dam_file' extension.
+ * Module extension 'Media>File>List'
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Mod
@@ -126,7 +126,8 @@ class tx_dam_file_list extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()	{
-		global $FILEMOUNTS,$BE_USER,$LANG,$BACK_PATH;
+		global $FILEMOUNTS,$BE_USER,$LANG,$BACK_PATH, $TYPO3_CONF_VARS;
+		
 
 		$content = '';
 
@@ -146,6 +147,8 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		//
 
 		$dirListFiles = t3lib_div::makeInstance('tx_dam_iterator_dir');
+// TODO TSconfig / option  enableAutoIndexing
+		$dirListFiles->enableAutoIndexing = true;
 // TODO TSconfig / option
 		if (!$BE_USER->isAdmin()) {
 			$dirListFiles->excludeByRegex ('^\.');
@@ -161,7 +164,6 @@ class tx_dam_file_list extends t3lib_extobjbase {
 
 		$filelist->setParameterName('form', $this->pObj->formName);
 
-		$filelist->enableAutoIndexing = true;
 			// Enable/disable display of thumbnails
 		$filelist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showThumb'];
 			// Enable/disable display of long titles
@@ -176,7 +178,7 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		$filelist->enableContextMenus = true;
 
 
-// TODO clipBoard
+// TODO Clipboard
 $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
@@ -302,6 +304,8 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 	 * @return HTML
 	 */
 	function getActions() {
+		global $TYPO3_CONF_VARS;
+		
 		$content = '';
 
 		if($this->pObj->pathInfo['dir_writable']) {

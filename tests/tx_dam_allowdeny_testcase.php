@@ -138,6 +138,8 @@ class tx_dam_allowdeny_testcase extends tx_dam_testlib {
 	 * @return array
 	 */
 	private function getFixture ($name) {
+		global $TYPO3_CONF_VARS;
+		
 		switch ($name) {
 			case 'explicit01':
 				$setupTxt = '

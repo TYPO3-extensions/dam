@@ -119,7 +119,7 @@ class tx_dam_navframe {
 
 
 			function _refresh_nav()	{
-				document.location="'.htmlspecialchars(t3lib_div::getIndpEnv('SCRIPT_NAME').'?unique='.time()).'";
+				document.location="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => time()))).'";
 			}
 
 				// Highlighting rows in the page tree:
@@ -181,7 +181,8 @@ class tx_dam_navframe {
 	 * @return	void
 	 */
 	function main()	{
-		global $LANG;
+		global $LANG, $TYPO3_CONF_VARS;
+		
 
 		$this->content = '';
 		$this->content.= $this->doc->startPage('Navigation');

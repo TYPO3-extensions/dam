@@ -262,6 +262,21 @@ class tx_dam {
 
 
 	/**
+	 * Returns the plain file path by a given uid.
+	 *
+	 * @param	integer		$uid
+	 * @return	string		file path
+	 */
+	function file_getPathByUid ($uid) {
+		$path = false;
+		if ($meta = tx_dam::meta_getDataByUid ($uid, 'file_name,file_path')) {
+			$path = tx_dam::file_absolutePath($meta);
+		}
+		return $path;
+	}
+	
+	
+	/**
 	 * Calculates a hash value from a file.
 	 * The hash is used to identify file changes or a file itself.
 	 * Remember that a file can occur multiple times in the filesystem, therefore you can detect only that it is the same file. But you have to take the location (path) into account to identify the right file.
@@ -360,9 +375,10 @@ class tx_dam {
 	 * This is for files managed by the DAM only. Other files may fail.
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param	array		$conf Additional configuration
 	 * @return	string		URL to file
 	 */
-	function file_url ($fileInfo) {
+	function file_url ($fileInfo, $conf) {
 // TODO use download framework
 		$file_url = t3lib_div::getIndpEnv('TYPO3_SITE_URL').tx_dam::file_relativeSitePath ($fileInfo);
 
@@ -453,7 +469,8 @@ class tx_dam {
 			return $path;
 		}
 		$mountpath = is_null($mountpath) ? PATH_site : tx_dam::path_makeClean ($mountpath);
-		return $mountpath.$path;
+		$path = $mountpath ? $mountpath.$path : '';
+		return $path;
 	}
 
 
@@ -549,6 +566,7 @@ class tx_dam {
 			$pathInfo['mount_type'] =  $FILEMOUNTS[$pathInfo['mount_id']]['type'];
 			// $pathInfo['web_nonweb'] = t3lib_BEfunc::getPathType_web_nonweb($path); // prevent using t3lib_BEfunc
 			$pathInfo['web_nonweb'] = t3lib_div::isFirstPartOfStr($path, t3lib_div::getIndpEnv('TYPO3_DOCUMENT_ROOT')) ? 'web' : '';
+			$pathInfo['web_sys'] = $pathInfo['web_nonweb'] ? 'web' : 'sys';
 
 			if (TYPO3_MODE=='BE') {
 				$pathInfo['dir_accessable'] = $pathInfo['mount_id'] ? true : false;
@@ -942,6 +960,7 @@ class tx_dam {
 	 *
 	 * @param	array		$row Meta data record array with 'uid' field
 	 * @param	mixed		$conf
+	 * @param	boolean		$mode TYPO3_MODE (FE, BE)
 	 * @return	array		Meta data array or false
 	 */
 	function meta_getVariant ($row, $conf, $mode=TYPO3_MODE) {
@@ -1357,35 +1376,36 @@ class tx_dam {
 
 		$error = false;
 
-		$filename = tx_dam::file_absolutePath($filename);
-
-		 if(!@is_file($filename)){
-			 tx_dam::notify_fileDeleted($filename);
-
-		 } else {
-
-				// Init TCE-file-functions object:
-			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
-			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
-			$TCEfile->init();
-
-				// Processing rename folder
-			$cmd = array();
-			$cmd['delete']['NONE']['data'] = $filename;
-
-			$TCEfile->setCmdmap($cmd);
-			$TCEfile->process();
-
-			if ($TCEfile->errors()) {
-				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+		if ($filename = tx_dam::file_absolutePath($filename)) {
+	
+			 if(!@is_file($filename)){
+				 tx_dam::notify_fileDeleted($filename);
+	
+			 } else {
+	
+					// Init TCE-file-functions object:
+				require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+				$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+				$TCEfile->init();
+	
+					// Processing rename folder
+				$cmd = array();
+				$cmd['delete']['NONE']['data'] = $filename;
+	
+				$TCEfile->setCmdmap($cmd);
+				$TCEfile->process();
+	
+				if ($TCEfile->errors()) {
+					$error = $TCEfile->getLastError($getFullErrorLogEntry);
+				}
 			}
-		}
-
-		if (!$error) {
-			$info = array(
-					'target_file' => $filename,
-				);
-			tx_dam::_callProcessPostTrigger('deleteFile', $info);
+	
+			if (!$error) {
+				$info = array(
+						'target_file' => $filename,
+					);
+				tx_dam::_callProcessPostTrigger('deleteFile', $info);
+			}
 		}
 
 		return $error;
@@ -1527,6 +1547,8 @@ class tx_dam {
 	 * @see tx_dam_tce_file::getLastError()
 	 */
 	function process_createFile($filename, $content='', $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+		
 
 		$error = false;
 
@@ -1577,6 +1599,8 @@ class tx_dam {
 	 * @see tx_dam_tce_file::getLastError()
 	 */
 	function process_editFile($filename, $content='', $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+		
 
 		$error = false;
 
@@ -1629,6 +1653,8 @@ class tx_dam {
 	 * @see tx_dam_tce_file::getLastError()
 	 */
 	function process_replaceFile($meta, $upload_data, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+		
 
 		$error = false;
 
@@ -1683,7 +1709,7 @@ class tx_dam {
 					// reindex the file
 				$setup = array(
 						'recursive' => false,
-						'doReindexing' => 2,
+						'doReindexing' => 2, // reindexPreserve - preserve old data if new is empty
 					);
 				tx_dam::index_process ($newFile, $setup);
 
@@ -1730,12 +1756,12 @@ class tx_dam {
 
 			// Processing rename folder
 		$cmd = array();
-		$cmd['rename']['NONE']['target'] = $oldPath;
+		$cmd['rename']['NONE']['target'] = preg_replace('#/$#', '', $oldPath);
 		$cmd['rename']['NONE']['data'] = $newName;
 
 		$TCEfile->setCmdmap($cmd);
 		$TCEfile->process();
-// FIXME does not work: Directory "/div/sites/dam/www/fileadmin/test/bbb/" was not renamed! Write-permission problem in "/div/sites/dam/www/fileadmin/test/bbb/"?
+
 		if ($TCEfile->errors()) {
 			$error = $TCEfile->getLastError($getFullErrorLogEntry);
 		}
@@ -1985,17 +2011,17 @@ class tx_dam {
 	 ***************************************/
 
 
-
 	/**
 	 * Returns the icon filepath for a file type icon for a given file.
 	 * $mimeType = tx_dam::file_getType($filename);
 	 *
 	 * @param	array		$mimeType Describes the type of a file. Can be meta record array or array from tx_dam::file_getType().
 	 * @param	boolean		$absolutePath If set the path to the icon is absolute. By default it's relative to typo3/ folder.
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	string		Icon image file path
 	 * @see tx_dam::file_getType()
 	 */
-	function icon_getFileType ($mimeType, $absolutePath=false) {
+	function icon_getFileType ($mimeType, $absolutePath=false, $mode=TYPO3_MODE) {
 		static $iconCache = array();
 		static $iconCacheRel = array();
 
@@ -2017,7 +2043,7 @@ class tx_dam {
 
 			} else {
 
-				foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'] as $pathIcons ) {
+				foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
 					if (@file_exists($pathIcons.$mimeType['file_type'].'.gif')) {
 						$iconfile = $pathIcons.$mimeType['file_type'].'.gif';
 						$cacheKey = $mimeType['file_type'];
@@ -2027,7 +2053,7 @@ class tx_dam {
 				}
 
 				if(!$iconfile AND $mediaType = tx_dam::convert_mediaType($mimeType['media_type'])) {
-					foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'] as $pathIcons ) {
+					foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
 						if (@file_exists($pathIcons.'mtype_'.$mediaType.'.gif')) {
 							$iconfile = $pathIcons.'mtype_'.$mediaType.'.gif';
 							$cacheKey = '_mtype_'.$mimeType['media_type'];
@@ -2061,43 +2087,53 @@ class tx_dam {
 	 *
 	 * @param	array		$pathInfo Path info array: $pathInfo = tx_dam::path_getInfo($path)
 	 * @param	boolean		$absolutePath If set the path to the icon is absolute. By default it's relative to typo3/ folder.
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	string		Iconpath
 	 * @see tx_dam::path_getInfo()
+	 * @todo caching
 	 */
-	function icon_getFolder($pathInfo, $absolutePath=false)	{
+	function icon_getFolder($pathInfo, $absolutePath=false, $mode=TYPO3_MODE)	{
+
 
 		if ($pathInfo['mount_path'] == $pathInfo['dir_path_absolute']) {
 			switch($pathInfo['mount_type'])	{
-				case 'user':	$iconfile = 'gfx/i/_icon_ftp_user.gif';	break;
-				case 'group':	$iconfile = 'gfx/i/_icon_ftp_group.gif';	break;
-				default:		$iconfile = 'gfx/i/_icon_ftp.gif';	break;
+				case 'user':	$iconfile = 'folder_mount_user.gif';	break;
+				case 'group':	$iconfile = 'folder_mount_group.gif';	break;
+				default:		$iconfile = 'folder_mount.gif';	break;
 			}
 		}
 		else {
 			if($pathInfo['__protected']) {
-				$iconfile = PATH_txdam_rel.'i/_icon_'.$pathInfo['web_nonweb'].'folders_protected.gif';
+				$iconfile = 'folder_'.$pathInfo['web_sys'].'_protected.gif';
 			}
 			elseif ($pathInfo['dir_name']=='_temp_')	{
-				$iconfile = 'gfx/i/sysf.gif';
+				$iconfile = 'folder_temp.gif';
 			}
 			elseif ($pathInfo['dir_name']=='_recycler_')	{
-				$iconfile = 'gfx/i/recycler.gif';
+				$iconfile = 'folder_recycler.gif';
 			}
 // what is this - makes it sense?
 			elseif ($pathInfo['mount_id']=='_temp_')	{
-				$iconfile = 'gfx/i/_icon_ftp.gif';
+				$iconfile = 'folder_mount.gif';
 			} else {
-				$iconfile = 'gfx/i/_icon_'.$pathInfo['web_nonweb'].'folders'.($pathInfo['dir_writable']?'':'_ro').'.gif';
+				$iconfile = 'folder_'.$pathInfo['web_sys'].($pathInfo['dir_writable']?'':'_ro').'.gif';
 			}
 		}
 
-		if ($absolutePath) {
-			$iconfile = PATH_site.TYPO3_mainDir.$iconfile;
-		} elseif (TYPO3_MODE=='FE') {
-			$iconfile = TYPO3_mainDir.$iconfile;
-			#$iconfile = preg_replace ('#^'.preg_quote(PATH_site).'#', '', $iconfile);
+		foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
+			if (@is_file($pathIcons.$iconfile)) {
+				$iconfile = $pathIcons.$iconfile;
+				break;
+			}
 		}
-
+		
+		if (!$absolutePath) {
+			$iconfile = preg_replace('#^'.preg_quote(PATH_site).'#', '', $iconfile);
+	 		if (TYPO3_MODE=='BE') {
+				$iconfile = '../'.$iconfile;
+			}
+		}
+		
 		return $iconfile;
 	}
 
@@ -2107,11 +2143,13 @@ class tx_dam {
 	 *
 	 * @param	array		$infoArr info array: eg. $pathInfo = tx_dam::path_getInfo($path)
 	 * @param	boolean		$addAttrib Additional attributes for the image tag..
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	string		Icon img tag
 	 * @see tx_dam::path_getInfo()
 	 */
-	function icon_getFileTypeImgTag($infoArr, $addAttrib='')	{
-		global $TYPO3_CONF_VARS;
+	function icon_getFileTypeImgTag($infoArr, $addAttrib='', $mode=TYPO3_MODE)	{
+		global $TYPO3_CONF_VARS, $TCA;
+		static $iconCacheSize = array();
 
 		require_once(PATH_t3lib.'class.t3lib_iconworks.php');
 
@@ -2120,13 +2158,30 @@ class tx_dam {
 		}
 		elseif (isset($infoArr['file_name']) OR isset($infoArr['file_type']) OR isset($infoArr['media_type'])) {
 			$iconfile = tx_dam::icon_getFileType ($infoArr);
+			
+			if ($mode=='BE') {
+				$tca_temp_typeicons = $TCA['tx_dam']['ctrl']['typeicons'];
+				$tca_temp_iconfile = $TCA['tx_dam']['ctrl']['iconfile'];
+				unset($TCA['tx_dam']['ctrl']['typeicons']);
+				$TCA['tx_dam']['ctrl']['iconfile'] = $iconfile;
+				
+				$iconfile = t3lib_iconWorks::getIcon('tx_dam', $infoArr, $shaded=false);
+				
+				$TCA['tx_dam']['ctrl']['iconfile'] = $tca_temp_iconfile;
+				$TCA['tx_dam']['ctrl']['typeicons'] = $tca_temp_typeicons;
+			}
 		}
-
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconfile, 'width="18" height="16"').' class="typo3-icon"  alt="" '.trim($addAttrib).' />';
+		
+		if (!$iconCacheSize[$iconfile]) {
+				// Get width/height:
+			$iInfo = @getimagesize(t3lib_div::resolveBackPath(PATH_site.TYPO3_mainDir.$iconfile));
+			$iconCacheSize[$iconfile] = $iInfo[3];
+		}
+		
+		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconfile, $iconCacheSize[$iconfile]).' class="typo3-icon"  alt="" '.trim($addAttrib).' />';
 
 		return $icon;
 	}
-
 
 
 
@@ -2312,15 +2367,19 @@ class tx_dam {
 	/**
 	 * Register a path to additional file type icons
 	 *
-	 * @param	string		$path Absolute path to icon files
+	 * @param	string		$path Path to icon files ("EXT:" prefix will be resolved)
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	void
 	 */
-	function register_fileIconPath ($path) {
-		if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'])) {
-			$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'] = array();
-			$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'][] = $path;
+	function register_fileIconPath ($path, $mode=TYPO3_MODE) {
+
+		$path = tx_dam::path_makeClean(t3lib_div::getFileAbsFileName($path));
+
+		if(!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode])) {
+			$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] = array();
+			$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode][] = $path;
 		} else {
-			array_unshift ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'], $path);
+			array_unshift ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode], $path);
 		}
 	}
 
@@ -2342,16 +2401,18 @@ class tx_dam {
 	 * Returns the registry array from for a type like action, editor, mediaTable. Except fileType.
 	 *
 	 * @param string $type Registry name: mediaTable, fileIconPath, action, editor, ... (from register_XXX())
+	 * @param string $select Some special prameter. Depends on the entriy to be fetched
 	 * @return array
 	 */
-	function register_getEntries($type) {
+	function register_getEntries($type, $select) {
 		$registry = array();
 		switch ($type) {
 			case 'mediaTable':
 					$registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['mediaTables'];
 				break;
 			case 'fileIconPath':
-					$registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'];
+					$mode = $select ? $select : TYPO3_MODE;
+					$registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode];
 				break;
 			default:
 					if (!is_array($registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam'][$type.'Classes'])) {

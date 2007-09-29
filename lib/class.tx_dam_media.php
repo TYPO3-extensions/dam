@@ -566,6 +566,8 @@ var $doAutoMetaUpdate = false;
 	 * @todo getContent(): more fields and user fields
 	 */
 	function getContent ($field, $conf=array())	{
+		global $TYPO3_CONF_VARS;
+		
 		require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 		$content = '';

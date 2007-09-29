@@ -22,6 +22,9 @@ if (!function_exists('stripos')) {
 if (!function_exists('str_ireplace')) {
 	require_once(PATH_txdam.'compat/str_ireplace.php');
 }
+if (!function_exists('array_diff_key')) {
+	require_once(PATH_txdam.'compat/array_diff_key.php');
+}
 
 
 	// that's the base API
@@ -105,7 +108,8 @@ tx_dam::config_setValue('setup.devel', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup
 tx_dam::config_setValue('setup.debug', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['debug']);
 
 	// register default icons
-tx_dam::register_fileIconPath(PATH_txdam.'i/18/');
+tx_dam::register_fileIconPath(PATH_txdam.'i/18/', 'FE');
+tx_dam::register_fileIconPath(PATH_txdam.'i/18/', 'BE');
 
 
 	// field templates for usage in other tables to link media records
@@ -134,7 +138,7 @@ tx_dam::register_indexingRule ('tx_damindex_rule_doReindexing', 'EXT:dam/compone
 tx_dam::register_indexingRule ('tx_damindex_rule_titleFromFilename', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_titleFromFilename');
 tx_dam::register_indexingRule ('tx_damindex_rule_dryRun', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_dryRun');
 
-if($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']) {
+if($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['debug']) {
 	tx_dam::register_indexingRule ('tx_damindex_rule_devel', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_devel');
 }
 

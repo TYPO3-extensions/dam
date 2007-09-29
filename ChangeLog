@@ -1,3 +1,25 @@
+06-11-25 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: tx_dam_action_renameFileRec for list module
+	* Added: tx_dam_action_replaceFileRec for list module
+	* Added: tx_dam::icon_getFileTypeImgTag() redner enable fields now when in BE mode
+	* Change: File and folder icons are fully themable for FE and BE. dam_fileicons ext show how
+	
+06-11-24 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: #4261: insert a check is_array before the merge $MOD_SETTINGS
+	* Fix: #4413: added check to tx_dam_tce_process if a file exists that should be deleted
+	* Fix: #4263: DAM Media Browser doesn't select any file, if disallowed_types are defined in TCA
+	* Fix: #4232: The umlaute of selected categories are shown in uft-chars with BE in utf8
+	* Fix: #4368: Renaming of folders fails
+	*Change: once again checked all occurencies of t3lib_div::makeInstance and added global $TYPO3_CONF_VARS; to make XCLASSes work
+
+06-11-22 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_index_rule_folderAsCat works again
+	* Fix: small fixes related to PHP 4 and wrong function names
+	* Fix: tx_dam_action_editFileRecord works again
+
 06-11-19 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: implemented multi action framework

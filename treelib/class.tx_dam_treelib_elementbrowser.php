@@ -144,7 +144,8 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 	 * @return	string		HTML content
 	 */
 	function main()	{
-		global $BE_USER;
+		global $BE_USER, $TYPO3_CONF_VARS;
+		
 
 			// Starting content:
 		$content .= $this->doc->startPage('TBE category tree selector');

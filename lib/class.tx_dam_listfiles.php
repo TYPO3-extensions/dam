@@ -93,10 +93,6 @@ class tx_dam_listfiles extends tx_dam_listbase {
 	 */
 	var $showDetailedSize = false;
 
-	/**
-	 * enable/disbale auto indexing while showing file list
-	 */
-	var $enableAutoIndexing = false;
 
 
 
@@ -142,7 +138,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		$this->addColumn('perms', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.xml:c_rw'));
 		$this->addColumn('_CONTROL_', '');
 #		$this->addColumn('_CLIPBOARD_', '');
-
+// TODO Clipboard
 
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist typo3-filelist"';
 	}
@@ -294,29 +290,12 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		if ($type == 'file') {
 			$titleAttr = '';
 			$attachToIcon = '';
-
-
-
-				// we don't index indexing setup files
-			if ($item['file_name']=='.indexing.setup.xml') {
-
-			} else {
-
-	// TODO doing autoindexing here is ugly - move to somewhere else!!
-				if(!($uid = tx_dam::file_isIndexed($item))) {
-					$attachToIcon = $iconNotIndexed;
-					$titleAttr = $titleNotIndexed;
-					if($this->enableAutoIndexing) {
-						if ($metaRow = tx_dam::index_autoProcess($item)) {
-							$attachToIcon = '';
-							$titleAttr = '';
-							$item = $metaRow['fields'];
-						}
-					}
-				}
+			
+			if(!$item['__isIndexed'] AND !($uid = tx_dam::file_isIndexed($item))) {
+				$attachToIcon = $iconNotIndexed;
+				$titleAttr = $titleNotIndexed;
 			}
-
-
+				
 			$iconTag = tx_dam::icon_getFileTypeImgTag($item, $titleAttr);
 			if ($this->enableContextMenus) $iconTag = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($iconTag, tx_dam::file_absolutePath($item));
 			$iconTag .= $attachToIcon;
@@ -347,6 +326,8 @@ class tx_dam_listfiles extends tx_dam_listbase {
 	 * @return	string		HTML table with the control panel (unless disabled)
 	 */
 	function getItemControl($item)	{
+		global $TYPO3_CONF_VARS;
+		
 		static $actionCall = array();;
 
 		$content = '';

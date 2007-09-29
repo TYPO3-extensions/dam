@@ -120,6 +120,7 @@
 
 
 require_once (PATH_txdam.'lib/class.tx_dam_actionbase.php');
+require_once (PATH_txdam.'components/class.tx_dam_actionsFile.php');
 
 
 
@@ -1003,6 +1004,75 @@ class tx_dam_action_deleteQuickRec extends tx_dam_action_recordBase {
 	}
 }
 
+/**
+ * Rename file action
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Component
+ * @subpackage  Action
+ * @see tx_dam_actionbase
+ */
+class tx_dam_action_renameFileRec extends tx_dam_action_renameFile {
+
+	/**
+	 * Defines the types that the object can render
+	 * @var array
+	 */
+	var $typesAvailable = array('icon', 'control');
+	
+	/**
+	 * Returns true if the action is of the wanted type
+	 * This method should return true if the action is possibly true.
+	 * This could be the case when a control is wanted for a list of files and in beforhand a check should be done which controls might be work.
+	 * In a second step each file is checked with isValid().
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
+		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
+			$valid = ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam');
+		}
+		return $valid;
+	}
+}
+
+/**
+ * Rename file action
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Component
+ * @subpackage  Action
+ * @see tx_dam_actionbase
+ */
+class tx_dam_action_replaceFileRec extends tx_dam_action_replaceFile {
+
+	/**
+	 * Defines the types that the object can render
+	 * @var array
+	 */
+	var $typesAvailable = array('icon', 'control');
+	
+	/**
+	 * Returns true if the action is of the wanted type
+	 * This method should return true if the action is possibly true.
+	 * This could be the case when a control is wanted for a list of files and in beforhand a check should be done which controls might be work.
+	 * In a second step each file is checked with isValid().
+	 *
+	 * @param	string		$type Action type
+	 * @param	array		$itemInfo Item info array. Eg pathInfo, meta data array
+	 * @param	array		$env Environment array. Can be set with setEnv() too.
+	 * @return	boolean
+	 */
+	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
+		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
+			$valid = ($this->itemInfo['__type'] == 'record' AND $this->itemInfo['__table'] == 'tx_dam');
+		}
+		return $valid;
+	}
+}
 
 
 /**

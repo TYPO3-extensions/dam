@@ -219,8 +219,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$tvP[1] = rawurlencode($nMV_label);
 			} elseif (isset($PA['fieldTSConfig']['altLabels.'][$tvP[0]])) {
 				$tvP[1] = rawurlencode($this->tceforms->sL($PA['fieldTSConfig']['altLabels.'][$tvP[0]]));
-			} else {
-				$tvP[1] = rawurlencode($this->tceforms->sL(rawurldecode($tvP[1])));
 			}
 			$itemArray[$tk] = implode('|', $tvP);
 		}
@@ -359,8 +357,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$tvP[1] = rawurlencode($nMV_label);
 			} elseif (isset($PA['fieldTSConfig']['altLabels.'][$tvP[0]])) {
 				$tvP[1] = rawurlencode($this->tceforms->sL($PA['fieldTSConfig']['altLabels.'][$tvP[0]]));
-			} else {
-				$tvP[1] = rawurlencode($this->tceforms->sL(rawurldecode($tvP[1])));
 			}
 			$itemArray[$tk] = implode('|', $tvP);
 		}
@@ -1245,7 +1241,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 							'</a>';
 				}
 			}
-
+			
+// TODO Clipboard
 			$clipElements = $this->tceforms->getClipboardElements($allowed, $mode);
 			if (count($clipElements))	{
 				$aOnClick = '';

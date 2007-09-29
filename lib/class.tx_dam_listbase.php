@@ -1205,7 +1205,7 @@ class tx_dam_listbase {
 	 * @return	string		Image tag
 	 */
 	function getThumbnail($filepath, $addAtrr='', $size='')	{
-		return tx_dam_image::previewTag($filepath, $size, $addAtrr);
+		return tx_dam_image::previewImgTag($filepath, $size, $addAtrr);
 	}
 
 

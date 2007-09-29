@@ -55,11 +55,11 @@
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 
-$LANG->includeLLFile('EXT:lang/locallang_mod_web_list.xml');
-
 require_once(PATH_txdam.'lib/class.tx_dam_listrecords.php');
 require_once(PATH_txdam.'lib/class.tx_dam_iterator_db.php');
 require_once(PATH_txdam.'lib/class.tx_dam_iterator_db_lang_ovl.php');
+
+$LANG->includeLLFile('EXT:lang/locallang_mod_web_list.xml');
 
 /**
  * Module extension  'Media>List>List'
@@ -123,7 +123,8 @@ class tx_dam_list_list extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $BE_USER, $LANG, $BACK_PATH, $TCA;
+		global $BE_USER, $LANG, $BACK_PATH, $TCA, $TYPO3_CONF_VARS;
+		
 
 		$content = '';
 

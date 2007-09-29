@@ -103,6 +103,18 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 
 	/**
+	 * Configures the module for use in element Browser
+	 * 
+	 * @param object $ebObj element browser object
+	 * @return void
+	 */
+	function setEBmode ($ebObj) {
+		$this->ebObj = & $ebObj;
+		$this->enableBatchProcessing = false;
+	}
+
+
+	/**
 	 * Function menu initialization
 	 *
 	 * @return	array		Menu array
