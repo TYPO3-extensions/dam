@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -69,14 +69,14 @@ class tx_dam_list_batch extends t3lib_extobjbase {
 		//
 		// Init gui items and ...
 		//
-		
-//		$this->pObj->guiItems_registerFunc('getResultInfo', 'header');
+
+		$this->pObj->guiItems_registerFunc('getResultInfoHeader', 'header');
 
 //		$this->pObj->guiItems_registerFunc('getOptions', 'footer');
 //		$this->pObj->guiItems_registerFunc('getStoreControl', 'footer');
 	}
-	
-	
+
+
 	/**
 	 * Main function
 	 * 
@@ -84,57 +84,70 @@ class tx_dam_list_batch extends t3lib_extobjbase {
 	 */
 	function main()    {
 		global $SOBE,$BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
-		
+
 		$content = '';
 
 		//
 		// Use the current selection to create a query and count selected records
 		//
-		
+
 		$this->pObj->addSelectionToQuery();
 		$this->pObj->execSelectionQuery(TRUE);
 		$this->pObj->setSelectionCounter();
-		
-		
+
+
+
+
 		if($this->pObj->resCountAll) {
 			$batch = t3lib_div::makeInstance('tx_dam_batchProcess');
-			
+
 			if(t3lib_div::_GP($batch->startParam)) {
-				
+
 					// result info
 				$content.= $this->pObj->doc->section('',$this->pObj->getHeaderBar('', $this->pObj->btn_back()),0,1);
 				$content.= $this->pObj->doc->spacer(10);
-				
-				
+
+
 				$batch->processGP();
-				
+
 				$infoFields = tx_dam_db::getInfoFieldListDAM();
 				$this->pObj->execSelectionQuery(FALSE, ' DISTINCT '.$infoFields);
-				
+
 				$batch->runBatch($this->pObj->res);
-				
+
 				$content.= $batch->showResult();
 			} else {
-				
+
 					// header with back button
 				$content.= $this->pObj->doc->section('',$this->pObj->getHeaderBar($this->pObj->getResultInfo()),0,1);
 				$content.= $this->pObj->doc->spacer(10);
-				
+
 				$content.= $batch->showPresetForm();
-				
+
 			}
+		} else {
+
+			//
+			// output header: info bar, result browser, ....
+			//
+
+			$content.= $this->pObj->guiItems_getOutput('header');
+			$content.= $this->pObj->doc->spacer(10);
+
+				// no search result: showing selection box
+			$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
 		}
 
 		return $content;
 	}
-	
+
 
 }
 
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_batch/class.tx_dam_list_batch.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_batch/class.tx_dam_list_batch.php']);
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_batch/class.tx_dam_list_batch.php']);
 }
 
 ?>

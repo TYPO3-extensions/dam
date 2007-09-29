@@ -8,6 +8,11 @@
 $LOCAL_LANG = Array (
 	'default' => Array (
 		'tx_dam_item' => 'Mediabase',
+		'tx_dam_item.div_overview' => 'Overview',
+		'tx_dam_item.div_metrics' => 'Metrics',
+		'tx_dam_item.div_copyright' => 'Copyright',
+		'tx_dam_item.div_extraMeta' => 'Extra data',
+		'tx_dam_item.div_usage' => 'Usage',
 		'tx_dam_item.media_type' => 'Media type:',
 		'tx_dam_item.file_name' => 'File name:',
 		'tx_dam_item.file_path' => 'File path:',
@@ -34,6 +39,7 @@ $LOCAL_LANG = Array (
 		'tx_dam_item.abstract' => 'Abstract, excerpt:',
 		'tx_dam_item.date_cr' => 'Creation date:',
 		'tx_dam_item.date_mod' => 'Modified date:',
+		'tx_dam_item.loc_pheader' => 'Location:',
 		'tx_dam_item.loc_desc' => 'Location description:',
 		'tx_dam_item.loc_country' => 'Location country:',
 		'tx_dam_item.loc_city' => 'Location city:',
@@ -53,13 +59,37 @@ $LOCAL_LANG = Array (
 		'tx_dam_item.date_pheader' => 'Date:',
 		'tx_dam_item.file_pheader' => 'File:',
 		'tx_dam_item.frontend_pheader' => 'Frontend:',
+		'tx_dam_item.meta' => 'Additional meta data:',
 
 		'tx_dam_cat_item' => 'Mediabase category',
 		'tx_dam_cat_item.parent_id' => 'Parent category:',
+
+		'label.tx_dam_mountpoints' => 'DAM Mounts:',
+
+		'media_type.text' => 'Text',
+		'media_type.image' => 'Image',
+		'media_type.audio' => 'Audio',
+		'media_type.dataset' => 'Dataset',
+		'media_type.interactive' => 'Interactive',
+		'media_type.software' => 'Software',
+		'media_type.model' => 'Model',
+		'media_type.font' => 'Font',
+		'media_type.collection' => 'Collection',
+		'media_type.service' => 'Service',
+		'media_type.application' => 'Application',
+		'media_type.undefined' => 'Undefined',
+
+
+
 	),
 	'dk' => Array (
 	),
 	'de' => Array (
+		'tx_dam_item.div_overview' => 'Übersicht',
+		'tx_dam_item.div_metrics' => 'Maße',
+		'tx_dam_item.div_copyright' => 'Urheber',
+		'tx_dam_item.div_extraMeta' => 'Zusatzdaten',
+		'tx_dam_item.div_usage' => 'Verwendung',
 		'tx_dam_item.media_type' => 'Medien Typ:',
 		'tx_dam_item.file_name' => 'Dateiname:',
 		'tx_dam_item.file_path' => 'Dateipfad:',
@@ -83,6 +113,7 @@ $LOCAL_LANG = Array (
 		'tx_dam_item.abstract' => 'Zusammenfassung, Auszug:',
 		'tx_dam_item.date_cr' => 'Erzeugt am:',
 		'tx_dam_item.date_mod' => 'Verändert am:',
+		'tx_dam_item.loc_pheader' => 'Ortsangabe:',
 		'tx_dam_item.loc_desc' => 'Ortsangabe, Beschreibung:',
 		'tx_dam_item.loc_country' => 'Ortsangabe, Land:',
 		'tx_dam_item.loc_city' => 'Ortsangabe, Stadt:',
@@ -101,9 +132,23 @@ $LOCAL_LANG = Array (
 		'tx_dam_item.category' => 'Kategorien:',
 		'tx_dam_item.date_pheader' => 'Datum:',
 		'tx_dam_item.file_pheader' => 'Datei:',
+		'tx_dam_item.meta' => 'Zusätzliche Metadaten:',
 
 		'tx_dam_cat_item' => 'Mediabase Kategorie',
 		'tx_dam_cat_item.parent_id' => 'Ober-Kategorie:',
+
+		'media_type.text' => 'Text',
+		'media_type.image' => 'Bild',
+		'media_type.audio' => 'Audio',
+		'media_type.dataset' => 'Daten',
+		'media_type.interactive' => 'Interaktiv',
+		'media_type.software' => 'Software',
+		'media_type.model' => 'Modell',
+		'media_type.font' => 'Schrift',
+		'media_type.collection' => 'Sammlung',
+		'media_type.service' => 'Service',
+		'media_type.application' => 'Applikation',
+		'media_type.undefined' => 'Sonstiges',
 	),
 	'no' => Array (
 	),

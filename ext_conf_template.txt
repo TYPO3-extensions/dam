@@ -1,0 +1,4 @@
+  # cat=basic//10; type=boolean; label= Developer Functions: This activates special functions for development. This should stay deactivated for normal usage!
+devel = 0
+  # cat=basic//10; type=boolean; label= DAM References (experimental): This enables the possibility to use files as reference (and not as copy). This modifies TCEMain (and others) by XCLASSes. See ext: dam_ttcontent.
+mmref = 0

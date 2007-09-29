@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -74,8 +74,8 @@
 require_once(PATH_t3lib.'class.t3lib_treeview.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_div.php');
- 
- 
+
+
 /**
  * Base class for selection tree classes
  * 
@@ -84,22 +84,41 @@ require_once(PATH_txdam.'lib/class.tx_dam_div.php');
  * @subpackage tx_dam
  */
 class tx_dam_browseTree extends t3lib_treeView {
-	
+
+		// is able to generate a browasable tree
 	var $isTreeViewClass = TRUE;
-	
+
+		// is able to generate a tree for a select field in TCEForms
+	var $isTCEFormsSelectClass = false;
+	var $tceformsSelect_prefixTreeName = false;
+
+		// is able to handle mount points
+	var $supportMounts = false;
+
 	/**
 	 * element browser mode
 	 */
-	var $modeEB = false;
-	
+	var $mode = 'browse';
+
+
+
+
 	/**
 	 * enables selection icons: + = -
 	 */	
 	var $modeSelIcons = true;
-	
+
 	var $deselectValue = 0;
 
 	var $clickMenuScript='';
+
+
+	/**
+	 * indicates if we need to output a root icon
+	 */	
+	var $rootIconIsSet = false;
+
+
 
 	/**
 	 * [Describe function...]
@@ -109,7 +128,7 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 * @return	[type]		...
 	 */
 	function getJumpToParam($row, $command='SELECT') {
-		return '&SLCMD['.$command.']['.$this->treeName.']['.$row['uid'].']=1';
+		return '&SLCMD['.$command.']['.$this->treeName.']['.rawurlencode($row['uid']).']=1';
 	}
 
 	/**
@@ -121,26 +140,31 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 */
 	function wrapTitle($title,$row)	{
 		global $BACK_PATH;
-		
-		if ($this->modeEB) {
+
+		if ($this->mode=='elbrowser') {
 			return $this->eb_wrapTitle($title,$row);
-		} else {
+
+		} elseif ($this->mode=='tceformsSelect') {
+			return $this->tceformsSelect_wrapTitle($title,$row);
+
+		} elseif($row['uid'] || (($row['uid'] == '0') && ($this->linkRootCat))) {
 			$extra = '';
-			if($row['uid'] AND $this->modeSelIcons){			
+			if($this->modeSelIcons){
 				$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
 				$extra .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/plus.gif"   style="margin-left:2px;" width="8" height="11" border="0" alt="" /></a>';
-	
+
 				$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'AND').'\',this,\''.$this->treeName.'\');';
 				$extra .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/equals.gif" style="margin-left:6px;" width="8" height="11" border="0" alt="" /></a>';
-	
+
 				$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
 				$extra .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/minus.gif"  style="margin-left:6px;margin-right:2px;" width="8" height="11" border="0" alt="" /></a>';
-	
+
 				$extra = ' &nbsp;<span class="txdam-editbar">'.$extra.'</span>';
-	
+
 			}
 			return parent::wrapTitle($title,$row).$extra;
 		}
+		return $title;
 	}
 
 
@@ -154,7 +178,7 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 * @return	[type]		...
 	 */
 	function PM_ATagWrap($icon,$cmd,$bMark='')	{
-		if ($this->modeEB) {
+		if ($this->mode=='elbrowser') {
 			return $this->eb_PM_ATagWrap($icon,$cmd,$bMark);
 		} else {
 			return parent::PM_ATagWrap($icon,$cmd,$bMark);
@@ -167,12 +191,20 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 * @param	[type]		$rec: ...
 	 * @return	[type]		...
 	 */
-	function getRootIcon($rec) {
+	function getRootIcon($row) {
 		global $BACK_PATH;
-		return $this->wrapIcon('<img src="'.$BACK_PATH.PATH_txdam_rel.'i/catfolder.gif" width="18" height="16" align="top" alt="" />',$rec);
+
+		if($this->rootIcon) {
+			$icon = $this->wrapIcon('<img src="'.$this->rootIcon.'" width="18" height="16" align="top" alt="" />',$row);
+		} else {
+			$icon =  parent::getRootIcon($row);
+		}
+		$this->rootIconIsSet = true;
+
+		return $icon;
 	}
-	
-	
+
+
 	/**
 	 * Wrapping the image tag, $icon, for the row, $row (except for mount points)
 	 *
@@ -183,27 +215,27 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 */
 	function wrapIcon($icon,$row)	{
 		global $SOBE;
-		
+
 			// Add title attribute to input icon tag
 		$theIcon = $this->addTagAttributes($icon,($this->titleAttrib ? $this->titleAttrib.'="'.$this->getTitleAttrib($row).'"' : ''));
 
 			// Wrap icon in click-menu link.
 		if (!$this->ext_IconMode)	{
 			#$theIcon = $SOBE->doc->wrapClickMenuOnIcon($theIcon,$this->table,$this->getId($row),0);
-#TODO	
+#TODO
 			if (t3lib_extmgm::isLoaded('dam_catedit')) {
 				require_once(t3lib_extmgm::extPath('dam_catedit').'lib/class.tx_damcatedit_div.php');
 				$theIcon = tx_damcatedit_div::clickMenuWrap($theIcon, $this->table, $this->getId($row), 0, $addParams='', $enDisItems='', '', $this->clickMenuScript);
 			}
-			
+
 		} elseif (!strcmp($this->ext_IconMode,'titlelink'))	{
 // unused for now
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row).'\',this,\''.$this->domIdPrefix.$this->getId($row).'_'.$this->bank.'\');';
 			$theIcon='<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$theIcon.'</a>';
 		}
 		return $theIcon;
-	}	
-	
+	}
+
 
 	/**
 	 * [Describe function...]
@@ -212,30 +244,97 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 * @return	[type]		...
 	 */
 	function printTree($treeArr='')	{
-		if($this->modeEB) {
+
+			// 0 - show root icon always
+		if(!$this->rootIconIsSet AND count($treeArr)) {
+				// Artificial record for the tree root, id=0
+			$rootRec = $this->getRootRecord(0);
+			$firstHtml =$this->getRootIcon($rootRec);
+
+			$treeArr = array_merge(array(array('HTML'=>$firstHtml,'row'=>$rootRec,'bank'=>0)), $treeArr);
+		}
+
+		if($this->mode=='elbrowser') {
 			return $this->eb_printTree($treeArr);
 		} else {
 			return parent::printTree($treeArr);
-		}	
+		}
 	}
-	
-	
-	
+
+
+	function printRootOnly() {
+			// Artificial record for the tree root, id=0
+		$rootRec = $this->getRootRecord(0);
+		$firstHtml =$this->getRootIcon($rootRec);
+		$treeArr[] = array('HTML'=>$firstHtml,'row'=>$rootRec,'bank'=>0);
+		$this->rootIconIsSet = true;
+
+		return $this->printTree($treeArr);
+	}
+
+
+	function setMounts($mountpoints) {
+
+		if (is_array($mountpoints)) {
+			$this->MOUNTS = $mountpoints;
+		}
+	}
+
+
+
+	/********************************
+	 *
+	 * fix for non-trees - mabye not needed in the future
+	 *
+	 ********************************/
+
+
+	/**
+	 * Getting the tree data: Counting elements in resource
+	 *
+	 * @param	mixed		data handle
+	 * @return	integer		number of items
+	 * @access private
+	 * @see getDataInit()
+	 */
+	function getDataCount(&$res) {
+		if ($res) {
+			return parent::getDataCount(&$res);
+		}
+		return 0;
+	}
+
+
+	/**
+	 * Getting the tree data: frees data handle
+	 *
+	 * @param	mixed		data handle
+	 * @return	void
+	 * @access private
+	 */
+	function getDataFree(&$res){
+		if ($res) {
+			return parent::getDataFree(&$res);
+		}
+	}
+
+
+
 	/********************************
 	 *
 	 * DAM specific functions
 	 *
 	 ********************************/
-	 
-	 
-	 	
+
+
+
 	/**
 	 * @return	[type]		...
 	 */
 	function dam_defaultIcon()	{
 		return $this->iconPath.$this->iconName;
 	}
-	
+
 	/**
 	 * Returns the title for the tree
 	 * 
@@ -253,8 +352,8 @@ class tx_dam_browseTree extends t3lib_treeView {
 	function dam_treeName()	{
 		return $this->treeName;
 	}
-	
-	
+
+
 
 	/**
 	 * Returns the title of an item
@@ -262,16 +361,16 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 * @param	[type]		$id: ...
 	 * @return	string		
 	 */
-	function dam_itemTitle($id)	{	
+	function dam_itemTitle($id)	{
 		$itemTitle=$id;
-		
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(implode(',',$this->fieldArray), $this->table, 'uid='.intval($id));
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$itemTitle = $this->getTitleStr($row);
-		}	
+		}
 		return $itemTitle;
 	}
-	
+
 	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
 	 * Called from DAM
@@ -287,18 +386,58 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 */
 	function dam_selectProc($queryType, $operator, $cat, $id, $value, &$damObj)      {
 #		return array($queryType,$query);
-	}	
-	
-	
-	
+	}
+
+
+	/********************************
+	 *
+	 * TCEForms specific functions
+	 *
+	 ********************************/
+
+
+
+	/**
+	 * used inside of select fields (TCEForms)
+	 */	
+	var $TCEforms_itemFormElName='';
+	var $TCEforms_nonSelectableItemsArray=array();
+
+	/**
+	 * @param	[type]		$title: ...
+	 * @param	[type]		$row: ...
+	 * @return	[type]		...
+	 */
+	function tceformsSelect_wrapTitle($title,$row)	{
+
+		if ($this->parentField AND in_array($row[$this->parentField],$this->TCEforms_nonSelectableItemsArray)) {
+			$this->TCEforms_nonSelectableItemsArray[] = $row['uid'];
+			return '<span style="color:grey">'.$title.'</span>';
+
+		} elseif (in_array($row['uid'],$this->TCEforms_nonSelectableItemsArray)) {
+			return '<span style="color:grey">'.$title.'</span>';
+
+		} else {
+			if($row['uid']) {
+				$selectTitle = $this->tceformsSelect_prefixTreeName ? $this->dam_treeTitle(). ': '.$title : $title;
+			} else {
+				$selectTitle = $this->dam_treeTitle(). ' (Root)';
+			}
+			$id = $this->tceformsSelect_prefixTreeName ? $this->treeName.':'.$row['uid'] : $row['uid'];
+			$aOnClick = 'setFormValueFromBrowseWin(\''.$this->TCEforms_itemFormElName.'\',\''.$id.'\',\''.$selectTitle.'\'); return false;';
+			return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
+		}
+	}
+
+
 	/********************************
 	 *
 	 * element browser specific functions
 	 *
 	 ********************************/
-	 
-	 
-	 
+
+
+
 	/**
 	 * @param	[type]		$title: ...
 	 * @param	[type]		$row: ...
@@ -306,9 +445,12 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 */
 	function eb_wrapTitle($title,$row)	{
 		global $SOBE;
-		
-		$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.$this->getJumpToParam($row).'\');';
-		return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
+		if ($row['uid']) {
+			$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.$this->getJumpToParam($row).'\');';
+			return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
+		} else {
+			return $title;
+		}
 	}
 
 	/**
@@ -327,7 +469,7 @@ class tx_dam_browseTree extends t3lib_treeView {
 		$aOnClick = 'return jumpToUrl(\''.$this->script.'?PM='.$cmd.'\',\''.$anchor.'\');';
 		return '<a href="#"'.$name.' onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 	}
-				
+
 	/**
 	 * Create the folder navigation tree in HTML
 	 * 
@@ -336,14 +478,14 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 */
 	function eb_printTree($treeArr='')	{
 		global $SOBE, $BE_USER;
-		
-		$titleLen=intval($BE_USER->uc['titleLen']);	
-		
+
+		$titleLen=intval($BE_USER->uc['titleLen']);
+
 		if (!is_array($treeArr))	$treeArr=$this->tree;
-		
+
 		$out='';
 		$c=0;
-		
+
 			// Preparing the current-path string (if found in the listing we will see a red blinking arrow).
 		if (!$SOBE->curUrlInfo['value'])	{
 			$cmpPath='';
@@ -352,12 +494,12 @@ class tx_dam_browseTree extends t3lib_treeView {
 		} else {
 			$cmpPath=PATH_site.$SOBE->curUrlInfo['info'];
 		}
-		
+
 			// Traverse rows for the tree and print them into table rows:
 		foreach($treeArr as $k => $v)	{
 			$c++;
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
-			
+
 				// Creating blinking arrow, if applicable:
 			if ($SOBE->curUrlInfo['act']=='file' && $cmpPath==$v['row']['path'])	{
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg('','gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
@@ -366,20 +508,20 @@ class tx_dam_browseTree extends t3lib_treeView {
 				$arrCol='<td></td>';
 			}
 				// Create arrow-bullet for file listing (if folder path is linkable):
-			$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.$this->getJumpToParam($row).'\');';
+			$aOnClick = 'return jumpToUrl(\''.$this->script.'?act='.$SOBE->act.'&mode='.$SOBE->mode.$this->getJumpToParam($v['row']).'\');';
 			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg('','gfx/ol/arrowbullet.gif','width="18" height="16"').' alt="" /></a>' : '';
-			
+
 				// Put table row with folder together:
 			$out.='
 				<tr class="'.$bgColorClass.'">
-					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle(t3lib_div::fixed_lgd_cs($v['row']['title'],$titleLen),$v['row']).'</td>
+					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle($this->getTitleStr($v['row'],$titleLen),$v['row']).'</td>
 					'.$arrCol.'
 					<td width="1%">'.$cEbullet.'</td>
 				</tr>';
 		}
-		
+
 		$out='
-		
+
 			<!--
 				Folder tree:
 			-->
@@ -394,10 +536,10 @@ class tx_dam_browseTree extends t3lib_treeView {
 	 * 
 	 * @return	[type]		...
 	 */
-	function ext_isLinkable() {
-		return true;
+	function ext_isLinkable($row) {
+		return $row['uid'] ? true : false;
 	}
-} 
+}
 
 /**
  * Base class for selection classes
@@ -409,15 +551,15 @@ class tx_dam_browseTree extends t3lib_treeView {
 class tx_dam_selProcBase {
 
 	var $isPureSelectionClass = TRUE;
-	
+
 	var $deselectValue = 0;
-	
+
 	function tx_dam_selProcBase()	{
 #		global $LANG, $BACK_PATH;
 
 #		$this->isTreeViewClass = FALSE;
 #		$this->isPureSelectionClass = TRUE;
-		
+
 #		$this->title=$LANG->sL('LLL:EXT:dam/lib/locallang.php:mediaTypes',1);
 #		$this->treeName='txdamStrSearch';
 
@@ -441,16 +583,16 @@ class tx_dam_selProcBase {
 	 * DAM specific functions
 	 *
 	 ********************************/
-	 
-	 
-	 
+
+
+
 	/**
 	 * @return	[type]		...
 	 */
 	function dam_defaultIcon()	{
 		return $this->iconPath.$this->iconName;
 	}
-	
+
 	/**
 	 * Returns the title for the tree
 	 * 
@@ -468,8 +610,8 @@ class tx_dam_selProcBase {
 	function dam_treeName()	{
 		return $this->treeName;
 	}
-	
-	
+
+
 
 	/**
 	 * Returns the title of an item
@@ -478,10 +620,10 @@ class tx_dam_selProcBase {
 	 * @param	string		The select value (true/false,...)
 	 * @return	string		
 	 */
-	function dam_itemTitle($id, $value)	{	
+	function dam_itemTitle($id, $value)	{
 		return $id;
 	}
-	
+
 	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
 	 * Called from DAM
@@ -501,9 +643,9 @@ class tx_dam_selProcBase {
 #			$query.= ' NOT';
 #		}
 #		$query.= " LIKE BINARY '".$id."'";
-#		
+#
 #		return array($queryType,$query);
-	}		
+	}
 }
 
 

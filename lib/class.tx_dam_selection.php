@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -89,7 +89,13 @@ class tx_dam_selection {
 	 */
 	var $paramStr = 'SLCMD';
 
+	/**
+	 * prefix used for special commands (undo)
+	 */	
+	var $paramPrefix = 'tx_dam';
+
 	var $pObj;
+	var $SOBE;
 
 
 	/**
@@ -98,10 +104,21 @@ class tx_dam_selection {
 	 * @param	[type]		$$pObj: ...
 	 * @return	void		
 	 */
-	function init(&$pObj)	{
+	function init(&$pObj, &$SOBE)	{
 		$this->pObj = &$pObj;
+		$this->SOBE = &$SOBE;
 	}
 
+
+
+	/**
+	 * Checks if there's a selection
+	 * 
+	 * @return	boolean	returns true if there is a selection
+	 */
+	function hasSelection()	{
+		return count($this->sel);
+	}
 
 
 
@@ -111,34 +128,33 @@ class tx_dam_selection {
 	 * selection storage / undo
 	 *
 	 ********************************/
-	 
-	 
+
+
 	/**
 	 * Get the users last stored selection or processes.an undo command
 	 * 
 	 * @return	void		
 	 */
 	function initSelection_getStored_mergeSubmitted() {
-		
+
 		if (t3lib_div::_GP($this->paramPrefix.'_undo')) {
 			$this->undoSelection ();
 		} else {
 			$this->setCurrentSelectionFromStored();
-			$this->mergeSelection(t3lib_div::_GP($this->paramStr));
+			$this->mergeSelection(t3lib_div::GParrayMerged($this->paramStr));
 			$this->storeCurrentSelectionAsUndo();
 			$this->storeSelection();
 		}
 	}
-		
+
 	/**
 	 * Get the users last selection from MOD_SETTINGS and set it as current.
 	 * 
 	 * @return	void		
 	 */
 	function setCurrentSelectionFromStored() {
-		global $SOBE;
-		
-		$this->sel = unserialize($SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS]);
+
+		$this->sel = unserialize($this->SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS]);
 		if (!is_array($this->sel)) {
 			$this->sel = array();
 		}
@@ -151,35 +167,32 @@ class tx_dam_selection {
 	 * @return	void		
 	 */
 	function storeSelection() {
-		global $SOBE;
-		
-		$SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($SOBE->MOD_MENU, array($this->store_MOD_SETTINGS => serialize($this->sel)), $SOBE->MCONF['name'], 'ses');
+		$this->SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->SOBE->MOD_MENU, array($this->store_MOD_SETTINGS => serialize($this->sel)), $this->SOBE->MCONF['name'], 'ses');
 	}
-	
-	
+
+
 	/**
 	 * Store the current setting in the undo storage.
 	 * 
 	 * @return	void		
 	 */
 	function storeCurrentSelectionAsUndo() {
-		global $SOBE;
 
-		$undo = unserialize($SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS.'_undo']);
+		$undo = unserialize($this->SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS.'_undo']);
 		if (!is_array($undo)) {
 			$undo = array();
-		} 
-		
+		}
+
 			// save only if different from previous
 		$lastUndo = end($undo);
 		$lastUndo = serialize($lastUndo['undo']);
 		if($lastUndo!=serialize($this->sel)) {
 
 			$undo[]['undo'] = $this->sel;
-	
+
 				//remove too many entries
 			$undo = array_slice ($undo, min(0,count($undo)-10), 10);
-			$SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($SOBE->MOD_MENU, array($this->store_MOD_SETTINGS.'_undo' => serialize($undo)), $SOBE->MCONF['name'], 'ses');
+			$this->SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->SOBE->MOD_MENU, array($this->store_MOD_SETTINGS.'_undo' => serialize($undo)), $this->SOBE->MCONF['name'], 'ses');
 		}
 	}
 
@@ -190,14 +203,13 @@ class tx_dam_selection {
 	 * @return	void		
 	 */
 	function undoSelection() {
-		global $SOBE;
-		
-		$undo = unserialize($SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS.'_undo']);
+
+		$undo = unserialize($this->SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS.'_undo']);
 		array_pop ($undo);
 		$sel = end ($undo);
 		$this->sel = $sel['undo'];
 
-		$SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($SOBE->MOD_MENU, array($this->store_MOD_SETTINGS => serialize($this->sel),$this->store_MOD_SETTINGS.'_undo' => serialize($undo)), $SOBE->MCONF['name'], 'ses');
+		$this->SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->SOBE->MOD_MENU, array($this->store_MOD_SETTINGS => serialize($this->sel),$this->store_MOD_SETTINGS.'_undo' => serialize($undo)), $this->SOBE->MCONF['name'], 'ses');
 		$this->setCurrentSelectionFromStored();
 	}
 
@@ -218,35 +230,34 @@ class tx_dam_selection {
 	function getSelectionWhereClauseArray () {
 		$queryArr = array();
 		$sel = $this->sel;
-		
+
 		foreach (array('SELECT','OR','AND','NOT','SEARCH') as $queryType) {
 			if(is_array($sel[$queryType])) {
 				foreach ($sel[$queryType] as $cat => $items) {
 					if(is_array($items)) {
 						foreach($items as $id => $value) {
 							if($value) {
-								
+
 								$key=$cat.'.'.$id;
-								
+
 								switch($queryType) {
 									case 'SELECT':
 									case 'OR':
 										list($queryType, $query) = $this->getWhereClausePart($queryType, '=', $cat, $id, $value);
-										if ($queryType) {
+										if ($queryType AND $query) {
 											$queryType = $queryType=='SELECT' ? 'OR' : $queryType;
 											$queryArr[$queryType][$key] = $query;
 										}
 									break;
 									case 'NOT':
-										$query['NOT'][$key] = 
 										list($queryType, $query) = $this->getWhereClausePart($queryType, '!=', $cat, $id, $value);
-										if ($queryType) {
+										if ($queryType AND $query) {
 											$queryArr[$queryType][$key] = $query;
 										}
 									break;
 									default:
 										list($queryType, $query) = $this->getWhereClausePart($queryType, '=', $cat, $id, $value);
-										if ($queryType) {
+										if ($queryType AND $query) {
 											$queryArr[$queryType][$key] = $query;
 										}
 									break;
@@ -281,12 +292,12 @@ class tx_dam_selection {
 	 * @return	string		where clauses
 	 */
 	function getWhereClausePart($queryType, $operator, $cat, $id, $value) {
-
 		$query = '';
-        $obj = &t3lib_div::getUserObj($this->selectionClasses[$cat],'user_',TRUE);
-		if (is_object($obj) AND $id)      {
-             list($queryType, $query) = $obj->dam_selectProc($queryType, $operator, $cat, $id, $value, $this->pObj);
-        } else {
+		$obj = &t3lib_div::getUserObj($this->selectionClasses[$cat],'user_',TRUE);
+# if ($id) removed - and did again with (string)
+		if (is_object($obj) AND !((string)$id==''))      {
+			 list($queryType, $query) = $obj->dam_selectProc($queryType, $operator, $cat, $id, $value, $this->pObj);
+		} else {
 			$queryType = false;
 		}
 		return array($queryType,$query);
@@ -311,20 +322,20 @@ class tx_dam_selection {
 	 * @return	void		
 	 */
 	function mergeSelection ($sel) {
-		
+
 		$sel = $this->cleanSelectionArray($sel, FALSE);
-	
+
 			// only one main selection
-			// SELECT is in fact the same like AND
+			// SELECT is in fact the same as AND
 		if (is_array($sel['SELECT'])) {
 			reset($sel['SELECT']);
 			$cat = key($sel['SELECT']);
 			if (is_array($sel['SELECT'][$cat])) {
 				$id = key($sel['SELECT'][$cat]);
-	
-				if($sel['SELECT'][$cat][$id]) {
+
+				if($set=$sel['SELECT'][$cat][$id]) {
 					$this->sel=array();
-					$this->sel['SELECT'][$cat][$id]=1;
+					$this->sel['SELECT'][$cat][$id]=$set;
 				} else {
 					unset($this->sel['SELECT'][$cat]);
 				}
@@ -338,7 +349,7 @@ class tx_dam_selection {
 					if ($set) {
 							// makes no sense to add it if its already in select
 						if(!$this->sel['SELECT'][$cat][$id]) {
-							$this->sel['OR'][$cat][$id]=1;
+							$this->sel['OR'][$cat][$id]=$set;
 						}
 							// remove from NOT
 						unset($this->sel['NOT'][$cat][$id]);
@@ -356,7 +367,7 @@ class tx_dam_selection {
 					if ($set) {
 							// makes no sense to add it if its already in select
 						if(!$this->sel['SELECT'][$cat][$id]) {
-							$this->sel['AND'][$cat][$id]=1;
+							$this->sel['AND'][$cat][$id]=$set;
 						}
 							// remove from NOT
 						unset($this->sel['NOT'][$cat][$id]);
@@ -372,7 +383,7 @@ class tx_dam_selection {
 			foreach($sel['NOT'] as $cat => $idArr) {
 				foreach($idArr as $id => $set) {
 					if ($set) {
-						$this->sel['NOT'][$cat][$id]=1;
+						$this->sel['NOT'][$cat][$id]=$set;
 							// remove from AND and OR
 						unset($this->sel['AND'][$cat][$id]);
 						unset($this->sel['OR'][$cat][$id]);
@@ -382,13 +393,13 @@ class tx_dam_selection {
 				}
 			}
 		}
-		
+
 			// DESELECT_ID
 		if (is_array($sel['DESELECT_ID'])) {
 			foreach($sel['DESELECT_ID'] as $table => $idArr) {
 				foreach($idArr as $id => $set) {
 					if ($set) {
-						$this->sel['DESELECT_ID'][$table][$id]=1;
+						$this->sel['DESELECT_ID'][$table][$id]=$set;
 					} else {
 						unset($this->sel['DESELECT_ID'][$table][$id]);
 					}
@@ -401,7 +412,8 @@ class tx_dam_selection {
 			if (is_array($this->sel['AND']) AND count($this->sel['AND'])) {
 				$cat = key($this->sel['AND']);
 				$id=key($this->sel['AND'][$cat]);
-				$this->sel['SELECT'][$cat][$id]=1;
+				$set=$this->sel['AND'][$cat][$id];
+				$this->sel['SELECT'][$cat][$id]=$set;
 				unset($this->sel['AND'][$cat][$id]);
 			}
 		}
@@ -409,20 +421,21 @@ class tx_dam_selection {
 			if (is_array($this->sel['OR']) AND count($this->sel['OR'])) {
 				$cat = key($this->sel['OR']);
 				$id=key($this->sel['OR'][$cat]);
-				$this->sel['SELECT'][$cat][$id]=1;
+				$set=$this->sel['OR'][$cat][$id];
+				$this->sel['SELECT'][$cat][$id]=$set;
 				unset($this->sel['OR'][$cat][$id]);
 			}
 		}
-		
-			// search 
+
+			// search
 		if (is_array($sel['SEARCH'])) {
 			foreach ($sel['SEARCH'] as $cat => $idArr) {
 				$this->sel['SEARCH'][$cat] = $idArr;
 			}
 		}
-		
-	
+
 		$this->sel = $this->cleanSelectionArray($this->sel);
+
 	}
 
 
@@ -437,11 +450,14 @@ class tx_dam_selection {
 	function cleanSelectionArray($sel, $removeEmptyValues=TRUE, $countDown=2) {
 		if(is_array($sel)) {
 			foreach($sel as $type => $catArr) {
-				if(is_array($catArr) AND count($catArr)) {	
-					foreach($catArr as $cat => $idArr) {					
-						if(is_array($idArr) AND count($idArr)) {
+				if(is_array($catArr) AND count($catArr)) {
+					foreach($catArr as $cat => $idArr) {
+
+						$obj = &t3lib_div::getUserObj($this->selectionClasses[$cat],'user_',TRUE);
+
+						if(is_object($obj) AND is_array($idArr) AND count($idArr)) {
 							foreach($idArr as $id => $set) {
-								if (is_null($set) OR ($removeEmptyValues AND empty($set))) {
+								if (is_null($set) OR ($removeEmptyValues AND empty($set)) OR ($removeEmptyValues AND $set==$obj->deselectValue)) {
 									unset($sel[$type][$cat][$id]);
 								}
 							}
@@ -460,7 +476,7 @@ class tx_dam_selection {
 		} else {
 			$sel=array();
 		}
-		return $sel;		
+		return $sel;
 	}
 
 

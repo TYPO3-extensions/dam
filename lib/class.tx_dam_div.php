@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -85,7 +85,7 @@ class tx_dam_div {
 	 */
 	function getUIDsFromItemArray ($itemArr, $makeList=TRUE) {
 		$uidList = array();
-		
+
 		foreach ($itemArr as $item) {
 			if($item['uid']=intval($item['uid'])) {
 				$uidList[$item['uid']] = $item['uid'];
@@ -101,9 +101,9 @@ class tx_dam_div {
 	 * @param	array		item array
 	 * @return	string		error message
 	 */
-	function getErrorMsgFromItem ($item) {
+	function getErrorMsgFromItem ($itemArr) {
 		$errMsg = '';
-		
+
 		foreach ($itemArr as $item) {
 			if(is_array($item['errors'])) {
 				$error = end($item['errors']);
@@ -112,7 +112,7 @@ class tx_dam_div {
 		}
 		return $errMsg;
 	}
-	
+
 	/**
 	 * Creates a list of indexed files by uid
 	 * 
@@ -120,18 +120,18 @@ class tx_dam_div {
 	 */
 	function compileItemArray($uidList, $res=FALSE)	{
 		global $BACK_PATH, $LANG;
-		
+
 		$items = array();
-		
+
 		if ($res) {
 			$GLOBALS['TYPO3_DB']->sql_data_seek($res,0);
 		} else {
 			$infoFields = tx_dam_db::getInfoFieldListDAM();
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($infoFields, 'tx_dam', 'tx_dam.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($uidList).')');
 		}
-		
+
 		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			
+
 			$items[$row['uid']] = array (
 				'uid' => $row['uid'],
 				'meta' => $row,
@@ -142,7 +142,7 @@ class tx_dam_div {
 
 		return $items;
 	}
-		
+
 	/***************************************
 	 *
 	 *	 files folders paths
@@ -150,7 +150,7 @@ class tx_dam_div {
 	 ***************************************/
 
 
-	 
+
 	/**
 	 * convert a path to a relative path if possible
 	 * 
@@ -159,14 +159,14 @@ class tx_dam_div {
 	 * @return	string		Relative path
 	 */
 	function getRelPath ($path, $mountpath=NULL) {
-		
+
 		$mountpath = is_null($mountpath) ? PATH_site : $mountpath;
-		
+
 			// remove the site path from the beginning to make the path relative
 			// all other's stay absolute
 		return preg_replace('#^'.preg_quote($mountpath).'#','',$path);
 	}
-	
+
 
 	/**
 	 * Convert a path to an absolute path
@@ -183,7 +183,19 @@ class tx_dam_div {
 		return $mountpath.$path;
 	}
 
+	/**
+	 * Split a path into filename and relative path like it is saved in the dam records
+	 * 
+	 * @param	string		Path to split
+	 * @return	array		file_name and file_path
+	 */
+	function splitFilePath ($path) {
+		$file = array();
+		$file['file_name'] = basename($path);
+		$file['file_path'] = tx_dam_div::getRelPath(dirname($path).'/');
 
+		return $file;
+	}
 
 	/**
 	 * convert/cleans a file name to be more usable as title
@@ -195,7 +207,7 @@ class tx_dam_div {
 		$extpos = strrpos($title,'.');
 		$title= $extpos ? substr($title, 0, $extpos) : $title; // remove extension
 		$title=str_replace('_',' ',$title);	// Substituting "_" for " " because many filenames may have this instead of a space char.
-		$title=str_replace('%20',' ',$title);		
+		$title=str_replace('%20',' ',$title);
 		return $title;
 	}
 
@@ -203,7 +215,7 @@ class tx_dam_div {
 
 	/***************************************
 	 *
-	 *	 Arrays
+	 *	 Arrays and Lists
 	 *
 	 ***************************************/
 
@@ -220,6 +232,13 @@ class tx_dam_div {
 		return $target;
 	}
 
+
+	function listBeautify($list) {
+		if (!is_array($list)) {
+			$list = t3lib_div::trimExplode(',', $list, 1);
+		}
+		return implode(',', $list);
+	}
 
 	/***************************************
 	 *
@@ -241,7 +260,7 @@ class tx_dam_div {
 	 */
 	function fileIcon ($type,$mediaType,$attribs='align="middle"',$collection='18') {
 		global $BACK_PATH;
-		
+
 		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
 
 
@@ -273,26 +292,25 @@ class tx_dam_div {
 	 */	
 	function mediatypeIcon($row, $iconPlusType=TRUE) {
 		global $LANG, $BACK_PATH;
-		
-		$label=t3lib_befunc::getLabelFromItemlist('tx_dam', 'media_type', $row['media_type']);
 
-		list($iconname) = explode('|',strtolower($label));
+		$label=t3lib_befunc::getLabelFromItemlist('tx_dam', 'media_type', $row['media_type']);
 		$label = strtoupper(trim($LANG->sL($label)));
-			
+
 		if(!$iconPlusType) {
 			$title = ' title="'.htmlspecialchars($label).'"';
 		}
-		
+
+		$iconname = $GLOBALS['T3_VAR']['ext']['dam']['code2media'][$row['media_type']];
 		$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/media-'.$iconname.'.png'.'" border="0"'.$title.' />';
-		
+
 		if($iconPlusType) {
 			$icon = '<div style="text-align:center;">'.$icon.'<br /><span style="color: #555;">'.htmlspecialchars($label).'</span></div>';
 		}
-		
+
 		return $icon;
 	}
 
-	
+
 	/**
 	 * Returns a linked image-tag for thumbnail(s) 
 	 * All $TYPO3_CONF_VARS[GFX][imagefile_ext] extension are made to thumbnails + ttf file (renders font-example)
@@ -316,7 +334,7 @@ class tx_dam_div {
 		$title = $title? ' title="'.htmlspecialchars($title).'"' : '';
 		$attribs = $attribs ? ' '.$attribs : '';
 		$attribsIcon = $attribsIcon ? ' '.$attribsIcon : $attribs;
-		
+
 			// Check and parse the size parameter
 		$sizeParts=array();
 		if ($size = trim($size)) {
@@ -326,7 +344,7 @@ class tx_dam_div {
 
 		$thumbData='';
 
-		
+
 		$filepath = (t3lib_div::isAbsPath($theFile)?'':'../').$theFile;
 
 		if ($filepath)	{
@@ -348,13 +366,13 @@ class tx_dam_div {
 				$params.= $size?'&size='.$size:'';
 				$url = $thumbScript.'?&dummy='.$GLOBALS['EXEC_TIME'].$params;
 				$thumbData = '<img src="'.$backPath.$url.'" border="0"'.$title.$attribs.' alt="" />';
-				
+
 			} elseif($makeFileIcon) {
 				$icon = t3lib_BEfunc::getFileIcon($ext);
 				$url = 'gfx/fileicons/'.$icon;
 				$thumbData = '<img src="'.$backPath.$url.'" border="0"'.$title.$attribsIcon.' alt="" />';
 			}
-			
+
 			$onClick = !is_null($onClick) ? $onClick : 'top.launchView(\''.$filepath.'\',\'\',\''.$backPath.'\');return false;';
 			if ($thumbData AND $onClick) {
 				$thumbData = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$thumbData.'</a>';
@@ -362,22 +380,22 @@ class tx_dam_div {
 		}
 
 		return $thumbData;
-	}	
-	
- 
-    /**
+	}
+
+
+	/**
 	 * Returns a table with some info and a thumbnail from a record
 	 * 
 	 * @param	array		Record array
 	 * @return	string		HTNL content
 	 */
-    function getDAMRecordInfo($row) {
-    	global $LANG;
-		
+	function getDAMRecordInfo($row) {
+		global $LANG;
+
 		$content = '';
-		
+
 		$icon = tx_dam_div::mediatypeIcon($row);
-		
+
 		$content.= '
 			<table border="0" cellpadding="0" cellspacing="0" width="100%">
 				<tr>
@@ -389,7 +407,7 @@ class tx_dam_div {
 
 		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.php:tx_dam_item.file_name').'</strong><br />'.
 					htmlspecialchars($row['file_name']).'</div>';
-					
+
 		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.php:tx_dam_item.file_path').'</strong><br />'.
 					htmlspecialchars($row['file_path']).'</div>';
 
@@ -404,17 +422,17 @@ class tx_dam_div {
 
 		$content.= '
 					</td>';
-					
+
 		$thumb = tx_dam_SCbase::getDia($row, 115, 5, $showElements='', $onClick=NULL, $makeIcon=FALSE);
 		$content.= '
-					<td valign="top" width="1%" style="padding-left:25px;">'.$thumb.'</td>';	
-					
+					<td valign="top" width="1%" style="padding-left:25px;">'.$thumb.'</td>';
+
 		$content.= '
 				</tr>
 			</table>';
-			
+
 		return '<div style="margin:0px;">'.$content.'</div>';
-    }
+	}
 
 	/*
 $txdamTypes['media2Codes'] = array (
@@ -434,8 +452,8 @@ $txdamTypes['media2Codes'] = array (
 );
 */
 
-	
-    /**
+
+	/**
 	 * Returns a linked icon with title from a record
 	 * 
 	 * @param	string		Table name (tt_content,...)
@@ -443,30 +461,30 @@ $txdamTypes['media2Codes'] = array (
 	 * @param	boolean		For pages records the rootline will be rendered
 	 * @return	string		Rendered icon
 	 */
-    function getItemFromRecord($refTable, $row, $showRootline=FALSE) {
-        global $BACK_PATH, $LANG, $TCA, $SOBE;
+	function getItemFromRecord($refTable, $row, $showRootline=FALSE) {
+		global $BACK_PATH, $LANG, $TCA, $SOBE;
 
-        $iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
+		$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
 
-            // Prepend table description for non-pages tables
-        if(!($refTable=='pages')) {
-            $iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
-        }
+			// Prepend table description for non-pages tables
+		if(!($refTable=='pages')) {
+			$iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
+		}
 
-            // Create record title or rootline for pages if option is selected
-        if($refTable=='pages' AND $showRootline) {
-            $elementTitle = t3lib_BEfunc::getRecordPath($row['uid'], '1=1', 0);
-            $elementTitle = t3lib_div::fixed_lgd_cs($elementTitle, -($BE_USER->uc['titleLen']));
-        } else {
-            $elementTitle = t3lib_BEfunc::getRecordTitle($refTable, $row, 1);
-        }
+			// Create record title or rootline for pages if option is selected
+		if($refTable=='pages' AND $showRootline) {
+			$elementTitle = t3lib_BEfunc::getRecordPath($row['uid'], '1=1', 0);
+			$elementTitle = t3lib_div::fixed_lgd_cs($elementTitle, -($BE_USER->uc['titleLen']));
+		} else {
+			$elementTitle = t3lib_BEfunc::getRecordTitle($refTable, $row, 1);
+		}
 
-            // Create icon for record
-        $elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" title="'.$iconAltText.'"');
+			// Create icon for record
+		$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" title="'.$iconAltText.'"');
 
-            // Return item with edit link
-        return tx_dam_SCbase::wrapLink_edit($elementIcon. $elementTitle, $refTable, $row['uid']);
-    }	
+			// Return item with edit link
+		return tx_dam_SCbase::wrapLink_edit($elementIcon. $elementTitle, $refTable, $row['uid']);
+	}
 }
 
 // No XCLASS inclusion code: this class shouldn't be instantiated

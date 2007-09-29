@@ -5,7 +5,6 @@ $BACK_PATH='../../../../typo3/';
 $MCONF['name']='txdamM1_cmd';
 $MCONF['access']='';
 
-$MCONF['exclude']=TRUE;
 $MCONF['shy']=TRUE;
 
 $MCONF['script']='index.php';

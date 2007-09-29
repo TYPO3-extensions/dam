@@ -60,7 +60,7 @@ class tx_dam_db_list {
 	var $eCounter=0;		// Counting the elements no matter what...
 
 	var $fieldArray = Array();				// Decides the columns shown. Filled with values that refers to the keys of the data-array. $this->fieldArray[0] is the title column.
-	var $element_tdParams=array();		// Keys are fieldnames and values are td-parameters to add in addElement();
+	var $addElement_tdParams=array();		// Keys are fieldnames and values are td-parameters to add in addElement();
 	var $allFields=true;
 	var $setFields=array();
 
@@ -79,7 +79,7 @@ class tx_dam_db_list {
 	var $dontShowClipControlPanels=1;
 
 
-	function init()	{
+	function init($table)	{
 		global $TCA,$BE_USER,$SOBE;
 
 		if (!count($this->showElements)) {
@@ -90,7 +90,7 @@ class tx_dam_db_list {
 
 		$this->HTMLcode='';
 
-		$this->table='tx_dam';
+		$this->table=$table;
 		$this->thumbs = $BE_USER->uc['thumbnailsByDefault'];
 		$this->returnUrl=t3lib_div::_GP('returnUrl');
 		$this->showElements = array('cvsExp','refresh','editRec','sortRec','unHideRec','delRec','revertRec');
@@ -105,13 +105,16 @@ class tx_dam_db_list {
 
 
 	/**
-	 * [Describe function...]
+	 * Setting the field names to display in extended list.
+	 * Sets the internal variable $this->setFields
 	 * 
-	 * @return	[type]		...
+	 * @return	void
 	 */
 	function setDispFields()	{
-			// Display fields:
+
+			// Getting from session:
 		$dispFields = $GLOBALS['BE_USER']->getModuleData('tx_dam_db_list.php/displayFields');
+
 		$dispFields_in = t3lib_div::_GP('displayFields');
 		if (is_array($dispFields_in))	{
 			reset($dispFields_in);
@@ -119,6 +122,8 @@ class tx_dam_db_list {
 			$dispFields[$tKey]=$dispFields_in[$tKey];
 			$GLOBALS['BE_USER']->pushModuleData('tx_dam_db_list.php/displayFields',$dispFields);
 		}
+
+			// Setting result:
 		$this->setFields=$dispFields;
 	}
 
@@ -140,13 +145,31 @@ class tx_dam_db_list {
 
 			// Cleaning rowlist for duplicates and place the $titleCol as the first column always!
 		$this->fieldArray=array();
-		$this->fieldArray[] = $titleCol;
+		$this->fieldArray[] = $titleCol;	// Add title column
+		if ($this->localizationView && $l10nEnabled)	{
+			$this->fieldArray[] = '_LOCALIZATION_';
+			$this->fieldArray[] = '_LOCALIZATION_b';
+			$addWhere.=' AND '.$TCA[$table]['ctrl']['languageField'].'<=0';
+		}
+		if (!t3lib_div::inList($rowlist,'_CONTROL_'))	{
 		$this->fieldArray[] = '_CONTROL_';
-
-
+		}
+		if ($this->showClipboard)	{
+			$this->fieldArray[] = '_CLIPBOARD_';
+		}
+		if ($this->searchLevels)	{
+			$this->fieldArray[]='_PATH_';
+		}
+			// Cleaning up:
 		$this->fieldArray=array_unique(array_merge($this->fieldArray,t3lib_div::trimExplode(',',$rowlist,1)));
+		if ($this->noControlPanels)	{
+			$tempArray = array_flip($this->fieldArray);
+			unset($tempArray['_CONTROL_']);
+			unset($tempArray['_CLIPBOARD_']);
+			$this->fieldArray = array_keys($tempArray);
+		}
 
-			// Select fields:
+			// Creating the list of fields to include in the SQL query:
 		$selectFields = $this->fieldArray;
 		$selectFields[] = 'uid';
 		$selectFields[] = 'pid';
@@ -161,6 +184,13 @@ class tx_dam_db_list {
 		if ($TCA[$table]['ctrl']['typeicon_column'])	{
 			$selectFields[] = $TCA[$table]['ctrl']['typeicon_column'];
 		}
+		if ($TCA[$table]['ctrl']['versioning'])	{
+			$selectFields[] = 't3ver_id';
+		}
+		if ($l10nEnabled)	{
+			$selectFields[] = $TCA[$table]['ctrl']['languageField'];
+			$selectFields[] = $TCA[$table]['ctrl']['transOrigPointerField'];
+		}
 		if ($TCA[$table]['ctrl']['label_alt'])	{
 			$selectFields = array_merge($selectFields,t3lib_div::trimExplode(',',$TCA[$table]['ctrl']['label_alt'],1));
 		}
@@ -172,16 +202,17 @@ class tx_dam_db_list {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Traverses the table(s) to be listed and renders the output code for each:
+	 * The HTML is accumulated in $this->HTMLcode
+	 * Finishes off with a stopper-gif
 	 * 
-	 * @return	[type]		...
+	 * @return	void
 	 */
 	function generateList()	{
-		global $TCA, $LANG;
+		global $TCA;
 
 		$table = $this->table;
 		t3lib_div::loadTCA($table);
-		$val=$TCA[$table];
 
 		$fields = $this->makeFieldList($table);
 		if (is_array($this->setFields[$table]))	{
@@ -189,25 +220,28 @@ class tx_dam_db_list {
 		} else {
 			$fields = array();
 		}
-
 		$this->HTMLcode.=$this->getTable($table,implode(',',$fields));
 	}
 
 	/**
-	 * [Describe function...]
+	 * Creates the listing of records from a single table
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$rowlist: ...
-	 * @return	[type]		...
+	 * @param	string		Table name
+	 * @param	integer		Page id
+	 * @param	string		List of fields to show in the listing. Pseudo fields will be added including the record header.
+	 * @return	string		HTML table with the listing for the record.
 	 */
 	function getTable($table,$rowlist)	{
 		global $TCA, $BACK_PATH, $SOBE, $LANG;
-		
+
+			// Loading all TCA details for this table:
 		t3lib_div::loadTCA($table);
 
 			// Init
+		$addWhere = '';
 		$titleCol = $TCA[$table]['ctrl']['label'];
 		$thumbsCol = $TCA[$table]['ctrl']['thumbnail'];
+		$l10nEnabled = $TCA[$table]['ctrl']['languageField'] && $TCA[$table]['ctrl']['transOrigPointerField'] && !$TCA[$table]['ctrl']['transOrigPointerTable'];
 
 		$selFieldList = $this->getSelFieldList($table,$rowlist);
 
@@ -219,21 +253,22 @@ class tx_dam_db_list {
 		$shEl = $this->showElements;
 		$out='';
 		if ($dbCount)	{
-				// Start table:
-			$out.='<table border="0" cellpadding="0" cellspacing="0">';
 
 				// half line is drawn
 			$theData = Array();
 			if (!$this->table && !$rowlist)	{
-				$theData[$titleCol] = '<img src=clear.gif width="'.($GLOBALS['SOBE']->MOD_SETTINGS['bigControlPanel']?"230":"350").'" height=1>';
+				$theData[$titleCol] = '<img src="clear.gif" width="'.($GLOBALS['SOBE']->MOD_SETTINGS['bigControlPanel']?"230":"350").'" height="1">';
 				if (in_array('_CONTROL_',$this->fieldArray))	$theData['_CONTROL_']='';
 			}
 			$out.=$this->addelement('',$theData);
 
-				// header line is drawn
+				// Header line is drawn
 			$theData = Array();
 #			$theData[$titleCol] = '<b>'.$GLOBALS['LANG']->sL($TCA[$table]['ctrl']['title']).'</b> ('.$this->resCount.')';
 			$theUpIcon = '';
+
+				// CSH:
+			$theData[$titleCol].= t3lib_BEfunc::cshItem($table,'',$this->backPath,'',FALSE,'margin-bottom:0px; white-space: normal;');
 
 			$out.=$this->addelement($theUpIcon,$theData,' bgcolor="'.$this->headLineCol.'"');
 
@@ -241,10 +276,12 @@ class tx_dam_db_list {
 			$this->currentTable=array();
 			$currentIdList=array();
 			$doSort = ($TCA[$table]['ctrl']['sortby'] && !$this->sortField);
-#			if ($this->table || $doSort)	{
+
 				$prevUid=0;
 				$prevPrevUid=0;
+				$accRows = array();	// Accumulate rows here
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res))	{
+					$accRows[] = $row;
 					$currentIdList[] = $row['uid'];
 					if ($doSort)	{
 						if ($prevUid)	{
@@ -256,9 +293,7 @@ class tx_dam_db_list {
 						$prevUid=$row['uid'];
 					}
 				}
-				$GLOBALS['TYPO3_DB']->sql_data_seek($this->res,0);
-#			}
-//			debug($this->currentTable);
+				$GLOBALS['TYPO3_DB']->sql_free_result($this->res);
 
 
 				// items
@@ -266,7 +301,7 @@ class tx_dam_db_list {
 			$this->duplicateStack=array();
 			$this->eCounter=$this->firstItemNum;
 			$cc=0;
-			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res))	{
+			foreach($accRows as $row)	{
 				if($this->eCounter==$this->firstItemNum) {
 					$iOut.= $this->fwd_rwd_nav('rwd');
 				}
@@ -307,9 +342,9 @@ class tx_dam_db_list {
 					$params='SLCMD[DESELECT_ID][tx_dam]['.$row['uid'].']=1';
 					$actionIcon='<a href="index.php?'.$params.'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/button_deselect.gif" width="11" height="10" border="0" title="'.$LANG->getLL('deselect').'" align="top" /></a>';
 				}
-				
+
 				$iOut.=$this->addElement($theIcon,$theData,$row_bgColor,$actionIcon);
-				
+
 					// Thumbsnails?
 				if ($this->thumbs && trim($row[$thumbsCol]))	{
 					$iOut.=$this->addelement('', Array($titleCol=>$this->thumbCode($row,$table,$thumbsCol)),$row_bgColor);
@@ -333,7 +368,8 @@ class tx_dam_db_list {
 						if ($permsEdit && $this->table && is_array($currentIdList) && in_array('editRec',$shEl))	{
 							$editIdList = implode(',',$currentIdList);
 							$params='&edit['.$table.']['.$editIdList.']=edit&columnsOnly='.implode(',',$this->fieldArray).'&disHelp=1';
-							$theData[$fCol].='<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$BACK_PATH,-1,1).'"><img src="'.$this->backPath.'gfx/edit2.gif" width="11" height="12" vspace="2" border="0" align="top" title="'.$GLOBALS['LANG']->getLL('editShownColumns').'" /></a>';
+							$content = '<img src="'.$this->backPath.'gfx/edit2.gif" width="11" height="12" vspace="2" border="0" align="top" title="'.$GLOBALS['LANG']->getLL('editShownColumns').'" />';
+							$theData[$fCol].= $this->wrapEditLink($content, $params);
 						}
 					}
 				} else {
@@ -343,7 +379,8 @@ class tx_dam_db_list {
 						if (!$TCA[$table]['ctrl']['readOnly'] && $permsEdit && $TCA[$table]['columns'][$fCol])	{
 							$editIdList = implode(',',$currentIdList);
 							$params='&edit['.$table.']['.$editIdList.']=edit&columnsOnly='.$fCol.'&disHelp=1';
-							$theData[$fCol].='<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$BACK_PATH,-1,1).'"><img src="'.$this->backPath.'gfx/edit2.gif" width="11" height="12" vspace="2" border="0" align="top" title="'.sprintf($GLOBALS['LANG']->getLL('editThisColumn'),ereg_replace(":$",'',trim($GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel($table,$fCol))))).'" /></a>';
+							$content = '<img src="'.$this->backPath.'gfx/edit2.gif" width="11" height="12" vspace="2" border="0" align="top" title="'.sprintf($GLOBALS['LANG']->getLL('editThisColumn'),ereg_replace(":$",'',trim($GLOBALS['LANG']->sL(t3lib_BEfunc::getItemLabel($table,$fCol))))).'" />';
+							$theData[$fCol].= $this->wrapEditLink($content, $params);
 						}
 					} else {
 //						$theData[$fCol].='&nbsp;';
@@ -352,11 +389,25 @@ class tx_dam_db_list {
 				}
 			}
 			$out.=$this->addelement('',$theData,' bgcolor="'.$this->subHeadLineCol.'"');
-				// finish
-			$out.=$iOut;
-			$out.='</table>';
 
+
+				// The list of records is added after the header:
+			$out.=$iOut;
+
+				// ... and it is all wrapped in a table:
+			$out='
+
+
+
+			<!--
+				DB listing of elements:	"'.htmlspecialchars($table).'"
+			-->
+				<table border="0" cellpadding="0" cellspacing="0" class="typo3-dblist'.($LOISmode?' typo3-dblist-overview':'').'">
+					'.$out.'
+				</table>';
 		}
+
+			// Return content:
 		return $out;
 	}
 
@@ -369,117 +420,181 @@ class tx_dam_db_list {
 	 ********************************/
 
 	/**
+	 * Creates a sort-by link on the input string ($code).
+	 * It will automatically detect if sorting should be ascending or descending depending on $this->sortRev.
+	 * Also some fields will not be possible to sort (including if single-table-view is disabled).
 	 * 
-	 * @param	[type]		$code: ...
-	 * @param	[type]		$field: ...
-	 * @param	[type]		$table: ...
-	 * @return	[type]		...
+	 * @param	string		The string to link (text)
+	 * @param	string		The fieldname represented by the title ($code)
+	 * @param	string		Table name
+	 * @return	string		Linked $code variable
 	 */
 	function addSortLink($code,$field,$table)	{
-		if ($field=='_CONTROL_')	return $code;
-#		if ($this->disableSingleTableView)	return $code;
-		return '<a href="'.$this->listURL(-1,'sortField,sortRev,table').'&table='.$table.'&sortField='.$field.'&sortRev='.($this->sortRev || ($this->sortField!=$field)?0:1).'">'.$code.
-		($this->sortField==$field?'<img src="'.$this->backPath.'gfx/red'.($this->sortRev?"up":"down").'.gif" hspace="2" width="7" height="4" border="0">':'').
+
+			// Certain circumstances just return string right away (no links):
+		if ($field=='_CONTROL_' || $field=='_LOCALIZATION_' || $field=='_CLIPBOARD_' || $this->disableSingleTableView)	return $code;
+
+			// If "_PATH_" (showing record path) is selected, force sorting by pid field (will at least group the records!)
+		if ($field=='_PATH_')	$field=pid;
+
+			//	 Create the sort link:
+		$sortUrl = $this->listURL('',-1,'sortField,sortRev,table').'&table='.$table.'&sortField='.$field.'&sortRev='.($this->sortRev || ($this->sortField!=$field)?0:1);
+		$sortArrow = ($this->sortField==$field?'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/red'.($this->sortRev?'up':'down').'.gif','width="7" height="4"').' alt="" />':'');
+
+			// Return linked field:
+		return '<a href="'.htmlspecialchars($sortUrl).'">'.$code.
+				$sortArrow.
 		'</a>';
 	}
 
 	/**
-	 * [Describe function...]
+	 * Creates the control panel for a single record in the listing.
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$row: ...
-	 * @return	[type]		...
+	 * @param	string		The table
+	 * @param	array		The record for which to make the control panel.
+	 * @return	string		HTML table with the control panel (unless disabled)
 	 */
 	function makeControl($table,$row)	{
-		global $TCA, $LANG, $BACK_PATH;
+		global $TCA, $LANG, $SOBE;
+
+			// Return blank, if disabled:
 #		if ($this->dontShowClipControlPanels)	return '';
 
-		$shEl = $this->showElements;
+			// Initialize:
 		t3lib_div::loadTCA($table);
 		$cells=array();
 
+		$shEl = $this->showElements;
+
+			// If the listed table is 'pages' we have to request the permission settings for each page:
 		if ($table=='pages')	{
 			$localCalcPerms = $GLOBALS['BE_USER']->calcPerms(t3lib_BEfunc::getRecord('pages',$row['uid']));
 		}
-		$permsEdit = ($table=="pages" && ($localCalcPerms&2)) || ($table!="pages" && ($this->calcPerms&16));
-		
-		
 
-		
-			// Edit: ( Only if permissions to edit the page-record of the content of the parent page ($this->id)
+			// This expresses the edit permissions for this particular element:
+		$permsEdit = ($table=='pages' && ($localCalcPerms&2)) || ($table!='pages' && ($this->calcPerms&16));
+
+
+
+
+			// "Edit" link: ( Only if permissions to edit the page-record of the content of the parent page ($this->id)
 		if ($permsEdit && in_array('editRec',$shEl))	{
 			$params='&edit['.$table.']['.$row['uid'].']=edit';
-			$cells[]='<a href="#" onClick="'.t3lib_BEfunc::editOnClick($params,$BACK_PATH,-1).'"><img src="'.$this->backPath.'gfx/edit2'.(!$TCA[$table]['ctrl']['readOnly']?"":"_d").'.gif" width="11" height="12" border="0" align="top" title="'.$LANG->getLL('edit').'" /></a>';
+			$icon = '<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/edit2'.(!$TCA[$table]['ctrl']['readOnly']?'':'_d').'.gif','width="11" height="12"').' title="'.$LANG->getLL('edit',1).'" alt="" />';
+			$cells[] = $this->wrapEditLink($icon, $params);
+
 		}
-		
 
-		
-		if ($GLOBALS['SOBE']->MOD_SETTINGS['bigControlPanel'] || $this->table)	{
+			// If the extended control panel is enabled OR if we are seeing a single table:
+		if ($SOBE->MOD_SETTINGS['bigControlPanel'] || $this->table)	{
 
-					// Info: (All records)
+					// "Info": (All records)
 			if (in_array('infoRec',$shEl)) {
-				$cells[]='<a href="#" onClick="top.launchView(\''.$table.'\', \''.$row['uid'].'\'); return false;"><img src="'.$this->backPath.'gfx/zoom2.gif" width="12" height="12" border="0" align="top" title="'.$LANG->getLL('showInfo').'" /></a>';
+			$cells[]='<a href="#" onclick="'.htmlspecialchars('top.launchView(\''.$table.'\', \''.$row['uid'].'\'); return false;').'">'.
+					'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/zoom2.gif','width="12" height="12"').' title="'.$LANG->getLL('showInfo',1).'" alt="" />'.
+					'</a>';
 			}
 
+				// If the table is NOT a read-only table, then show these links:
 			if (!$TCA[$table]['ctrl']['readOnly'])	{
 
-					// Revert
+					// "Revert" link (history/undo)
 				if (in_array('revertRec',$shEl))	{
-					$cells[]='<a href="#" onClick="return jumpExt(\''.$this->backPath.'show_rechis.php?element='.rawurlencode($table.':'.$row['uid']).'\',\'#latest\');"><img src="'.$this->backPath.'gfx/history2.gif"  width="13" height="12" border="0" title="'.$GLOBALS['LANG']->getLL('history').'" align="top" /></a>';
+				$cells[]='<a href="#" onclick="'.htmlspecialchars('return jumpExt(\''.$this->backPath.'show_rechis.php?element='.rawurlencode($table.':'.$row['uid']).'\',\'#latest\');').'">'.
+						'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/history2.gif','width="13" height="12"').' title="'.$LANG->getLL('history',1).'" alt="" />'.
+						'</a>';
 				}
-					// Perms
-				if ($table=="pages" && in_array('permsRec',$shEl) && $GLOBALS['BE_USER']->check('modules','web_perm'))	{
-					$cells[]='<a href="mod/web/perm/index.php?id='.$row['uid'].'&return_id='.$row['uid'].'&edit=1"><img src="'.$this->backPath.'gfx/perm.gif" width="7" hspace="2" height="12" border="0" title="'.$GLOBALS['LANG']->getLL('permissions').'" align="top" /></a>';
+
+					// Versioning:
+				if (t3lib_extMgm::isLoaded('version'))	{
+					$vers = t3lib_BEfunc::selectVersionsOfRecord($table, $row['uid'], $fields='uid');
+					if (is_array($vers))	{	// If table can be versionized.
+						if (count($vers)>1)	{
+							$st = 'background-color: #FFFF00; font-weight: bold;';
+							$lab = count($vers)-1;
+						} else {
+							$st = 'background-color: #9999cc; font-weight: bold;';
+							$lab = 'V';
+						}
+
+						$cells[]='<a href="'.htmlspecialchars(t3lib_extMgm::extRelPath('version')).'cm1/index.php?table='.rawurlencode($table).'&uid='.rawurlencode($row['uid']).'" style="'.htmlspecialchars($st).'">'.
+								$lab.
+								'</a>';
+					}
 				}
-	
 
 
-					// Up/Down
+					// "Edit Perms" link:
+				if ($table=='pages' && in_array('permsRec',$shEl) && $GLOBALS['BE_USER']->check('modules','web_perm'))	{
+					$cells[]='<a href="'.htmlspecialchars($this->backPath.'mod/web/perm/index.php?id='.$row['uid'].'&return_id='.$row['uid'].'&edit=1').'">'.
+							'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/perm.gif','width="7" height="12"').' title="'.$LANG->getLL('permissions',1).'" alt="" />'.
+							'</a>';
+				}
+
+
+
+
+
+					// "Up/Down" links
 				if ($permsEdit && $TCA[$table]['ctrl']['sortby']  && !$this->sortField  && in_array('sortRec',$shEl))	{	//
 					if (isset($this->currentTable['prev'][$row['uid']]))	{	// Up
 						$params='&cmd['.$table.']['.$row['uid'].'][move]='.$this->currentTable['prev'][$row['uid']];
-						$cells[]='<a href="#" onClick="return jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params,-1).'\');"><img src="'.$this->backPath.'gfx/button_up.gif" width="11" height="10" border="0" title="'.$GLOBALS['LANG']->getLL('moveUp').'" align="top" /></a>';
+						$cells[]='<a href="#" onclick="'.htmlspecialchars('return jumpToUrl(\''.$SOBE->doc->issueCommand($params,-1).'\');').'">'.
+								'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/button_up.gif','width="11" height="10"').' title="'.$LANG->getLL('moveUp',1).'" alt="" />'.
+								'</a>';
 					} else {
-						$cells[]='<img src="clear.gif" width="11" height="10" align="top">';
+						$cells[]='<img src="clear.gif" '.t3lib_iconWorks::skinImg($this->backPath,'gfx/button_up.gif','width="11" height="10"',2).' alt="" />';
 					}
 					if ($this->currentTable['next'][$row['uid']])	{	// Down
 						$params='&cmd['.$table.']['.$row['uid'].'][move]='.$this->currentTable['next'][$row['uid']];
-						$cells[]='<a href="#" onClick="return jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params,-1).'\');"><img src="'.$this->backPath.'gfx/button_down.gif" width="11" height="10" border="0" title="'.$GLOBALS['LANG']->getLL('moveDown').'" align="top" /></a>';
+						$cells[]='<a href="#" onclick="'.htmlspecialchars('return jumpToUrl(\''.$SOBE->doc->issueCommand($params,-1).'\');').'">'.
+								'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/button_down.gif','width="11" height="10"').' title="'.$LANG->getLL('moveDown',1).'" alt="" />'.
+								'</a>';
 					} else {
-						$cells[]='<img src="clear.gif" width="11" height="10" align="top">';
+						$cells[]='<img src="clear.gif" '.t3lib_iconWorks::skinImg($this->backPath,'gfx/button_down.gif','width="11" height="10"',2).' alt="" />';
 					}
 				}
-		
-					// Hide
+
+					// "Hide/Unhide" links:
 				$hiddenField = $TCA[$table]['ctrl']['enablecolumns']['disabled'];
 				if ($permsEdit && $hiddenField && $TCA[$table]['columns'][$hiddenField] && in_array('unHideRec',$shEl) && (!$TCA[$table]['columns'][$hiddenField]['exclude'] || $GLOBALS['BE_USER']->check('non_exclude_fields',$table.':'.$hiddenField)))	{
 					if ($row[$hiddenField])	{
 						$params='&data['.$table.']['.$row['uid'].']['.$hiddenField.']=0';
-						$cells[]='<a href="#" onClick="return jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params,-1).'\');"><img src="'.$this->backPath.'gfx/button_unhide.gif" width="11" height="10" border="0" title="'.$GLOBALS['LANG']->getLL('unHide'.($table=="pages"?"Page":"")).'" align="top" /></a>';
+						$cells[]='<a href="#" onclick="'.htmlspecialchars('return jumpToUrl(\''.$SOBE->doc->issueCommand($params,-1).'\');').'">'.
+								'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/button_unhide.gif','width="11" height="10"').' title="'.$LANG->getLL('unHide'.($table=='pages'?'Page':''),1).'" alt="" />'.
+								'</a>';
 					} else {
 						$params='&data['.$table.']['.$row['uid'].']['.$hiddenField.']=1';
-						$cells[]='<a href="#" onClick="return jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params,-1).'\');"><img src="'.$this->backPath.'gfx/button_hide.gif" width="11" height="10" border="0" title="'.$GLOBALS['LANG']->getLL('hide'.($table=="pages"?"Page":"")).'" align="top" /></a>';
+						$cells[]='<a href="#" onclick="'.htmlspecialchars('return jumpToUrl(\''.$SOBE->doc->issueCommand($params,-1).'\');').'">'.
+								'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/button_hide.gif','width="11" height="10"').' title="'.$LANG->getLL('hide'.($table=='pages'?'Page':''),1).'" alt="" />'.
+								'</a>';
 					}
 				}
-		
-					// Delete
+
+					// "Delete" link:
 #				if (
 #					($table=="pages" && ($localCalcPerms&4)) || ($table!="pages" && ($this->calcPerms&16)) && in_array('delRec',$shEl)
 #					)	{
 #					$params='&cmd['.$table.']['.$row['uid'].'][delete]=1';
 #					$cells[]='<a href="#" onClick="if (confirm(unescape(\''.rawurlencode($LANG->getLL('deleteWarning')).'\'))) {jumpToUrl(\''.$GLOBALS['SOBE']->doc->issueCommand($params,-1).'\');} return false;"><img src="'.$this->backPath.'gfx/garbage.gif" width="11" height="12" border="0" align="top" title="'.$LANG->getLL('delete').'" /></a>';
 #				}
-		
+
 
 			}
 		}
-		
+
+			// If the record is edit-locked	by another user, we will show a little warning sign:
 		if ($lockInfo=t3lib_BEfunc::isRecordLocked($table,$row['uid']))	{
-//			debug($lockInfo);
-			$cells[]='<a href="#" onClick="alert(unescape(\''.rawurlencode($lockInfo['msg']).'\'));return false;"><img src="gfx/recordlock_warning3.gif" width="17" height="12" border="0" title="'.$lockInfo['msg'].'" /></a>';
+			$cells[]='<a href="#" onclick="'.htmlspecialchars('alert('.$LANG->JScharCode($lockInfo['msg']).');return false;').'">'.
+					'<img'.t3lib_iconWorks::skinImg('','gfx/recordlock_warning3.gif','width="17" height="12"').' title="'.htmlspecialchars($lockInfo['msg']).'" alt="" />'.
+					'</a>';
 		}
-		
-		return '<table border="0" cellpadding=1 cellspacing="0" bgColor="'.$GLOBALS['SOBE']->doc->bgColor4.'"><tr><td>'.implode('</td><td>',$cells).'</td></tr></table>';
+
+
+			// Compile items into a DIV-element:
+		return '
+											<!-- CONTROL PANEL: '.$table.':'.$row['uid'].' -->
+											<div class="typo3-DBctrl">'.implode('',$cells).'</div>';
 	}
 
 
@@ -499,11 +614,12 @@ class tx_dam_db_list {
 	function addElement($icon,$data,$tdParams='',$action='')	{
 		$noWrap = ($this->no_noWrap) ? '' : ' nowrap="nowrap"';
 
-			// Start up:		
+			// Start up:
 		$out='
+		<!-- Element, begin: -->
 		<tr>';
 
-		
+
 			// Show icon and lines
 		if ($this->showAction=true)	{
 			$out.='
@@ -511,8 +627,8 @@ class tx_dam_db_list {
 			if ($action)	$out.= $action;
 			$out.='</td>
 			';
-		}		
-		
+		}
+
 			// Show icon and lines
 		if ($this->showIcon)	{
 			$out.='
@@ -522,7 +638,7 @@ class tx_dam_db_list {
 			';
 		}
 
-			// Init rendering.		
+			// Init rendering.
 		$colsp='';
 		$lastKey='';
 		$c=0;
@@ -534,14 +650,14 @@ class tx_dam_db_list {
 		reset($this->fieldArray);
 		while(list(,$vKey)=each($this->fieldArray))	{
 			if (isset($data[$vKey]))	{
-				if ($lastKey)	{	
+				if ($lastKey)	{
 					$out.='
-						<td valign="top"'.
+						<td'.
 						$noWrap.
 						$tdP[($ccount%2)].
 						$colsp.
-						$this->element_tdParams[$lastKey].
-						'>'.$data[$lastKey].'</td>';	
+						$this->addElement_tdParams[$lastKey].
+						'>'.$data[$lastKey].'</td>';
 				}
 				$lastKey=$vKey;
 				$c=1;
@@ -552,7 +668,8 @@ class tx_dam_db_list {
 			}
 			if ($c>1)	{$colsp=' colspan="'.$c.'"';} else {$colsp='';}
 		}
-		if ($lastKey)	{	$out.='<td valign="top"'.$noWrap.$tdP[($ccount%2)].$colsp.$this->element_tdParams[$lastKey].'>'.$data[$lastKey].'</td>';	}
+		if ($lastKey)	{	$out.='
+						<td'.$noWrap.$tdP[($ccount%2)].$colsp.$this->addElement_tdParams[$lastKey].'>'.$data[$lastKey].'</td>';	}
 
 			// End row
 		$out.='
@@ -561,9 +678,9 @@ class tx_dam_db_list {
 			// Return row.
 		return $out;
 	}
-	
 
-	
+
+
 	/**
 	 * Creates a forward/reverse button based on the status of ->eCounter, ->firstItemNum, ->resultsPerPage
 	 * 
@@ -594,14 +711,16 @@ class tx_dam_db_list {
 	 ********************************/
 
 	/**
+	 * Create the selector box for selecting fields to display from a table:
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$formFields: ...
-	 * @return	[type]		...
+	 * @param	string		Table name
+	 * @param	boolean		If true, form-fields will be wrapped around the table.
+	 * @return	string		HTML table with the selector box (name: displayFields['.$table.'][])
 	 */
 	function fieldSelectBox($table='',$formFields=1)	{
-		global $TCA;
-		
+		global $TCA, $LANG;
+
+			// Init:
 		$table = $table ? $table : $this->table;
 		t3lib_div::loadTCA($table);
 		$formElements=array('','');
@@ -609,30 +728,48 @@ class tx_dam_db_list {
 			$formElements=array('<form action="'.htmlspecialchars($this->listURL()).'" method="post">','</form>');
 		}
 
+			// Load already selected fields, if any:
 		$setFields=is_array($this->setFields[$table]) ? $this->setFields[$table] : array();
-			// Make level selector:
+
+			// Request fields from table:
 		$fields = $this->makeFieldList($table);
+
+			// Add pseudo "control" fields
+		$fields[]='_PATH_';
+		$fields[]='_LOCALIZATION_';
+		$fields[]='_CONTROL_';
+		$fields[]='_CLIPBOARD_';
+
+			// Create an option for each field:
 		$opt=array();
-		reset($fields);
 		$opt[] = '<option value=""></option>';
-		while(list(,$fN)=each($fields))	{
-			$fL = is_array($TCA[$table]['columns'][$fN]) ? ereg_replace(":$",'',$GLOBALS['LANG']->sL($TCA[$table]['columns'][$fN]['label'])) : "[".$fN.']';
-			$opt[] = '<option value="'.$fN.'"'.(in_array($fN,$setFields)?" selected":"").'>'.htmlspecialchars($fL).'</option>';
+		foreach($fields as $fN)	{
+			$fL = is_array($TCA[$table]['columns'][$fN]) ? ereg_replace(':$','',$LANG->sL($TCA[$table]['columns'][$fN]['label'])) : '['.$fN.']';	// Field label
+			$opt[] = '
+											<option value="'.$fN.'"'.(in_array($fN,$setFields)?' selected="selected"':'').'>'.htmlspecialchars($fL).'</option>';
 		}
-		$lMenu = '<select size='.t3lib_div::intInRange(count($fields)+1,3,7).' multiple name="displayFields['.$table.'][]">'.implode('',$opt).'</select>';
-		
+
+			// Compile the options into a multiple selector box:
+		$lMenu = '
+										<select size="'.t3lib_div::intInRange(count($fields)+1,3,8).'" multiple="multiple" name="displayFields['.$table.'][]">'.implode('',$opt).'
+										</select>
+				';
+
 			// Table with the search box:
 		$content.= '<br />
 		<table border="0" cellpadding="1" cellspacing="0"">
 		'.$formElements[0].'
 			<tr>
 				<td bgcolor="#9BA1A8">
-					<table border="0" cellpadding="0" cellspacing="0" bgcolor="'.$GLOBALS['TBE_TEMPLATE']->bgColor4.'">
+				<!--
+					Field selector for extended table view:
+				-->
+				<table border="0" cellpadding="0" cellspacing="0" class="bgColor4" id="typo3-dblist-fieldSelect">
 					<tr>
 						<td>'.$lMenu.'</td>
 						<td><input type="Submit" name="search" value="&gt;&gt;"></td>
 					</tr>
-					</table>			
+					</table>
 				</td>
 			</tr>'.$formElements[1].'
 		</table>
@@ -640,45 +777,19 @@ class tx_dam_db_list {
 		return $content;
 	}
 
-	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$table: ...
-	 * @return	[type]		...
-	 */
-	function makeSearchString($table)	{
-		global $TCA;
-		if ($TCA[$table] && $this->searchString)	{
-			t3lib_div::loadTCA($table);
-			$columns = $TCA[$table]['columns'];
-			reset($columns);
-			while(list($fieldName,$info)=each($columns))	{
-				$type = $info['config']['type'];
-				if ($type=="text" || ($type=="input" && !ereg('date|time|int',$info['config']['eval'])))	{
-					$sfields[]=$fieldName;
-				}
-			}
-			$like=" LIKE '%".$GLOBALS['TYPO3_DB']->quoteStr($this->searchString,$table)."%'";
-			if (count($sfields))	{
-				$queryPart = ' AND ('.implode($like." OR ",$sfields).$like.')';
-				return $queryPart;
-			}
-		}
-	}
 
 	/**
-	 * [Describe function...]
+	 * Creates the search box
 	 * 
-	 * @param	[type]		$formFields: ...
-	 * @return	[type]		...
+	 * @param	boolean		If true, the search box is wrapped in its own form-tags
+	 * @return	string		HTML for the search box
 	 */
 	function getSearchBox($formFields=1)	{
-		if ($GLOBALS['CLIENT']['BROWSER']=='net')	{
-//			$content.= '<img src=clear.gif width=1 height=100><br />';
-		}
+
+			// Setting form-elements, if applicable:
 		$formElements=array('','');
 		if ($formFields)	{
-			$formElements=array('<form action="'.$this->listURL().'" method="POST">','</form>');
+			$formElements=array('<form action="'.htmlspecialchars($this->listURL()).'" method="post">','</form>');
 		}
 
 
@@ -689,13 +800,17 @@ class tx_dam_db_list {
 			<tr>
 				<td><img src=clear.gif width='.$this->spaceSearchBoxFromLeft.' height=1></td>
 				<td bgcolor="#9BA1A8">
-					<table border="0" cellpadding="0" cellspacing="0" bgcolor="'.$GLOBALS['TBE_TEMPLATE']->bgColor4.'">
+
+				<!--
+					Search box:
+				-->
+				<table border="0" cellpadding="0" cellspacing="0" class="bgColor4" id="typo3-dblist-search">
 					<tr>
-						<td nowrap>&nbsp;'.$GLOBALS['LANG']->php3Lang['labels']['enterSearchString'].'&nbsp;&nbsp;'.'<input type="Text" name="search_field" value="'.htmlspecialchars($this->searchString).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth(10).'></td>
+						<td>'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.enterSearchString',1).'<input type="text" name="search_field" value="'.htmlspecialchars($this->searchString).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth(10).' /></td>
 						<td>'.$lMenu.'</td>
-						<td><input type="Submit" name="search" value="'.$GLOBALS['LANG']->php3Lang['labels']['search'].'"></td>
+						<td><input type="submit" name="search" value="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.search',1).'" /></td>
 					</tr>
-					</table>			
+					</table>
 				</td>
 			</tr>'.$formElements[1].'
 		</table>
@@ -707,6 +822,7 @@ class tx_dam_db_list {
 	 * Creates the button with link to either forward or reverse
 	 * 
 	 * @param	string		Type: "fwd" or "rwd"
+	 * @param	integer		Pointer
 	 * @param	string		Table name
 	 * @return	string		
 	 * @access private
@@ -714,19 +830,19 @@ class tx_dam_db_list {
 	function fwd_rwd_HTML($type)	{
 		$tParam = $this->table ? '&table='.rawurlencode($this->table) : '';
 		switch($type)	{
-			case 'rwd':
-				$pointer=max(0,$this->pointer-1);
-				$href = $this->listURL().'&SET[tx_dam_resultPointer]='.$pointer.$tParam;
-				return '&nbsp;<a href="'.htmlspecialchars($href).'">'.
-						'<img src="'.$this->backPath.'gfx/pilup.gif" width="14" height="14" valign="top" border="0" alt="" />'.
-						'</a> <i>['.max(1,$this->firstItemNum-$this->resultsPerPage).' - '.($this->firstItemNum-1).']</i>';
-			break;
 			case 'fwd':
 				$pointer=max(0,$this->pointer+1);
 				$href = $this->listURL().'&SET[tx_dam_resultPointer]='.$pointer.$tParam;
 				return '&nbsp;<a href="'.htmlspecialchars($href).'">'.
 						'<img src="'.$this->backPath.'gfx/pildown.gif" width="14" height="14" valign="top" border="0" alt="" />'.
 						'</a> <i>['.($this->lastItemNum+1).' - '.min($this->lastItemNum+1+$this->resultsPerPage,$this->resCountAll).']</i>';
+			break;
+			case 'rwd':
+				$pointer=max(0,$this->pointer-1);
+				$href = $this->listURL().'&SET[tx_dam_resultPointer]='.$pointer.$tParam;
+				return '&nbsp;<a href="'.htmlspecialchars($href).'">'.
+						'<img src="'.$this->backPath.'gfx/pilup.gif" width="14" height="14" valign="top" border="0" alt="" />'.
+						'</a> <i>['.max(1,$this->firstItemNum-$this->resultsPerPage).' - '.($this->firstItemNum-1).']</i>';
 			break;
 		}
 	}
@@ -741,40 +857,50 @@ class tx_dam_db_list {
 	 ********************************/
 
 	/**
+	 * Makes the list of fields to select for a table
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$dontCheckUser: ...
-	 * @return	[type]		...
+	 * @param	string		Table name
+	 * @param	boolean		If set, users access to the field (non-exclude-fields) is NOT checked.
+	 * @return	array		Array, where values are fieldnames to include in query
 	 */
 	function makeFieldList($table,$dontCheckUser=0)	{
 		global $TCA,$BE_USER;
+
+			// Init fieldlist array:
 		$fieldListArr = array();
+
+			// Check table:
 		if (is_array($TCA[$table]))	{
 			t3lib_div::loadTCA($table);
-			reset($TCA[$table]['columns']);
-			while(list($fN,$fieldValue)=each($TCA[$table]['columns']))	{
-				if ($dontCheckUser || 
-					((!$fieldValue['exclude'] || $BE_USER->check('non_exclude_fields',$table.':'.$fN)) && $fieldValue['config']['type']!='passthrough'))	{
-					$fieldListArr[]=$fN;
+
+				// Traverse configured columns and add them to field array, if available for user.
+				foreach($TCA[$table]['columns'] as $fN => $fieldValue)	{
+					if ($dontCheckUser ||
+						((!$fieldValue['exclude'] || $BE_USER->check('non_exclude_fields',$table.':'.$fN)) && $fieldValue['config']['type']!='passthrough'))	{
+						$fieldListArr[]=$fN;
+					}
+				}
+
+				// Add special fields:
+				if ($dontCheckUser || $BE_USER->isAdmin())	{
+					$fieldListArr[]='uid';
+					$fieldListArr[]='pid';
+					if ($TCA[$table]['ctrl']['tstamp'])	$fieldListArr[]=$TCA[$table]['ctrl']['tstamp'];
+					if ($TCA[$table]['ctrl']['crdate'])	$fieldListArr[]=$TCA[$table]['ctrl']['crdate'];
+					if ($TCA[$table]['ctrl']['cruser_id'])	$fieldListArr[]=$TCA[$table]['ctrl']['cruser_id'];
+					if ($TCA[$table]['ctrl']['sortby'])	$fieldListArr[]=$TCA[$table]['ctrl']['sortby'];
+				if ($TCA[$table]['ctrl']['versioning'])	$fieldListArr[]='t3ver_id';
 				}
 			}
-			if ($dontCheckUser || $BE_USER->isAdmin())	{
-				$fieldListArr[]='uid';
-				$fieldListArr[]='pid';
-				if ($TCA[$table]['ctrl']['tstamp'])	$fieldListArr[]=$TCA[$table]['ctrl']['tstamp'];
-				if ($TCA[$table]['ctrl']['crdate'])	$fieldListArr[]=$TCA[$table]['ctrl']['crdate'];
-				if ($TCA[$table]['ctrl']['cruser_id'])	$fieldListArr[]=$TCA[$table]['ctrl']['cruser_id'];
-				if ($TCA[$table]['ctrl']['sortby'])	$fieldListArr[]=$TCA[$table]['ctrl']['sortby'];
-			}
-		}
 		return $fieldListArr;
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns the path for a certain pid
+	 * The result is cached internally for the session, thus you can call this function as much as you like without performance problems.
 	 * 
-	 * @param	[type]		$pid: ...
-	 * @return	[type]		...
+	 * @param	integer		The page id for which to get the path
+	 * @return	string		The path.
 	 */
 	function recPath($pid)	{
 		if (!isset($this->recPath_cache[$pid]))	{
@@ -789,31 +915,38 @@ class tx_dam_db_list {
 	 * tools
 	 *
 	 ********************************/
-	 
-	 
+
+
+	function wrapEditLink($content, $params) {
+		$onClick = t3lib_BEfunc::editOnClick($params,$this->backPath,-1);
+		return '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$content.'</a>';
+	}
+
+
 	/**
+	 * Returns the title (based on $code) of a table ($table) with the proper link around. For headers over tables.
+	 * The link will cause the display of all extended mode or not for the table.
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$code: ...
-	 * @return	[type]		...
+	 * @param	string		Table name
+	 * @param	string		Table label
+	 * @return	string		The linked table label
 	 */
 	function linkWrapTable($table,$code)	{
-			// Returns the title (based on $code) of a table ($table) with the proper link around
 		if ($this->table!=$table)	{
-			return '<a href="'.$this->listURL($table).'">'.$code.'</a>';
+			return '<a href="'.htmlspecialchars($this->listURL($table)).'">'.$code.'</a>';
 		} else {
-			return '<a href="'.$this->listURL('','sortField,sortRev,table').'">'.$code.'</a>';
+			return '<a href="'.htmlspecialchars($this->listURL('','sortField,sortRev,table')).'">'.$code.'</a>';
 		}
 	}
 
 	/**
-	 * [Describe function...]
+	 * Returns the title (based on $code) of a record (from table $table) with the proper link around (that is for 'pages'-records a link to the level of that record...)
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$uid: ...
-	 * @param	[type]		$code: ...
-	 * @param	[type]		$row: ...
-	 * @return	[type]		...
+	 * @param	string		Table name
+	 * @param	integer		Item uid
+	 * @param	string		Item title (not htmlspecialchars()'ed yet)
+	 * @param	array		Item row
+	 * @return	string		The item title. Ready for HTML output (is htmlspecialchars()'ed)
 	 */
 	function linkWrapItems($table,$uid,$code,$row)	{
 			// Returns the title (based on $code) of a record (from table $table) with the proper link around (that is for "pages"-records a link to the level of that record...)
@@ -828,11 +961,14 @@ class tx_dam_db_list {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Creates the URL to this script, including all relevant GPvars
+	 * Fixed GPvars are id, table, imagemode, returlUrl, search_field, search_levels and showLimit
+	 * The GPvars "sortField" and "sortRev" are also included UNLESS they are found in the $exclList variable.
 	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$exclList: ...
-	 * @return	[type]		...
+	 * @param	string		Alternative id value. Enter blank string for the current id ($this->id)
+	 * @param	string		Tablename to display. Enter "-1" for the current table.
+	 * @param	string		Commalist of fields NOT to include ("sortField" or "sortRev")
+	 * @return	string		URL
 	 */
 	function listURL($table=-1,$exclList='')	{
 		return $this->script.'?'.
@@ -845,12 +981,12 @@ class tx_dam_db_list {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Create thumbnail code for record/field
 	 * 
-	 * @param	[type]		$row: ...
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$field: ...
-	 * @return	[type]		...
+	 * @param	array		Record array
+	 * @param	string		Table (record is from)
+	 * @param	string		Field name for which thumbsnail are to be rendered.
+	 * @return	string		HTML for thumbnails, if any.
 	 */
 	function thumbCode($row,$table,$field)	{
 		return t3lib_BEfunc::thumbCode($row,$table,$field,$this->backPath,$this->thumbScript);
@@ -859,7 +995,7 @@ class tx_dam_db_list {
 
 }
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_list/class.tx_dam_db_list.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_list/class.tx_dam_db_list.php']);
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_list/class.tx_dam_db_list.php']);
 }
 
 

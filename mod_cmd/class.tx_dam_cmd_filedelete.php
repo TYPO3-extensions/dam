@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -70,18 +70,18 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 
 		$SOBE->pageTitle = $LANG->getLL('tx_dam_cmd_filedelete.title');
-		
+
 		$id = FALSE;
 		if(is_array($this->pObj->data['delete'])) {
 			$id = intval(key($this->pObj->data['delete']));
 		}
 		$id = $id ? $id : intval(t3lib_div::_GP('id'));
 		if ($id) {
-			$row = t3lib_BEfunc::getRecord('tx_dam', $id);		
+			$row = t3lib_BEfunc::getRecord('tx_dam', $id);
 			$this->rec = $row;
 		}
-			
-		
+
+
 	}
 
 	/**
@@ -98,28 +98,28 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 		if (is_array($this->rec)) {
 
 			$error = '';
-			
+
 			if (is_array($this->pObj->data['delete'])) {
 					// do the renaming:
 				$error = $this->deleteFile();
-			
+
 				if(!$error) {
 					$this->pObj->redirect();
 				}
-				
+
 			}
-	
+
 			$content.= tx_dam_div::getDAMRecordInfo($this->rec);
 			$content.= '<br />';
-				
-	
+
+
 				// output error message
 			if($error) {
 				$content.= $SOBE->doc->section('Error',htmlspecialchars($error),0,1,2);
 				$content.= $SOBE->doc->spacer(15);
 			}
-					
-										
+
+
 				// Making the formfields for renaming:
 			$code = $this->deleteForm();
 				// Add the HTML as a section:
@@ -129,7 +129,7 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 			$content.= $this->pObj->wrongCommandMessage();
 		}
-		
+
 
 		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
 
@@ -151,14 +151,14 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 		$id = $this->rec['uid'];
 		$filepath = tx_dam_div::getAbsPath($this->rec['file_path']).$this->rec['file_name'];
-				
+
 		$content = '';
 
 		$msg = $LANG->getLL('tx_dam_cmd_filedelete.message',1);
-		
+
 		$content.= $SOBE->doc->section($LANG->getLL('tx_dam_cmd_filedelete.warning',1),htmlspecialchars($msg),0,1,2);
 		$content.= $SOBE->doc->spacer(5);
-		
+
 			// Making submit button:
 		$content.= '
 			<div id="c-submit">
@@ -167,12 +167,12 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.php:labels.cancel',1).'" onclick="jumpBack(); return false;" />
 				<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->returnUrl).'" />
 			</div>
-		';		
+		';
 
 		return $content;
 	}
 
-	
+
 	/**
 	 * Rename the file and process DB update
 	 * 
@@ -180,44 +180,44 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	 */	
 	function deleteFile() {
 		$error = FALSE;
-		
+
 		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
 		$file = t3lib_div::makeInstance('tx_dam_tce_file');
 		$file->init();
-			
+
 		$row = $this->rec;
-		
+
 		if($id = $row['uid']) {
 			$data = $this->pObj->data['delete'][$row['uid']];
 			if (is_array($data)) {
 
-				
+
 				//
 				// Processing delete
 				//
-				
+
 				$file->setCmdmap($this->pObj->data);
 				$log = $file->process();
-				
+
 				if ($file->errors()) {
-					
+
 					$error = $file->getLastError();
-					
+
 				} else {
 
-				
+
 					//
 					// update DB
 					//
-				
+
 					$org_filename = $row['file_name'];
-					
+
 					$newFile = $log['cmd']['upload'][$id]['target_file'];
-					$new_filename = basename($newFile);			
+					$new_filename = basename($newFile);
 					$new_filename = $new_filename ? $new_filename : $org_filename;
-					
+
 					$new_path = $log['cmd']['upload'][$id]['target_path'];
-					
+
 							// rename meta data fields
 						$fields_values = array();
 						$fields_values['deleted'] = 1;
@@ -231,22 +231,22 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 #TODO tcemain or tx_dam_db
 						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);
-						
-						$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);			
-					
+
+						$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);
+
 				}
-	
+
 			}
 		}
-		return $error;	
+		return $error;
 	}
 
-	
+
 }
 
 
-//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/tx_dam_cmd_filedelete.php'])    {
-//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/tx_dam_cmd_filedelete.php']);
+//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filedelete.php'])    {
+//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filedelete.php']);
 //}
 
 

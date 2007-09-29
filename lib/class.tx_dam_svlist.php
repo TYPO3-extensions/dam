@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -143,7 +143,7 @@ class tx_dam_svlist {
 					$lines[]='<tr bgColor="'.$this->pObj->doc->bgColor4.'"><td>&nbsp;</td><td colspan='.(5).'>No service of this type available.</td></tr>';
 				}
 			}
-			$content.= '<table border=0 cellpadding=2 cellspacing=1>'.implode('',$lines).'</table><br />';
+			$content.= '<table border="0" cellpadding="2" cellspacing="1">'.implode('',$lines).'</table><br />';
 
 		} else {
 			$content='Currently are no services installed.';
@@ -164,11 +164,11 @@ class tx_dam_svlist {
 	function serviceListRowHeader($type, $bgColor,$cells,$import=0)	{
 
 		$cells[]='<td></td>';
-		$cells[]='<td nowrap><strong>Services:</strong></td>';
-		$cells[]='<td nowrap><strong>Types:</strong></td>';
-		$cells[]='<td nowrap><strong>OS:</strong></td>';
+		$cells[]='<td><strong>Services:</strong></td>';
+		$cells[]='<td><strong>Types:</strong></td>';
+		$cells[]='<td><strong>OS:</strong></td>';
 		$cells[]='<td><strong>External:</strong></td>';
-		$cells[]='<td nowrap><strong>Avail.:</strong></td>';
+		$cells[]='<td><strong>Avail.:</strong></td>';
 
 		return '<tr'.$bgColor.'>'.implode('',$cells).'</tr>';
 	}
@@ -195,9 +195,9 @@ class tx_dam_svlist {
 		# $style = t3lib_extMgm::isLoaded($eKey) ? '' : ' style="color:#666666;"';
 
 		if (is_array($imgInfo))	{
-			$extIcon='<td valign=top><img src="'.$GLOBALS['BACK_PATH'].$this->typeRelPaths[$info['type']].$eKey.'/ext_icon.gif'.'" '.$imgInfo[3].'></td>';
+			$extIcon='<td valign="top"><img src="'.$GLOBALS['BACK_PATH'].$this->typeRelPaths[$info['type']].$eKey.'/ext_icon.gif'.'" '.$imgInfo[3].'></td>';
 		} elseif ($info['_ICON']) {
-			$extIcon='<td valign=top>'.$info['_ICON'].'</td>';
+			$extIcon='<td valign="top">'.$info['_ICON'].'</td>';
 		} else {
 			$extIcon='<td><img src="clear.gif" width=1 height=1></td>';
 		}
@@ -209,18 +209,18 @@ class tx_dam_svlist {
 			$bgColor = '#F6CA96';
 			$cells[]=$extIcon;
 			$title='<strong>'.$info['sv']['serviceType'].' (Service Type)</strong>';
-			$cells[]='<td valign=top>'.$title.'<br />'.htmlspecialchars(t3lib_div::fixed_lgd_cs($this->svDef[$info['sv']['serviceType']]['desc'],400)).'</td>';
-			$cells[]='<td nowrap valign=top></td>';
-			$cells[]='<td nowrap valign=top></td>';
-			$cells[]='<td nowrap valign=top></td>';
+			$cells[]='<td valign="top">'.$title.'<br />'.htmlspecialchars(t3lib_div::fixed_lgd_cs($this->svDef[$info['sv']['serviceType']]['desc'],400)).'</td>';
+			$cells[]='<td nowrap="nowrap" valign="top"></td>';
+			$cells[]='<td nowrap="nowrap" valign="top"></td>';
+			$cells[]='<td nowrap="nowrap" valign="top"></td>';
 			$icon='';
 		} else {
 			$cells[]='<td><img src="clear.gif" width=1 height=1></td>';
 			$title='<strong>'.$info['sv']['title'].'</strong><br />['.$info['sv']['serviceKey'].']';
-			$cells[]='<td valign=top>'.$title.'<div style="margin-top:6px;">'.htmlspecialchars(t3lib_div::fixed_lgd_cs($info['sv']['description'],400)).'<div></td>';
-			$cells[]='<td valign=top>'.implode($info['sv']['serviceSubTypes'],', ').'</td>';
-			$cells[]='<td nowrap valign=top>'.$info['sv']['os'].'</td>';
-			$cells[]='<td nowrap valign=top>'.$info['sv']['exec'].'</td>';
+			$cells[]='<td valign="top">'.$title.'<div style="margin-top:6px;">'.htmlspecialchars(t3lib_div::fixed_lgd_cs($info['sv']['description'],400)).'<div></td>';
+			$cells[]='<td valign="top">'.implode($info['sv']['serviceSubTypes'],', ').'</td>';
+			$cells[]='<td nowrap="nowrap" valign="top">'.$info['sv']['os'].'</td>';
+			$cells[]='<td nowrap="nowrap" valign="top">'.$info['sv']['exec'].'</td>';
 
 			if (t3lib_extmgm::findService($svKey,'*')) {
 				$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_ok.gif" width="18" height="16" vspace="4">';
@@ -229,11 +229,33 @@ class tx_dam_svlist {
 				$bgColor = t3lib_div::modifyHTMLcolor($this->pObj->doc->bgColor2,30,30,30);
 			}
 		}
-		$cells[]='<td nowrap valign=top align="center">'.$icon.'</td>';
+		$cells[]='<td nowrap="nowrap" valign="top" align="center">'.$icon.'</td>';
 
 
 		$bgColor = ' bgColor="'.($bgColor?$bgColor:$this->pObj->doc->bgColor4).'"';
 		return '<tr'.$bgColor.$style.'>'.implode('',$cells).'</tr>';
+	}
+
+
+	function showSearchPaths() {
+
+		if(is_callable(array('t3lib_exec','getPaths'))) { // v 3.8
+			if(count($paths = t3lib_exec::getPaths(true))) {
+				$lines = array();
+				$lines[] = '<tr class="bgColor5"><td><strong>Path:</strong></td><td><strong>valid:</strong></td></tr>';
+				foreach($paths as $path => $valid) {
+					if ($valid) {
+						$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_ok.gif" width="18" height="16" vspace="4">';
+					} else {
+						$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_fatalerror.gif" width="18" height="16" vspace="4">';
+					}
+					$lines[] = '<tr class="bgColor'.($valid?'4':'2').'"><td>'.htmlspecialchars($path).'</td><td align="center">'.$icon.'</td></tr>';
+				}
+
+				$content.= '<table border="0" cellpadding="2" cellspacing="1">'.implode('',$lines).'</table><br />';
+			}
+		}
+		return $content;
 	}
 
 	/**

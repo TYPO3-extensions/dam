@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -89,25 +89,25 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		//
 		// Init gui items and ...
 		//
-		
+
 		$this->pObj->guiItems_registerFunc('getResultInfoBar', 'header');
 		$this->pObj->guiItems_registerFunc('getResultBrowser', 'header');
-		
+
 		$this->pObj->guiItems_registerFunc('getResultBrowser', 'footer');
 		$this->pObj->guiItems_registerFunc('getSearchBox', 'footer');
 		$this->pObj->guiItems_registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems_registerFunc('getStoreControl', 'footer');
-				
+
 			// add some options
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_thumbs_bigThumb', $LANG->getLL('tx_dam_list_thumbs.bigThumb'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_thumbs_showTitle', $LANG->getLL('tx_dam_list_thumbs.showTitle'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_thumbs_showInfo', $LANG->getLL('tx_dam_list_thumbs.showInfo'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_thumbs_showIcons', $LANG->getLL('tx_dam_list_thumbs.showIcons'));
-		
+
 		if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_bigThumb']) {
 			$this->diaSize = 200;
 		}
-		
+
 	}
 
 	/**
@@ -123,32 +123,32 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		//
 		// Use the current selection to create a query and count selected records
 		//
-		
+
 		$this->pObj->addSelectionToQuery();
 		$this->pObj->execSelectionQuery(TRUE);
 		$this->pObj->setSelectionCounter();
-		
+
 
 		//
 		// output header: info bar, result browser, ....
 		//
-			
+
 		$content.= $this->pObj->guiItems_getOutput('header');
 		$content.= $this->pObj->doc->spacer(10);
-		
-		
+
+
 		//
 		// creates thumbnail list
 		//
-		
+
 			// any records found?
 		if($this->pObj->resCountAll) {
-	
+
 				// limit query for browsing
 			$this->pObj->addLimitToQuery();
-			$this->pObj->execSelectionQuery();	
-	
-			$showElements = array();		
+			$this->pObj->execSelectionQuery();
+
+			$showElements = array();
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showTitle']) {
 				$showElements[] = 'title';
 			}
@@ -158,10 +158,10 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showIcons']) {
 				$showElements[] = 'icons';
 			}
-			
+
 				// extra CSS code for HTML header
 			$this->pObj->doc->inDocStylesArray['tx_dam_SCbase_dia'] = $this->pObj->getDiaStyles($this->diaSize, $this->diaMargin, 5);
-				
+
 			$code = '';
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->pObj->res)) {
 				$onClick = $this->pObj->doc->wrapClickMenuOnIcon('', 'tx_dam', $row['uid'], $listFr=1,$addParams='',$enDisItems='', $returnOnClick=TRUE);
@@ -170,18 +170,21 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 			$content.= $this->pObj->doc->spacer(5);
 			$content.= $this->pObj->doc->section('','<div style="line-height:'.($this->diaSize +7+8).'px;">'.$code.'</div><br style="clear:left" />',0,1);
-	
+
+		} else {
+				// no search result: showing selection box
+			$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
 		}
 
 		return $content;
 	}
-	
+
 }
 
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_thumbs/class.tx_dam_list_thumbs.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_thumbs/class.tx_dam_list_thumbs.php']);
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_thumbs/class.tx_dam_list_thumbs.php']);
 }
 
 ?>

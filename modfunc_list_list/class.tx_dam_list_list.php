@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -71,16 +71,16 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		//
 		// Init gui items and ...
 		//
-		
+
 		$this->pObj->guiItems_registerFunc('getResultInfoBar', 'header');
 		$this->pObj->guiItems_registerFunc('getResultBrowser', 'header');
-		
+
 		$this->pObj->guiItems_registerFunc('getResultBrowser', 'footer');
 		$this->pObj->guiItems_registerFunc('getSearchBox', 'footer');
 		$this->pObj->guiItems_registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems_registerFunc('getStoreControl', 'footer');
 	}
-	
+
 
 	/**
 	 * Main function
@@ -95,7 +95,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		//
 		// Use the current selection to create a query and count selected records
 		//
-		
+
 		$this->pObj->addSelectionToQuery();
 		$this->pObj->execSelectionQuery(TRUE);
 		$this->pObj->setSelectionCounter();
@@ -104,19 +104,19 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		//
 		// output header: info bar, result browser, ....
 		//
-			
+
 		$content.= $this->pObj->guiItems_getOutput('header');
 		$content.= $this->pObj->doc->spacer(10);
 
 
 		if($this->pObj->resCountAll) {
-	
+
 			$pid = $this->pObj->defaultFolder;
 			$pageinfo = t3lib_BEfunc::readPageAccess($pid,$this->pObj->perms_clause);
-	
+
 			$dblist = t3lib_div::makeInstance('tx_dam_db_list');
-			$dblist->init();
-	
+			$dblist->init('tx_dam');
+
 			$dblist->backPath = $BACK_PATH;
 			$dblist->calcPerms = $BE_USER->calcPerms($pageinfo);
 			$dblist->alternateBgColors=$this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
@@ -126,12 +126,11 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			$dblist->resultsPerPage= $this->pObj->resultsPerPage;
 			$dblist->firstItemNum = $this->pObj->firstItemNum;
 			$dblist->lastItemNum = $this->pObj->lastItemNum;
-	
-			$dblist->searchString = trim(t3lib_div::_GP('search_field'));
+
 			$dblist->sortField = t3lib_div::_GP('sortField');
 			$dblist->sortRev = t3lib_div::_GP('sortRev');
-	
-	
+
+
 			$dblist->setDispFields();
 			#debug($dblist->setFields);
 			#		$fieldList	= 'tx_dam.'.implode(',tx_dam.',t3lib_div::trimExplode(',',$dblist->setFields['tx_dam'],1));
@@ -145,19 +144,24 @@ class tx_dam_list_list extends t3lib_extobjbase {
 					if ($dblist->sortRev)	$orderBy.=' DESC';
 				}
 			}
-	
+
+				// search - done in selection class
+//			if ($searchStr = trim($this->pObj->sl->sel['SEARCH']['txdamStrSearch']['0'])) {
+//				$this->pObj->qg->addWhere($this->pObj->qg->makeSearchQueryPart('tx_dam', $searchStr), 'AND', 'txdamStrSearch');
+//			}
+
 			$this->pObj->qg->query['ORDERBY']['tx_dam'] = $orderBy;
-	
+
 			$this->pObj->addLimitToQuery();
 			$dblist->res = $this->pObj->execSelectionQuery();
-	
+
 
 #TODO ???				// It is set, if the clickmenu-layer is active AND the extended view is not enabled.
 			$dblist->dontShowClipControlPanels = $CLIENT['FORMSTYLE'] && !$BE_USER->uc['disableCMlayers'];
-	
+
 			$dblist->generateList();
-	
-	
+
+
 				// JavaScript
 			$this->pObj->doc->JScodeArray['redirectUrls'] = $this->pObj->doc->redirectUrls(t3lib_extMgm::extRelPath('dam').'mod_list/'.$dblist->listURL());
 			$this->pObj->doc->JScodeArray['jumpExt'] = '
@@ -166,8 +170,8 @@ class tx_dam_list_list extends t3lib_extobjbase {
 					document.location = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
 				}
 				';
-			
-	
+
+
 			$content.= '<form action="'.$dblist->listURL().'" method="POST" name="dblistForm">';
 			$content.= $dblist->HTMLcode;
 			$content.= '<input type="hidden" name="cmd_table"><input type="hidden" name="cmd"></form>';
@@ -188,7 +192,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_list/class.tx_dam_list_list.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_list/class.tx_dam_list_list.php']);
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_list/class.tx_dam_list_list.php']);
 }
 
 ?>

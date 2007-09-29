@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -75,7 +75,7 @@ class tx_dam_cmd_nothing extends t3lib_extobjbase {
 
 
 		$content.= $this->pObj->wrongCommandMessage();
-		
+
 		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
 
 
@@ -91,9 +91,9 @@ class tx_dam_cmd_nothing extends t3lib_extobjbase {
 }
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modcmd/tx_dam_cmd_nothing.php'])    {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modcmd/tx_dam_cmd_nothing.php']);
-}
+//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_nothing.php'])    {
+//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_nothing.php']);
+//}
 
 
 ?>

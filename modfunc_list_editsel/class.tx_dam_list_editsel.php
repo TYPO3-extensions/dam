@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2004 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -82,19 +82,19 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		//
 		// Init gui items and ...
 		//
-		
-		$this->pObj->guiItems_registerFunc('getResultInfoBar', 'header');
+
+		$this->pObj->guiItems_registerFunc('getResultInfoHeader', 'header');
 		$this->pObj->guiItems_registerFunc('getResultBrowser', 'header');
-		
+
 		$this->pObj->guiItems_registerFunc('getResultBrowser', 'footer');
 		$this->pObj->guiItems_registerFunc('getSearchBox', 'footer');
 		$this->pObj->guiItems_registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems_registerFunc('getStoreControl', 'footer');
-		
+
 			// add some options
 		$this->pObj->addOption('funcCheck', 'tx_dam_list_editsel_onlyDeselected', $LANG->getLL('tx_dam_list_editsel.onlyDeselected'));
 	}
-	
+
 
 	/**
 	 * Main function
@@ -106,18 +106,11 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 		$content = '';
 
-		//
-		// current selection box
-		//
-		
-		$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
-		$content.= $this->pObj->doc->spacer(25);
-		
-		
+
 		//
 		// get records by query depending on option 'Show deselected only'
-		//	
-	
+		//
+
 		$origSel = $this->pObj->sl->sel;
 		if($this->pObj->MOD_SETTINGS['tx_dam_list_editsel_onlyDeselected']) {
 			if(is_array($this->pObj->sl->sel['DESELECT_ID']['tx_dam'])) {
@@ -143,22 +136,30 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		//
 		// Use the current selection to create a query and count selected records
 		//
-		
+
 		$this->pObj->execSelectionQuery(TRUE);
 		$this->pObj->setSelectionCounter();
-		
-		
+
+
+
 		//
 		// output header: info bar, result browser, ....
 		//
-			
+
 		$content.= $this->pObj->guiItems_getOutput('header');
 		$content.= $this->pObj->doc->spacer(10);
+
+		//
+		// current selection box
+		//
+
+		$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
+		$content.= $this->pObj->doc->spacer(25);
 
 
 			// any records found?
 		if($this->pObj->resCountAll) {
-	
+
 				// limit query for browsing
 			$this->pObj->addLimitToQuery();
 			$this->pObj->execSelectionQuery();
@@ -166,19 +167,19 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 			//
 			// create record table
 			//
-			
+
 			$row_altBbgColor=' bgColor="'.t3lib_div::modifyHTMLColor($GLOBALS['SOBE']->doc->bgColor4,+10,+10,+10).'"';
-			#$this->alternateBgColors = true;	
-	
+			#$this->alternateBgColors = true;
+
 				// simple list
 			$items=array();
 			$cc=0;
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->pObj->res)) {
 				$cc++;
-				
+
 				$iconfile = t3lib_iconWorks::getIcon('tx_dam',$row);
 				$alttext = t3lib_BEfunc::getRecordIconAltText($row,'tx_dam');
-				$theIcon = '<img src="'.$BACK_PATH.$iconfile.'" width="18" height="16" border="0" title="'.$alttext.'" />';				
+				$theIcon = '<img src="'.$BACK_PATH.$iconfile.'" width="18" height="16" border="0" title="'.$alttext.'" />';
 
 				if($this->pObj->sl->sel['DESELECT_ID']['tx_dam'][$row['uid']]) {
 					$bgColor = $row_altBbgColor;
@@ -190,7 +191,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 					$actionIcon='<a href="index.php?'.$params.'"><img src="'.$BACK_PATH.PATH_txdam_rel.'i/button_deselect.gif" width="11" height="10" border="0" title="'.$LANG->getLL('deselect').'" align="top" alt="" /></a>';
 				}
 
-				
+
 				$itemOut=array();
 				$itemOut[]= $actionIcon;
 				$itemOut[]= $theIcon;
@@ -198,7 +199,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				$itemOut[]= $row['hpixels']? $row['hpixels'].'x'.$row['vpixels'] :'';
 				#$itemOut[]= $row['color_space'] ? $LANG->sL(t3lib_BEfunc::getLabelFromItemlist('tx_dam','color_space',$row['color_space'])) : '';
 				$itemOut[]= htmlspecialchars(t3lib_div::fixed_lgd_cs(str_replace("\n",' ',trim($row['description'])),50));
-	
+
 				#$bgColor = $this->alternateBgColors ? (($cc%2)?$row_altBbgColor : '') : '';
 				$items[] = '<td'.$bgColor.' style="padding-left:5px;">'.implode('</td><td'.$bgColor.' style="padding-left:5px;">',$itemOut).'</td>';
 			}
@@ -206,7 +207,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 				$content.= $this->pObj->doc->section('','<table cellspacing="1" cellpadding="0" border="0" width="100%"><tr>'.implode('</tr><tr>',$items).'</tr></table>',0,1);
 			}
 		}
-			
+
 		return $content;
 	}
 }
@@ -214,7 +215,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_editsel/class.tx_dam_list_editsel.php'])    {
-    include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_editsel/class.tx_dam_list_editsel.php']);
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/modfunc_list_editsel/class.tx_dam_list_editsel.php']);
 }
 
 ?>
