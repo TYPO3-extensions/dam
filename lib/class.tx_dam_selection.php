@@ -140,6 +140,17 @@ class tx_dam_selection {
 
 
 	/**
+	 * Unserializes a selection
+	 *
+	 * @param	string		$sel serialized selection definition
+	 * @return	array		returns a selection definition
+	 */
+	function unserialize($sel)	{
+		return $this->cleanSelectionArray(unserialize($sel));
+	}
+
+
+	/**
 	 * Set current selection from serialized data
 	 *
 	 * @param	string		$sel serialized selection definition

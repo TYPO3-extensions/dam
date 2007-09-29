@@ -1,3 +1,21 @@
+07-03-06 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: 5143: Categories module shows php error
+	* Fix: 0004681: make mm compatible with 4.1
+	* Fix: added needed MM field for T3 4.1 and changed file_path to varchar
+	* Change: tca_media_field.php: set 'MM_opposite_field' => 'file_usage',
+    * Change: tx_dam_db workaround, using tx_dam.sorting_foreign when TYPO3 4.1
+    * Change: some smaller code cleanups merged from 1.1
+    * Change: added check for TYPO3 4.1 in tx_dam_tcefunc
+
+07-02-22 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_selection misses unserialize() function
+
+07-02-21 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_mm_cat table lacked the field "tablenames" which might be needed in some circumstances
+
 06-12-07 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Fix: tx_dam_guifunc:thumbnail() generate checksum for thumbs.php. Needed for t3 4.0.3

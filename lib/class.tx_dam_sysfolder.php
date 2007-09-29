@@ -66,6 +66,9 @@ class tx_dam_sysfolder {
 	 * @return	integer		The uid of the default sysfolder
 	 */
 	function init()	{
+
+		if (!is_object($GLOBALS['TYPO3_DB'])) return false;
+
 		$damFolders = tx_dam_sysfolder::getAvailable();
 		if (!count($damFolders)) {
 				// creates a DAM folder on the fly
@@ -134,7 +137,7 @@ class tx_dam_sysfolder {
 	 */
 	function collectLostRecords($pid=NULL, $forceAll=true)	{
 
-		$pid = $pid ? $pid : tx_damdb::getPid();
+		$pid = $pid ? $pid : tx_dam_db::getPid();
 
 		if ($pid) {
 			if($forceAll) {

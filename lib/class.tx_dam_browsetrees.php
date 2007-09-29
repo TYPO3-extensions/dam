@@ -165,7 +165,9 @@ class tx_dam_browseTrees {
 
 		if (is_array($this->treeObjArr)) {
 			foreach($this->treeObjArr as $treeName => $treeObj)	{
-				$tree .= $treeObj->getBrowsableTree();
+                if(is_object($treeObj) && method_exists ($treeObj, 'getBrowsableTree')){
+					$tree .= $treeObj->getBrowsableTree();
+                }
 			}
 		}
 

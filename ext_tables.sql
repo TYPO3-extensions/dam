@@ -249,7 +249,9 @@ CREATE TABLE tx_dam_cat (
 CREATE TABLE tx_dam_mm_cat (
   uid_local int(11) DEFAULT '0' NOT NULL,
   uid_foreign int(11) DEFAULT '0' NOT NULL,
+  tablenames varchar(30) DEFAULT '' NOT NULL,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
+  sorting_foreign int(11) DEFAULT '0' NOT NULL,
   KEY uid_local (uid_local),
   KEY uid_foreign (uid_foreign)
 );
@@ -281,6 +283,7 @@ CREATE TABLE tx_dam_mm_ref (
   tablenames varchar(30) DEFAULT '' NOT NULL,
   ident varchar(30) DEFAULT '' NOT NULL,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
+  sorting_foreign int(11) unsigned DEFAULT '0' NOT NULL,
   KEY uid_local (uid_local),
   KEY uid_foreign (uid_foreign)
 );
@@ -327,7 +330,7 @@ CREATE TABLE tx_dam_file_tracking (
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 
   file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path tinytext NOT NULL,
+  file_path varchar(255) DEFAULT '' NOT NULL,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
 
   # date of file creation

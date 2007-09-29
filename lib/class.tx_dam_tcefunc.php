@@ -1147,11 +1147,10 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		$error = 0;
 
-// 		for future t3 version?
-//
-//		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
-//			return true;
-//		}
+
+		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
+			return true;
+		}
 
 			// is mmforeign loaded?
 		if (!t3lib_extMgm::isLoaded('mmforeign')) {
