@@ -288,7 +288,7 @@ class tx_dam {
 
 
 	/**
-	 * Convert a file path to a a relative path to PATH_site or getIndpEnv('TYPO3_SITE_URL').
+	 * Convert a file path to a relative path to PATH_site or getIndpEnv('TYPO3_SITE_URL').
 	 * This is for files managed by the DAM only. Other files may fail.
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().

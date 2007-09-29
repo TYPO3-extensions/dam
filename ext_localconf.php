@@ -101,6 +101,7 @@ require_once(PATH_txdam.'tca_media_field.php');
 
 
 if(t3lib_div::int_from_ver(TYPO3_version) < t3lib_div::int_from_ver('4.0')) {
+	if (!defined('TYPO3_OS')) define('TYPO3_OS', stristr(PHP_OS,'win')&&!stristr(PHP_OS,'darwin')?'WIN':'');
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/class.alt_menu_functions.inc'] = PATH_txdam.'compat/class.ux_alt_menu_functions.php';
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/template.php'] = PATH_txdam.'compat/class.ux_template.php';
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/show_item.php'] = PATH_txdam.'compat/class.ux_SC_show_item.php';

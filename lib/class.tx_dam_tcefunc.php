@@ -201,7 +201,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$itemArray = $renderBrowseTrees->getItemArrayProcessed();
 
 
-
 		//
 		// process selected values
 		//

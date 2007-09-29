@@ -486,7 +486,7 @@ class tx_dam_guiFunc {
 		$styles = '
 
 			.txdam-title, .txdam-descr {
-				font-face:verdana,sans-serif;
+				font-family:verdana,sans-serif;
 				font-size:9.5px;
 				line-height:12px;
 				margin:2px;

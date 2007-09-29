@@ -1046,7 +1046,7 @@ class tx_dam_indexing {
 
 			// last chance
 		} else {
-			$osType = t3lib_exec::_getOS();
+			$osType = TYPO3_OS;
 			if (!($osType=='WIN')) {
 
 #			'opt' => ' -i -M '.PATH_txdam."bin/magic.mime ",

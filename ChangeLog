@@ -1,0 +1,13 @@
+06-04-10 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: Make tx_dam context menu work. Tried to load locallang.xml as PHP file.
+	* Fix: Displaying selected categories in indexing preset form works now.
+	* Some smaller manual updates
+
+06-04-08 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: class.tx_dam_indexing.php: $osType = t3lib_exec::_getOS(); -> $osType = TYPO3_OS;
+
+06-04-07 Rene Fritz  <r.fritz@colorcube.de>
+
+	* 1.0 release

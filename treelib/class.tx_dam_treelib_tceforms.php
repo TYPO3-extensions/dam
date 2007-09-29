@@ -630,24 +630,34 @@ class tx_dam_treelib_tceforms {
 	 */
 	function processItemArray($treeViewObj) {
 		foreach ($this->itemArray as $tk => $tv) {
-			$tvP = explode('|', $tv, 2);
-			list($treeName, $treeId) = explode(':', $tvP[0]);
-			if (is_null($treeId)) {
-					// single tree
+			list($itemId, $itemName) = explode('|', $tv, 2);
+			list($treeName, $treeId) = explode(':', $itemId);
+
+			if ($itemName) {
 				$this->itemArrayProcessed[$tk] = $tv;
+
 			} else {
-					// multiple trees
-				if($tvP[1]=='' AND $treeName==$treeViewObj->getTreeName()) {
-					if(isset($treeViewObj->recs[$treeId]) OR $treeId==0) {
-						$tvP[1] = $treeViewObj->getTreeTitle();
-						if ($treeId) {
-							$itemTitle = $treeViewObj->getTitleStr($treeViewObj->recs[$treeId]);
-							$tvP[1] .= $itemTitle ? ': '.$itemTitle : '';
+				if (is_null($treeId)) {
+
+						// single tree
+					$itemName = $treeViewObj->getTitleStr($treeViewObj->recs[$itemId]);
+					$this->itemArrayProcessed[$tk] = $itemId.'|'.$itemName;
+
+				} else {
+
+						// multiple trees
+					$itemName = '';
+					if($treeName==$treeViewObj->getTreeName()) {
+						if(isset($treeViewObj->recs[$treeId]) OR $treeId==0) {
+							$itemName = $treeViewObj->getTreeTitle();
+							if ($treeId) {
+								$itemTitle = $treeViewObj->getTitleStr($treeViewObj->recs[$treeId]);
+								$itemName .= $itemTitle ? ': '.$itemTitle : '';
+							} else {
+								$itemName .= ' (Root)';
+							}
+							$this->itemArrayProcessed[$tk] = $itemId.'|'.$itemName;
 						}
-						else {
-							$tvP[1] .= ' (Root)';
-						}
-						$this->itemArrayProcessed[$tk] = implode('|', $tvP);
 					}
 				}
 			}
