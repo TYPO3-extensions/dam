@@ -750,17 +750,21 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 */
 	function indexUploadedFiles($fileList)	{
 		global $BACK_PATH, $LANG;
+
 		$files = array();
+
+		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
+		$index = t3lib_div::makeInstance('tx_dam_indexing');
+		$index->init();
+		$index->setDefaultSetup(tx_dam::path_makeAbsolute($this->pObj->path));
+		$index->initEnabledRules();
+
+		$index->setRunType('auto');
+
+		$indexedFiles = $index->indexFiles($fileList, $this->pObj->defaultPid);
+
+
 		$fieldList = tx_dam_db::getMetaInfoFieldList(FALSE);
-
-			// Init indexing object
-		$indexObj = t3lib_div::makeInstance('tx_dam_indexing');
-		$indexObj->init();
-		$indexObj->initEnabledRules();
-#		$crdate = time();
-
-		$indexedFiles = $indexObj->indexFiles($fileList, $this->pObj->defaultPid);
-
 		foreach ($indexedFiles as $k => $data) {
 
 			$metaRec = tx_dam::meta_getDataByUid ($data['uid'], '*');

@@ -119,6 +119,7 @@ class tx_dam_browseTrees {
 
 							$this->treeObjArr[$classKey]->title = $obj->getTreeTitle();
 							$this->treeObjArr[$classKey]->treeName = $obj->getTreeName();
+							$this->treeObjArr[$classKey]->domIdPrefix = $obj->domIdPrefix ? $obj->domIdPrefix : $obj->getTreeName();
 							$this->treeObjArr[$classKey]->rootIcon = PATH_txdam_rel.'i/cat2folder.gif';
 							$this->treeObjArr[$classKey]->iconName = basename($obj->getDefaultIcon());
 							$this->treeObjArr[$classKey]->iconPath = dirname($obj->getDefaultIcon()).'/';

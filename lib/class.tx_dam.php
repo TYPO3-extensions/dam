@@ -810,7 +810,7 @@ return NULL;
 		if (!$hash) {
 			$hash = $fileInfo['file_hash'];
 		}
-
+// FIXME $hash is not used - what is the concept?
 		if (is_array($fileInfo)) {
 
 			$status['__status'] = TXDAM_file_unknown;
@@ -902,6 +902,7 @@ return NULL;
 		$index->init();
 
 		$index->setDefaultSetup(dirname($filename));
+		$index->initEnabledRules();
 
 			// overrule some parameter from setup
 		$index->setPath($filename);
@@ -927,10 +928,11 @@ return NULL;
 	 * @return	array		Info array about indexed files and meta data records.
 	 */
 	function index_process ($filename, $setup=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL) {
-
+// TODO how to set run type???
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
+		$index->setRunType('man');
 		$index->setPID(tx_dam_db::getPid());
 		$index->setDefaultSetup();
 		if ($setup) {
@@ -938,6 +940,7 @@ return NULL;
 		} else {
 			$index->setDefaultSetup(dirname($filename));
 		}
+		$index->initEnabledRules();
 		if(is_array($filename)) {
 			$index->setPathsList($filename);
 		} else {

@@ -256,7 +256,16 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 						$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$row['uid']) ;
 
+						//
+						// delete child elements and their MM-relation
+						// files stay at their physical storage position (usually uploads/tx_dam/_uid_/)
 
+						$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam', 'parent_id = ' . $id);
+						while ($childRow = $GLOBALS['TYPO3_DB']->sql_fetch_row($res)) {
+							$childUid = $childRow[0];
+							$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$childUid, array('deleted' => 1));
+							$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$childUid) ;
+						}
 				}
 
 			}

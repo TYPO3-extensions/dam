@@ -363,7 +363,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->pathInfo = $pathInfo;
 			$this->pathAccess = false;
 		}
-
+// TODO check path access in modules or set path to a valid path?
 
 		if (tx_dam::config_getValue('setup.debug')) {
 			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>'.t3lib_div::view_array($this->pathInfo);

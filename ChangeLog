@@ -1,5 +1,14 @@
+06-04-11 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: activated XCLASS code in command modules (mod_cmd/*)
+	* Fix: Set indexing run types properly: man, auto, cron
+	* Fix: change all indexing objects to use file indexing setup
+	* Fix: "Dry run" no longer add an entry under "Info > Indexing date"
+	* Change: Added reindexing to dam/mod_cmd/class.tx_dam_cmd_filereplace.php:replaceFile():
+
 06-04-10 Rene Fritz  <r.fritz@colorcube.de>
 
+	* Fix: tx_dam_browsetrees: more than one tx_dam_selProcBase with isTreeViewClass = FALSE is useable now by setting 'domIdPrefix'. Don't know if this is really needed.
 	* Fix: Make tx_dam context menu work. Tried to load locallang.xml as PHP file.
 	* Fix: Displaying selected categories in indexing preset form works now.
 	* Some smaller manual updates

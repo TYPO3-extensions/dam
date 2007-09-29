@@ -172,9 +172,14 @@ class tx_dam_indexing {
 	var $collectMeta = false;
 
 	/**
-	 * used to collect some statistics
+	 * used to collect meta data of the indexed files
 	 */
 	var $meta = array();
+
+	/**
+	 * used to collect uid's and titles of the indexed files
+	 */
+	var $infoList = array();
 
 
 	/**
@@ -210,7 +215,10 @@ class tx_dam_indexing {
 		$this->dataPostset = array();
 		$this->stat = array();
 		$this->indexRun = time();
+
 		$this->clearCollectedMeta();
+
+		$this->initAvailableRules();
 	}
 
 
@@ -221,6 +229,7 @@ class tx_dam_indexing {
 	 */
 	function clearCollectedMeta()	{
 		$this->meta = array();
+		$this->infoList = array();
 	}
 
 
@@ -515,7 +524,6 @@ class tx_dam_indexing {
 	 * @see getFilesInDir()
 	 */
 	function indexFiles($files, $pid=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)	{
-		$uidList = array();
 		$newIndexed = 0;
 		$reIndexed = 0;
 
@@ -535,27 +543,18 @@ class tx_dam_indexing {
 
 			foreach($files as $key => $pathname) {
 
+// TODO search for default setup for THIS file path
+// cache path setup in array
 				$meta = $this->indexFile($pathname, $this->indexRun, $pid, $metaCallbackFunc, $filePreprocessingCallbackFunc);
 
 				if($callbackFunc) {
 					call_user_func ($callbackFunc, 'postTrigger', $meta, $pathname, $key, $this);
 				}
 
-				if($meta['fields']['uid']) {
-					$uidList[] = array(
-						'uid' => $meta['fields']['uid'],
-						'title' => $meta['fields']['title'],
-						'reindexed' => $meta['reindexed'],
-						);
-					$newIndexed += ($meta['reindexed'] ? 0 : 1);
-					$reIndexed += ($meta['reindexed'] ? 1 : 0);
-				} // else
-					// errors are logged already
-
 			}
 
 			foreach($this->rules as $classname => $setup)	{
-				$this->rules[$classname]['obj']->postIndexing($uidList);
+				$this->rules[$classname]['obj']->postIndexing($this->infoList);
 			}
 
 			$this->statEnd($meta);
@@ -567,7 +566,7 @@ class tx_dam_indexing {
 				$this->log ('Files reindexed', $reIndexed, 0);
 			}
 		}
-		return $uidList;
+		return $this->infoList;
 	}
 
 
@@ -672,6 +671,16 @@ class tx_dam_indexing {
 					}
 				}
 
+				if($meta['fields']['uid']) {
+					$this->infoList[] = array(
+						'uid' => $meta['fields']['uid'],
+						'title' => $meta['fields']['title'],
+						'reindexed' => $meta['reindexed'],
+						);
+					$newIndexed += ($meta['reindexed'] ? 0 : 1);
+					$reIndexed += ($meta['reindexed'] ? 1 : 0);
+				}
+
 				$meta = $this->rulesCallback('post', $meta, $pathname);
 				if ($metaCallbackFunc) {
 					$meta = call_user_func ($metaCallbackFunc, 'post', $meta, $pathname, $this);
@@ -746,21 +755,20 @@ class tx_dam_indexing {
 	 * @param	array		$ruleOpt: ...
 	 * @return	void
 	 */
-	function mergeRuleConf($ruleOpt) {
+	function mergeRuleConf($ruleOpt='') {
+			// walk through the index rules
+		$this->initAvailableRules();
+		foreach($this->rules as $classname => $setup)	{
 
-		if(is_array($ruleOpt)) {
-				// walk through the index rules
-			$this->initAvailableRules();
-			foreach($this->rules as $classname => $setup)	{
-
-				if (is_array($ruleOpt[$classname])) {
-						// this is set in the class itself
-					unset($ruleOpt[$classname]['shy']);
-					$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $ruleOpt[$classname]);
-				}
-				$this->rules[$classname]['obj']->processOptionsForm();
-				$this->ruleConf[$classname] = $this->rules[$classname]['obj']->setup;
+			if (is_array($ruleOpt) AND is_array($ruleOpt[$classname])) {
+					// this is set in the class itself
+				unset($ruleOpt[$classname]['shy']);
+				$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $ruleOpt[$classname]);
+			} else {
+				$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $this->ruleConf[$classname]);
 			}
+			$this->rules[$classname]['obj']->processOptionsForm();
+			$this->ruleConf[$classname] = $this->rules[$classname]['obj']->setup;
 		}
 	}
 
@@ -1462,7 +1470,7 @@ class tx_dam_indexing {
 	 * @return	void
 	 */
 	function statClear() {
-		$this->stat=array();
+		$this->stat = array();
 	}
 
 
@@ -1513,7 +1521,9 @@ class tx_dam_indexing {
 	 * @return	integer		uid of the inserted log entry
 	 */
 	function log($message, $itemCount, $error) {
+		if (!$this->dryRun) {
 		return $this->writeLog($this->indexRun, $this->indexRunType, $message, $itemCount, $error);
+		}
 	}
 }
 

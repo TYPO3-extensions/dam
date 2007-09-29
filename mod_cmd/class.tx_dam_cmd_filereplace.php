@@ -238,18 +238,31 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 						if ($org_filename != $new_filename) {
 							$fields_values['file_dl_name'] = $new_filename;
 							if($row['file_name']) {
-								unlink(tx_dam::path_makeAbsolute($row['file_path']).$row['file_name']);
+								unlink(tx_dam::file_absolutePath($row));
 							}
 						}
 
-// TODO tcemain or tx_dam_db
+// TODO tx_dam_db
 						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);
 
+// TODO make indexing simpler - just one function
+						require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
+						$index = t3lib_div::makeInstance('tx_dam_indexing');
+						$index->init();
+						$index->setRunType('auto');
+						$index->setDefaultSetup(tx_dam::path_makeAbsolute($row['file_path']));
+						$index->initEnabledRules();
+						$index->enableReindexing();
+
+						$filepath = tx_dam::file_absolutePath($row);
+						$fileList = array($row['uid'] => $filepath);
+
+						$indexedFiles = $index->indexFiles($fileList, $this->pObj->defaultPid);
+
 						$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);
+
 					}
-
 				}
-
 			}
 		}
 		return $error;
@@ -259,9 +272,9 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 }
 
 
-//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filereplace.php'])    {
-//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filereplace.php']);
-//}
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filereplace.php'])    {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filereplace.php']);
+}
 
 
 ?>
