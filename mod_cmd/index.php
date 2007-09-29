@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,13 +25,12 @@
  * Command
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-ModCmd
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
-
+ *
  *
  */
 
@@ -44,7 +43,7 @@ require ($BACK_PATH.'template.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 
-$LANG->includeLLFile('EXT:dam/mod_cmd/locallang.php');
+$LANG->includeLLFile('EXT:dam/mod_cmd/locallang.xml');
 
 
 // Module is available to everybody
@@ -53,16 +52,15 @@ $LANG->includeLLFile('EXT:dam/mod_cmd/locallang.php');
 
 
 require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
-require_once(PATH_txdam.'lib/class.tx_dam_filelist.php');
+require_once(PATH_txdam.'lib/class.tx_dam_listfiles.php');
 
 
 
 /**
  * Script class for the DAM command script
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-ModCmd
  */
 class tx_dam_cmd extends tx_dam_SCbase {
 
@@ -85,13 +83,13 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 	/**
 	 * Initializes the backend module
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function init()	{
-		global $BE_USER, $SOBE, $TYPO3_CONF_VARS, $FILEMOUNTS;
+		global $BE_USER, $TYPO3_CONF_VARS, $FILEMOUNTS;
 
-#TODO
+// TODO veriCode needed and working?
 		$this->vC = t3lib_div::_GP('vC');
 
 			// Checking referer / executing
@@ -107,7 +105,8 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		parent::init();
 
 
-#TODO			// Initialize GPvars:
+// TODO	define standard GP vars
+			// Initialize GPvars:
 		$this->data = t3lib_div::_GP('data');
 		$this->returnUrl = t3lib_div::_GP('returnUrl');
 		$this->returnUrl = $this->returnUrl ? $this->returnUrl : t3lib_div::getIndpEnv('HTTP_REFERER');
@@ -119,7 +118,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		//
 		// Init basic-file-functions object:
 		//
-
+// TODO basicFF needed?
 		$this->basicFF = t3lib_div::makeInstance('t3lib_basicFileFunctions');
 		$this->basicFF->init($FILEMOUNTS,$TYPO3_CONF_VARS['BE']['fileExtensions']);
 
@@ -164,8 +163,8 @@ class tx_dam_cmd extends tx_dam_SCbase {
 
 	/**
 	 * Main function of the module. Write the content to $this->content
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function main()	{
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
@@ -180,52 +179,20 @@ class tx_dam_cmd extends tx_dam_SCbase {
 		$this->doc->docType = 'xhtml_trans';
 
 
-#debug($HTTP_GET_VARS, '$HTTP_GET_VARS', __LINE__, __FILE__);
-#debug(t3lib_div::_GET(), '_GET()', __LINE__, __FILE__);
-#debug($HTTP_POST_VARS, '$HTTP_POST_VARS', __LINE__, __FILE__);
-#debug($GLOBALS['SOBE']->MOD_SETTINGS, '$GLOBALS[SOBE]->MOD_SETTINGS', __LINE__, __FILE__);
-#debug($this->SLCMD, 'SLCMD', __LINE__, __FILE__);
-#debug($this->MOD_MENU,'MOD_MENU', __LINE__, __FILE__);
-#debug($this->MOD_MENU['function'],'$this->MOD_MENU[function]', __LINE__, __FILE__);
-#debug($this->MOD_SETTINGS['function'],'$this->MOD_SETTINGS[function]', __LINE__, __FILE__);
-
-
-		// Access check...
-		// The page will show only if there is a valid page and if this page may be viewed by the user
-#		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
-#		$access = is_array($this->pageinfo) ? 1 : 0;
-
-
-
-		//
-		// Validating the input path and checking access against the mounts of the user.
-		//
-
-		$this->path = $this->basicFF->is_directory(tx_dam_div::getAbsPath($this->path));
-		$this->path = $this->path ? $this->path.'/' : '';
-		$access = $this->path && ($this->fmountID = $this->basicFF->checkPathAgainstMounts($this->path));
-		$this->path_mount = $FILEMOUNTS[$this->fmountID]['path'];
-
-//debug($this->MOD_SETTINGS['tx_dam_folder'], 'tx_dam_folder');
-//debug($this->path_mount, 'path_mount');
-//debug($this->path, 'path');
-//debug($FILEMOUNTS, '$FILEMOUNTS');
-//debug($this->fmountID, 'fmountID');
-
-
-$access = TRUE;
 
 		//
 		// Main
 		//
-		if ($access)	{
+#		if ($this->pathAccess)	{
+// TODO Access check...??
+		if ($access = true)	{
 
 
 			//
 			// Output page header
 			//
 			$this->actionTarget = $this->actionTarget ? $this->actionTarget : t3lib_div::linkThisScript();
-			$this->doc->form='<form action="'.htmlspecialchars($this->actionTarget).'" method="POST" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+			$this->doc->form='<form action="'.htmlspecialchars($this->actionTarget).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 				// JavaScript
 			$this->doc->JScodeArray['jumpToUrl'] = '
@@ -237,7 +204,7 @@ $access = TRUE;
 				}
 
 				function jumpBack()	{
-					document.location = "'.$this->returnUrl.'";
+					document.location = "'.$this->redirect.'";
 				}
 				';
 			$this->doc->postCode.= $this->doc->wrapScriptTags('
@@ -268,7 +235,7 @@ $access = TRUE;
 			$this->content.= $this->doc->startPage($LANG->getLL('title'));
 			$this->content.= $this->doc->header($LANG->getLL('title'));
 			$this->content.= $this->doc->spacer(5);
-#TODO
+			$this->content.= $this->doc->section('', $LANG->sL('LLL:EXT:lang/locallang_mod_web_perm.xml:A_Denied',1));
 			$this->content.= $this->doc->spacer(10);
 		}
 
@@ -277,12 +244,10 @@ $access = TRUE;
 
 	/**
 	 * Prints out the module HTML
-	 * 
+	 *
 	 * @return	string		HTML
 	 */
 	function printContent()	{
-		global $SOBE;
-
 		$this->content.= $this->doc->middle();
 		$this->content.= $this->doc->endPage();
 		$this->content=$this->doc->insertStylesAndJS($this->content);
@@ -291,22 +256,43 @@ $access = TRUE;
 
 	/**
 	 * Returns a message that the passed command was wrong
-	 * 
+	 *
 	 * @return	string 	HTML content
 	 */
 	function wrongCommandMessage()	{
-		global $SOBE, $LANG;
+		global  $LANG;
 
-		$content = $SOBE->doc->section('',$SOBE->doc->icons(2).' '.$LANG->getLL('tx_dam_cmd_nothing.message'));
-		if ($SOBE->CMD) {
-			$content.= $SOBE->doc->section('Command:',htmlspecialchars($SOBE->CMD), 0,0);
+		$content = '';
+
+		if ($GLOBALS['SOBE']->CMD) {
+			$content .= $GLOBALS['SOBE']->doc->section('',$GLOBALS['SOBE']->doc->icons(2).' '.$LANG->getLL('tx_dam_cmd_nothing.messageUnknownCmd'));
+			$content .= $GLOBALS['SOBE']->doc->section('Command:',htmlspecialchars($GLOBALS['SOBE']->CMD), 0,0);
+		}
+		else {
+			$content .= $GLOBALS['SOBE']->doc->section('',$GLOBALS['SOBE']->doc->icons(2).' '.$LANG->getLL('tx_dam_cmd_nothing.messageNoCmd'));
 		}
 		return $content;
 	}
 
 	/**
+	 * Returns a message that the passed command was wrong
+	 *
+	 * @return	string 	HTML content
+	 */
+	function accessDeniedMessage($info='')	{
+		global  $LANG;
+
+		$content = '';
+		$this->content.= $this->doc->section('', $LANG->sL('LLL:EXT:lang/locallang_mod_web_perm.xml:A_Denied',1));
+		$content .= $GLOBALS['SOBE']->doc->section('',$GLOBALS['SOBE']->doc->icons(2).' '.$LANG->sL('LLL:EXT:lang/locallang_mod_web_perm.xml:A_Denied',1));
+		$content .= $GLOBALS['SOBE']->doc->section('',htmlspecialchars($info), 0,0);
+
+		return $content;
+	}
+
+	/**
 	 * Send redirect header
-	 * 
+	 *
 	 * @return	void
 	 */
 	function redirect()	{

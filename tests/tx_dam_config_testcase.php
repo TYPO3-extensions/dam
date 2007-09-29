@@ -1,0 +1,59 @@
+<?php
+/***************************************************************
+*  Copyright notice
+*
+*  (c) 2005-2006 Rene Fritz (r.fritz@colorcube.de)
+*  All rights reserved
+*
+*  This script is part of the TYPO3 project. The TYPO3 project is
+*  free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/copyleft/gpl.html.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+***************************************************************/
+
+/**
+ * @author	2005 Rene Fritz <r.fritz@colorcube.de>
+ */
+
+require_once (PATH_txdam.'lib/class.tx_dam.php');
+
+class tx_dam_config_testcase extends tx_t3unit_testcase {
+
+
+
+
+	/**
+	 * tx_dam::config_setValue()
+	 */
+	public function test_config_setValue () {
+
+
+//		tx_dam::config_init();
+//
+//		$config = & $GLOBALS['T3_VAR']['ext']['dam']['config'];
+//
+//
+//		$setup = tx_dam::config_getValue('setup.selections.txdamStatus.');
+
+
+
+	}
+
+
+}
+
+//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/tests/tx_dam_config_testcase.php'])	{
+//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/tests/tx_dam_config_testcase.php']);
+//}
+?>

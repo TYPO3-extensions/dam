@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,19 +25,21 @@
  * Module extension (addition to function menu) 'File Relation Check' for the 'Media>Info' module..
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage tools
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
-
+ *   59: class tx_dam_tools_filerelcheck extends t3lib_extobjbase
+ *   68:     function main()
+ *  125:     function moduleContent()
  *
- * TOTAL FUNCTIONS: 6
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -48,9 +50,11 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 
 
 /**
- * Module 'Media>Info>File Relation'
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
+ * Module 'Media>Tools>File check'
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage tools
  */
 class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 
@@ -58,11 +62,11 @@ class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 
 	/**
 	 * Main function
-	 * 
+	 *
 	 * @return	string		HTML output
 	 */
 	function main()	{
-		global $SOBE,$BE_USER,$LANG,$BACK_PATH,$TYPO3_CONF_VARS;
+		global $BE_USER,$LANG,$BACK_PATH,$TYPO3_CONF_VARS;
 
 		$content = '';
 
@@ -71,31 +75,30 @@ class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 		//
 
 			// db query
-//		$this->pObj->addSelectionToQuery();
+//		$this->pObj->selection->addSelectionToQuery();
 //
 //
-//		$this->pObj->qg->queryAddMM($mm_table='tx_dam_mm_ref',$foreign_table='',$local_table='tx_dam');
-//		$this->pObj->execSelectionQuery(TRUE);
-//		$this->pObj->setSelectionCounter();
+//		$this->pObj->selection->qg->queryAddMM($mm_table='tx_dam_mm_ref',$foreign_table='',$local_table='tx_dam');
+//		$this->pObj->selection->execSelectionQuery(TRUE);
 //
 //
 //		//
 //		// output header: info bar, result browser, ....
 //		//
 //
-//		$content.= $this->pObj->guiItems_getOutput('header');
+//		$content.= $this->pObj->guiItems->getOutput('header');
 //		$content.= $this->pObj->doc->spacer(10);
 //
 //
 //			// any records found?
-//		if($this->pObj->resCountAll) {
-//			$this->pObj->qg->query['FROM']['tx_dam'] = tx_dam_db::getInfoFieldListDAM();
-//			$this->pObj->qg->query['FROM']['tx_dam_mm_ref'] = 'tx_dam_mm_ref.uid_foreign,tx_dam_mm_ref.tablenames,tx_dam_mm_ref.ident';
+//		if($this->pObj->selection->pointer->countTotal) {
+//			$this->pObj->selection->qg->query['FROM']['tx_dam'] = tx_dam_db::getMetaInfoFieldList();
+//			$this->pObj->selection->qg->query['FROM']['tx_dam_mm_ref'] = 'tx_dam_mm_ref.uid_foreign,tx_dam_mm_ref.tablenames,tx_dam_mm_ref.ident';
 //
-//			$this->pObj->qg->query['ORDERBY']['tx_dam_mm_ref'] = 'tablenames';
+//			$this->pObj->selection->qg->query['ORDERBY']['tx_dam_mm_ref'] = 'tablenames';
 //
-//			$this->pObj->addLimitToQuery();
-//			$this->pObj->res = $this->pObj->execSelectionQuery();
+//			$this->pObj->selection->addLimitToQuery();
+//			$this->pObj->selection->res = $this->pObj->selection->execSelectionQuery();
 //
 //			$content.= $this->moduleContent();
 //		}
@@ -126,13 +129,13 @@ class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 		if ($path)	{
 
 				// init table layout
-			$refTableLayout = Array (
-				'table' => Array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
-				'0' => Array (
-					'defCol' => Array('<th nowrap="nowrap" class="bgColor5">','</th>')
+			$refTableLayout = array(
+				'table' => array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
+				'0' => array(
+					'defCol' => array('<th nowrap="nowrap" class="bgColor5">','</th>')
 				),
-				'defRow' => Array (
-					'defCol' => Array('<td nowrap="nowrap" class="bgColor4">','</td>'),
+				'defRow' => array(
+					'defCol' => array('<td nowrap="nowrap" class="bgColor4">','</td>'),
 				),
 			);
 			$cTable=array();
@@ -144,7 +147,7 @@ class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 			$tr++;
 
 
-			$content.=$this->pObj->doc->section('File / DAM relation overview:',tx_dam_div::getRelPath($path),0,1);
+			$content.=$this->pObj->doc->section('File / DAM relation overview:',tx_dam::path_makeRelative($path),0,1);
 
 				// Select all files and register them in an array where the relative path is the key:
 			$fileArr = array();
@@ -153,7 +156,7 @@ class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 			$removeUids = $outsidePathUids = array();
 
 				// Select all DAM rows:
-			$where = "tx_dam.file_path LIKE BINARY '".$GLOBALS['TYPO3_DB']->quoteStr(tx_dam_div::getRelPath($path), 'tx_dam')."%'";
+			$where = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr(tx_dam::path_makeRelative($path).'%', 'tx_dam');
 			$damRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,file_name,file_path,file_mtime','tx_dam',$where,'','file_path,file_name,tstamp DESC',1000);
 
 				// Traverse all DAM rows and check status

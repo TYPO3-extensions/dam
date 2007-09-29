@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -24,28 +24,37 @@
 /**
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-BeLib
+ * @subpackage GUI
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   61: class tx_dam_simpleForms extends t3lib_TCEforms 
- *   68:     function initDefaultBEmode()	
- *   88:     function setNewBEDesign()	
- *  141:     function addUserTemplateMarkers($marker,$table,$field,$row,&$PA)	
- *  163:     function wrapItem ($content) 
- *  173:     function removeRequired(&$tca) 
- *  185:     function setNonEditable(&$tca) 
- *  198:     function removeMM(&$tca) 
- *  206:     function setTSconfig($table,$row,$field='')	
- *  228:     function getTSCpid($table,$uid,$pid)	
+ *   70: class tx_dam_simpleForms extends t3lib_TCEforms
+ *   76:     function setVirtualTable($virtual, $existant)
+ *  110:     function removeVirtualTable($virtual)
+ *  123:     function initDefaultBEmode()
+ *  146:     function setNewBEDesign($enableCheckboxes=true)
+ *  207:     function setNewBEDesignOrig()
+ *  223:     function addUserTemplateMarkers($marker,$table,$field,$row,&$PA)
+ *  245:     function wrapItem ($content)
+ *  255:     function removeRequired(&$tca)
+ *  267:     function removeTreeViewBrowseable(&$tca)
+ *  280:     function setNonEditable(&$tca, $columnsExclude='')
+ *  305:     function setBackToEditable(&$tca)
+ *  320:     function setNonReadOnly(&$tca)
+ *  335:     function setBackToReadOnly(&$tca)
+ *  350:     function removeMM(&$tca)
  *
- * TOTAL FUNCTIONS: 9
- * (This index is automatically created/updated by the extension "extdeveval")
+ *              SECTION: local versions to make virtual table work
+ *  375:     function setTSconfig($table,$row,$field='')
+ *  399:     function getTSCpid($table,$uid,$pid)
+ *
+ * TOTAL FUNCTIONS: 16
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -53,10 +62,10 @@ require_once (PATH_t3lib.'class.t3lib_tceforms.php');
 
 /**
  * Modified TCEforms for usage in simple forms for data input and NOT record editing.
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-BeLib
+ * @subpackage GUI
  */
 class tx_dam_simpleForms extends t3lib_TCEforms {
 
@@ -92,6 +101,12 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	}
 
 
+	/**
+	 * Removes the virtual table from tCA
+	 *
+	 * @param	string		$virtual Virtual table name
+	 * @return	@return	void
+	 */
 	function removeVirtualTable($virtual) {
 		global $BE_USER, $TCA;
 
@@ -102,8 +117,8 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 
 	/**
 	 * Initialize various internal variables.
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function initDefaultBEmode()	{
 		global $BACK_PATH;
@@ -120,11 +135,13 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 		$this->edit_docModuleUpload = FALSE;
 	}
 
-#TODO $setOrigDesign used???
+
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Sets the design to the backend design.
+	 * Backend
+	 *
+	 * @param	boolean		$enableCheckboxes If set a columns will be prepended for using eg. checkboxes
+	 * @return	void
 	 */
 	function setNewBEDesign($enableCheckboxes=true)	{
 		global $BACK_PATH;
@@ -182,9 +199,10 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @return	[type]		...
+	 * Sets the design to the original backend design.
+	 * Backend
+	 *
+	 * @return	void
 	 */
 	function setNewBEDesignOrig()	{
 		parent::setNewBEDesign();
@@ -192,47 +210,47 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 
 
 	/**
-	 * add own markers for output
-	 * 
+	 * Overwrite this function in own extended class to add own markers for output
+	 *
 	 * @param	array		Array with key/value pairs to insert in the template.
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$field: ...
-	 * @param	[type]		$row: ...
-	 * @param	[type]		$PA: ...
-	 * @return	[type]		...
+	 * @param	string		The table name of the record
+	 * @param	string		The field name which this element is supposed to edit
+	 * @param	array		The record data array where the value(s) for the field can be found
+	 * @param	array		An array with additional configuration options.
+	 * @return	array		marker array for template output
 	 * @see function intoTemplate()
 	 */
 	function addUserTemplateMarkers($marker,$table,$field,$row,&$PA)	{
 		global $BACK_PATH;
 
-		if($PA['fieldConf']['config']['type']=='none') {
-			if(in_array($field,$this->tx_dam_fixedFields)) {
+		if($PA['fieldConf']['config']['type']=='none' OR $PA['fieldConf']['config']['readOnly']) {
+			if(in_array($field, $this->tx_dam_fixedFields)) {
 				$marker['SETFIXED']='<img src="'.$BACK_PATH.'gfx/pil2right.gif" width="7" height="12" vspace="2" alt="" />';
 			}
 		} else {
 			$itemFormElName=$this->prependFormFieldNames.'_fixedFields['.$table.']['.$row['uid'].']['.$field.']';		// Form field name
 
 			$marker['SETFIXED']='<input type="hidden" name="'.$itemFormElName.'" value="0" />'.
-								'<input type="checkbox" name="'.$itemFormElName.'"'.(in_array($field,$this->tx_dam_fixedFields)?' checked':'').' value="1" />';
+								'<input type="checkbox" name="'.$itemFormElName.'"'.(in_array($field, $this->tx_dam_fixedFields)?' checked':'').' value="1" />';
 		}
 		return $marker;
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$content: ...
-	 * @return	[type]		...
+	 * Place content into $this->palFieldTemplate by replacing the marker ###FIELD_PALETTE###
+	 *
+	 * @param	string		$content: ...
+	 * @return	string HTML content
 	 */
 	function wrapItem ($content) {
 		return str_replace('###FIELD_PALETTE###',$content,$this->palFieldTemplate);
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$$tca: ...
-	 * @return	[type]		...
+	 * Remove "required" from the TCA array
+	 *
+	 * @param	array		$tca TCA Array
+	 * @return	void
 	 */
 	function removeRequired(&$tca) {
 		foreach($tca['columns'] as $field => $config) {
@@ -241,39 +259,93 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$$tca: ...
-	 * @return	[type]		...
+	 * Remove "treeViewBrowseable" from the TCA array
+	 *
+	 * @param	array		$tca TCA Array
+	 * @return	void
+	 */
+	function removeTreeViewBrowseable(&$tca) {
+		foreach($tca['columns'] as $field => $config) {
+			$tca['columns'][$field]['config']['treeViewBrowseable'] = false;
+		}
+	}
+
+	/**
+	 * Set all fields in the TCA array to "readOnly"
+	 *
+	 * @param	array		$tca TCA Array
+	 * @param	string		$columnsExclude Comma list of fields to exclude
+	 * @return	void
 	 */
 	function setNonEditable(&$tca, $columnsExclude='') {
+		if (isset($this->renderReadonly)) {
+			$this->renderReadonly = true;
+		} else {
+			$columnsExclude = t3lib_div::trimExplode(',', $columnsExclude, 1);
+			foreach($tca['columns'] as $field => $config) {
+				if(!in_array($field, $columnsExclude)) {
+					# $tca['columns'][$field]['config']['type'] = 'none';
+					if (!$tca['columns'][$field]['config']['readOnly']) {
+						$tca['columns'][$field]['config']['readOnly'] = true;
+						$tca['columns'][$field]['config']['__wasEditable'] = true;
+						$tca['columns'][$field]['config']['size'] = max(5,$tca['columns'][$field]['config']['size']);
+					}
+				}
+			}
+		}
+	}
 
-		$columnsExclude = t3lib_div::trimExplode(',', $columnsExclude, 1);
-		foreach($tca['columns'] as $field => $config) {
-			if(!in_array($field, $columnsExclude)) {
-				$tca['columns'][$field]['config']['type'] = 'none';
-				$tca['columns'][$field]['config']['size'] = max(5,$tca['columns'][$field]['config']['size']);
-			}
-		}
-	}
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$$tca: ...
-	 * @return	[type]		...
+	 * Revert "readOnly" set by setNonEditable()
+	 *
+	 * @param	array		$tca TCA Array
+	 * @return	void
+	 * @see setNonEditable()
 	 */
-	function setNoneToEditable(&$tca) {
+	function setBackToEditable(&$tca) {
 		foreach($tca['columns'] as $field => $config) {
-			if($tca['columns'][$field]['config']['type'] == 'none') {
-				$tca['columns'][$field]['config']['type'] = 'input';
+			if($tca['columns'][$field]['config']['__wasEditable']) {
+				$tca['columns'][$field]['config']['readOnly'] = false;
+				unset($tca['columns'][$field]['config']['__wasEditable']);
 			}
 		}
 	}
+
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$$tca: ...
-	 * @return	[type]		...
+	 * Set all fields in the TCA array to editable "readOnly=false"
+	 *
+	 * @param	array		$tca TCA Array
+	 * @return	void
+	 */
+	function setNonReadOnly(&$tca) {
+		foreach($tca['columns'] as $field => $config) {
+			if($tca['columns'][$field]['config']['readOnly']) {
+				$tca['columns'][$field]['config']['readOnly'] = false;
+				$tca['columns'][$field]['config']['__wasReadOnly'] = true;
+			}
+		}
+	}
+
+	/**
+	 * Revert "readOnly" set by setNonReadOnly()
+	 *
+	 * @param	array		$tca TCA Array
+	 * @return	void
+	 */
+	function setBackToReadOnly(&$tca) {
+		foreach($tca['columns'] as $field => $config) {
+			if($tca['columns'][$field]['config']['__wasReadOnly']) {
+				$tca['columns'][$field]['config']['readOnly'] = true;
+				unset($tca['columns'][$field]['config']['__wasReadOnly']);
+			}
+		}
+	}
+
+	/**
+	 * Remove "MM" from the TCA array
+	 *
+	 * @param	array		$tca TCA Array
+	 * @return	void
 	 */
 	function removeMM(&$tca) {
 		foreach($tca['columns'] as $field => $config) {
@@ -281,14 +353,31 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 		}
 	}
 
-	// ------------------------------------------------------------------
 
+
+	/********************************************
+	 *
+	 * local versions to make virtual table work
+	 *
+	 ********************************************/
+
+
+	/**
+	 * Returns TSconfig for table/row
+	 * Multiple requests to this function will return cached content so there is no performance loss in calling this many times since the information is looked up only once.
+	 *
+	 * @param	string		The table name
+	 * @param	array		The table row (Should at least contain the "uid" value, even if "NEW..." string. The "pid" field is important as well, and negative values will be intepreted as pointing to a record from the same table.)
+	 * @param	string		Optionally you can specify the field name as well. In that case the TSconfig for the field is returned.
+	 * @return	mixed		The TSconfig values (probably in an array)
+	 * @see t3lib_BEfunc::getTCEFORM_TSconfig()
+	 */
 	function setTSconfig($table,$row,$field='')	{
 
 		$mainKey = $table.':'.$row['uid'];
 		if (!isset($this->cachedTSconfig[$mainKey]))	{
 # this tries to read the record again, which fails when using pseudo records
-#			$this->cachedTSconfig[$mainKey]=t3lib_BEfunc::getTCEFORM_TSconfig($table,$row);
+#			$this->cachedTSconfig[$mainKey] = t3lib_BEfunc::getTCEFORM_TSconfig($table,$row);
 		}
 		if ($field)	{
 			return $this->cachedTSconfig[$mainKey][$field];
@@ -298,12 +387,14 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	}
 
 	/**
-	 * [Describe function...]
-	 * 
-	 * @param	[type]		$table: ...
-	 * @param	[type]		$uid: ...
-	 * @param	[type]		$pid: ...
-	 * @return	[type]		...
+	 * Return TSCpid (cached)
+	 * Using t3lib_BEfunc::getTSCpid()
+	 *
+	 * @param	string		Tablename
+	 * @param	string		UID value
+	 * @param	string		PID value
+	 * @return	integer		Returns the REAL pid of the record, if possible. If both $uid and $pid is strings, then pid=-1 is returned as an error indication.
+	 * @see t3lib_BEfunc::getTSCpid()
 	 */
 	function getTSCpid($table,$uid,$pid)	{
 		$key = $table.':'.$uid.':'.$pid;

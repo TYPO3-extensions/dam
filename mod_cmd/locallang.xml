@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+    <meta type="array">
+        <description></description>
+        <type>module</type>
+        <csh_table></csh_table>
+        <fileId>EXT:dam/mod_cmd/locallang.xml</fileId>
+        <labelContext type="array">
+            <label index="tx_dam_cmd_nothing.title"></label>
+            <label index="tx_dam_cmd_nothing.messageNoCmd"></label>
+            <label index="tx_dam_cmd_nothing.messageUnknownCmd"></label>
+            <label index="tx_dam_cmd_filerename.title_file"></label>
+            <label index="tx_dam_cmd_filerename.title_folder"></label>
+            <label index="tx_dam_cmd_filereplace.title"></label>
+            <label index="tx_dam_cmd_filedelete.warning"></label>
+            <label index="tx_dam_cmd_filedelete.title"></label>
+            <label index="tx_dam_cmd_filedelete.message"></label>
+            <label index="tx_dam_cmd_filedelete.messageReferences"></label>
+            <label index="tx_dam_cmd_filedelete.references"></label>
+            <label index="tx_dam_cmd_filedelete.submit"></label>
+            <label index="tx_dam_cmd_foldernew.title"></label>
+            <label index="tx_dam_cmd_filenew.title"></label>
+        </labelContext>
+    </meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+            <label index="tx_dam_cmd_nothing.title">[no command]</label>
+            <label index="tx_dam_cmd_nothing.messageNoCmd">There's no command given to this module.</label>
+            <label index="tx_dam_cmd_nothing.messageUnknownCmd">The command given to this module is unknown.</label>
+            <label index="tx_dam_cmd_filerename.title_file">Rename file</label>
+            <label index="tx_dam_cmd_filerename.title_folder">Rename folder</label>
+            <label index="tx_dam_cmd_filereplace.title">Replace file</label>
+            <label index="tx_dam_cmd_filedelete.warning">Warning</label>
+            <label index="tx_dam_cmd_filedelete.title">Delete file</label>
+            <label index="tx_dam_cmd_filedelete.message">Are you sure to delete the file and it's meta data?</label>
+            <label index="tx_dam_cmd_filedelete.messageReferences">The file is used in following records. Delete it nevertheless?</label>
+            <label index="tx_dam_cmd_filedelete.references">Usage</label>
+            <label index="tx_dam_cmd_filedelete.submit">Delete file</label>
+            <label index="tx_dam_cmd_foldernew.title">Create folder</label>
+            <label index="tx_dam_cmd_filenew.title">Create text file</label>
+        </languageKey>
+        <languageKey index="de" type="array">
+            <label index="tx_dam_cmd_filereplace.title">Datei ersetzen</label>
+            <label index="tx_dam_cmd_filedelete.warning">Achtung</label>
+            <label index="tx_dam_cmd_filedelete.title">Datei löschen</label>
+            <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher das Sie die Datei und zugehörige Meta-Daten löschen wollen?</label>
+            <label index="tx_dam_cmd_filedelete.messageReferences">Die Datei wird in folgenden Datensätzen verwendet. Dateo trotzdem löschen?:</label>
+            <label index="tx_dam_cmd_filedelete.references">Verwendung</label>
+            <label index="tx_dam_cmd_filedelete.submit">Datei löschen</label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+            <label index="tx_dam_cmd_nothing.title" type="integer">72590348</label>
+            <label index="tx_dam_cmd_nothing.messageNoCmd" type="integer">65945249</label>
+            <label index="tx_dam_cmd_nothing.messageUnknownCmd" type="integer">231607270</label>
+            <label index="tx_dam_cmd_filerename.title_file" type="integer">141321795</label>
+            <label index="tx_dam_cmd_filerename.title_folder" type="integer">230121524</label>
+            <label index="tx_dam_cmd_filereplace.title" type="integer">137137852</label>
+            <label index="tx_dam_cmd_filedelete.warning" type="integer">15379892</label>
+            <label index="tx_dam_cmd_filedelete.title" type="integer">163509798</label>
+            <label index="tx_dam_cmd_filedelete.message" type="integer">244786145</label>
+            <label index="tx_dam_cmd_filedelete.messageReferences" type="integer">198266306</label>
+            <label index="tx_dam_cmd_filedelete.references" type="integer">207901063</label>
+            <label index="tx_dam_cmd_filedelete.submit" type="integer">163509798</label>
+            <label index="tx_dam_cmd_foldernew.title" type="integer">98311831</label>
+            <label index="tx_dam_cmd_filenew.title" type="integer">163060686</label>
+        </languageKey>
+        <languageKey index="de" type="array">
+            <label index="tx_dam_cmd_filereplace.title" type="integer">137137852</label>
+            <label index="tx_dam_cmd_filedelete.warning" type="integer">15379892</label>
+            <label index="tx_dam_cmd_filedelete.title" type="integer">163509798</label>
+            <label index="tx_dam_cmd_filedelete.message" type="integer">244786145</label>
+            <label index="tx_dam_cmd_filedelete.messageReferences" type="integer">198266306</label>
+            <label index="tx_dam_cmd_filedelete.references" type="integer">207901063</label>
+            <label index="tx_dam_cmd_filedelete.submit" type="integer">163509798</label>
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+        <languageKey index="de" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>

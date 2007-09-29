@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,21 +25,22 @@
  * Module extension (addition to function menu) 'batch processing' for the 'Media>List' module.
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage list
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   58: class tx_dam_list_batch extends t3lib_extobjbase 
- *   67:     function main()    
- *  222:     function getPresetForm ($rec,$fixedFields,$langKeyDesc) 
+ *   60: class tx_dam_list_batch extends t3lib_extobjbase
+ *   67:     function modMenu()
+ *   80:     function head()
+ *   98:     function main()
  *
- * TOTAL FUNCTIONS: 2
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -51,18 +52,30 @@ require_once(PATH_txdam.'lib/class.tx_dam_batchprocess.php');
 
 /**
  * Module extension  'Media>List>Process'
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
+ * @subpackage list
  */
 class tx_dam_list_batch extends t3lib_extobjbase {
 
+	/**
+	 * Function menu initialization
+	 *
+	 * @return	array		Menu array
+	 */
+	function modMenu()    {
+		global $LANG;
+
+		return array(
+			'tx_dambatchprocess_setup' => '',
+		);
+	}
 
 	/**
 	 * Initialize the class and set some HTML header code
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function head()	{
 
@@ -70,20 +83,20 @@ class tx_dam_list_batch extends t3lib_extobjbase {
 		// Init gui items and ...
 		//
 
-		$this->pObj->guiItems_registerFunc('getResultInfoHeader', 'header');
+		$this->pObj->guiItems->registerFunc('getResultInfoHeader', 'header');
 
-//		$this->pObj->guiItems_registerFunc('getOptions', 'footer');
-//		$this->pObj->guiItems_registerFunc('getStoreControl', 'footer');
+//		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
+//		$this->pObj->guiItems->registerFunc('getStoreControl', 'footer');
 	}
 
 
 	/**
 	 * Main function
-	 * 
+	 *
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $SOBE,$BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
+		global $BE_USER,$LANG,$BACK_PATH,$TCA,$TYPO3_CONF_VARS;
 
 		$content = '';
 
@@ -91,35 +104,31 @@ class tx_dam_list_batch extends t3lib_extobjbase {
 		// Use the current selection to create a query and count selected records
 		//
 
-		$this->pObj->addSelectionToQuery();
-		$this->pObj->execSelectionQuery(TRUE);
-		$this->pObj->setSelectionCounter();
+		$this->pObj->selection->addSelectionToQuery();
+		$this->pObj->selection->execSelectionQuery(TRUE);
 
 
 
 
-		if($this->pObj->resCountAll) {
+		if($this->pObj->selection->pointer->countTotal) {
 			$batch = t3lib_div::makeInstance('tx_dam_batchProcess');
 
-			if(t3lib_div::_GP($batch->startParam)) {
+			if($batch->processGP()) {
 
 					// result info
 				$content.= $this->pObj->doc->section('',$this->pObj->getHeaderBar('', $this->pObj->btn_back()),0,1);
 				$content.= $this->pObj->doc->spacer(10);
 
+				$infoFields = $batch->getProcessFieldList();
+				$this->pObj->selection->execSelectionQuery(FALSE, ' DISTINCT '.$infoFields);
 
-				$batch->processGP();
-
-				$infoFields = tx_dam_db::getInfoFieldListDAM();
-				$this->pObj->execSelectionQuery(FALSE, ' DISTINCT '.$infoFields);
-
-				$batch->runBatch($this->pObj->res);
+				$batch->runBatch($this->pObj->selection->res);
 
 				$content.= $batch->showResult();
 			} else {
 
 					// header with back button
-				$content.= $this->pObj->doc->section('',$this->pObj->getHeaderBar($this->pObj->getResultInfo()),0,1);
+				$content.= $this->pObj->doc->section('',$this->pObj->getHeaderBar($this->pObj->getResultInfo(false)),0,1);
 				$content.= $this->pObj->doc->spacer(10);
 
 				$content.= $batch->showPresetForm();
@@ -131,7 +140,7 @@ class tx_dam_list_batch extends t3lib_extobjbase {
 			// output header: info bar, result browser, ....
 			//
 
-			$content.= $this->pObj->guiItems_getOutput('header');
+			$content.= $this->pObj->guiItems->getOutput('header');
 			$content.= $this->pObj->doc->spacer(10);
 
 				// no search result: showing selection box

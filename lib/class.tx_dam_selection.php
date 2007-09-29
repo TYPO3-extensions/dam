@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -24,56 +24,57 @@
 /**
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Core
+ * @subpackage Lib
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
  *
  *
- *   78: class tx_dam_selection 
- *  101:     function init(&$pObj)	
- *
- *              SECTION: selection to query definition conversion
- *  122:     function getSelectionWhereClauseArray () 
- *  188:     function getWhereClausePart($queryType, $operator, $cat, $id, $value) 
- *
- *              SECTION: selection array processing
- *  216:     function mergeSelection ($sel) 
- *  341:     function cleanSelectionArray($sel, $removeEmptyValues=TRUE, $countDown=2) 
+ *   79: class tx_dam_selection
+ *  113:     function init(&$pObj, &$SOBE, $selectionClasses, $paramPrefix='slqg', $store_MOD_SETTINGS='')
+ *  127:     function hasSelection()
+ *  137:     function serialize()
+ *  150:     function setFromSerialized($sel, $storeAsCurrent=true)
  *
  *              SECTION: selection storage / undo
- *  385:     function initSelection_getStored_mergeSubmitted() 
- *  401:     function setCurrentSelectionFromStored() 
- *  416:     function storeSelection() 
- *  428:     function storeCurrentSelectionAsUndo() 
- *  455:     function undoSelection() 
+ *  177:     function initSelection_getStored_mergeSubmitted()
+ *  194:     function setCurrentSelectionFromStored()
+ *  207:     function storeSelection()
+ *  217:     function storeCurrentSelectionAsUndo()
+ *  243:     function undoSelection()
  *
- * TOTAL FUNCTIONS: 10
- * (This index is automatically created/updated by the extension "extdeveval")
+ *              SECTION: selection to query definition conversion
+ *  268:     function getSelectionWhereClausearray()
+ *  332:     function getWhereClausePart($queryType, $operator, $cat, $id, $value)
+ *  348:     function setFieldMapping($table, $fieldMapping)
+ *  355:     function getFieldMapping($table, $field)
+ *
+ *              SECTION: selection array processing
+ *  379:     function mergeSelection ($sel)
+ *  505:     function cleanSelectionArray($sel, $removeEmptyValues=TRUE, $countDown=2)
+ *
+ * TOTAL FUNCTIONS: 15
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
 
 
 
-require_once(PATH_t3lib.'class.t3lib_modsettings.php');
-
-require_once(PATH_txdam.'lib/class.tx_dam_db.php');
-require_once(PATH_txdam.'lib/class.tx_dam_types.php');
-require_once(PATH_txdam.'lib/class.tx_dam_div.php');
 
 
 
 /**
- * Selection
- * Generates SQL queries from selection commands
- * 
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * Selection compiler
+ *
+ * Generates SQL queries from selection commands by calling registered selection classes
+ *
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Core
+ * @subpackage Lib
  */
 class tx_dam_selection {
 
@@ -91,35 +92,73 @@ class tx_dam_selection {
 
 	/**
 	 * prefix used for special commands (undo)
-	 */	
-	var $paramPrefix = 'tx_dam';
+	 */
+	var $paramPrefix = 'slqg';
 
 	var $pObj;
 	var $SOBE;
+	var $selectionClasses;
 
 
 	/**
 	 * Initializes the object
-	 * 
-	 * @param	[type]		$$pObj: ...
-	 * @return	void		
+	 *
+	 * @param	object		$pObj That is the object that includes this object
+	 * @param	object		$SOBE That is the object that is the module and stores the session data
+	 * @param 	array 		$selectionClasses Array of class resources
+	 * @param	string		$paramPrefix Name of a prefix used for special commands (undo).
+	 * @param	string		$store_MOD_SETTINGS Name of the MOD_SETTINGS key to store the selection.
+	 * @return	void
 	 */
-	function init(&$pObj, &$SOBE)	{
+	function init(&$pObj, &$SOBE, $selectionClasses, $paramPrefix='slqg', $store_MOD_SETTINGS='')	{
 		$this->pObj = &$pObj;
 		$this->SOBE = &$SOBE;
+		$this->selectionClasses = $selectionClasses;
+		$this->paramPrefix = $paramPrefix;
+		$this->store_MOD_SETTINGS = $store_MOD_SETTINGS ? $store_MOD_SETTINGS : $this->paramPrefix.'_select';
 	}
-
 
 
 	/**
 	 * Checks if there's a selection
-	 * 
-	 * @return	boolean	returns true if there is a selection
+	 *
+	 * @return	boolean		returns true if there is a selection
 	 */
 	function hasSelection()	{
 		return count($this->sel);
 	}
 
+
+	/**
+	 * Serializes the current selection
+	 *
+	 * @return	string		returns a serialized selection definition
+	 */
+	function serialize()	{
+		#return t3lib_div::array2xml($this->sel);
+		return serialize($this->sel);
+	}
+
+
+	/**
+	 * Set current selection from serialized data
+	 *
+	 * @param	string		$sel serialized selection definition
+	 * @param	boolean		$storeAsCurrent If set the selection will be stored in session as the current selection.
+	 * @return	void
+	 */
+	function setFromSerialized($sel, $storeAsCurrent=true)	{
+		#$sel = t3lib_div::xml2array($sel);
+		$sel = unserialize($sel);
+		$this->sel = array();
+		if(is_array($sel)) {
+			$this->sel = $sel;
+			if($storeAsCurrent) {
+				$this->storeCurrentSelectionAsUndo();
+				$this->storeSelection();
+			}
+		}
+	}
 
 
 
@@ -132,8 +171,8 @@ class tx_dam_selection {
 
 	/**
 	 * Get the users last stored selection or processes.an undo command
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function initSelection_getStored_mergeSubmitted() {
 
@@ -149,11 +188,10 @@ class tx_dam_selection {
 
 	/**
 	 * Get the users last selection from MOD_SETTINGS and set it as current.
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function setCurrentSelectionFromStored() {
-
 		$this->sel = unserialize($this->SOBE->MOD_SETTINGS[$this->store_MOD_SETTINGS]);
 		if (!is_array($this->sel)) {
 			$this->sel = array();
@@ -163,8 +201,8 @@ class tx_dam_selection {
 
 	/**
 	 * Store the current setting.
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function storeSelection() {
 		$this->SOBE->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->SOBE->MOD_MENU, array($this->store_MOD_SETTINGS => serialize($this->sel)), $this->SOBE->MCONF['name'], 'ses');
@@ -173,8 +211,8 @@ class tx_dam_selection {
 
 	/**
 	 * Store the current setting in the undo storage.
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function storeCurrentSelectionAsUndo() {
 
@@ -199,8 +237,8 @@ class tx_dam_selection {
 
 	/**
 	 * Get the last selection from the undo storage and set it as current selection.
-	 * 
-	 * @return	void		
+	 *
+	 * @return	void
 	 */
 	function undoSelection() {
 
@@ -224,10 +262,10 @@ class tx_dam_selection {
 
 	/**
 	 * Transforms selection array entries into an array for the db select array.
-	 * 
+	 *
 	 * @return	array		db select array where clauses
 	 */
-	function getSelectionWhereClauseArray () {
+	function getSelectionWhereClausearray() {
 		$queryArr = array();
 		$sel = $this->sel;
 
@@ -272,7 +310,7 @@ class tx_dam_selection {
 			foreach ($sel['DESELECT_ID'] as $table => $items) {
 				if(count($items)) {
 					$ids = implode(',',array_keys($items));
-					$queryArr['NOT'][$table.'deselect'] = $table.'.uid NOT IN ('.$ids.')';
+					$queryArr['NOT'][$table.'deselect'] = $table.'.uid NOT IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($ids).')';
 				}
 			}
 		}
@@ -283,20 +321,20 @@ class tx_dam_selection {
 
 	/**
 	 * Transforms selection array entries into an array for the db select array.
-	 * 
-	 * @param	[type]		$queryType: ...
-	 * @param	[type]		$operator: ...
-	 * @param	[type]		$cat: ...
-	 * @param	[type]		$id: ...
-	 * @param	[type]		$value: ...
-	 * @return	string		where clauses
+	 *
+	 * @param	string		$queryType Query type: AND, OR, ...
+	 * @param	string		$operator Operator, eg. '!=' - see DAM Documentation
+	 * @param	string		$cat Category - corresponds to the "treename" used for the category tree in the nav. frame
+	 * @param	string		$id The select value/id
+	 * @param	string		$value The select value (true/false,...)
+	 * @return	string		where clause
 	 */
 	function getWhereClausePart($queryType, $operator, $cat, $id, $value) {
 		$query = '';
 		$obj = &t3lib_div::getUserObj($this->selectionClasses[$cat],'user_',TRUE);
 # if ($id) removed - and did again with (string)
 		if (is_object($obj) AND !((string)$id==''))      {
-			 list($queryType, $query) = $obj->dam_selectProc($queryType, $operator, $cat, $id, $value, $this->pObj);
+			 list($queryType, $query) = $obj->selection_getQueryPart($queryType, $operator, $cat, $id, $value, $this->pObj);
 		} else {
 			$queryType = false;
 		}
@@ -304,8 +342,25 @@ class tx_dam_selection {
 	}
 
 
+	/**
+	 * TODO
+	 */
+	function setFieldMapping($table, $fieldMapping) {
+		$this->fieldMapping[$table] = $fieldMapping;
+	}
 
-
+	/**
+	 * TODO
+	 */
+	function getFieldMapping($table, $field) {
+		$fieldMapped = '';
+		if (isset($this->fieldMapping[$table][$field])) {
+			$fieldMapped = $this->fieldMapping[$table][$field];
+		} else {
+			$fieldMapped = $table.'.'.$field;
+		}
+		return $fieldMapped;
+	}
 
 	/********************************
 	 *
@@ -317,9 +372,9 @@ class tx_dam_selection {
 	/**
 	 * Merge the passed selection array with the current selection.
 	 * Usefull for GP vars.
-	 * 
-	 * @param	[type]		$sel: ...
-	 * @return	void		
+	 *
+	 * @param	array		$sel Passed selection array
+	 * @return	void
 	 */
 	function mergeSelection ($sel) {
 
@@ -441,11 +496,11 @@ class tx_dam_selection {
 
 	/**
 	 * remove unused selection array entries
-	 * 
-	 * @param	[type]		$sel: ...
-	 * @param	[type]		$removeEmptyValues: ...
-	 * @param	[type]		$countDown: ...
-	 * @return	array		
+	 *
+	 * @param	array		$sel Selection array
+	 * @param	boolean		$removeEmptyValues Removes empty values from selection
+	 * @param	integer		$countDown Private parameter
+	 * @return	array
 	 */
 	function cleanSelectionArray($sel, $removeEmptyValues=TRUE, $countDown=2) {
 		if(is_array($sel)) {
@@ -462,7 +517,11 @@ class tx_dam_selection {
 								}
 							}
 						} else {
+// TODO implement deselect as selection class
+if($type=='DESELECT_ID') {
+} else {
 							unset($sel[$type][$cat]);
+}
 						}
 					}
 				} else {

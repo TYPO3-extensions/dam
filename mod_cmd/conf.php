@@ -10,6 +10,6 @@ $MCONF['shy']=TRUE;
 $MCONF['script']='index.php';
 
 $MLANG['default']['tabs_images']['tab'] = 'moduleicon.gif';
-$MLANG['default']['ll_ref']='LLL:EXT:dam/mod_cmd/locallang_mod.php';
+$MLANG['default']['ll_ref']='LLL:EXT:dam/mod_cmd/locallang_mod.xml';
 
 ?>

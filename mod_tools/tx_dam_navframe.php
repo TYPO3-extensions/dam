@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2003-2005 René Fritz (r.fritz@colorcube.de)
+*  (c) 2003-2006 Rene Fritz (r.fritz@colorcube.de)
 *  All rights reserved
 *
 *  This script is part of the Typo3 project. The Typo3 project is
@@ -25,14 +25,13 @@
  * DAM nav frame.
  * Part of the DAM (digital asset management) extension.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ * @author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
- *	
+ *
  *
  * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -48,17 +47,18 @@ include ($BACK_PATH.'template.php');
 
 
 
-define('PATH_txdam', t3lib_extMgm::extPath('dam'));
+if (!defined ('PATH_txdam')) {
+	define('PATH_txdam', t3lib_extMgm::extPath('dam'));
+}
 
 require_once(PATH_txdam.'lib/class.tx_dam_navframe.php');
 
 
 /**
  * Main script class for the tree navigation frame
- * 
- * @author	@author	René Fritz <r.fritz@colorcube.de>
- * @package TYPO3
- * @subpackage tx_dam
+ *
+ * @author	@author	Rene Fritz <r.fritz@colorcube.de>
+ * @package DAM-Mod
  */
 class tx_dam_mainnavframe extends tx_dam_navframe {
 

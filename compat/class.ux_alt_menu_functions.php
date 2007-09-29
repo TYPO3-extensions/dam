@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 1999-2004 Kasper Skaarhoj (kasperYYYY@typo3.com)
+*  (c) 1999-2006 Kasper Skaarhoj (kasperYYYY@typo3.com)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -25,9 +25,29 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
- * Needed change/fix for the changing nav frames
+ * Class for generation of the module menu.
+ * Will make the vertical, horizontal, selectorbox based menus AND the "about modules" display.
+ * Basically it traverses the module structure and generates output based on that.
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * $Id: class.alt_menu_functions.inc,v 1.26 2005/04/27 09:57:51 typo3 Exp $
+ * Revised for TYPO3 3.6 2/2003 by Kasper Skaarhoj
+ * XHTML compliant content
+ *
+ * @author	Kasper Skaarhoj <kasperYYYY@typo3.com>
+ * @ignore
+ */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ *   64: class ux_alt_menu_functions extends alt_menu_functions
+ *   85:     function topMenu($theModules,$dontLink=0,$backPath='',$descr=0)
+ *  464:     function getNavFramePrefix ($moduleInfo, $subModuleInfo=array())
+ *
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the script "update-class-index")
+ *
  */
 
 
@@ -36,11 +56,15 @@
 /**
  * Needed change/fix for the changing nav frames
  *
- * @author	René Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package TYPO3
  * @subpackage core
+ * @ignore
  */
 class ux_alt_menu_functions extends alt_menu_functions {
+
+		// Internal
+	var $fsMod = array();
 
 	/**
 	 * Creates the menu of modules.
@@ -86,9 +110,9 @@ class ux_alt_menu_functions extends alt_menu_functions {
 
 			// Get collapsed configuration
 		if ($collapsable == 1) {
-			$config = is_array ($BE_USER->uc['moduleData']['alt_menu.php']) ? $BE_USER->uc['moduleData']['alt_menu.php'] : array();
+			$config = is_array($BE_USER->uc['moduleData']['alt_menu.php']) ? $BE_USER->uc['moduleData']['alt_menu.php'] : array();
 			$collapsedOverride = t3lib_div::_GP('collapsedOverride');
-			if (is_array ($collapsedOverride)) {
+			if (is_array($collapsedOverride)) {
 				$config = array_merge ($config, $collapsedOverride);
 			}
 
@@ -402,7 +426,7 @@ class ux_alt_menu_functions extends alt_menu_functions {
 				if (count($functionArray))	{
 					$selectItems[] = '<option value=""></option>';
 					foreach($functionArray as $fAoptions)	{
-						$selectItems[] = '<option value="'.htmlspecialchars("document.location='".$fAoptions['href']."';").'">[ '.htmlspecialchars($fAoptions['title']).' ]</option>';
+						$selectItems[] = '<option value="'.htmlspecialchars("window.location.href='".$fAoptions['href']."';").'">[ '.htmlspecialchars($fAoptions['title']).' ]</option>';
 					}
 				}
 			}
@@ -437,25 +461,6 @@ class ux_alt_menu_functions extends alt_menu_functions {
 	 * @param	string		Submodule info array
 	 * @return	string		Result url string
 	 */
-//	function getNavFramePrefix($moduleInfo, $subModuleInfo=array()) {
-//		global $BE_USER;
-//
-//		$prefix = '';
-//		$navFrameScript = $subModuleInfo['navFrameScript'] ? $subModuleInfo['navFrameScript'] : $moduleInfo['navFrameScript'];
-//		$navFrameScriptParam = isset($subModuleInfo['navFrameScriptParam']) ? $subModuleInfo['navFrameScriptParam'] : $moduleInfo['navFrameScriptParam'];
-//		if ($navFrameScript)	{
-//			if ($BE_USER->uc['condensedMode'])	{
-//				$prefix=$this->wrapLinkWithAB($navFrameScript).$navFrameScriptParam.'&currentSubScript=';
-//			} else {
-//				$prefix='alt_mod_frameset.php?'.
-//					'fW="+top.TS.navFrameWidth+"'.
-//					'&nav="+top.TS.PATH_typo3+"'.rawurlencode($this->wrapLinkWithAB($navFrameScript).$navFrameScriptParam).
-//					'&script=';
-//			}
-//		}
-//		return $prefix;
-//	}
-
 	function getNavFramePrefix ($moduleInfo, $subModuleInfo=array()) {
 		global $BE_USER;
 
