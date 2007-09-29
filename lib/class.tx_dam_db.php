@@ -226,7 +226,7 @@ class tx_dam_db {
 					$enableFields = tx_dam_db::enableFields($table, 'AND', $mode);
 				
 					
-						// Will try to overlay a record only if the sys_language_content value is larger that zero.
+						// Will try to overlay a record only if the sys_language_content value is larger than zero.
 					if ($sys_language_content>0)	{
 							// Must be default language or [All], otherwise no overlaying:
 						if ($row[$languageField]<=0)	{
@@ -769,7 +769,12 @@ class tx_dam_db {
 		}
 
 		if(!$orderBy) {
-			$orderBy = $MM_table.'.sorting';
+			if ($MM_table=='tx_dam_mm_ref' AND t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
+				// TODO .sorting_foreign: very much hardcoded - how to change that? MM tables don't have TCA ...
+				$orderBy = $MM_table.'.sorting_foreign';
+			} else {
+				$orderBy = $MM_table.'.sorting';
+			}
 		}
 
 		while ($key = array_search('', $where)) {

@@ -276,11 +276,11 @@ if (TYPO3_MODE === 'BE')	{
 		// add context menu
 	$GLOBALS['TBE_MODULES_EXT']['xMOD_alt_clickmenu']['extendCMclasses'][]=array(
 		'name' => 'tx_dam_cm_record',
-		'path' => PATH_txdam.'class.tx_dam_cm_record.php'
+		'path' => PATH_txdam.'binding/be/class.tx_dam_cm_record.php'
 	);
 	$GLOBALS['TBE_MODULES_EXT']['xMOD_alt_clickmenu']['extendCMclasses'][]=array(
 		'name' => 'tx_dam_cm_file',
-		'path' => PATH_txdam.'class.tx_dam_cm_file.php'
+		'path' => PATH_txdam.'binding/be/class.tx_dam_cm_file.php'
 	);
 
 
@@ -291,7 +291,7 @@ if (TYPO3_MODE === 'BE')	{
 
 
 		// language hotlist
-	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_languagehotlist.php:&tx_dam_tce_languagehotlist';
+	$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/binding/tce/class.tx_dam_tce_languagehotlist.php:&tx_dam_tce_languagehotlist';
 
 
 

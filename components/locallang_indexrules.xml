@@ -25,7 +25,7 @@
         <languageKey index="default" type="array">
             <label index="recursive.title">Index sub folders</label>
             <label index="folderAsCat.title">Categorize files from folder names</label>
-            <label index="folderAsCat.desc">Categories will be attached to files if a category has the same name as the files folder.</label>
+            <label index="folderAsCat.desc">Existing categories will be applied to files if a category has the same name as the files folder.</label>
             <label index="folderAsCat.use_fuzzy">Use fuzzy folder/category comparison.</label>
             <label index="dryRun.title">Dry run</label>
             <label index="dryRun.desc">Do not actually insert any data into the DAM; just print what would happen.</label>
@@ -43,8 +43,8 @@
         </languageKey>
         <languageKey index="de" type="array">
             <label index="recursive.title">Unterverzeichnisse mit einbeziehen</label>
-            <label index="folderAsCat.title">Verzeichnisse als Kategorien verwenden</label>
-            <label index="folderAsCat.desc">Kategorien werden gesetzt falls die Datei in einem gleichnamigen Verzeichnis liegt.</label>
+            <label index="folderAsCat.title">Kategorien nach Verzeichnisnamen zuordnen</label>
+            <label index="folderAsCat.desc">Einer Datei wird automatisch eine vorhandene Kategorie zugeordnet, wenn die Kategorie dem Verzeichnisnamen entspricht.</label>
             <label index="folderAsCat.use_fuzzy">Verwende auch ähnliche Kategorienamen.</label>
             <label index="dryRun.title">Testlauf</label>
             <label index="dryRun.desc">Es werden keine Daten zum DAM hinzugefügt sondern nur gezeigt was passieren würde</label>

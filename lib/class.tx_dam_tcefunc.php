@@ -780,7 +780,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$row = $PA['row'];
 		$table = $PA['table'];
 
-		foreach (array('media_type', 'file_name', 'file_path', 'file_size') as $field) {
+// TODO overlay all fields to be safe
+		foreach (array('media_type', 'file_name', 'file_path', 'file_size', 'hpixels', 'vpixels') as $field) {
 			$row[$field] = $this->tceforms->getLanguageOverlayRawValue($table, $row, $field, $TCA[$table]['columns'][$field]);
 		}
 

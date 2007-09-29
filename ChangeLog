@@ -1,3 +1,57 @@
+07-03-13 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: form action had wrong format in some modules
+	* Fix: saving of indexing preset didn't work in tx_dam_tools_indexsetup
+	* Change: the indexing option 'folder to category' will search now for a category using LIKE
+
+07-03-12 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: image previewer works now in translated records
+	* Fix: set non visible fields to 'l10n_mode' => 'exclude' in TCA
+	* Added: added the tag <media> to RTE content processing and frontend rendering
+
+07-03-11 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: mod_cmd use cmdInit() method of extObj if available
+	* Change: mod_cmd use ->templateClass
+	* Change: tx_dam_cmd_filenew: use 'template' doc class now to use full frame width and set texarea class
+	* Fix: tx_dam_tools_indexupdate did no check more than 200 files
+	* Added: button to change sorting order in media>list>thumbs module
+
+07-03-9 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: sorting selector in EB
+	* Change: set title cropping to 120 in EB
+	* Change: search for indexing setup up to $TYPO3_CONF_VARS['BE']['lockRootPath'] if set
+
+07-03-06 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: 5143: Categories module shows php error
+	* Fix: 0004681: make mm compatible with 4.1
+
+07-02-22 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: icon paths in tx_dam_selectionFolder
+
+07-02-21 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Fix: tx_dam_mm_cat table lacked the field "tablenames" which might be needed in some circumstances
+
+07-02-20 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Added: 'Add all to list' button to EB list and upload module. Will insert all elements to the current CE.
+	* Fix: tx_dam_querygen::getQueryParts() tables from 'enableFields' will be added to FROM
+
+07-02-19 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: tca_media_field.php: set 'MM_opposite_field' => 'file_usage',
+	* Added: check if file is present in tx_dam_image::preview()
+
+07-02-16 Rene Fritz  <r.fritz@colorcube.de>
+
+	* Change: tx_dam_db workaround, using tx_dam.sorting_foreign when TYPO3 4.1
+	* Change: remove mmforeign dependency in dam_ttcontent and use ext_update.php to create warnings in EM when needed.
+
 07-02-15 Rene Fritz  <r.fritz@colorcube.de>
 
 	* Change: tx_dam_tce_file removed referer check

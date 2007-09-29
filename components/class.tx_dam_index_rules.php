@@ -178,9 +178,12 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 	 * @return	array Processed meta data array
 	 */
 	function processMeta($meta)	{
+		
+		if ($this->writeDevLog) 	t3lib_div::devLog('processMeta(): setup', 'tx_dam_index_rule_folderAsCat', 0, $this->setup);
 
 		$folder = tx_dam::path_basename($meta['fields']['file_path']);
 		if ($folder) {
+			
 
 			if($this->setup['fuzzy']) {
 				
@@ -189,13 +192,21 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', 'tx_dam_cat').' AND deleted=0');
 
 			} else {
+				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($folder,'tx_dam');
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title='.$GLOBALS['TYPO3_DB']->fullQuoteStr($folder, 'tx_dam_cat').' AND deleted=0');
+				# $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr, 'tx_dam_cat').' AND deleted=0');
 			}
 			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 
 			if ($row['uid']) {
 				$meta['fields']['category'].= ',tx_dam_cat_'.$row['uid'];
+			}			
+			
+			if ($this->writeDevLog) 	{
+				$devLog = array ('folder' => $folder, 'uid' => $row['uid'], 'category' => $meta['fields']['category']);
+				t3lib_div::devLog('processMeta(): category', 'tx_dam_index_rule_folderAsCat', 0, $devLog);
 			}
+			
 		}
 		return $meta;
 	}

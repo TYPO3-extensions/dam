@@ -65,7 +65,7 @@
  *              SECTION: Data tools
  *  578:     function getMountsForTree($treeName, $userMountField='tx_dam_mountpoints', $groupMountField='tx_dam_mountpoints')
  *  631:     function processItemArray($treeViewObj)
- *  674:     function getItemFormElValueIdArr ($itemFormElValue)
+ *  664:     function getItemFormElValueIdArr ($itemFormElValue)
  *
  * TOTAL FUNCTIONS: 19
  * (This index is automatically created/updated by the script "update-class-index")
@@ -384,7 +384,7 @@ class tx_dam_treelib_tceforms {
 
 					$tree = '';
 
-					if ((string)$treeViewObj->supportMounts === 'rootOnly') {
+					if ((string)$treeViewObj->supportMounts=='rootOnly') {
 						$tree = $treeViewObj->printRootOnly();
 						$this->treeItemC += 1;
 

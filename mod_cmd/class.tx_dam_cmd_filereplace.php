@@ -164,7 +164,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 		$msg[] = '&nbsp;';
 
 		$msg[] = '
-				<input type="file" name="upload_'.$id.'"'.$this->pObj->doc->formWidth(35).' size="50" />
+				<input type="file" name="upload_'.$id.'"'.$this->pObj->doc->formWidth(35).' size="45" />
 				<input type="hidden" name="data[upload]['.$id.'][target]" value="'.htmlspecialchars($path).'" />
 				<input type="hidden" name="data[upload]['.$id.'][data]" value="'.$id.'" />';
 

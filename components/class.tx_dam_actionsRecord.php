@@ -308,10 +308,14 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 	function getIcon ($addAttribute='') {
 		global $TCA;
 
+#		if ($this->disabled OR $TCA[$this->itemInfo['__table']]['ctrl']['readOnly']) {
+#			$iconFile = PATH_txdam_rel.'i/view_readonly.gif';
+			
 		if ($this->disabled) {
 			$iconFile = 'gfx/edit2_i.gif';
 		} else {
 			$iconFile = 'gfx/edit2'. (!$TCA[$this->itemInfo['__table']]['ctrl']['readOnly'] ? '' : '_d').'.gif';
+			
 		}
 		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="11" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
@@ -346,19 +350,6 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 	 * @access private
 	 */
 	function _getCommand() {
-/* will show non-editable info
-		$filename = tx_dam::file_absolutePath($this->itemInfo);
-
-		$param = 'table='.rawurlencode($filename).'&returnUrl='.rawurlencode($this->env['returnUrl']);
-		if ($this->type === 'context') {
-			$commands['url'] = 'show_item.php?'.$param;
-		} else {
-			$commands['onclick'] = 'return jumpExt(\''.$this->env['backPath'].'show_item.php?'.$param.'\');';
-		}
-		
-		return $commands;
-
-*/
 
 		$uid = $this->itemInfo['_LOCALIZED_UID'] ? $this->itemInfo['_LOCALIZED_UID'] : $this->itemInfo['uid'];
 		$params = '&edit['.$this->itemInfo['__table'].']['.$uid.']=edit';
@@ -591,7 +582,7 @@ class tx_dam_action_viewFileRec extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control'); // , 'context' - desabled because it's available through 'file ...' sub menu
+	var $typesAvailable = array('icon', 'control'); // , 'context' - disabled because it's available through 'file ...' sub menu
 
 
 	/**

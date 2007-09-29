@@ -211,8 +211,8 @@ class tx_dam_multiaction_moveFile extends tx_dam_multiaction_deleteFile {
 class tx_dam_multiActionsFile {
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/components/class.tx_dam_multiActionsRecord.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/components/class.tx_dam_multiActionsRecord.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/components/class.tx_dam_multiActionsFile.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/components/class.tx_dam_multiActionsFile.php']);
 }
 
 ?>

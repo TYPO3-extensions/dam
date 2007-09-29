@@ -116,7 +116,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 			$func = 'indexSave';
 		}
 
-		if ($func === 'indexSave' AND !($file = t3lib_div::_GP('filename'))) {
+		if ($func === 'indexSave' AND t3lib_div::_GP('setuptype') === 'cron' AND !($file = t3lib_div::_GP('filename'))) {
 			$func = 'indexStart';
 		}
 
@@ -138,6 +138,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 		switch($this->getCurrentFunc())    {
 			case 'index':
 			case 'index1':
+// TODO make it possible to read preset if present in current folder
 				$content.= parent::moduleContent($LANG->getLL('tx_dam_tools_indexsetup.start_point'), '<p style="margin:0.8em 0 1.2em 0">'.$LANG->getLL('tx_dam_tools_indexsetup.desc', true).'</p>');
 			break;
 
@@ -183,7 +184,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 
 
 				$content .= '</form>';
-				$content .= $this->pObj->doc->form;
+				$content .= $this->pObj->getFormTag();
 				if (is_file($path.$filename) AND is_readable($path.$filename)) {
 
 					$content.= '<br /><strong>Overwrite existing default indexer setup to this folder:</strong><br />'.htmlspecialchars($this->pObj->path).'<br />';
@@ -205,8 +206,10 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 
 					$filename = $this->makeSetupfilenameForPath($this->pObj->path);
 					$content .= '</form>';
-					$content .= $this->pObj->doc->form;
-					$content.= '<br /><strong>Save setup as cron indexer setup:</strong><br />'.htmlspecialchars($path).'<br /><input type="text" size="25" maxlength="25" name="filename" value="'.htmlspecialchars($filename).'"> .xml';
+					$content .= $this->pObj->getFormTag();
+					$content.= '<input type="hidden" name="setuptype" value="cron">';
+					$content.= '<br /><strong>Save setup as cron indexer setup:</strong><br />'.htmlspecialchars($path).'<br />
+								<input type="text" size="25" maxlength="25" name="filename" value="'.htmlspecialchars($filename).'"> .xml';
 					$content.= '<br /><input type="submit" name="indexSave" value="Save" />';
 
 					$files = t3lib_div::getFilesInDir($path,'xml',0,1);

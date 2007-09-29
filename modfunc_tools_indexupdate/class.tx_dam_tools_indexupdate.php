@@ -560,7 +560,6 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			// get session data - which might have left files stored
 		$indexSession = $this->indexSessionFetch();
 
-
 		$where = array();
 		if ($age = intval($this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.age'])) {
 			$where['tstamp'] = 'tstamp<'.(time()-$age);
@@ -576,11 +575,16 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			$indexSession = $this->indexSessionNew($countTotal);
 
 		}
-		$rows = tx_dam_db::getDataWhere('', $where, '', '', intval($indexSession['currentCount']).',200');
+
+		$files_at_a_time = 200;
+
+		$rows = tx_dam_db::getDataWhere('', $where, '', '', intval($indexSession['currentCount']).','.$files_at_a_time);
 
 		if ($rows) {
 
+			$c = 0;
 			foreach ($rows as $meta) {
+				$c ++;
 
 					// increase progress bar
 				$indexSession['currentCount']++;
@@ -615,8 +619,8 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				$this->indexing_flushNow();
 
 				$this->indexSessionWrite($indexSession);
-// FIXME this seems not to work
-				if (($this->indexEndtime < time()) AND ($indexSession['currentCount'] < $indexSession['totalFilesCount'])) {
+
+				if (($this->indexEndtime < time() OR $c == $files_at_a_time) AND ($indexSession['currentCount'] < $indexSession['totalFilesCount'])) {
 					$params = $this->pObj->addParams;
 					$params['indexSessionID'] = $indexSession['ID'];
 					echo '
@@ -786,10 +790,10 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			break;
 			case '2':
 				$icon = 'gfx/icon_warning.gif';
+				$title = 'File changed';
 			break;
 			case '1':
 				$icon = 'gfx/icon_note.gif';
-				$title = 'File changed';
 			break;
 			case '-1':
 				$icon = 'gfx/icon_ok.gif';

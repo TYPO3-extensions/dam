@@ -773,6 +773,10 @@ class tx_dam_guiFunc {
 //					}
 //				break;
 
+				case '_caption':
+					$infoData[$item]['value'] = $row['caption'] ? $row['caption'] : $row['description'];
+				break;
+				
 				default:
 					if (isset($row[$item])) {
 						$infoData[$item]['value'] = $row[$item];
@@ -814,6 +818,13 @@ class tx_dam_guiFunc {
 						$infoArr[$item] = $val['value'];
 					}
 					$infoData = $infoArr;
+			break;
+			case 'value-string':
+					$infoArr = array();;
+					foreach($infoData as $item => $val) {
+						$infoArr[$item] = $val['value'];
+					}
+					$infoData = implode("\n", $infoArr);
 			break;
 			default:
 			break;
