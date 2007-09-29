@@ -524,8 +524,6 @@ class tx_dam_indexing {
 	 * @see getFilesInDir()
 	 */
 	function indexFiles($files, $pid=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)	{
-		$newIndexed = 0;
-		$reIndexed = 0;
 
 		if (is_array($files) && count($files)) {
 
@@ -559,11 +557,11 @@ class tx_dam_indexing {
 
 			$this->statEnd($meta);
 
-			if($newIndexed) {
-				$this->log ('New files indexed', $newIndexed, 0);
+			if($this->stat['newIndexed']) {
+				$this->log ('New files indexed', $this->stat['newIndexed'], 0);
 			}
-			if($reIndexed) {
-				$this->log ('Files reindexed', $reIndexed, 0);
+			if($this->stat['reIndexed']) {
+				$this->log ('Files reindexed', $this->stat['reIndexed'], 0);
 			}
 		}
 		return $this->infoList;
@@ -677,8 +675,8 @@ class tx_dam_indexing {
 						'title' => $meta['fields']['title'],
 						'reindexed' => $meta['reindexed'],
 						);
-					$newIndexed += ($meta['reindexed'] ? 0 : 1);
-					$reIndexed += ($meta['reindexed'] ? 1 : 0);
+					$this->stat['newIndexed'] += ($meta['reindexed'] ? 0 : 1);
+					$this->stat['reIndexed'] += ($meta['reindexed'] ? 1 : 0);
 				}
 
 				$meta = $this->rulesCallback('post', $meta, $pathname);
@@ -1435,6 +1433,8 @@ class tx_dam_indexing {
 	function statBegin() {
 		$this->statmtime = t3lib_div::milliseconds();
 		$this->stat['totalStartTime'] = $this->stat['totalStartTime'] ? $this->stat['totalStartTime'] : $this->statmtime;
+		$this->stat['newIndexed'] = 0;
+		$this->stat['reIndexed'] = 0;
 	}
 
 	/**
