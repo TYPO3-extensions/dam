@@ -124,6 +124,8 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 		$this->treeName='txdamFolder';
 		$this->domIdPrefix=$this->treeName;
 		$this->MOUNTS = $GLOBALS['FILEMOUNTS'];
+		$this->iconPath = 'gfx/i/';
+		$this->iconName = '_icon_webfolders.gif';
 		$this->ext_IconMode = '1'; // no context menu on icons
 	}
 
@@ -212,7 +214,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	function getControl($title,$row) {
 		global $BACK_PATH;
 		$control = '';
-	#TODO skinning
+	// TODO skinning
 		if (!t3lib_div::_GP('folderOnly') AND $this->modeSelIcons) {
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
 			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/plus.gif"  width="8" height="11" border="0" alt="" />';
@@ -345,6 +347,21 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 
 
 	/**
+	 * Returns the icon of an item
+	 *
+	 * @param	string		The select value/id
+	 * @param	string		The select value (true/false,...)
+	 * @return	string
+	 */
+	function selection_getItemIcon($id, $value)	{
+		if($icon = $this->getDefaultIcon()) {
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$icon, 'width="18" height="16"').' class="typo3-icon" alt="" />';
+		}
+		return $icon;
+	}
+
+
+	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
 	 * Called from DAM
 	 *
@@ -355,14 +372,15 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 * @param	string		The select value (true/false,...)
 	 * @param	object		Reference to the parent DAM object.
 	 * @return	string
-	 * @see tx_dam_SCbase::getWhereClausePart()
+	 * @see tx_dam_selection::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 		$query= $damObj->sl->getFieldMapping('tx_dam', 'file_path');
-		if($operator=='!=') {
+		if($queryType=='NOT') {
 			$query.= ' NOT';
 		}
-		$query.= " LIKE BINARY '".tx_dam::path_makeRelative ($id)."%'";
+		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($id), 'tx_dam');
+		$query.= ' LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
 
 		return array($queryType,$query);
 	}

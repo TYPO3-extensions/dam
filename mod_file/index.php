@@ -202,6 +202,7 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 			else {
 				$this->content.= $this->doc->section('', $LANG->getLL('pathNotExists'));
 			}
+			$this->content.= '<p>'.htmlspecialchars($this->path).'</p>';
 			$this->content.= $this->doc->spacer(10);
 		}
 	}

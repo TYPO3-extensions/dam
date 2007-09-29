@@ -99,10 +99,13 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			'tx_dam_tools_indexupdate.func' => array(
 				'index' => $LANG->getLL('tx_dam_tools_indexupdate.index_check'),
 				'uploads' => $LANG->getLL('tx_dam_tools_indexupdate.uploads_check'),
+				'lost_records' => $LANG->getLL('tx_dam_tools_indexupdate.lost_records_check'),
+				'statistics' => $LANG->getLL('tx_dam_tools_indexupdate.statistics'),
 			),
 		);
-
 	}
+// TODO add function for updating media type tree
+
 
 	/**
 	 * Main function
@@ -152,10 +155,52 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		$this->indexEndtime = time()+$max_execution_time;
 
 
+		$content.= $this->pObj->doc->spacer(10);
+
 		switch($func)    {
 
+			case 'lost_records':
+
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.lost_records_check'), $LANG->getLL('tx_dam_tools_indexupdate.lost_records_description',1),0,1);
+				$content.= $this->pObj->doc->spacer(10);
+
+				if (t3lib_div::_GP('collect_lost_records')) {
+					$values = array ('pid' => $this->pObj->defaultPid);
+					$mediaTables = tx_dam::register_getEntries('mediaTable');
+					foreach ($mediaTables as $table) {
+						$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($table, $table.'.pid NOT IN ('.tx_dam_db::getPidList().')', $values);
+					}
+				}
+
+
+				list($lostRecordsFound, $statisticsLostRecords) = $this->statisticsLostRecords();
+
+				if ($lostRecordsFound) {
+
+					$content.= $statisticsLostRecords;
+					$content.= $this->pObj->doc->spacer(10);
+					$content.= '<p><input type="submit" name="collect_lost_records" value="'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_collect').'" /></p>';
+
+				} else {
+
+					$content.= '<p><strong>'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_all_fine').'</strong></p>';
+					$content.= $this->pObj->doc->spacer(10);
+					$content.= '<p><input type="submit" name="" value="'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_check_again').'" /></p>';
+				}
+
+			break;
+
+			case 'statistics':
+
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.statistics'), $LANG->getLL('tx_dam_tools_indexupdate.statistics_description',1),0,1);
+				$content.= $this->pObj->doc->spacer(10);
+				$content.= $this->statisticsMediaType();
+				$content.= $this->pObj->doc->spacer(10);
+				$content.= '<p><input type="submit" name="update" value="'.$LANG->getLL('tx_dam_tools_indexupdate.update').'" /></p>';
+			break;
+
 			case 'index':
-				$content.= $LANG->getLL('tx_dam_tools_indexupdate.index_description',1);
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.index_check'), $LANG->getLL('tx_dam_tools_indexupdate.index_description',1),0,1);
 				$content.= $this->pObj->doc->spacer(10);
 
 				$code = '';
@@ -173,7 +218,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				$code.= '<p><br /></p>';
 
 				$code.= '<p><input type="submit" name="start" /></p>';
-				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.index_check'), $code,0,1);
+				$content.= $code;
 
 				$code = '';
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('COUNT(uid) as count', 'tx_dam', $where_clause='');
@@ -263,9 +308,210 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 	}
 
 
+	/**
+	 * Render statistics about lostrecords
+	 *
+	 * @return	array		array($countTotal, $content)
+	 */
+	function statisticsLostRecords() {
+		global $LANG, $TCA;
+
+		$content = '';
+		$countTotal = 0;
+
+			// init table layout
+		$tableLayout = array(
+			'table' => array('<table border="0" cellspacing="1" cellpadding="2" style="width:auto;">', '</table>'),
+			'0' => array(
+				'tr' => array('<tr class="bgColor2">','</tr>'),
+				'defCol' => array('<td align="center">','</td>'),
+			),
+			'defRow' => array(
+				'tr' => array('<tr class="bgColor3-20">','</tr>'),
+				'1' => array('<td align="center">','</td>'),
+				'defCol' => array('<td>','</td>'),
+			)
+		);
+
+		$tableOutput = array();
+		$tr = 0;
+
+			// add header row
+		$tableOutput[$tr][] = 'Table';
+		$tableOutput[$tr][] = 'Count';
+
+
+		$mediaTables = tx_dam::register_getEntries('mediaTable');
+
+		foreach ($mediaTables as $table) {
+			$count = 0;
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('COUNT(uid) as count', $table, $table.'.pid NOT IN ('.tx_dam_db::getPidList().')');
+			if ($res) {
+				$rows = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+				reset($rows);
+				$row = current($rows);
+				$count = $row['count'];
+				$countTotal += $count;
+			}
+			$title = is_array($TCA[$table]) ? $GLOBALS['LANG']->sl($TCA[$table]['ctrl']['title']) : $table;
+
+			$icon = t3lib_iconWorks::getIconImage($table, array(), $GLOBALS['BACK_PATH'],' align="top"');
+
+				// add row to table
+			$tr++;
+			$tableOutput[$tr][] = $icon.$title.' ('.$table.')';
+			$tableOutput[$tr][] = $count;
+		}
+
+		$content .= $this->pObj->doc->table($tableOutput, $tableLayout);
+
+		return array($countTotal, $content);
+	}
+
+
+	/**
+	 * Render statistics about indexed media types
+	 *
+	 * @return	string		HTML output
+	 */
+	function statisticsMediaType($addFileTypes=true) {
+		global $LANG;
+
+		$content = '';
+
+			// init table layout
+		$tableLayout = array(
+			'table' => array('<table border="0" cellspacing="1" cellpadding="2" style="width:auto;">', '</table>'),
+			'0' => array(
+				'tr' => array('<tr class="bgColor2">','</tr>'),
+				'defCol' => array('<td align="center">','</td>'),
+			),
+			'defRow' => array(
+				'tr' => array('<tr class="bgColor3-20">','</tr>'),
+				'1' => array('<td align="center">','</td>'),
+				'4' => array('<td align="right" style="padding-right:0.5em;">','</td>'),
+				'5' => array('<td align="right" style="padding-right:0.5em;">','</td>'),
+				'defCol' => array('<td>','</td>'),
+			)
+		);
+
+		$table = array();
+		$tr = 0;
+
+			// add header row
+		$table[$tr][] = '&nbsp';
+		$table[$tr][] = $LANG->getLL('mediaTypes',1);
+		$table[$tr][] = '&nbsp';
+		$table[$tr][] = '&nbsp';
+		$table[$tr][] = 'Count';
+		$table[$tr][] = 'Total';
+
+		$totalCount = 0;
+
+		foreach ($GLOBALS['T3_VAR']['ext']['dam']['media2code'] as $media_type) {
+
+
+			$whereClauses = array();
+			$whereClauses['media_type'] = 'media_type='.$media_type;
+			$rows = tx_dam_db::getDataWhere ('COUNT(uid) as count', $whereClauses);
+			reset($rows);
+			$row = current($rows);
+			$count = $row['count'];
+
+			$totalCount += $count;
+
+			$icon = tx_dam_guiFunc::icon_getMediaTypeImgTag(array('media_type' => $media_type), '', false);
+			$mediaTypeName = tx_dam_guiFunc::convert_mediaType($media_type);
+
+
+				// add row to table
+			$tr++;
+			$table[$tr][] = $icon;
+			$table[$tr][] = '<strong>'.htmlspecialchars($mediaTypeName).'</strong>';
+			$table[$tr][] = '&nbsp;';
+			$table[$tr][] = '&nbsp;';
+			$table[$tr][] = '&nbsp;';
+			$table[$tr][] = '<strong>'.$count.'</strong>';
+
+			$tableLayout[$tr]['tr'] = array('<tr class="bgColor4">','</tr>');
+
+			if ($addFileTypes) {
+				if ($contentFileTypes = $this->statisticsFileType($media_type)) {
+					foreach ($contentFileTypes as $fileTypeRow) {
+							// add row to table
+						$tr++;
+						$table[$tr][] = '&nbsp';
+						$table[$tr][] = '&nbsp';
+						$table[$tr][] = $fileTypeRow[0];
+						$table[$tr][] = $fileTypeRow[1];
+						$table[$tr][] = $fileTypeRow[2];
+						$table[$tr][] = '&nbsp';
+
+					}
+				}
+			}
+			// add row to table
+		$tr++;
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$tableLayout[$tr]['tr'] = array('<tr class="bgColor" style="height:0.5em;">','</tr>');
+
+		}
+
+			// add row to table
+		$tr++;
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '<strong>'.$totalCount.'</strong>';
+		$tableLayout[$tr]['tr'] = array('<tr class="bgColor4-20">','</tr>');
+
+		$content .= $this->pObj->doc->table($table, $tableLayout);
+		return $content;
+	}
 
 
 
+	/**
+	 * Render statistics about indexed media types
+	 *
+	 * @return	string		HTML output
+	 */
+	function statisticsFileType($media_type) {
+
+		$table = array();
+		$tr = 0;
+
+		$whereClauses = array();
+		$whereClauses['media_type'] = 'media_type='.$media_type;
+		$rows = tx_dam_db::getDataWhere ('DISTINCT file_type', $whereClauses);
+
+		foreach ($rows as $row) {
+			$file_type = $row['file_type'];
+			$whereClauses['file_type'] = 'file_type='.$GLOBALS['TYPO3_DB']->fullQuoteStr($file_type, 'tx_dam');
+			$rowsCount = tx_dam_db::getDataWhere ('COUNT(uid) as count', $whereClauses);
+			reset($rowsCount);
+			$rowsCount = current($rowsCount);
+			$count = $rowsCount['count'];
+
+			$icon = tx_dam::icon_getFileTypeImgTag(array('media_type' => $media_type, 'file_type' => $file_type), '', false);
+
+				// add row to table
+			$tr++;
+			$table[$tr][] = $icon;
+			$table[$tr][] = htmlspecialchars(strtoupper($file_type));
+			$table[$tr][] = $count;
+
+		}
+
+		return $table;
+	}
 
 
 

@@ -24,29 +24,53 @@
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
+            <label index="messageCmdDenied">You're not allowed to execute the command '%s'.</label>
+            <label index="labelWarning">Warning:</label>
+            <label index="labelCmdSave">Save</label>
             <label index="tx_dam_cmd_nothing.title">[no command]</label>
-            <label index="tx_dam_cmd_nothing.messageNoCmd">There's no command given to this module.</label>
-            <label index="tx_dam_cmd_nothing.messageUnknownCmd">The command given to this module is unknown.</label>
+            <label index="tx_dam_cmd_nothing.messageNoCmd">There's no command passed to this module. (You shouldn't see this message.)</label>
+            <label index="tx_dam_cmd_nothing.messageUnknownCmd">The command passed to this module is unknown. (You shouldn't see this message.)</label>
             <label index="tx_dam_cmd_filerename.title_file">Rename file</label>
             <label index="tx_dam_cmd_filerename.title_folder">Rename folder</label>
             <label index="tx_dam_cmd_filereplace.title">Replace file</label>
             <label index="tx_dam_cmd_filedelete.warning">Warning</label>
             <label index="tx_dam_cmd_filedelete.title">Delete file</label>
             <label index="tx_dam_cmd_filedelete.message">Are you sure to delete the file and it's meta data?</label>
-            <label index="tx_dam_cmd_filedelete.messageReferences">The file is used in following records. Delete it nevertheless?</label>
+            <label index="tx_dam_cmd_filedelete.messageReferencesUsed">File is in use as content!</label>
+            <label index="tx_dam_cmd_filedelete.messageReferencesDelete">Deleting the file will remove the media item from the content elements.</label>
+            <label index="tx_dam_cmd_filedelete.messageReferences">The file is used in following content elements.</label>
             <label index="tx_dam_cmd_filedelete.references">Usage</label>
             <label index="tx_dam_cmd_filedelete.submit">Delete file</label>
             <label index="tx_dam_cmd_foldernew.title">Create folder</label>
+            <label index="tx_dam_cmd_folderdelete.title">Delete folder</label>
+            <label index="tx_dam_cmd_folderdelete.messageRecursive">The folder is not empty .</label>
+            <label index="tx_dam_cmd_folderdelete.messageRecursiveDenied">The folder is not empty and can't be deleted.</label>
             <label index="tx_dam_cmd_filenew.title">Create text file</label>
+            <label index="tx_dam_cmd_filenew.text_content">Text content:</label>
+            <label index="tx_dam_cmd_fileedit.title">Edit file</label>
         </languageKey>
         <languageKey index="de" type="array">
+            <label index="messageCmdDenied">Sie sind nicht berechtigt das Komando '%s' auszuführen.</label>
+            <label index="labelWarning">Warnung:</label>
+            <label index="labelCmdSave">Sichern</label>
+            <label index="tx_dam_cmd_filerename.title_file">Datei umbenennen</label>
+            <label index="tx_dam_cmd_filerename.title_folder">Verzeichnis umbenennen</label>
             <label index="tx_dam_cmd_filereplace.title">Datei ersetzen</label>
             <label index="tx_dam_cmd_filedelete.warning">Achtung</label>
             <label index="tx_dam_cmd_filedelete.title">Datei löschen</label>
             <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher das Sie die Datei und zugehörige Meta-Daten löschen wollen?</label>
-            <label index="tx_dam_cmd_filedelete.messageReferences">Die Datei wird in folgenden Datensätzen verwendet. Dateo trotzdem löschen?:</label>
+            <label index="tx_dam_cmd_filedelete.messageReferencesUsed">Datei wird als Inhalt verwendet!</label>
+            <label index="tx_dam_cmd_filedelete.messageReferencesDelete">Wird die Datei gelöscht, so wird sie auch aus den Inhaltselementen entfernt.</label>
+            <label index="tx_dam_cmd_filedelete.messageReferences">Die Datei wird in folgenden Inhaltselementen verwendet.</label>
             <label index="tx_dam_cmd_filedelete.references">Verwendung</label>
             <label index="tx_dam_cmd_filedelete.submit">Datei löschen</label>
+            <label index="tx_dam_cmd_foldernew.title">Verzeichnis anlegen</label>
+            <label index="tx_dam_cmd_folderdelete.title">Verzeichnis löschen</label>
+            <label index="tx_dam_cmd_folderdelete.messageRecursive">Das Verzeichnis ist nicht leer.</label>
+            <label index="tx_dam_cmd_folderdelete.messageRecursiveDenied">Das Verzeichnis ist nicht leer und kann nicht gelöscht werden.</label>
+            <label index="tx_dam_cmd_filenew.title">Text-Datei anlegen</label>
+            <label index="tx_dam_cmd_filenew.text_content">Text-Inhalt:</label>
+            <label index="tx_dam_cmd_fileedit.title">Datei bearbeiten</label>
         </languageKey>
     </data>
     <orig_hash type="array">

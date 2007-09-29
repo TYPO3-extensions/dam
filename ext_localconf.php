@@ -10,6 +10,10 @@ if (!defined ('PATH_txdam_rel')) {
 	define('PATH_txdam_rel', t3lib_extMgm::extRelPath('dam'));
 }
 
+if (!defined ('PATH_txdam_siteRel')) {
+	define('PATH_txdam_siteRel', t3lib_extMgm::siteRelPath('dam'));
+}
+
 
 	// PHP5 compatiblity
 if (!function_exists('stripos')) {
@@ -101,6 +105,7 @@ require_once(PATH_txdam.'tca_media_field.php');
 
 
 if(t3lib_div::int_from_ver(TYPO3_version) < t3lib_div::int_from_ver('4.0')) {
+	if (!defined('TYPO3_OS')) define('TYPO3_OS', stristr(PHP_OS,'win')&&!stristr(PHP_OS,'darwin')?'WIN':'');
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/class.alt_menu_functions.inc'] = PATH_txdam.'compat/class.ux_alt_menu_functions.php';
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/template.php'] = PATH_txdam.'compat/class.ux_template.php';
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/show_item.php'] = PATH_txdam.'compat/class.ux_SC_show_item.php';
@@ -110,10 +115,16 @@ if(t3lib_div::int_from_ver(TYPO3_version) < t3lib_div::int_from_ver('4.0')) {
 }
 
 
+	// register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
+$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_extfilefunc.php'] = PATH_txdam.'lib/class.tx_dam_tce_file.php';
+
+
 	// register show item rendering
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/show_item.php']['typeRendering'][] = 'EXT:dam/class.tx_dam_show_item.php:&tx_dam_show_item';
 	// register element browser rendering
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_media.php:&tx_dam_browse_media';
+$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_category.php:&tx_dam_browse_category';
+$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_folder.php:&tx_dam_browse_folder';
 
 	// register navigation tree and select rule for nav tree.
 tx_dam::register_selection ('txdamFolder',    'EXT:dam/components/class.tx_dam_selectionFolder.php:&tx_dam_selectionFolder');
@@ -122,6 +133,7 @@ tx_dam::register_selection ('txdamMedia',     'EXT:dam/components/class.tx_dam_s
 tx_dam::register_selection ('txdamStatus',    'EXT:dam/components/class.tx_dam_selectionStatus.php:&tx_dam_selectionStatus');
 tx_dam::register_selection ('txdamIndexRun',  'EXT:dam/components/class.tx_dam_selectionIndexRun.php:&tx_dam_selectionIndexRun');
 tx_dam::register_selection ('txdamStrSearch', 'EXT:dam/components/class.tx_dam_selectionStringSearch.php:&tx_dam_selectionStringSearch');
+tx_dam::register_selection ('txdamRecords',   'EXT:dam/components/class.tx_dam_selectionRecords.php:&tx_dam_selectionRecords');
 
 	// register DAM internal db change trigger
 tx_dam::register_dbTrigger ('tx_dam_dbTriggerMediaTypes', 'EXT:dam/components/class.tx_dam_dbTriggerMediaTypes.php:&tx_dam_dbTriggerMediaTypes');
@@ -130,5 +142,17 @@ tx_dam::register_dbTrigger ('tx_dam_dbTriggerMediaTypes', 'EXT:dam/components/cl
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = 'EXT:dam/class.tx_dam_tce_process.php:&tx_dam_tce_process';
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_process.php:&tx_dam_tce_process';
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_filetracking.php:&tx_dam_tce_filetracking';
+
+
+
+
+	// FE stuff
+
+$pluginContent = t3lib_div::getUrl(PATH_txdam.'pi/setup.txt');
+t3lib_extMgm::addTypoScript('dam', 'setup','
+# Setting dam plugin TypoScript
+'.$pluginContent);
+unset($pluginContent);
+
 
 ?>

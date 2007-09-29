@@ -44,6 +44,7 @@
 
 if(!defined('TXDAM_mtype_undefined')) {
 
+
 	/**
 	 *  Return values for some index related functions
 	 */
@@ -226,6 +227,39 @@ $GLOBALS['T3_VAR']['ext']['dam']['code2sorting'] = array(
 		'11'=> 1300, //'software',
 		'0'=> 5000, //'undefined',
 	);
+
+
+/**
+ * @access private
+ */
+$GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['BE'] = array(
+		'default'=> '56x56',
+		'icon'=> '18x16',
+		'xx-small'=> '56x56',
+		'x-small'=> '64x64',
+		'small'=> '96x96',
+		'medium'=> '192x192',
+		'large'=> '256x256',
+		'x-large'=> '384x384',
+		'xx-large'=> '512x512',
+	);
+
+
+/**
+ * @access private
+ */
+$GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['FE'] = array(
+		'default'=> '96x96',
+		'icon'=> '18x16',
+		'xx-small'=> '64x64',
+		'x-small'=> '96x96',
+		'small'=> '128x128',
+		'medium'=> '192x192',
+		'large'=> '384x384',
+		'x-large'=> '512x512',
+		'xx-large'=> '800x600',
+	);
+
 
 /**
  * @access private
@@ -502,6 +536,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'perl'	=> 'application/x-perl',
 		'pm'	=> 'application/x-perl',
 		'pl'	=> 'application/x-perl',
+		'qxd'	=> 'application/x-quark-xpress-3',
 		'rpm'	=> 'application/x-redhat-package-manager',
 		'sh'	=> 'application/x-sh',
 		'shar'	=> 'application/x-shar',

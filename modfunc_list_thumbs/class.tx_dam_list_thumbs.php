@@ -176,7 +176,6 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 		return $content;
 	}
-
 }
 
 

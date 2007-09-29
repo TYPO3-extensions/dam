@@ -1,5 +1,5 @@
 #
-# Table structure for table 'be_groups'
+# Add field to table 'be_groups'
 #
 CREATE TABLE be_groups (
 	tx_dam_mountpoints tinytext NOT NULL
@@ -7,11 +7,23 @@ CREATE TABLE be_groups (
 
 
 #
-# Table structure for table 'be_users'
+# Add field to table 'be_users'
 #
 CREATE TABLE be_users (
 	tx_dam_mountpoints tinytext NOT NULL
 );
+
+
+
+#
+# Add fields to table 'tt_content'
+#
+CREATE TABLE tt_content (
+    tx_dam_images int(11) unsigned DEFAULT '0' NOT NULL,
+    tx_dam_files int(11) unsigned DEFAULT '0' NOT NULL,
+    tx_dam_flexform mediumtext NOT NULL,
+);
+
 
 
 #
@@ -365,3 +377,5 @@ CREATE TABLE tx_dam_selection (
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
+
+

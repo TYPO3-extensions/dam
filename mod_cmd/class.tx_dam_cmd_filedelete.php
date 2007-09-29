@@ -63,8 +63,16 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
  */
 class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
+	var $passthroughMissingFiles = true;
 
-	var $rec = array();
+	/**
+	 * Additional access check
+	 *
+	 * @return	boolean Return true if access is granted
+	 */
+	function accessCheck() {
+		return tx_dam::access_checkAction('deleteFile');
+	}
 
 
 	/**
@@ -73,25 +81,20 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function head() {
-		global  $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
-
-
-		$GLOBALS['SOBE']->pageTitle = $LANG->getLL('tx_dam_cmd_filedelete.title');
-
-		$id = FALSE;
-		if(is_array($this->pObj->data['delete'])) {
-			$id = intval(key($this->pObj->data['delete']));
-		}
-		$id = t3lib_div::_GP('id');
-		if (t3lib_div::testInt($id)) {
-			$row = t3lib_BEfunc::getRecord('tx_dam', $id);
-			$this->rec = $row;
-		} else {
-			$this->rec = tx_dam::meta_getDataForFile($id);
-		}
-
-
+		$GLOBALS['SOBE']->pageTitle = $GLOBALS['LANG']->getLL('tx_dam_cmd_filedelete.title');
 	}
+
+
+	/**
+	 * Returns a help icon for context help
+	 *
+	 * @return	string HTML
+	 */
+	function getContextHelp() {
+// TODO csh
+#		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_delete', $GLOBALS['BACK_PATH'],'');
+	}
+
 
 	/**
 	 * Main function, rendering the content of the rename form
@@ -101,53 +104,47 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	function main()	{
 		global  $LANG;
 
-			// Make page header:
-		$content='';
+		$content = '';
 
-		if (is_array($this->rec)) {
+			// Cleaning and checking target
+		if ($this->pObj->file[0]) {
+			$this->file = tx_dam::file_compileInfo($this->pObj->file[0], true);
+			$this->meta = tx_dam::meta_getDataForFile($this->file, '*');
+		} elseif ($id = intval($this->pObj->record['tx_dam'][0])) {
+			$this->meta = tx_dam::meta_getDataByUid($id, '*');
+			$this->file = tx_dam::file_compileInfo($this->meta, true);
+		}
+		if (!is_array($this->meta)) {
+			$fileType = tx_dam::file_getType ($this->file);
+			$this->meta = array_merge($this->file, $fileType);
+			$this->meta['uid'] = 0;
+		}
 
-			$error = '';
+		if ($this->file['file_accessable']) {
 
-			if (is_array($this->pObj->data['delete'])) {
-					// do the renaming:
-				$error = $this->deleteFile();
+			if (is_array($this->pObj->data) AND $this->pObj->data['delete']) {
 
-				if(!$error) {
+				$error = tx_dam::process_deleteFile($this->file);
+
+				if ($error) {
+					$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), $this->pObj->buttonBack(0), 2);
+
+				} else {
 					$this->pObj->redirect();
 				}
 
+
+			} else {
+				$content.=  $this->renderForm();
 			}
-
-			$content.= tx_dam_guiFunc::getRecordInfoHeader($this->rec);
-			$content.= '<br />';
-
-
-				// output error message
-			if($error) {
-				$content.= $GLOBALS['SOBE']->doc->section('Error',htmlspecialchars($error),0,1,2);
-				$content.= $GLOBALS['SOBE']->doc->spacer(15);
-			}
-
-
-				// Making the formfields for renaming:
-			$code = $this->deleteForm();
-				// Add the HTML as a section:
-			$content.= $GLOBALS['SOBE']->doc->section('',$code);
 
 		} else {
-
-			$content.= $this->pObj->wrongCommandMessage();
+				// this should have happen in index.php already
+			$content.= $this->pObj->accessDeniedMessage($this->file['file_name']);
 		}
-
-
-		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
-
-			// CSH:
-#		$code.= t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'<br/>');
 
 		return $content;
 	}
-
 
 
 	/**
@@ -155,229 +152,60 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 	 *
 	 * @return	string		HTML content
 	 */
-	function deleteForm()	{
-		global  $BACK_PATH, $LANG, $FILEMOUNTS;
+	function renderForm()	{
+		global  $BACK_PATH, $LANG;
 
-		$id = $this->rec['uid'];
-		$filepath = tx_dam::path_makeAbsolute($this->rec['file_path']).$this->rec['file_name'];
+		$id = $this->meta['uid'];
+		$filepath = tx_dam::file_absolutePath($this->file);
 
 		$content = '';
 
-		$msg = $LANG->getLL('tx_dam_cmd_filedelete.message',1);
 
-		$content.= $GLOBALS['SOBE']->doc->section($LANG->getLL('tx_dam_cmd_filedelete.warning',1),htmlspecialchars($msg),0,1,2);
-
-			// Making submit button:
-		$content.= '
-			<div id="c-submit">
-				<input type="hidden" name="data[delete]['.$id.'][data]" value="'.htmlspecialchars($filepath).'" /><br />
-				<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filedelete.submit',1).'" />
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />
-				<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->returnUrl).'" />
-			</div>
-		';
-		$content.= $GLOBALS['SOBE']->doc->spacer(10);
-
-		$references = $this->getReferencesTable();
-		if ($references) {
-			$msg = $LANG->getLL('tx_dam_cmd_filedelete.messageReferences',1);
-			$content.= $GLOBALS['SOBE']->doc->section($LANG->getLL('tx_dam_cmd_filedelete.references',1), $msg.$references,0,0,0);
+		if ($this->meta['uid']) {
+			$references = tx_dam_guiFunc::getReferencesTable($this->meta['uid']);
+			if ($references) {
+				$msg = $LANG->getLL('tx_dam_cmd_filedelete.messageReferences',1);
+				$msg .= $GLOBALS['SOBE']->doc->spacer(5);
+				$references = $GLOBALS['SOBE']->doc->section($LANG->getLL('tx_dam_cmd_filedelete.references',1), $msg.$references,0,0,0);
+			}
 		}
+
+
+		$msg = array();
+
+		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($this->meta);
+
+		if ($references) {
+			$msg[] = '&nbsp;';
+			$msg[] = '<strong><span class="typo3-red">'.$LANG->getLL('labelWarning',1).'</span> '.$LANG->getLL('tx_dam_cmd_filedelete.messageReferencesUsed',1).'</strong>';
+			$msg[] = $LANG->getLL('tx_dam_cmd_filedelete.messageReferencesDelete',1);
+		}
+
+		$msg[] = '&nbsp;';
+		$msg[] = $LANG->getLL('tx_dam_cmd_filedelete.message',1);
+
+		$buttons = '
+			<input type="hidden" name="data[delete]['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
+			<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filedelete.submit',1).'" />
+			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+
+
+		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
+
+		$content .= $GLOBALS['SOBE']->doc->spacer(5);
+
+		$content .= $references;
 
 		return $content;
 	}
 
 
-	/**
-	 * Rename the file and process DB update
-	 *
-	 * @return	void
-	 */
-	function deleteFile() {
-		$error = FALSE;
-
-		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
-		$file = t3lib_div::makeInstance('tx_dam_tce_file');
-		$file->init();
-
-		$row = $this->rec;
-
-		if($id = $row['uid']) {
-			$data = $this->pObj->data['delete'][$row['uid']];
-			if (is_array($data)) {
-
-
-				//
-				// Processing delete
-				//
-
-				if(@is_file($data['data'])){
-					$file->setCmdmap($this->pObj->data);
-					$log = $file->process();
-					if ($file->errors()) {
-						$error = $file->getLastError();
-					}
-				}
-
-				if(!$error) {
-
-
-					//
-					// update DB
-					//
-
-					$org_filename = $row['file_name'];
-
-					$newFile = $log['cmd']['upload'][$id]['target_file'];
-					$new_filename = basename($newFile);
-					$new_filename = $new_filename ? $new_filename : $org_filename;
-
-					$new_path = $log['cmd']['upload'][$id]['target_path'];
-
-							// rename meta data fields
-						$fields_values = array();
-						$fields_values['deleted'] = 1;
-// TODO move record to recycler?
-						if ($org_filename != $new_filename) {
-							$fields_values['file_name'] = $new_filename;
-						}
-						if ($new_path) {
-							$fields_values['file_path'] = tx_dam::path_makeRelative($new_path);
-						}
-
-// TODO tcemain or tx_dam_db
-						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);
-
-						$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);
-
-						//
-						// delete MM relation
-						//
-
-						$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$row['uid']) ;
-
-
-				}
-
-			}
-		}
-		return $error;
-	}
-
-	/**
-	 * Render the table with referenced records
-	 *
-	 * @return	string		Rendered Table
-	 */
-	function getReferencesTable()   {
-		global $BACK_PATH, $BE_USER, $LANG, $TCA;
-
-			// init table layout
-		$refTableLayout = array(
-			'table' => Array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
-			'0' => array(
-				'defCol' => Array('<th nowrap="nowrap" class="bgColor5">','</th>')
-			),
-			'defRow' => array(
-				'defCol' => Array('<td nowrap="nowrap" class="bgColor4">','</td>'),
-			),
-		);
-		$cTable=array();
-		$tr = 0;
-		$td = 0;
-		$cTable[$tr][$td++] = 'Page';
-		$cTable[$tr][$td++] = 'Content Element';
-		$cTable[$tr][$td++] = 'Content Age';
-//		$cTable[$tr][$td++] = 'Media Element';
-//		$cTable[$tr][$td++] = 'Media Element Age';
-		$tr++;
-
-
-;
-		$resMM = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-						'tx_dam_mm_ref.*',
-						'tx_dam_mm_ref,tx_dam',
-						'tx_dam_mm_ref.uid_local='.$this->rec['uid'].
-							' AND tx_dam.uid='.$this->rec['uid'].
-							t3lib_BEfunc::deleteClause('tx_dam'),
-						'',
-						'tstamp DESC',
-						40
-					);
-
-
-		while($damRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resMM)) {
-
-			$refTable = $damRow['tablenames'];
-
-			if ($refTable) {
-
-					// get main fields from TCA
-				$selectFields = tx_dam_db::getTCAFieldListArray($refTable, TRUE);
-				$selectFields = tx_dam_db::compileFieldList($refTable, $selectFields, FALSE);
-				$selectFields = $selectFields ? $selectFields : ($refTable.'.uid,'.$refTable.'.pid');
-
-					// Query for non-deleted tables only
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-								$selectFields,
-								$refTable,
-								$refTable.'.uid='.$damRow['uid_foreign'].
-									t3lib_BEfunc::deleteClause($refTable),
-								'',
-								'tstamp DESC',
-								40
-							);
-
-
-				while($refRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-
-
-					$pageRow = t3lib_BEfunc::getRecord('pages', $refRow['pid']);
-
-					if (is_array($pageRow)) {
-
-							// Create output item for pages record
-						$contentPageLink = tx_dam_SCbase::getRecordInfoEditLink('pages', $pageRow, true);
-
-							// Create output item for reference record
-						$contentElementLink = tx_dam_SCbase::getRecordInfoEditLink($refTable, $refRow);
-
-							// Create output text describing the age
-						$contentAge = t3lib_BEfunc::dateTimeAge($refRow['tstamp'], 1);
-
-//							// Create output item for tx_dam record
-//						$damElementLink = tx_dam_SCbase::getRecordInfoEditLink('tx_dam', $damRow);
-//
-//							// Create output text describing the tx_dam record age
-//						$damElementAge = t3lib_BEfunc::dateTimeAge($damRow['tstamp'], 1);
-
-
-							// Add row to table
-						$td=0;
-						$cTable[$tr][$td++] = $contentPageLink;
-						$cTable[$tr][$td++] = $contentElementLink;
-						$cTable[$tr][$td++] = $contentAge;
-//						$cTable[$tr][$td++] = $damElementLink;
-//						$cTable[$tr][$td++] = $damElementAge;
-						$tr++;
-					}
-				}
-			}
-		}
-
-			// Return rendered table
-		if(count($cTable) > 1){
-			return $this->pObj->doc->table($cTable, $refTableLayout);
-		}
-
-		return false;
-	}
 }
 
 
-//if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filedelete.php'])    {
-//	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filedelete.php']);
-//}
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filedelete.php'])    {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/class.tx_dam_cmd_filedelete.php']);
+}
 
 
 ?>

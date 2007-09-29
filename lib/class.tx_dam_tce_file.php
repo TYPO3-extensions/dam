@@ -45,7 +45,7 @@
  *
  *
  *
- *   84: class local_extFileFunctions extends t3lib_extFileFunctions
+ *   84: class tx_dam_extFileFunctions extends t3lib_extFileFunctions
  *   98:     function processData()
  *
  *              SECTION: File operation functions
@@ -81,9 +81,17 @@ require_once (PATH_t3lib.'class.t3lib_extfilefunc.php');
 /**
  * @ignore
  */
-class local_extFileFunctions extends t3lib_extFileFunctions	{
+class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
+	/**
+	 * defines if the meta data in the database should be updated on file changes
+	 */
+	var $processMetaUpdate = true;
 
+	/**
+	 * error logging
+	 * @see getLastError()
+	 */
 	var $log = array(
 			'errors' => 0,
 			'cmd' => array(),
@@ -96,6 +104,8 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 	 * @return	void
 	 */
 	function processData()	{
+		global $TYPO3_CONF_VARS;
+
 		if (!$this->isInit) return FALSE;
 
 		$this->log = array(
@@ -145,10 +155,25 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 								$this->func_unzip($cmdArr, $id);
 							break;
 						}
+
+							// hook
+						if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses']))	{
+							foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['fileTriggerClasses'] as $classKey => $classRef)	{
+								if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
+									if (method_exists($obj, 'filePostTrigger')) {
+										$obj->filePostTrigger($action, $this->log['cmd'][$action][$id]);
+									}
+								}
+							}
+						}
+
 					}
 				}
 			}
 		}
+
+
+
 	}
 
 
@@ -166,16 +191,14 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 	 * @param	array		$cmds['data'] is the the file/folder to delete
 	 * @return	boolean		Returns true upon success
 	 */
-	function func_delete($cmds)	{
+	function func_delete($cmds, $id)	{
 		if (!$this->isInit) return FALSE;
 
 			// Checking path:
 		$theFile = $cmds['data'];
 
-		$id = (string)$cmds['data'];
-
 			// main log entry
-		$this->log['cmd']['upload'][$id] = array(
+		$this->log['cmd']['delete'][$id] = array(
 				'errors' => array(),
 				'orig_filename' => $theFile,
 				'target_file' => '',
@@ -183,6 +206,7 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 				);
 
 
+#		$theFile = preg_replace('#/$#', '', $theFile);
 
 		if (!$this->isPathValid($theFile))	{
 			$this->writelog(4,2,101,'Target "%s" had invalid path (".." and "//" is not allowed in path).',array($theFile), 'delete', $id);
@@ -204,6 +228,12 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 				// add file to log entry
 			$this->log['cmd']['delete'][$id]['target_file'] = $theFile;
 			$this->log['cmd']['delete'][$id]['target_path'] = $recyclerPath;
+
+				// update meta data
+			if ($this->processMetaUpdate) {
+				tx_dam::notify_fileDeleted($theFile, $recyclerPath.'/'.basename($theFile));
+			}
+
 			return TRUE;
 
 		} elseif ($this->useRecycler != 2) {	// if $this->useRecycler==2 then we cannot delete for real!!
@@ -212,6 +242,12 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 					if ($this->checkPathAgainstMounts($theFile))	{
 						if (@unlink($theFile))	{
 							$this->writelog(4,0,1,'File "%s" deleted',array($theFile), 'delete', $id);
+
+								// update meta data
+							if ($this->processMetaUpdate) {
+								tx_dam::notify_fileDeleted($theFile);
+							}
+
 							return TRUE;
 						} else $this->writelog(4,1,110,'Could not delete file "%s". Write-permission problem?', array($theFile), 'delete', $id);
 					} else $this->writelog(4,1,111,'Target was not within your mountpoints! T="%s"',array($theFile), 'delete', $id);
@@ -230,11 +266,23 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 								clearstatcache();
 								if (!@file_exists($theFile))	{
 									$this->writelog(4,0,2,'Directory "%s" deleted recursively!',array($theFile), 'delete', $id);
+
+										// update meta data
+									if ($this->processMetaUpdate) {
+										tx_dam::notify_fileDeleted($theFile);
+									}
+
 									return TRUE;
 								} else $this->writelog(4,2,119,'Directory "%s" WAS NOT deleted recursively! Write-permission problem?',array($theFile), 'delete', $id);
 							} else {
 								if (@rmdir($theFile))	{
 									$this->writelog(4,0,3,'Directory "%s" deleted',array($theFile), 'delete', $id);
+
+										// update meta data
+									if ($this->processMetaUpdate) {
+										tx_dam::notify_fileDeleted($theFile);
+									}
+
 									return TRUE;
 								} else $this->writelog(4,1,120,'Could not delete directory! Write-permission problem? Is directory "%s" empty? (You are not allowed to delete directories recursively).',array($theFile), 'delete', $id);
 							}
@@ -245,6 +293,8 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 
 			} else $this->writelog(4,2,130,'The item was not a file or directory! "%s"',array($theFile), 'delete', $id);
 		} else $this->writelog(4,1,131,'No recycler found!','', 'delete', $id);
+
+
 	}
 
 	/**
@@ -267,7 +317,7 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 			// filesize of the uploaded file
 		$theFileSize = $_FILES['upload_'.$id]['size'];
 			// The original filename
-#TODO stripslashes needed ??
+// TODO  stripslashes needed ??
 		$theName = $this->cleanFileName(stripslashes($_FILES['upload_'.$id]['name']));
 // TODO format
 			// main log entry
@@ -369,6 +419,141 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 
 
 	/**
+	 * This creates a new file. (action=8)
+	 *
+	 * @param	array		$cmds['data'] is the new filename. $cmds['target'] is the path where to create it
+	 * @return	string		Returns the new filename upon success
+	 */
+	function func_newfile($cmds, $id)	{
+
+		if (!$this->isInit) return FALSE;
+
+		$extListTxt = $GLOBALS['TYPO3_CONF_VARS']['SYS']['textfile_ext'];
+
+		$newName = tx_dam::file_makeCleanName($cmds['data']);
+#		$newName = $this->cleanFileName($cmds['data']);
+
+		if (empty($newName))	{ return; }
+
+
+			// main log entry
+		$this->log['cmd']['newfile'][$id] = array(
+				'errors' => array(),
+				'target_path' => $cmds['target'],
+				'target_file' => $newName,
+				);
+
+
+		if (!$this->checkFileNameLen($newName))	{
+			$this->writelog(5,1,124,'New name "%s" was too long (max %s characters)',array($newName,$this->maxInputNameLen), 'newfile', $id);
+			return;
+		}
+			// Check the target dir
+		if (!$theTarget = $this->is_directory($cmds['target'])) {
+			$this->writelog(8,2,104,'Destination "%s" was not a directory',array($cmds['target']), 'newfile', $id);
+			return;
+		}
+
+			// Fetches info about path, name, extention of $theTarget
+		$fileInfo = t3lib_div::split_fileref($theTarget);
+
+		if (!$this->actionPerms['newFile'])	{
+			$this->writelog(8,1,103,'You are not allowed to create files!', '', 'newfile', $id);
+			return;
+		}
+
+		$theNewFile = $theTarget.'/'.$newName;
+		if (!$this->checkPathAgainstMounts($theNewFile))	{
+			$this->writelog(8,1,102,'Destination path "%s" was not within your mountpoints!',array($theTarget.'/'), 'newfile', $id);
+			return;
+		}
+
+		if (@file_exists($theNewFile))	{
+			$this->writelog(8,1,101,'File "%s" existed already!',array(tx_dam::file_normalizePath($theNewFile)), 'newfile', $id);
+			return;
+		}
+
+		$fI = t3lib_div::split_fileref($theNewFile);
+		if (!$this->checkIfAllowed($fI['fileext'], $fileInfo['path'], $fI['file'])) {
+			$this->writelog(8,1,106,'Fileextension "%s" was not allowed!',array($fI['fileext']), 'newfile', $id);
+			return;
+		}
+
+		if (!t3lib_div::inList($extListTxt, $fI['fileext']))	{
+			$this->writelog(8,1,107,'Fileextension "%s" is not a textfile format! (%s)',Array($fI['fileext'], $extListTxt), 'newfile', $id);
+			return;
+		}
+
+		if (!t3lib_div::writeFile($theNewFile, $cmds['content']))	{
+			$this->writelog(8,1,100,'File "%s" was not created! Write-permission problem in "%s"?',array($fI['file'], $theTarget), 'newfile', $id);
+			return;
+		}
+
+		clearstatcache();
+		$this->writelog(8,0,1,'File created: "%s"',array($fI['file']), 'newfile', $id);
+		return $theNewFile;
+
+	}
+
+
+	/**
+	 * Writing/update the content of textfiles (action=9)
+	 *
+	 * @param	array		$cmds['data'] is the new content. $cmds['target'] is the target (file or dir)
+	 * @param	string		$id: ID of the item
+	 * @return	boolean		Returns true on success
+	 */
+	function func_edit($cmds, $id)	{
+
+		if (!$this->isInit) return FALSE;
+
+		$theTarget = tx_dam::file_absolutePath($cmds['target']);
+
+		$content = $cmds['content'] ? $cmds['content'] : $cmds['data'];
+
+		$extList = $GLOBALS['TYPO3_CONF_VARS']['SYS']['textfile_ext'];
+
+		$type = filetype($theTarget);
+		if (!($type=='file'))	{		// $type MUST BE file
+			$this->writelog(9,2,123,'Target "%s" was not a file!', array($theTarget), 'edit', $id);
+			return;
+		}
+
+		$fileInfo = t3lib_div::split_fileref($theTarget);		// Fetches info about path, name, extention of $theTarget
+
+		if (!$this->checkPathAgainstMounts($fileInfo['path']))	{
+			$this->writelog(9,1,121,'Destination path "%s" was not within your mountpoints!',array($fileInfo['path']), 'edit', $id);
+			return;
+		}
+
+		if (!$this->actionPerms['editFile'])	{
+			$this->writelog(9,1,104,'You are not allowed to edit files!', '', 'edit', $id);
+			return;
+		}
+
+		if (!$this->checkIfAllowed($fileInfo['fileext'], $fileInfo['path'], $fileInfo['file'])) {
+			$this->writelog(9,1,103,'Fileextension "%s" was not allowed!', array($fileInfo['fileext']), 'edit', $id);
+			return;
+		}
+
+		if (!t3lib_div::inList($extList, $fileInfo['fileext']))	{
+			$this->writelog(9,1,102,'Fileextension "%s" is not a textfile format! (%s)', array($fileInfo['fileext'], $extList), 'edit', $id);
+			return;
+		}
+
+		if (!t3lib_div::writeFile($theTarget,$content))	{
+			$this->writelog(9,1,100,'File "%s" was not saved! Write-permission problem in "%s"?', array($theTarget,$fileInfo['path']), 'edit', $id);
+			return;
+		}
+
+
+		clearstatcache();
+		$this->writelog(9,0,1,'File saved to "%s", bytes: %s, MD5: %s ', array($fileInfo['file'],@filesize($theTarget),md5($content)), 'edit', $id);
+		return true;
+	}
+
+
+	/**
 	 * Renaming files or foldes (action=5)
 	 *
 	 * @param	array		$cmds['data'] is the new name. $cmds['target'] is the target (file or dir).
@@ -380,11 +565,12 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 		if (!$this->isInit) return FALSE;
 
 
-		$theNewName = $this->cleanFileName($cmds['data']);
+		$theNewName = tx_dam::file_makeCleanName($cmds['data']);
+#		$theNewName = $this->cleanFileName($cmds['data']);
 
 		if (empty($theNewName))	{ return; }
 
-// TODO format
+
 			// main log entry
 		$this->log['cmd']['rename'][$id] = array(
 				'errors' => array(),
@@ -450,6 +636,10 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 			}
 			$this->writelog(5,0,1,'File renamed from "%s" to "%s"',array($fileInfo['file'],$theNewName), 'rename', $id);
 
+				// update meta data
+			if ($this->processMetaUpdate) {
+				tx_dam::notify_fileMoved($theTarget, $theRenameName);
+			}
 
 		} elseif ($type=='dir')	{
 
@@ -466,6 +656,11 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 
 			$this->writelog(5,0,2,'Directory renamed from "%s" to "%s"',array($fileInfo['file'],$theNewName), 'rename', $id);
 
+				// update meta data
+			if ($this->processMetaUpdate) {
+				tx_dam::notify_fileMoved($theTarget, $theRenameName);
+			}
+
 		} else {
 			return;
 		}
@@ -475,7 +670,6 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 		$this->log['cmd']['rename'][$id]['target_'.$type] = $theRenameName;
 
 		return $theRenameName;
-
 	}
 
 
@@ -511,6 +705,7 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 		}
 	}
 
+
 	/**
 	 * Check if an error occured while processing
 	 *
@@ -520,28 +715,35 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 		return $this->log['errors'];
 	}
 
+
 	/**
 	 * Extract the last error message from the log
 	 *
-	 * @param	boolean		If set the fill error log entry will be returned as array
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
 	 * @return	mixed		error message or error array
 	 */
-	function getLastError($getFullLogEntry=FALSE) {
+	function getLastError($getFullErrorLogEntry=FALSE) {
 		$error = '';
 
 		if($this->log['errors']) {
 			$log = end($this->log['cmd']); // get action name
 			$log = end($log); // get id
 			$error = end($log['errors']);
-			if(!$getFullLogEntry) {
+			if(!$getFullErrorLogEntry) {
 				$error = $error['msg'];
 			}
 		}
 
 		return $error;
 	}
-
 }
+
+/**
+ * @ignore
+ */
+class tx_dam_extFileFunctions extends ux_t3lib_extFileFunctions	{
+}
+
 
 /**
  * TCE (TYPO3 Core Engine) file-handling
@@ -565,7 +767,7 @@ class tx_dam_tce_file {
 	var $vC;						// VeriCode - a hash of server specific value and other things which identifies if a submission is OK. (see $BE_USER->veriCode())
 
 		// Internal, dynamic:
-	var $fileProcessor;				// File processor object: local_extFileFunctions
+	var $fileProcessor;				// File processor object: tx_dam_extFileFunctions
 
 	var $error = FALSE;
 
@@ -576,7 +778,7 @@ class tx_dam_tce_file {
 	 * @return	string	$this->error
 	 */
 	function init($file='')	{
-		global $FILEMOUNTS,$TYPO3_CONF_VARS,$BE_USER;
+		global $FILEMOUNTS, $TYPO3_CONF_VARS, $BE_USER;
 
 			// GP vars:
 		$this->file = is_array($file) ? $file : t3lib_div::_GP('file');
@@ -587,7 +789,7 @@ class tx_dam_tce_file {
 
 			// Initializing:
 		# $this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
-		$this->fileProcessor = t3lib_div::makeInstance('local_extFileFunctions');
+		$this->fileProcessor = t3lib_div::makeInstance('tx_dam_extFileFunctions');
 		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
 		$this->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
 		$this->fileProcessor->dontCheckForUnique = $this->overwriteExistingFiles ? 1 : 0;
@@ -632,6 +834,8 @@ class tx_dam_tce_file {
 	 * @return	void
 	 */
 	function initClipboard()	{
+		global $TYPO3_CONF_VARS;
+
 		if (is_array($this->CB))	{
 			require_once(PATH_t3lib.'class.t3lib_clipboard.php');
 			$clipObj = t3lib_div::makeInstance('t3lib_clipboard');
@@ -657,7 +861,7 @@ class tx_dam_tce_file {
 		if (!$this->error) {
 			$this->fileProcessor->start($this->file);
 			$this->fileProcessor->processData();
-			# t3lib_BEfunc::getSetUpdateSignal('updateFolderTree');
+			// should happen in module: t3lib_BEfunc::getSetUpdateSignal('updateFolderTree');
 		}
 		return $this->fileProcessor->log;
 	}
@@ -674,11 +878,11 @@ class tx_dam_tce_file {
 	/**
 	 * Extract the last error message from the log
 	 *
-	 * @param	boolean		If set the fill error log entry will be returned as array
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
 	 * @return	mixed		error message or error array
 	 */
-	function getLastError($getFullLogEntry=FALSE) {
-		return $this->fileProcessor->getLastError($getFullLogEntry);
+	function getLastError($getFullErrorLogEntry=FALSE) {
+		return $this->fileProcessor->getLastError($getFullErrorLogEntry);
 	}
 }
 

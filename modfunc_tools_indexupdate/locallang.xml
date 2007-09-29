@@ -26,6 +26,13 @@
             <label index="tx_dam_tools_indexupdate.index_description">This checks the index for changed or missing files and updates the index accordingly.</label>
             <label index="tx_dam_tools_indexupdate.uploads_check">Check uploads</label>
             <label index="tx_dam_tools_indexupdate.uploads_description">This updates the index for files in uploads/ which is needed to identify the used files in content elements.</label>
+            <label index="tx_dam_tools_indexupdate.statistics">Statistics</label>
+            <label index="tx_dam_tools_indexupdate.statistics_description">This shows a statistics about indexed media items.</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_check">Check lost records</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_description">This function collect lost records which are not stored inside the Media folder for some reason. Lost record can be moved to the Media folder then.</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_all_fine">All fine. No lost records found.</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_collect">Collect lost records</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_check_again">Check again</label>
             <label index="tx_dam_tools_indexupdate.age">Age</label>
             <label index="tx_dam_tools_indexupdate.age_descr">Checks index entries last change was before selected age.</label>
             <label index="tx_dam_tools_indexupdate.deleteMissing">Mark entries with missing files as deleted</label>
@@ -38,8 +45,8 @@
             <label index="tx_dam_tools_indexupdate.updatedMessage">Index checked for %s files of %s total</label>
             <label index="tx_dam_tools_indexupdate.finished">finished</label>
             <label index="tx_dam_tools_indexupdate.no_files">No matching index entries found.</label>
-            <label index="tx_dam_tools_indexupdate.statistics">Statistics</label>
             <label index="tx_dam_tools_indexupdate.count_elements">%s elements currently in index.</label>
+            <label index="tx_dam_tools_indexupdate.update">Update</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
@@ -48,7 +55,14 @@
             <label index="tx_dam_tools_indexupdate.index_check">Index überprüfen</label>
             <label index="tx_dam_tools_indexupdate.index_description">Diese Funktion überprüft den Index auf geänderte oder gelöschte Dateien und aktualisiert den Status entsprechend.</label>
             <label index="tx_dam_tools_indexupdate.uploads_check">Uploads-Index überprüfen</label>
-            <label index="tx_dam_tools_indexupdate.uploads_description">Diese Funktion überprüft den Index für Dateien in uploads/. Das ist notwendig um die Verwendung von Dateien in Inhaltselementen zu erkennen.</label>
+            <label index="tx_dam_tools_indexupdate.uploads_description">Diese Funktion überprüft den Index für Dateien in uploads/. Das ist notwendig um die Verwendung von Dateien in Inhaltselementen zu erkennen. (Dies sollte nur zur Initialisierung notwendig sein. Ist das DAM System installiert werden Dateien in uploads/ automatisch indexiert.)</label>
+            <label index="tx_dam_tools_indexupdate.statistics">Statistik</label>
+            <label index="tx_dam_tools_indexupdate.statistics_description">Diese Funktion zeigt eine Statistik der indexierten Media Elemente an.</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_check">Überprüfe auf verlorene Datensätze</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_description">Diese Funktion sucht Datensätze die nicht im Media SysFolder gespeichert sind. Diese können dann korrigiert werden.</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_all_fine">Alles in Ordnung. Es wurden keine verlorenen Datensätze gefunden.</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_collect">Korrigieren Datensätze</label>
+            <label index="tx_dam_tools_indexupdate.lost_records_check_again">Wiederholen</label>
             <label index="tx_dam_tools_indexupdate.age">Alter</label>
             <label index="tx_dam_tools_indexupdate.age_descr">Überprüft Index-Einträge mit Änderungen älter als gewähltes Alter.</label>
             <label index="tx_dam_tools_indexupdate.deleteMissing">Einträge mit verlorenen Dateien als gelöscht markieren</label>
@@ -61,6 +75,8 @@
             <label index="tx_dam_tools_indexupdate.updatedMessage">Index überprüft für %s Dateien von %s insgesamt</label>
             <label index="tx_dam_tools_indexupdate.finished">fertig</label>
             <label index="tx_dam_tools_indexupdate.no_files">Keine passenden Index-Einträge gefunden.</label>
+            <label index="tx_dam_tools_indexupdate.count_elements">Zur Zeit sind %s Elemente im Index.</label>
+            <label index="tx_dam_tools_indexupdate.update">Wiederholen</label>
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>

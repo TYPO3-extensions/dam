@@ -97,7 +97,6 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 			}
 			$BE_USER->groupData[$key] .= $addList;
 		}
-
 	}
 
 

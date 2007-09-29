@@ -189,10 +189,10 @@ class tx_dam_action_newTextfile extends tx_dam_actionbase {
 
 		$path = $this->itemInfo['dir_path_relative'];
 
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($path);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&folder='.rawurlencode($path);
+		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
 		$commands['href'] = $script;
 
@@ -600,12 +600,11 @@ class tx_dam_action_renameFile extends tx_dam_actionbase {
 	function _getCommand() {
 
 		$filepath = $this->itemInfo['file_path_absolute'].$this->itemInfo['file_name'];
-// TODO id or target????
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($filepath);
-		$script .= '&id='.rawurlencode($filepath);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
+
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&file='.rawurlencode($filepath);
+		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
 		$commands['href'] = $script;
 

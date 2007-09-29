@@ -156,6 +156,11 @@ class tx_dam_indexing {
 	var $dataPostset = array();
 
 	/**
+	 * to be appended to data values
+	 */
+	var $dataAppend = array();
+// TODO $dataAppend
+	/**
 	 * Pid of the sysfolder where the DAM records should be written
 	 */
 	var $pid = 0;
@@ -172,9 +177,14 @@ class tx_dam_indexing {
 	var $collectMeta = false;
 
 	/**
-	 * used to collect some statistics
+	 * used to collect meta data of the indexed files
 	 */
 	var $meta = array();
+
+	/**
+	 * used to collect uid's and titles of the indexed files
+	 */
+	var $infoList = array();
 
 
 	/**
@@ -208,9 +218,13 @@ class tx_dam_indexing {
 		$this->ruleConf = array();
 		$this->dataPreset = array();
 		$this->dataPostset = array();
+		$this->dataAppend = array();
 		$this->stat = array();
 		$this->indexRun = time();
+
 		$this->clearCollectedMeta();
+
+		$this->initAvailableRules();
 	}
 
 
@@ -221,6 +235,7 @@ class tx_dam_indexing {
 	 */
 	function clearCollectedMeta()	{
 		$this->meta = array();
+		$this->infoList = array();
 	}
 
 
@@ -357,6 +372,7 @@ class tx_dam_indexing {
 			'ruleConf' => $this->ruleConf,
 			'dataPreset' => $this->dataPreset,
 			'dataPostset' => $this->dataPostset,
+			'dataAppend' => $this->dataAppend,
 			'dryRun' => $this->dryRun,
 			'doReindexing' => $this->doReindexing,
 			'collectMeta' => $this->collectMeta,
@@ -388,6 +404,7 @@ class tx_dam_indexing {
 			$this->ruleConf = $setup['ruleConf'];
 			$this->dataPreset = $setup['dataPreset'];
 			$this->dataPostset = $setup['dataPostset'];
+			$this->dataAppend = $setup['dataAppend'];
 			$this->dryRun = $setup['dryRun'];
 			$this->doReindexing = $setup['doReindexing'];
 			$this->collectMeta = $setup['collectMeta'];
@@ -435,21 +452,23 @@ class tx_dam_indexing {
 
 		$path = tx_dam::path_makeAbsolute($path);
 
-		if (is_file($path.$fileName) AND is_readable($path.$fileName)) {
+		return tx_dam::tools_findFileInPath($fileName, $path, $walkUp, $basePath);
 
-			$setup = t3lib_div::getUrl($path.$fileName);
-			return $setup;
-		}
-
-		if (!$walkUp OR ($path == $basePath)) {
-			return false;
-		}
-
-		if (tx_dam::path_makeRelative($path)=='') {
-			return false;
-		}
-
-		return $this->findSetupInPath(dirname($path), $walkUp, $basePath);
+//		if (is_file($path.$fileName) AND is_readable($path.$fileName)) {
+//
+//			$setup = t3lib_div::getUrl($path.$fileName);
+//			return $setup;
+//		}
+//
+//		if (!$walkUp OR ($path == $basePath)) {
+//			return false;
+//		}
+//
+//		if (tx_dam::path_makeRelative($path)=='') {
+//			return false;
+//		}
+//
+//		return $this->findSetupInPath(dirname($path), $walkUp, $basePath);
 	}
 
 
@@ -465,6 +484,7 @@ class tx_dam_indexing {
 		global $TYPO3_CONF_VARS;
 
 		$setup = false;
+		$basePath = $basePath ? $basePath : PATH_site;
 
 		if ($path) {
 			$setup = $this->findSetupInPath($path, $walkUp, $basePath);
@@ -515,9 +535,6 @@ class tx_dam_indexing {
 	 * @see getFilesInDir()
 	 */
 	function indexFiles($files, $pid=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)	{
-		$uidList = array();
-		$newIndexed = 0;
-		$reIndexed = 0;
 
 		if (is_array($files) && count($files)) {
 
@@ -535,39 +552,30 @@ class tx_dam_indexing {
 
 			foreach($files as $key => $pathname) {
 
+// TODO search for default setup for THIS file path
+// cache path setup in array
 				$meta = $this->indexFile($pathname, $this->indexRun, $pid, $metaCallbackFunc, $filePreprocessingCallbackFunc);
 
 				if($callbackFunc) {
 					call_user_func ($callbackFunc, 'postTrigger', $meta, $pathname, $key, $this);
 				}
 
-				if($meta['fields']['uid']) {
-					$uidList[] = array(
-						'uid' => $meta['fields']['uid'],
-						'title' => $meta['fields']['title'],
-						'reindexed' => $meta['reindexed'],
-						);
-					$newIndexed += ($meta['reindexed'] ? 0 : 1);
-					$reIndexed += ($meta['reindexed'] ? 1 : 0);
-				} // else
-					// errors are logged already
-
 			}
 
 			foreach($this->rules as $classname => $setup)	{
-				$this->rules[$classname]['obj']->postIndexing($uidList);
+				$this->rules[$classname]['obj']->postIndexing($this->infoList);
 			}
 
 			$this->statEnd($meta);
 
-			if($newIndexed) {
-				$this->log ('New files indexed', $newIndexed, 0);
+			if($this->stat['newIndexed']) {
+				$this->log ('New files indexed', $this->stat['newIndexed'], 0);
 			}
-			if($reIndexed) {
-				$this->log ('Files reindexed', $reIndexed, 0);
+			if($this->stat['reIndexed']) {
+				$this->log ('Files reindexed', $this->stat['reIndexed'], 0);
 			}
 		}
-		return $uidList;
+		return $this->infoList;
 	}
 
 
@@ -602,9 +610,17 @@ class tx_dam_indexing {
 			$uid = intval($status['meta']['uid']);
 
 			if ($uid) {
+
 				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('*', 'tx_dam', 'uid='.intval($uid));
+				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+
+					// this is needed for fields like group/MM
+				require_once (PATH_t3lib.'class.t3lib_transferdata.php');
+				$processData = t3lib_div::makeInstance('t3lib_transferData');
+				$row = $processData->renderRecordRaw('tx_dam', $row['uid'], $row['pid'], $row);
+
 					// index rule use 'row' for merging
-				$meta['row'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+				$meta['row'] = $row;
 				$meta['reindexed'] = $this->doReindexing;
 			} else {
 				$uid = 'NEW';
@@ -652,12 +668,16 @@ class tx_dam_indexing {
 
 // TODO category handling - merging?
 
+			# $fieldsUpdated = tx_dam_db::getUpdateData($meta['fields'], $this->replaceData, $this->appendData);
+
 				foreach ($this->dataPreset as $field => $value) {
 					if ($value AND !$meta['fields'][$field]) {
 						$meta['fields'][$field] = $value;
 					}
 				}
-				$meta['fields'] = array_merge($meta['fields'],$this->dataPostset);
+
+				$fieldsUpdated = tx_dam_db::getUpdateData($meta['fields'], $this->dataPostset, $this->dataAppend);
+				$meta['fields'] = array_merge($meta['fields'],$fieldsUpdated);
 
 
 				$meta = $this->rulesCallback('process', $meta, $pathname);
@@ -670,6 +690,16 @@ class tx_dam_indexing {
 					if (!$meta['fields']['uid']) {
 						$this->log ('Meta record could not be inserted: '.$pathname, 1, 1);
 					}
+				}
+
+				if($meta['fields']['uid']) {
+					$this->infoList[] = array(
+						'uid' => $meta['fields']['uid'],
+						'title' => $meta['fields']['title'],
+						'reindexed' => $meta['reindexed'],
+						);
+					$this->stat['newIndexed'] += ($meta['reindexed'] ? 0 : 1);
+					$this->stat['reIndexed'] += ($meta['reindexed'] ? 1 : 0);
 				}
 
 				$meta = $this->rulesCallback('post', $meta, $pathname);
@@ -746,21 +776,20 @@ class tx_dam_indexing {
 	 * @param	array		$ruleOpt: ...
 	 * @return	void
 	 */
-	function mergeRuleConf($ruleOpt) {
+	function mergeRuleConf($ruleOpt='') {
+			// walk through the index rules
+		$this->initAvailableRules();
+		foreach($this->rules as $classname => $setup)	{
 
-		if(is_array($ruleOpt)) {
-				// walk through the index rules
-			$this->initAvailableRules();
-			foreach($this->rules as $classname => $setup)	{
-
-				if (is_array($ruleOpt[$classname])) {
-						// this is set in the class itself
-					unset($ruleOpt[$classname]['shy']);
-					$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $ruleOpt[$classname]);
-				}
-				$this->rules[$classname]['obj']->processOptionsForm();
-				$this->ruleConf[$classname] = $this->rules[$classname]['obj']->setup;
+			if (is_array($ruleOpt) AND is_array($ruleOpt[$classname])) {
+					// this is set in the class itself
+				unset($ruleOpt[$classname]['shy']);
+				$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $ruleOpt[$classname]);
+			} else {
+				$this->rules[$classname]['obj']->setup = t3lib_div::array_merge_recursive_overrule($this->rules[$classname]['obj']->setup, $this->ruleConf[$classname]);
 			}
+			$this->rules[$classname]['obj']->processOptionsForm();
+			$this->ruleConf[$classname] = $this->rules[$classname]['obj']->setup;
 		}
 	}
 
@@ -1046,7 +1075,7 @@ class tx_dam_indexing {
 
 			// last chance
 		} else {
-			$osType = t3lib_exec::_getOS();
+			$osType = TYPO3_OS;
 			if (!($osType=='WIN')) {
 
 #			'opt' => ' -i -M '.PATH_txdam."bin/magic.mime ",
@@ -1075,10 +1104,10 @@ class tx_dam_indexing {
 			$mimeType['fulltype'] = $mt;
 			$mimeType['file_mime_type'] = $mtarr[0];
 			$mimeType['file_mime_subtype'] = $mtarr[1];
+		}
 
-			if ($mimeType['file_type'] == '') {
-				$mimeType['file_type'] = array_search($mimeType['fulltype'],$TX_DAM['file2mime'],true);
-			}
+		if ($mimeType['file_type'] == '') {
+			$mimeType['file_type'] = array_search($mimeType['fulltype'],$TX_DAM['file2mime'],true);
 		}
 
 		unset($mimeType['fulltype']);
@@ -1206,9 +1235,11 @@ class tx_dam_indexing {
 	 */
 	function makeTitleFromFilename ($title) {
 		$extpos = strrpos($title,'.');
-		$title= $extpos ? substr($title, 0, $extpos) : $title; // remove extension
-		$title=str_replace('_',' ',$title);	// Substituting "_" for " " because many filenames may have this instead of a space char.
-		$title=str_replace('%20',' ',$title);
+		$title = $extpos ? substr($title, 0, $extpos) : $title; // remove extension
+		$title = str_replace('_',' ',$title);	// Substituting "_" for " " because many filenames may have this instead of a space char.
+		$title = str_replace('%20',' ',$title);
+			// studly caps: add spaces
+		$title = preg_replace('#([a-z])([A-Z])#', '\\1 \\2', $title);
 		return $title;
 	}
 
@@ -1427,6 +1458,8 @@ class tx_dam_indexing {
 	function statBegin() {
 		$this->statmtime = t3lib_div::milliseconds();
 		$this->stat['totalStartTime'] = $this->stat['totalStartTime'] ? $this->stat['totalStartTime'] : $this->statmtime;
+		$this->stat['newIndexed'] = 0;
+		$this->stat['reIndexed'] = 0;
 	}
 
 	/**
@@ -1462,7 +1495,7 @@ class tx_dam_indexing {
 	 * @return	void
 	 */
 	function statClear() {
-		$this->stat=array();
+		$this->stat = array();
 	}
 
 
@@ -1513,7 +1546,9 @@ class tx_dam_indexing {
 	 * @return	integer		uid of the inserted log entry
 	 */
 	function log($message, $itemCount, $error) {
+		if (!$this->dryRun) {
 		return $this->writeLog($this->indexRun, $this->indexRunType, $message, $itemCount, $error);
+		}
 	}
 }
 

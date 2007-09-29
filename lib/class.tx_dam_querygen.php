@@ -173,8 +173,8 @@ class tx_dam_querygen {
 	 * @return	void
 	 */
 	function initFESelect($table='', $pidList='') {
+		$this->mode = 'FE';
 		$this->initBESelect($table='', $pidList='');
-
 		$this->mode = 'FE';
 	}
 
@@ -298,7 +298,6 @@ class tx_dam_querygen {
 	function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')	{
 		$local_table = $local_table ? $local_table : $this->table;
 		$key = $local_table.'.'.$mm_table.'.'.$foreign_table;
-		#$this->query['MM'][$key] = $local_table.','.$mm_table.($foreign_table?','.$foreign_table:'');
 
 		$this->query['MM'][$local_table] = '1';
 		$this->query['MM'][$mm_table] = '1';
@@ -313,14 +312,17 @@ class tx_dam_querygen {
 	/**
 	 * Adds a JOIN with a MM table to the query
 	 *
-	 * @param	string		$mm_table MM table
+	 * @param	string		$mmtable MM table (original name)
 	 * @param	string		$local_table Local table. Default $this->table
+	 * @param	string		$mmtableAlias Alias of the MM table to be used.
 	 * @return	void
 	 */
-	function addMMJoin($mmtable, $local_table='')	{
+	function addMMJoin($mmtable, $local_table='', $mmtableAlias='')	{
 		$local_table = $local_table ? $local_table : $this->table;
+		$mmtableName = $mmtableAlias ? $mmtableAlias : $mmtable;
+		$mmtableNameDef = $mmtableAlias ? $mmtable.' AS '.$mmtableAlias : $mmtable ;
 
-		$this->query['LEFT_JOIN'][$mmtable] = $local_table.'.uid='.$mmtable.'.uid_local';
+		$this->query['LEFT_JOIN'][$mmtableNameDef] = $local_table.'.uid='.$mmtableName.'.uid_local';
 	}
 
 
@@ -334,6 +336,21 @@ class tx_dam_querygen {
 		if(is_array($where)) {
 			$this->query['WHERE'] = t3lib_div::array_merge_recursive_overrule($this->query['WHERE'], $where);
 		}
+	}
+
+
+	/**
+	 * Look for entries in the select WHERE array part and return true if there are any.
+	 *
+	 * @return	boolean
+	 */
+	function hasWhere()	{
+		foreach ($this->query['WHERE'] as $type => $where) {
+			if (is_array($where) AND count($where)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
@@ -423,7 +440,7 @@ class tx_dam_querygen {
 
 			$query = array();
 			foreach($select['LEFT_JOIN'] as $table => $on) {
-				$query[] = 'LEFT JOIN '.$table.' ON ('.$on.')';
+				$query[] = 'LEFT JOIN '.$table.' ON '.$on;
 			}
 			$queryParts['FROM'].= "\n".implode ("\n",$query);
 
@@ -433,9 +450,12 @@ class tx_dam_querygen {
 			//
 
 			$query = array();
+
 			$query[] = '1';
 
-			$query[] = implode (' ',$select['WHERE']['WHERE']);
+			if (is_array($select['WHERE']['WHERE']) AND count($select['WHERE']['WHERE'])) {
+				$query[] = implode (' ',$select['WHERE']['WHERE']);
+			}
 			unset($select['WHERE']['WHERE']);
 
 			foreach($select['WHERE'] as $operator => $items){
@@ -470,7 +490,7 @@ class tx_dam_querygen {
 				$queryParts['ORDERBY'] = implode (',',$select['ORDERBY']);
 			}
 			if(count($select['LIMIT']) AND !$count) {
-				$queryParts['LIMIT'] = implode (' ',$select['LIMIT']); #TODO ???
+				$queryParts['LIMIT'] = implode (' ',$select['LIMIT']); // TODO ???
 			}
 		}
 
@@ -504,19 +524,20 @@ class tx_dam_querygen {
 			t3lib_div::loadTCA($table);
 
 				// Initialize field array:
-			$sfields=array();
-			$sfields[]='uid';	// Adding "uid" by default.
+			$sfields = array();
+			$sfields[] = 'uid';	// Adding "uid" by default.
 
 				// Traverse the configured columns and add all columns that can be searched:
 			foreach($TCA[$table]['columns'] as $fieldName => $info)	{
 				if ($info['config']['type']=='text' || ($info['config']['type']=='input' && !ereg('date|time|int',$info['config']['eval'])))	{
-					$sfields[]=$table.'.'.$fieldName;
+					$sfields[] = $table.'.'.$fieldName;
 				}
 			}
 
 				// If search-fields were defined (and there always are) we create the query:
 			if (count($sfields))	{
-				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$searchString.'%', $table);		// Free-text searching...
+				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($searchString, $table);
+				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', $table);		// Free-text searching...
 				$queryPart = '('.implode($like.' OR ',$sfields).$like.')';
 
 					// Return query:
@@ -562,11 +583,8 @@ class tx_dam_querygen {
 	function enableFields($table='')	{
 		$table = $table ? $table : $this->table;
 
-		if ($this->mode == 'FE' AND is_object($GLOBALS['TSFE'])) {
-			return $GLOBALS['TSFE']->sys_page->enableFields($table);
-		} else {
-			return t3lib_BEfunc::deleteClause($table);
-		}
+		$enableFields = tx_dam_db::enableFields($table, $this->mode);
+		return $enableFields? ' AND '.$enableFields : '';
 	}
 }
 

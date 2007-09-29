@@ -138,6 +138,12 @@ class tx_dam_selStorage {
 	var $formName = 'selStoreControl';
 
 
+	/**
+	 * Name of the storage table
+	 */
+	var $table = 'tx_dam_selection';
+
+
 
 	var $writeDevLog = 0; 				// write messages into the devlog?
 
@@ -158,8 +164,6 @@ class tx_dam_selStorage {
 	 * @return	void
 	 */
 	function init()	{
-
-$this->table = 'tx_dam_selection';
 			// enable dev logging if set
 		if ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.tx_dam_selStorage.php']['writeDevLog']) $this->writeDevLog = TRUE;
 		if (TYPO3_DLOG) $this->writeDevLog = TRUE;
@@ -183,12 +187,19 @@ $this->table = 'tx_dam_selection';
 	 *
 	 * @return	void
 	 */
-	function initStorage()	{
+	function initStorage($uidList='', $pidList='')	{
+
+		$pidList = $pidList ? $GLOBALS['TYPO3_DB']->cleanIntList($pidList) : '';
+		$pidList = $pidList ? $pidList : tx_dam_db::getPid();
+		$pidList = $this->table.'.pid IN ('.$pidList.')';
+
+		$uidList = $uidList ? $GLOBALS['TYPO3_DB']->cleanIntList($uidList) : '';
+		$uidList = $uidList ? ' AND '.$this->table.'.uid IN ('.$uidList.')' :  '';
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'*',
 					$this->table,
-					'1'.t3lib_BEfunc::deleteClause($this->table),
+					$pidList.$uidList.' AND '.tx_dam_db::deleteClause($this->table),
 					'',
 					$this->table.'.title',
 					100

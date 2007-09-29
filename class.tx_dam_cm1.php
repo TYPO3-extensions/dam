@@ -67,7 +67,7 @@ class tx_dam_cm1 {
 				$lCP = $BE_USER->calcPerms(t3lib_BEfunc::getRecord('pages',($table=='pages'?$backRef->rec['uid']:$backRef->rec['pid'])));
 
 					// Include localllang file
-				$LL = $this->includeLL();
+				$LL = $LANG->includeLLFile(PATH_txdam.'lib/locallang.xml',FALSE);
 
 
 					// Edit:
@@ -174,17 +174,6 @@ class tx_dam_cm1 {
 		);
 	}
 
-
-	/**
-	 * Includes the [extDir]/locallang.xml and returns the $LOCAL_LANG array found in that file.
-	 *
-	 * @return	array	$LOCAL_LANG array
-	 */
-	function includeLL()	{
-		$LOCAL_LANG = array();
-		include(PATH_txdam.'lib/locallang.xml');
-		return $LOCAL_LANG;
-	}
 }
 
 

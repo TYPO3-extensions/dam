@@ -44,7 +44,7 @@ class tx_dam_show_item {
 	 * @return	string		Rendered content
 	 */
 	function render($type, &$pObj)	{
-		global $LANG, $TCA, $BACK_PATH;
+		global $LANG, $TCA, $BACK_PATH, $TYPO3_CONF_VARS;
 
 		$contentForm = '';
 
