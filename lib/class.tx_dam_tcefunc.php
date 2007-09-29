@@ -201,7 +201,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$itemArray = $renderBrowseTrees->getItemArrayProcessed();
 
 
-
 		//
 		// process selected values
 		//
@@ -505,7 +504,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					foreach($filesArray['rows'] as $row)	{
 
 							// Icon
-						$absFilePath = t3lib_div::getFileAbsFileName($row['file_path'].$row['file_name']);
+						$absFilePath = tx_dam::file_absolutePath($row);
 						$fileExists = file_exists($absFilePath);
 
 						$addAttrib = 'class="absmiddle"';
@@ -519,6 +518,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						}
 
 						$title = t3lib_div::fixed_lgd_cs($this->tceforms->noTitle($row['title']), $this->tceforms->titleLen);
+// TODO use tx_dam_guifunc?
 						$thumb = t3lib_BEfunc::thumbCode(array($field => $row['file_name']), $table, $field, $this->tceforms->backPath, 'thumbs.php', $row['file_path'], 0, ' align="middle"');
 						$thumbDescr = '<div class="nobr">'.$fileIcon.$title.'<br />'.$row['file_name'].'</div>';
 
@@ -558,7 +558,75 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 
 
+	/**
+	 * Generation of TCEform elements of the type "group"
+	 * This will render a selectorbox into which elements from either the file system or database can be inserted. Relations.
+	 *
+	 * @param	string		The table name of the record
+	 * @param	string		The field name which this element is supposed to edit
+	 * @param	array		The record data array where the value(s) for the field can be found
+	 * @param	array		An array with additional configuration options.
+	 * @return	string		The HTML code for the TCEform field
+	 */
+	function getSingleField_typeFolder($PA, &$fObj)	{
+		global $TYPO3_CONF_VARS, $TCA, $LANG;
 
+		$this->tceforms = &$PA['pObj'];
+
+		$table = $PA['table'];
+		$field = $PA['field'];
+		$row = $PA['row'];
+		$config = $PA['fieldConf']['config'];
+
+		$disabled = '';
+		if($this->tceforms->renderReadonly || $config['readOnly'])  {
+			$disabled = ' disabled="disabled"';
+		}
+
+			// Init:
+		$size = intval($config['size']);
+		$maxitems = t3lib_div::intInRange($config['maxitems'],0);
+		if (!$maxitems)	$maxitems=100000;
+		$minitems = t3lib_div::intInRange($config['minitems'],0);
+
+		$disabled = '';
+		if($this->tceforms->renderReadonly || $config['readOnly'])  {
+			$disabled = ' disabled="disabled"';
+		}
+
+		$item.= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'"'.$disabled.' />';
+		$this->tceforms->requiredElements[$PA['itemFormElName']] = array($minitems,$maxitems,'imgName'=>$table.'_'.$row['uid'].'_'.$field);
+		$info='';
+
+			// "Extra" configuration; Returns configuration for the field based on settings found in the "types" fieldlist. See http://typo3.org/documentation/document-library/doc_core_api/Wizards_Configuratio/.
+		$specConf = $this->tceforms->getSpecConfFromString($PA['extra'], $PA['fieldConf']['defaultExtras']);
+
+
+
+			// Making the array of file items:
+		$itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue'],1);
+
+			// Creating the element:
+		$params = array(
+			'size' => $size,
+			'dontShowMoveIcons' => ($maxitems<=1),
+			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'],0),
+			'maxitems' => $maxitems,
+			'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->tceforms->defaultMultipleSelectorStyle.'"',
+			'info' => $info,
+			'thumbnails' => '',
+			'readOnly' => $disabled
+		);
+		$item.= $this->dbFileIcons($PA['itemFormElName'],'folder|tx_dam_folder','',$itemArray,'',$params,$PA['onFocus']);
+
+			// Wizards:
+		$altItem = '<input type="hidden" name="'.$PA['itemFormElName'].'" value="'.htmlspecialchars($PA['itemFormElValue']).'" />';
+		if (!$disabled) {
+			$item = $this->tceforms->renderWizards(array($item,$altItem),$config['wizards'],$table,$row,$field,$PA,$PA['itemFormElName'],$specConf);
+		}
+
+		return $item;
+	}
 
 
 
@@ -944,7 +1012,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 * Prints the selector box form-field for the db/file/select elements (multiple)
 	 *
 	 * @param	string		Form element name
-	 * @param	string		Mode "db", "file" (internal_type for the "group" type) OR blank (then for the "select" type)
+	 * @param	string		Mode "db", "file" (internal_type for the "group" type) OR blank (then for the "select" type). Seperated with '|' a user Defined mode can be set to be passed as param to the EB.
 	 * @param	string		Commalist of "allowed"
 	 * @param	array		The array of items. For "select" and "group"/"file" this is just a set of value. For "db" its an array of arrays with table/uid pairs.
 	 * @param	string		Alternative selector box.
@@ -955,6 +1023,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 */
 	function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')	{
 
+		list($mode, $modeEB) = explode('|', $mode);
+		$modeEB = $modeEB ? $modeEB : $mode;
 
 		$disabled = '';
 		if($this->tceforms->renderReadonly || $params['readOnly'])  {
@@ -994,6 +1064,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						}
 					}
 				break;
+				case 'folder':
 				case 'file':
 					while(list(,$pp)=each($itemArray))	{
 						$pParts = explode('|', $pp);
@@ -1005,7 +1076,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					while(list(,$pp)=each($itemArray))	{
 						$pParts = explode('|', $pp, 2);
 						$uidList[] = $pUid = $pParts[0];
-						$pTitle = $pParts[1];
+						$pTitle = $pParts[1] ? $pParts[1] : $pParts[0];
 						$opt[] = '<option value="'.htmlspecialchars(rawurldecode($pUid)).'">'.htmlspecialchars(rawurldecode($pTitle)).'</option>';
 					}
 				break;
@@ -1025,7 +1096,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		);
 		if (!$params['readOnly']) {
 			if (!$params['noBrowser'])	{
-				$aOnClick = 'setFormValueOpenBrowser(\''.$mode.'\',\''.($fName.'|||'.$allowed.'|'.$userEBParam.'|').'\'); return false;';
+				$aOnClick = 'setFormValueOpenBrowser(\''.$modeEB.'\',\''.($fName.'|||'.$allowed.'|'.$userEBParam.'|').'\'); return false;';
 				$icons['R'][] = '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.
 						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert3.gif', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->tceforms->getLL('l_browse_'.($mode=='file'?'file':'db'))).' />'.
 						'</a>';
@@ -1054,7 +1125,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$aOnClick = '';
 	#			$counter = 0;
 				foreach($clipElements as $elValue)	{
-					if ($mode=='file')	{
+					if ($mode=='file' OR $mode=='folder')	{
 						$itemTitle = 'unescape(\''.rawurlencode(basename($elValue)).'\')';
 					} else {	// 'db' mode assumed
 						list($itemTable, $itemUid) = explode('|', $elValue);
@@ -1102,7 +1173,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					implode('<br />', $icons['L']).'</td>
 				<td valign="top">'.
 					implode('<br />', $icons['R']).'</td>
-				<td><img src="clear.gif" width="5" height="1" alt="" /></td>
+				<td style="height:5px;"><span></span></td>
 				<td valign="top">'.
 					$this->tceforms->wrapLabels($params['thumbnails']).
 				'</td>

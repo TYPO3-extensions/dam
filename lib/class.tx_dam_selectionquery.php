@@ -102,11 +102,16 @@ class tx_dam_selectionQuery {
 	/**
 	 * Initializes the pointer object
 	 *
+	 * @param 	integer 	$resultPointer The current pointer value - may come from GET var
+	 * @param 	integer 	$resultsPerPage Defines how many items should be displayed per page
+	 * @param	integer		$maxPages Max allowed pages.
 	 * @return void
 	 */
-	function initPointer($resultPointer, $resultsPerPage) {
+	function initPointer($resultPointer, $resultsPerPage, $maxPages=20) {
+		global $TYPO3_CONF_VARS;
+
 		$this->pointer = t3lib_div::makeInstance('tx_dam_listPointer');
-		$this->pointer->init(intval($resultPointer), $resultsPerPage);
+		$this->pointer->init(intval($resultPointer), $resultsPerPage, 0, $maxPages);
 
 		return $this->pointer->getPagePointer();
 	}
@@ -172,7 +177,7 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function addLimitToQuery ($limit='', $begin='') {
-		if($limit == '') {
+		if(intval($limit) == 0) {
 			$limit = $this->pointer->itemsPerPage;
 			$begin = $this->pointer->firstItemNum;
 		}
@@ -219,21 +224,42 @@ class tx_dam_selectionQuery {
 			return $this->res;
 		}
 
+		return $this->execQuery($count, $select);
+	}
+
+
+	/**
+	 * Executes the query from the db querygen array.
+	 *
+	 * @param	boolean		$count If set count query will be generated
+	 * @param	string		$select Overrule SELECT query part
+	 * @return	mixed		Query result pointer
+	 */
+	function execQuery($count=false, $select='') {
+
 		$this->prepareSelectionQuery($count);
 		$queryArr = $this->qg->getQueryParts();
 		if ($select) {
 			$queryArr['SELECT'] = $select;
 		}
+		$this->error = '';
 		$this->res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
+		$this->error = $GLOBALS['TYPO3_DB']->sql_error();
+
 		if($count) {
-			list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
-			$this->pointer->setTotalCount($countTotal);
+			if ($this->res) {
+				list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
+				$this->pointer->setTotalCount($countTotal);
+			} else {
+				$this->pointer->setTotalCount(0);
+			}
 		}
 
 
 			// collect debug information
 		if (tx_dam::config_getValue('setup.debug')) {
-				if (!$count OR $countTotal==0) {
+				if ($this->error OR !$count OR $countTotal==0) {
+					if ($this->error) $this->SOBE->debugContent['queryArr'] = '<h4>ERROR</h4>'.$this->error;
 					$this->SOBE->debugContent['queryArr'] = '<h4>$queryArr</h4>'.t3lib_div::view_array($queryArr);
 					$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 								$queryArr['SELECT'],
@@ -266,14 +292,21 @@ class tx_dam_selectionQuery {
 	 */
 	function addFilemountsToQuerygen() {
 			// init filemounts
-		if(!$GLOBALS['BE_USER']->user['admin'] AND count($GLOBALS['FILEMOUNTS'])){
-			$whereArr = array();
-			foreach($GLOBALS['FILEMOUNTS'] as $mount){
-				$whereArr[] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr(tx_dam::path_makeRelative($mount['path']).'%', 'tx_dam');
+		if(is_object($GLOBALS['BE_USER']) AND !$GLOBALS['BE_USER']->user['admin']) {
+			if (count($GLOBALS['FILEMOUNTS'])){
+				$whereArr = array();
+				foreach($GLOBALS['FILEMOUNTS'] as $mount){
+					$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($mount['path']), 'tx_dam');
+					$whereArr[] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
+				}
+				$where = implode(' OR ', $whereArr);
+				$where = $where ? '('.$where.')' : '';
+				$this->qg->addWhere($where, 'AND', 'tx_dam.FILEMOUNTS');
+
+			} else {
+					// no filemounts - no access at all
+				$this->qg->addWhere('1=0', 'AND', 'tx_dam.FILEMOUNTS');
 			}
-			$where = implode(' OR ', $whereArr);
-			$where = $where ? '('.$where.')' : '';
-			$this->qg->addWhere($where, 'AND', 'tx_dam.FILEMOUNTS');
 		}
 	}
 

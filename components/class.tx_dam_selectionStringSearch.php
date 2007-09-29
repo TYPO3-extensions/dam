@@ -107,7 +107,7 @@ class tx_dam_selectionStringSearch extends tx_dam_selProcBase {
 	 * @param	string		The select value (true/false,...)
 	 * @param	object		Reference to the parent DAM object.
 	 * @return	string
-	 * @see tx_dam_SCbase::getWhereClausePart()
+	 * @see tx_dam_selection::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 
@@ -143,7 +143,8 @@ class tx_dam_selectionStringSearch extends tx_dam_selProcBase {
 
 				// If search-fields were defined (and there always are) we create the query:
 			if (count($fields))	{
-				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$searchString.'%', $table);		// Free-text searching...
+				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($searchString, $table);
+				$like=' LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', $table);		// Free-text searching...
 				$queryPart = '('.implode($like.' OR ',$fields).$like.')';
 
 			}

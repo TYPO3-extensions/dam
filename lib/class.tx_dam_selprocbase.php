@@ -290,6 +290,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	 * @access private
 	 */
 	function wrapIcon($icon,$row)	{
+		global $TYPO3_CONF_VARS;
 
 			// Add title attribute to input icon tag
 		$theIcon = $this->addTagAttributes($icon,($this->titleAttrib ? $this->titleAttrib.'="'.$this->getTitleAttrib($row).'"' : ''));
@@ -458,6 +459,21 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			$itemTitle = $this->getTitleStr($row);
 		}
 		return $itemTitle;
+	}
+
+
+	/**
+	 * Returns the icon of an item
+	 *
+	 * @param	string		The select value/id
+	 * @param	string		The select value (true/false,...)
+	 * @return	string
+	 */
+	function selection_getItemIcon($id, $value)	{
+		if($icon =	$this->getDefaultIcon()) {
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $icon, 'width="18" height="16"').' class="typo3-icon" alt="" />';
+		}
+		return $icon;
 	}
 
 
@@ -798,6 +814,21 @@ class tx_dam_selProcBase {
 
 
 	/**
+	 * Returns the icon of an item
+	 *
+	 * @param	string		The select value/id
+	 * @param	string		The select value (true/false,...)
+	 * @return	string
+	 */
+	function selection_getItemIcon($id, $value)	{
+		if($icon =	$this->getDefaultIcon()) {
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$icon, 'width="18" height="16"').' class="typo3-icon" alt="" />';
+		}
+		return $icon;
+	}
+
+
+	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
 	 * Called from DAM
 	 *
@@ -814,7 +845,8 @@ class tx_dam_selProcBase {
 #		if($operator=='!=') {
 #			$query.= ' NOT';
 #		}
-#		$query.= " LIKE BINARY '".$id."'";
+#		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($id,'tx_dam');
+#		$query.= ' LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr,'tx_dam');
 #
 #		return array($queryType,$query);
 	}

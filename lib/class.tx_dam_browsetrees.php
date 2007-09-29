@@ -58,6 +58,8 @@
  */
 class tx_dam_browseTrees {
 
+	var $selectionClasses = array();
+
 	/**
 	 * initialize the browsable trees
 	 *
@@ -73,11 +75,13 @@ class tx_dam_browseTrees {
 
 		if ($folderOnly OR t3lib_div::_GP('folderOnly')) {
 			$selClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamFolder'];
-			$TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'] = array();
-			$TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses']['txdamFolder'] = $selClasses;
+			$selectionClasses  = array();
+			$selectionClasses ['txdamFolder'] = $selClasses;
+		} else {
+			$selectionClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'];
 		}
 
-		$this->initSelectionClasses($TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'], $thisScript, $mode);
+		$this->initSelectionClasses($selectionClasses , $thisScript, $mode);
 	}
 
 	/**
@@ -91,12 +95,14 @@ class tx_dam_browseTrees {
 	function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')	{
 		global $BE_USER,$LANG,$BACK_PATH;
 
+		$this->selectionClasses = $selectionClassesArr;
+
 			// configuration - default
 		$configDefault = tx_dam::config_getValue('setup.selections.default');
 		$configDefault = $configDefault['properties'];
 
-		if (is_array($selectionClassesArr))	{
-			foreach($selectionClassesArr as $classKey => $classRef)	{
+		if (is_array($this->selectionClasses))	{
+			foreach($this->selectionClasses as $classKey => $classRef)	{
 
 					// configuration - class
 				$config = tx_dam::config_getValue('setup.selections.'.$classKey);
@@ -119,6 +125,7 @@ class tx_dam_browseTrees {
 
 							$this->treeObjArr[$classKey]->title = $obj->getTreeTitle();
 							$this->treeObjArr[$classKey]->treeName = $obj->getTreeName();
+							$this->treeObjArr[$classKey]->domIdPrefix = $obj->domIdPrefix ? $obj->domIdPrefix : $obj->getTreeName();
 							$this->treeObjArr[$classKey]->rootIcon = PATH_txdam_rel.'i/cat2folder.gif';
 							$this->treeObjArr[$classKey]->iconName = basename($obj->getDefaultIcon());
 							$this->treeObjArr[$classKey]->iconPath = dirname($obj->getDefaultIcon()).'/';
@@ -183,7 +190,7 @@ class tx_dam_browseTrees {
 		global $BE_USER, $TYPO3_CONF_VARS;
 
 		if(!$treeName) {
-			if (is_object($obj = &t3lib_div::getUserObj($TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'][$classKey])))	{
+			if (is_object($obj = &t3lib_div::getUserObj($this->selectionClasses [$classKey])))	{
 				$treeName = $obj->getTreeName();
 			}
 		}

@@ -452,7 +452,7 @@ class tx_dam_action_infoRec extends tx_dam_action_recordBase {
 		// and while DAM registered an info viewer for file we use that instead of the record info view
 		// $commands['onclick'] = 'top.launchView(\''.$this->itemInfo['__table'].'\', \''.$this->itemInfo['uid'].'\'); return false;';
 
-		$filename = tx_dam::path_makeAbsolute($this->itemInfo['file_path']).$this->itemInfo['file_name'];
+		$filename = tx_dam::file_absolutePath($this->itemInfo);
 		$commands['onclick'] = 'top.launchView(\''.$filename.'\', \'\'); return false;';
 
 		return $commands;
@@ -656,6 +656,8 @@ class tx_dam_action_hideRec extends tx_dam_action_recordBase {
  */
 class tx_dam_action_deleteRec extends tx_dam_action_recordBase {
 
+	var $cmd = 'tx_dam_cmd_filedelete';
+
 	/**
 	 * Returns true if the action is of the wanted type
 	 *
@@ -713,8 +715,10 @@ class tx_dam_action_deleteRec extends tx_dam_action_recordBase {
 	 */
 	function _getCommand() {
 
-		$cmd = 'tx_dam_cmd_filedelete';
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&id='.rawurlencode($this->itemInfo['uid']).'&returnUrl='.$this->env['returnUrl'];
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&record['.$this->itemInfo['__table'].']='.$this->itemInfo['uid'];
+		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
 		$commands['href'] = $script;
 

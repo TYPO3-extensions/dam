@@ -125,20 +125,20 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 		$origSel = $this->pObj->selection->sl->sel;
 		if($this->pObj->MOD_SETTINGS['tx_dam_list_editsel_onlyDeselected']) {
-			if(is_array($this->pObj->selection->sl->sel['DESELECT_ID']['tx_dam'])) {
-				$ids = array_keys($this->pObj->selection->sl->sel['DESELECT_ID']['tx_dam']);
+			if(is_array($this->pObj->selection->sl->sel['NOT']['txdamRecords'])) {
+				$ids = array_keys($this->pObj->selection->sl->sel['NOT']['txdamRecords']);
 			} else {
 				$ids = array(0); //dummy
 			}
 
-			unset($this->pObj->selection->sl->sel['DESELECT_ID']);
+			unset($this->pObj->selection->sl->sel['NOT']['txdamRecords']);
 			$this->pObj->selection->addSelectionToQuery();
 			if(is_array($ids)) {
-				$this->pObj->selection->qg->query['WHERE']['WHERE']['DESELECT_ID'] = 'AND tx_dam.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList(implode(',',$ids)).')';
+				$this->pObj->selection->qg->query['WHERE']['WHERE']['NOT_txdamRecords'] = 'AND tx_dam.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList(implode(',',$ids)).')';
 			}
 
 		} else {
-			unset($this->pObj->selection->sl->sel['DESELECT_ID']);
+			unset($this->pObj->selection->sl->sel['NOT']['txdamRecords']);
 			$this->pObj->selection->addSelectionToQuery();
 		}
 		$this->pObj->selection->sl->sel = $origSel;
@@ -324,7 +324,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		}
 
 
-		#TODO??
+		// TODO ??
 		// Add pseudo "control" fields
 		#		$fields['_PATH_'] = '_PATH_';
 		#		$fields['_LOCALIZATION_'] = '_LOCALIZATION_';

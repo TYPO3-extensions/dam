@@ -322,6 +322,7 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 			$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
 			$actionCall->setRequest('button', $this->pObj->pathInfo, '', $GLOBALS['MCONF']['name']);
 			$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+			$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
 			$actionCall->setEnv('pathInfo', $this->pObj->pathInfo);
 			$actionCall->initActions();
 			$actions = $actionCall->renderActionsHorizontal();

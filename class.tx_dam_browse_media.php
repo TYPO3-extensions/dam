@@ -75,18 +75,8 @@ require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 
 
-// workaround - shouldn't be needed
+// TODO workaround - shouldn't be needed
 require_once (PATH_t3lib.'class.t3lib_pagetree.php');
-/*
-> > - BE: Verwendet man den Elementbrowser (für welche Aktion auch immer),
-> > wühlt eine Seite im Baum und sucht mit der Suchfunktion in der rechten
-> > Hülfte des Elementbrowsers und schlieüt in die Suche Unterebenen ein,
-> > erhült man im Fenster des ELementbrowsers:
-> >
-> > Fatal error: Cannot instantiate non-existent class: t3lib_pagetree in
-> > /data/users/c145/htdocs/typo3_src-3.7.0_dam/t3lib/class.t3lib_div.php
-> > on line 3238
-*/
 
 
 
@@ -103,9 +93,10 @@ require_once (PATH_t3lib.'class.t3lib_pagetree.php');
 class tx_dam_browse_media extends browse_links {
 
 
-	var $damSC = false;
+	var $damSC = null;
 
 
+	var $MCONF_name = 'txdam_elbrowser';
 
 	/**
 	 * Check if this object should be rendered.
@@ -142,12 +133,46 @@ class tx_dam_browse_media extends browse_links {
 		if (!is_object($this->damSC)) {
 			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');
 			$this->damSC = t3lib_div::makeInstance('tx_dam_SCbase');
-			$this->damSC->MCONF['name'] = 'elbrowser';
+			$this->damSC->MCONF['name'] = $this->MCONF_name;
 			$this->damSC->menuConfig();
 			$this->damSC->init();
 			$this->damSC->doc = &$this->doc;
-			$this->damSC->addParams = $this->addParams;
+		}
+	}
 
+
+	/**
+	 * Initializes DAM selection.
+	 *
+	 * @return void
+	 */
+	function initDAMSelection () {
+
+		$this->damSC->addParams = $this->addParams;
+
+		$txdamSel = $this->getModSettings('txdamSel');
+		list($txdamSel,$key) = explode(':', $txdamSel);
+
+
+		if ($txdamSel=='__txdam_current_selection') {
+			$MOD_SETTINGS = $GLOBALS['BE_USER']->getModuleData('txdamM1_list', '');
+			$selection = $MOD_SETTINGS['tx_dam_select'];
+			$this->damSC->selection->sl->setFromSerialized($selection, false);
+
+		} elseif ($txdamSel=='__txdam_stored_selection') {
+
+						// Store settings gui element
+			$store = t3lib_div::makeInstance('t3lib_modSettings');
+			$store->init('tx_dam_select', 'tx_dam_select');
+			$store->initStorage();
+			if ($selection = $store->getStoredData($key)) {
+				$this->damSC->selection->sl->setFromSerialized($selection['tx_dam_select'], false);
+			} else {
+				$txdamSel=='';
+			}
+		}
+
+		if ($txdamSel=='__txdam_eb_selection' OR $txdamSel=='') {
 			$this->damSC->selection->sl->initSelection_getStored_mergeSubmitted();
 		}
 	}
@@ -177,38 +202,30 @@ class tx_dam_browse_media extends browse_links {
 
 		$this->processParams();
 
-			// get the session data - same namespace as default EB is used
-//		$modData = $BE_USER->getModuleData('browse_links.php','ses');
-//		list($modData, $store) = $this->processSessionData($modData);
-//		if ($store) {
-//			$BE_USER->pushModuleData('browse_links.php',$modData);
-//		}
+			// init the DAM selection after we've got the params
+		$this->initDAMSelection();
+
 
 
 		$content = '';
 
 		switch((string)$this->mode)	{
-//			case 'rte':
-//				$content = $this->main_rte();
-//			break;
-//			case 'filedrag':
-//				$content = $this->main_file();
-//			break;
-//			case 'wizard':
-//				$content = $this->main_rte(1);
-//			break;
 			case 'db':
 			case 'file':
 				$content = $this->main();
 			break;
 			default:
+				$content .= '<h3>ERROR</h3>';
+				$content .= '<h3>Unknown or missing mode!</h3>';
+				$debug = true;
 			break;
 		}
 
-#tx_dam::config_setValue('setup.debug', true);
+		# $debug = true;
+		# tx_dam::config_setValue('setup.debug', true);
 
 			// debug output
-		if (tx_dam::config_getValue('setup.debug')) {
+		if ($debug OR tx_dam::config_getValue('setup.debug')) {
 
 			$bparams = explode('|', $this->bparams);
 
@@ -256,6 +273,7 @@ class tx_dam_browse_media extends browse_links {
 
 			// Starting content:
 		$content = $this->doc->startPage('TBE file selector');
+
 
 
 			// Initializing the action value, possibly removing blinded values etc:
@@ -345,13 +363,16 @@ class tx_dam_browse_media extends browse_links {
 		$files = $this->getFileListArr($allowedFileTypes, $disallowedFileTypes, $this->mode);
 
 		$fileList = '';
-		$fileList .= $this->barheader(($allowedFileTypes ? $allowedFileTypes.' ' : ''));
+		$fileList .= $allowedFileTypes ? $this->barheader($allowedFileTypes.' ') : '<h3 class="bgColor5">&nbsp;</h3>';
 		$fileList .= '<br/>';
 		$fileList .= $this->renderFileList($files, $this->mode);
 
 
 		$content .= $this->formTag;
+		$content .= $this->getSelectionSelector();
 		$content .= $this->damSC->getResultInfoBar();
+
+
 
 			// Putting the parts together, side by side:
 		$content .= '
@@ -371,6 +392,7 @@ class tx_dam_browse_media extends browse_links {
 
 			// current selection box
 		$content .= $this->formTag;
+
 		$selectionBox = '<div style="width:70%;">'.$this->damSC->getCurrentSelectionBox().'</div>';
 		$content .= $this->damSC->buttonToggleDisplay('selectionBox', $GLOBALS['LANG']->getLL('selection',1), $selectionBox);
 		$content .= '</form>';
@@ -378,6 +400,41 @@ class tx_dam_browse_media extends browse_links {
 		$content .= $this->formTag;
 		$content .= $this->damSC->getSearchBox('simple', false);
 		$content .= '</form>';
+
+		return $content;
+	}
+
+
+	/**
+	 *
+	 */
+	function getSelectionSelector () {
+		$txdamSel = $this->getModSettings('txdamSel');
+		list($txdamSelType,$key) = explode(':', $txdamSel);
+
+
+		$selectionSelector = array();
+
+		$selectionSelector['__txdam_eb_selection'] = $GLOBALS['LANG']->getLL('eb_selection');
+		$selectionSelector['__txdam_current_selection'] = $GLOBALS['LANG']->getLL('current_selection');
+
+
+			// Stored selections
+		$store = t3lib_div::makeInstance('t3lib_modSettings');
+		$store->init('tx_dam_select', 'tx_dam_select');
+		$store->initStorage();
+		if (count($store->storedSettings)) {
+			$selectionSelector['__txdam_stored_selection-divider'] = '--- '.$GLOBALS['LANG']->getLL('selectionClipboard',1).' ---';
+			foreach($store->storedSettings as $storeIndex => $data)	{
+				$title = $data['title'];
+				$selectionSelector['__txdam_stored_selection:'.$storeIndex] = $title;
+			}
+		}
+
+
+		$selectionSelector = t3lib_BEfunc::getFuncMenu($this->addParams, 'SET[txdamSel]', $this->getModSettings('txdamSel'), $selectionSelector);
+
+		$content .= '<div class="infobar-extraline">'.$GLOBALS['LANG']->getLL('selection',1).': '.$selectionSelector.'</div>';
 
 		return $content;
 	}
@@ -767,16 +824,22 @@ class tx_dam_browse_media extends browse_links {
 				'act' => '',
 				'mode' => '',
 				'bparams' => '',
+				'txdamSel' => '',
 				);
-			$MCONF['name']='tx_dam_browse';
 			$settings = t3lib_div::_GP('SET');
 				// save params in session
 			if ($this->act) $settings['act'] = $this->act;
 			if ($this->mode) $settings['mode'] = $this->mode;
 			if ($this->bparams) $settings['bparams'] = $this->bparams;
 
-			$MOD_SETTINGS = t3lib_BEfunc::getModuleData($MOD_MENU, $settings, $MCONF['name']);
-			$this->damSC->MOD_SETTINGS = $MOD_SETTINGS;
+
+			if (t3lib_div::_GP('SLCMD')) {
+				$settings['txdamSel'] = '__txdam_eb_selection';
+			}
+
+			$MOD_SETTINGS = $GLOBALS['BE_USER']->getModuleData('txdamM1_list', '');
+			$MOD_SETTINGS = array_merge($MOD_SETTINGS, t3lib_BEfunc::getModuleData($MOD_MENU, $settings, $this->MCONF_name));
+			$GLOBALS['SOBE']->MOD_SETTINGS = $this->damSC->MOD_SETTINGS = $MOD_SETTINGS;
 		}
 		if($key) {
 			return $MOD_SETTINGS[$key];
@@ -855,6 +918,9 @@ class tx_dam_browse_media extends browse_links {
 		$GLOBALS['SOBE']->act = $this->addParams['act'] = $this->damSC->addParams['act'] = $this->act;
 		$GLOBALS['SOBE']->mode = $this->addParams['mode'] = $this->damSC->addParams['mode'] = $this->mode;
 		$GLOBALS['SOBE']->bparams = $this->addParams['bparams'] = $this->damSC->addParams['bparams'] = $this->bparams;
+		if (t3lib_div::_GP('SLCMD')) {
+			$this->addParams['SET[txdamSel]'] = $this->damSC->addParams['SET[txdamSel]'] = '__txdam_eb_selection';
+		}
 
 		$this->formTag = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 

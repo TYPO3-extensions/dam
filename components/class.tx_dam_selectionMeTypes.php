@@ -144,9 +144,9 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 	 */
 	function getIcon($row) {
 		if($row['parent_id']){
-			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.$this->iconName,'width="18" height="16"').' alt="" />';
+			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.$this->iconName,'width="18" height="16"').' class="typo3-icon" alt="" />';
 		} else {
-			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.'18/mtype_'.tx_dam::convert_mediaType($row['type']).'.gif','width="18" height="16"').' title="'.htmlspecialchars($this->getTitleStr($row)).'" alt="" />';
+			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.'18/mtype_'.tx_dam::convert_mediaType($row['type']).'.gif','width="18" height="16"').' title="'.htmlspecialchars($this->getTitleStr($row)).'" class="typo3-icon" alt="" />';
 		}
 
 		return $this->wrapIcon($icon,$row);
@@ -174,6 +174,27 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 
 
 	/**
+	 * Returns the icon of an item
+	 *
+	 * @param	string		The select value/id
+	 * @param	string		The select value (true/false,...)
+	 * @return	string
+	 */
+	function selection_getItemIcon($id, $value)	{
+		if(!intval($id)){
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(implode(',',$this->fieldArray), $this->table, 'title='.$GLOBALS['TYPO3_DB']->fullQuoteStr($id,$this->table));
+			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+			$id = $row['type'];
+		}
+		if(intval($id)){
+			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.'18/mtype_'.tx_dam::convert_mediaType($id).'.gif','width="18" height="16"').' class="typo3-icon" alt="" />';
+		}
+
+		return $icon;
+	}
+
+
+	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
 	 * Called from DAM
 	 *
@@ -184,7 +205,7 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 	 * @param	string		The select value (true/false,...)
 	 * @param	object		Reference to the parent DAM object.
 	 * @return	string
-	 * @see tx_dam_SCbase::getWhereClausePart()
+	 * @see tx_dam_selection::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 		if (t3lib_div::testInt($id)) {

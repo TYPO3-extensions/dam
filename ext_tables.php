@@ -11,6 +11,11 @@ if (!defined ('PATH_txdam_rel')) {
 	define('PATH_txdam_rel', t3lib_extMgm::extRelPath('dam'));
 }
 
+if (!defined ('PATH_txdam_siteRel')) {
+	define('PATH_txdam_siteRel', t3lib_extMgm::siteRelPath('dam'));
+}
+
+
 
 
 	// extend beusers for access control
@@ -22,17 +27,57 @@ $tempColumns = array(
 	),
 );
 
-
 t3lib_div::loadTCA('be_groups');
 t3lib_extMgm::addTCAcolumns('be_groups',$tempColumns,1);
 t3lib_extMgm::addToAllTCAtypes('be_groups','tx_dam_mountpoints','','after:file_mountpoints');
-
 
 t3lib_div::loadTCA('be_users');
 t3lib_extMgm::addTCAcolumns('be_users',$tempColumns,1);
 t3lib_extMgm::addToAllTCAtypes('be_users','tx_dam_mountpoints','','after:fileoper_perms');
 
+unset($tempColumns);
 
+
+
+	// extend tt_content with fields for general usage
+$tempColumns = array(
+	'tx_dam_images' => txdam_getMediaTCA('image_field', 'tx_dam_images'),
+	'tx_dam_files' => txdam_getMediaTCA('media_field', 'tx_dam_files'),
+	'tx_dam_flexform' => array(
+		'l10n_display' => 'hideDiff',
+		'label' => 'LLL:EXT:cms/locallang_ttc.php:pi_flexform',
+		'config' => Array (
+			'type' => 'flex',
+			'ds_pointerField' => 'CType',
+			'ds' => array(
+				'default' => '
+					<T3DataStructure>
+					  <ROOT>
+					    <type>array</type>
+					    <el>
+							<!-- Repeat an element like "xmlTitle" beneath for as many elements you like. Remember to name them uniquely  -->
+					      <xmlTitle>
+							<TCEforms>
+								<label>The Title:</label>
+								<config>
+									<type>input</type>
+									<size>48</size>
+								</config>
+							</TCEforms>
+					      </xmlTitle>
+					    </el>
+					  </ROOT>
+					</T3DataStructure>
+				',
+			)
+		)
+	),
+);
+
+t3lib_div::loadTCA('tt_content');
+t3lib_extMgm::addTCAcolumns('tt_content',$tempColumns,1);
+
+unset($tempColumns);
 
 
 
@@ -63,6 +108,7 @@ if (TYPO3_MODE=='BE')	{
 			unset($temp_TBE_MODULES['file']);
 		}
 		$TBE_MODULES = $temp_TBE_MODULES;
+		unset($temp_TBE_MODULES);
 	}
 
 		// add main module
@@ -126,6 +172,13 @@ if (TYPO3_MODE=='BE')	{
 
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_tools',
+		'tx_dam_tools_indexsetup',
+		PATH_txdam.'modfunc_tools_indexsetup/class.tx_dam_tools_indexsetup.php',
+		'LLL:EXT:dam/modfunc_tools_indexsetup/locallang.xml:tx_dam_tools_indexsetup.title'
+	);
+
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_tools',
 		'tx_dam_tools_indexupdate',
 		PATH_txdam.'modfunc_tools_indexupdate/class.tx_dam_tools_indexupdate.php',
 		'LLL:EXT:dam/modfunc_tools_indexupdate/locallang.xml:tx_dam_tools_indexupdate.title'
@@ -149,6 +202,7 @@ if (TYPO3_MODE=='BE')	{
 		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_nothing.title'
 	);
 
+		// file command modules (invisible)
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_cmd',
 		'tx_dam_cmd_filerename',
@@ -174,7 +228,7 @@ if (TYPO3_MODE=='BE')	{
 		'LLL:EXT:dam/mod_cmd/locallang.xml:tx_dam_cmd_filenew.title'
 	);
 
-
+		// folder command modules (invisible)
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_cmd',
 		'tx_dam_cmd_foldernew',
@@ -217,7 +271,7 @@ if (TYPO3_MODE=='BE')	{
 	tx_dam::register_action ('tx_dam_action_renameFolder', 'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_renameFolder');
 	tx_dam::register_action ('tx_dam_action_deleteFolder', 'EXT:dam/components/class.tx_dam_actionsFolder.php:&tx_dam_action_deleteFolder');
 
-#	tx_dam::register_action ('tx_dam_action_newTextfile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_newTextfile');
+	tx_dam::register_action ('tx_dam_action_newTextfile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_newTextfile');
 	tx_dam::register_action ('tx_dam_action_editFileRecord',  'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFileRecord');
 	tx_dam::register_action ('tx_dam_action_viewFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_viewFile');
 	tx_dam::register_action ('tx_dam_action_infoFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_infoFile');
@@ -245,9 +299,7 @@ if (TYPO3_MODE=='BE')	{
 
 
 
-
-
-
+tx_dam::register_mediaTable ('tx_dam');
 t3lib_extMgm::allowTableOnStandardPages('tx_dam');
 
 t3lib_extMgm::addLLrefForTCAdescr('tx_dam','EXT:dam/locallang_csh_dam.xml');
@@ -260,8 +312,8 @@ $TCA['tx_dam'] = array(
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
 		'type' => 'media_type',
-		'sortby' => 'sorting',
-		'default_sortby' => 'ORDER BY sorting,title',
+		'sortby' => 'title',
+		'default_sortby' => 'ORDER BY title',
 		'delete' => 'deleted',
 
 		'versioning' => false,
@@ -313,6 +365,7 @@ $TCA['tx_dam'] = array(
 );
 
 
+tx_dam::register_mediaTable ('tx_dam_cat');
 t3lib_extMgm::allowTableOnStandardPages('tx_dam_cat');
 
 $TCA['tx_dam_cat'] = array(
@@ -341,6 +394,7 @@ $TCA['tx_dam_cat'] = array(
 
 
 
+tx_dam::register_mediaTable ('tx_dam_selection');
 t3lib_extMgm::allowTableOnStandardPages('tx_dam_selection');
 
 $TCA['tx_dam_selection'] = array(
@@ -367,4 +421,7 @@ $TCA['tx_dam_selection'] = array(
 		'fe_admin_fieldList' => 'hidden, starttime, endtime, fe_group, type, title, definition',
 	)
 );
+
+
+
 ?>

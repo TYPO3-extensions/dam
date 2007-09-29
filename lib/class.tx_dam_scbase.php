@@ -194,9 +194,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $TYPO3_CONF_VARS, $FILEMOUNTS;
 
 
+
 		parent::init();
 
 		tx_dam::config_init();
+
+#		tx_dam::config_setValue('setup.debug', '1');
+
 
 			// include the default language file
 		$GLOBALS['LANG']->includeLLFile('EXT:dam/lib/locallang.xml');
@@ -264,9 +268,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 
 		$this->selection->addFilemountsToQuerygen();
-
-
-
 
 
 
@@ -363,7 +364,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->pathInfo = $pathInfo;
 			$this->pathAccess = false;
 		}
-
+// TODO check path access in modules or set path to a valid path?
 
 		if (tx_dam::config_getValue('setup.debug')) {
 			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>'.t3lib_div::view_array($this->pathInfo);
@@ -460,14 +461,25 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function addDocStyles () {
 		$borderColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-30,-30,-30);
 
-		$this->doc->buttonColor = '#e3dfdb'; #t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
+		#$this->doc->buttonColor = '#d3cfcb';
+		$this->doc->buttonColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-30,-30,-30);
 		$this->doc->buttonColorAct = '#e7dba8'; #t3lib_div::modifyHTMLcolor($this->doc->bgColor5,25,25,25);
 		$this->doc->buttonColorHover = t3lib_div::modifyHTMLcolor($this->doc->buttonColor,-20,-20,-20);
 		$this->doc->buttonColorBorder = '#aaa';
 
 		$this->doc->hoverColorTR = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-20,-20,-20);
 
+
+		$this->doc->inDocStylesArray['gui_general'] = '
+				IMG.typo3-icon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; text-decoration: none; }
+				IMG.c-recicon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; text-decoration: none; }';
+
 		$this->doc->inDocStylesArray['typo3-dblist_add'] = '
+				TABLE.typo3-dblist TR TD.c-headLine { background-color: #e0e0e0; }
+				td.c-actionBar { background-color: #e0e0e0; }
+				td.c-actionBar div { margin: 2px 0px 2px 0px; }
+				td.c-actionBar select { background-color: #e0e0e0; height:2em; font-size:0.95em;}
+				td.c-actionBar input { height:2em; font-size:0.95em;}
 				.typo3-dblist TD { padding-top: 1px; }
 				.typo3-dblist TD.item, .typo3-dblist TD.typo3-dblist-item { border-bottom: 1px dotted '.$borderColor.'; }';
 
@@ -489,13 +501,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				span.spacer2em { width:2em; height:1em; }
 				span.spacer3em { width:3em; height:1em; }
 
-				.button { vertical-align: middle; padding: 1px 4px 2px 2px; background-color: '.$this->doc->buttonColor.'; border: 1px solid '.$this->doc->buttonColorBorder.'; margin-left: 0.5em; margin-right: 0.55em }
+				.button { white-space:nowrap; padding: 1px 4px 2px 2px; background-color: '.$this->doc->buttonColor.'; border: 1px solid '.$this->doc->buttonColorBorder.'; margin-left: 0.5em; margin-right: 0.55em }
 				.buttonAct { background-color: '.$this->doc->buttonColorAct.'; }
-				.button img { vertical-align: middle; margin-right:0.1em; padding:1px; }
+				.button img { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; }
 				.button a { vertical-align: baseline; text-decoration:none; }
 				.button:hover { background-color: '.$this->doc->buttonColorHover.'; }
 				.bgColorBtn { background-color: '.$this->doc->buttonColor.'; }';
-
+// was: .button { xvertical-align: middle;
 		$this->doc->inDocStylesArray['list_browseresults'] = '
 				.browsebox {  }
 				.browsebox TD, .browsebox TD P { line-height:1em; padding:0; font-size:0.8em; }
@@ -503,6 +515,16 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				.browsebox TD.browsebox-CellA:hover { background-color: '.$this->doc->buttonColorHover.'; }
 				.browsebox TD.browsebox-Select { }
 				.browsebox TD.browsebox-Select SELECT { padding:0; font-size:0.8em; width:100%; font-weight:normal; border: 1px solid #aaa; background-color:'.$this->doc->buttonColor.'; }
+				.browsebox TD P { font-weight:bold; color:#888; }
+				.browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }';
+		$this->doc->inDocStylesArray['list_browseresults'] = '
+				.browsebox {  }
+				.browsebox TD, .browsebox TD P { padding:0; font-size:0.9em; line-height:1em; }
+				.browsebox TD { padding:0; height:2em; font-size:0.9em; }
+				.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA { border: 1px solid #aaa; width:1.6em; text-align:center; background-color:'.$this->doc->buttonColor.'; padding: 1px 0.7em 1px 0.7em; }
+				.browsebox TD.browsebox-CellA:hover { background-color: '.$this->doc->buttonColorHover.'; }
+				.browsebox TD.browsebox-Select { }
+				.browsebox TD.browsebox-Select SELECT { padding:0; font-size:1em; width:100%; height:2em; font-weight:normal; border: 1px solid #aaa; background-color:'.$this->doc->buttonColor.'; }
 				.browsebox TD P { font-weight:bold; color:#888; }
 				.browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }';
 
@@ -531,6 +553,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->doc->inDocStylesArray['uploads'] = '
 			#c-override, #c-upload, #c-submit { margin: 0.3em 0 1em 0; }
 			#c-upload input { margin: 0 0 0.3em 0; }';
+
+		$this->doc->inDocStylesArray['mod_cmd'] = '
+				#c-select { padding-bottom:0.8em; }
+				#c-createFolders div { margin-bottom:0.8em; }';
 	}
 
 
@@ -556,10 +582,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 *
 	 * @return	string
 	 */
-	function getResultInfoBar() {
+	function getResultInfoBar($left = array()) {
 		global $LANG;
 
-		$left = array();
+
 		$left[] = $this->getResultInfo();
 		if($this->selection->pointer->lastPage>0) {
 			$left[] .= $this->renderResultBrowser();
@@ -606,7 +632,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$right = array($right);
 			}
 			foreach ($right as $rightContent) {
-				$contentRight .= '<div class="infobar-td"><div style="height:100%;">'.$rightContent.'</div></div>';
+				#$contentRight .= '<div class="infobar-td"><div style="height:100%;">'.$rightContent.'</div></div>';
+				$contentRight .= '<div class="infobar-td">'.$rightContent.'</div>';
 			}
 			$contentRight = '<div class="infobar-right-table">'.$contentRight.'</div>';
 			if ($contentLeft=='')
@@ -629,7 +656,11 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			div.infobar-right-table { display:table; height:2.5em; }
 			div.infobar-td { display:table-cell; vertical-align:middle; height:2.5em; }
 			div.infobar-left-table div.infobar-td { padding-left:0.5em; }
-			div.infobar-right-table div.infobar-td { padding-right:0.5em; text-align:right; }';
+			div.infobar-right-table div.infobar-td { padding-right:0.5em; text-align:right; }
+			div.infobar-right-table div.infobar-td select { vertical-align:middle; }
+
+			div.infobar-extraline { padding:0.2em; padding-left:0.5em; background-color:'.$bgColor.'; }
+			';
 
 		return '<div class="infobar">'.$content.'</div>';
 	}
@@ -651,6 +682,40 @@ class tx_dam_SCbase extends t3lib_SCbase {
 					<td valign="middle" width="1%" style="text-align:right;" align="right" nowrap="nowrap">'.$right.'</td>
 				</tr>
 			</table>';
+	}
+
+
+	/**
+	 * Render a box with a header and a message
+	 *
+	 * @param	string		$headerContent
+	 * @param	mixed		$msg The message. Have to be htmlspechialchars() already. If it is an array the elements will be rendered in <p> tags.
+	 * @param	string		$buttons Buttons - right aligned. Have to be htmlspechialchars() already.
+	 * @param	integer		$iconThe number of an icon to show with the header (see the icon-function). -1,1,2,3
+	 * @return	string		HTML output
+	 */
+	function getMessageBox ($headerContent, $msg, $buttons='', $icon=0) {
+		$content = '';
+
+		if ($headerContent OR $icon) {
+			$content .= '<h3>'.$this->doc->icons($icon).htmlspecialchars($headerContent).'</h3>';
+		}
+		if (is_array($msg)) {
+			$msg = '<p>'.implode('</p><p>', $msg).'</p>';
+		}
+		$content .= '<div class="msgboxContent">'.$msg.'</div>';
+
+		if ($buttons) {
+			$content .= '<div class="msgboxButtons">'.$buttons.'</div>';
+		}
+
+		$this->doc->inDocStylesArray['getHeaderBar'] = '
+			div.msgbox-wrap { display:block; width:auto; padding:1.5em; }
+			div.msgbox { display:block; width:auto; border: 1px solid #888; }
+			div.msgboxContent { display:block; width:auto; padding:1.5em;  }
+			div.msgboxButtons { display:block; text-align:right; padding:1.5em;  }';
+
+		return '<div class="msgbox-wrap"><div class="msgbox bgColor-10">'.$content.'</div></div>';
 	}
 
 
@@ -980,7 +1045,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$rows = array();
 			$lastHeader = '';
 			$headBbgColor = ' bgColor="'.$GLOBALS['SOBE']->doc->bgColor6.'"';
-			foreach (array('SELECT','OR','AND','NOT','DESELECT_ID','SEARCH') as $queryType) {
+			foreach (array('SELECT','OR','AND','NOT','SEARCH') as $queryType) {
 				if(is_array($this->selection->sl->sel[$queryType])) {
 
 					switch($queryType) {
@@ -1003,13 +1068,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 						break;
 
 						case 'NOT':
-						case 'DESELECT_ID':
-							if($lastHeader!='NOT') {
-								$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus_16.gif', 'width="12" height="16"').' class="absmiddle" alt="" />';
-								$rows[] = '<td'.$headBbgColor.' colspan="3" valign="middle"><strong>'.$icon.' &nbsp;'.
-								$LANG->getLL('selMinus').'</strong></td>';
-							}
-							$lastHeader = 'NOT';
+							$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus_16.gif', 'width="12" height="16"').' class="absmiddle" alt="" />';
+							$rows[] = '<td'.$headBbgColor.' colspan="3" valign="middle"><strong>'.$icon.' &nbsp;'.
+							$LANG->getLL('selMinus').'</strong></td>';
 							$rows = $this->getCurrentSelectionBoxItems($this->selection->sl->sel, $queryType, $rows);
 						break;
 
@@ -1048,44 +1109,32 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$rowBbgColor = ' bgColor="'.t3lib_div::modifyHTMLColor($GLOBALS['SOBE']->doc->bgColor4,+10,+10,+10).'"';
 
-		foreach ($sel[$queryType] as $cat => $items) {
+		foreach ($sel[$queryType] as $selectionRuleName => $items) {
 			if(is_array($items)) {
 				foreach($items as $id => $value) {
 					if($value) {
 						$categoryTitle = '';
 						$deselectValue = '0';
 
-						if (!is_object($selClasses[$cat]) AND $this->selection->sl->selectionClasses[$cat]) {
-							if (is_object($obj = &t3lib_div::getUserObj($this->selection->sl->selectionClasses[$cat], 'user_',TRUE)))	{
-								$selClasses[$cat] = &$obj;
+						if (!is_object($selClasses[$selectionRuleName]) AND $this->selection->sl->selectionClasses[$selectionRuleName]) {
+							if (is_object($obj = &t3lib_div::getUserObj($this->selection->sl->selectionClasses[$selectionRuleName], 'user_',TRUE)))	{
+								$selClasses[$selectionRuleName] = &$obj;
 							}
 						}
-						if (is_object($selClasses[$cat])) {
-							$categoryTitle = $selClasses[$cat]->getTreeTitle();
-							$itemTitle = $selClasses[$cat]->selection_getItemTitle($id, $value);
-							$deselectValue = $selClasses[$cat]->deselectValue;
-
-							// DESELECT_ID
-						} elseif($cat == 'tx_dam') {
-
-// TODO implement this as SelectionClass
-							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,title,file_type,media_type', 'tx_dam', 'uid='.$id);
-
-							while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-								$titletext = t3lib_BEfunc::getRecordIconAltText($row, 'tx_dam');
-								$icon = t3lib_iconWorks::getIconImage('tx_dam', $row, $BACK_PATH ,'title="'.$titletext.'"');
-								$categoryTitle = $icon;
-								$itemTitle = htmlspecialchars(t3lib_div::fixed_lgd($row['title'],25));
-							}
+						if (is_object($selClasses[$selectionRuleName])) {
+							$categoryTitle = $selClasses[$selectionRuleName]->getTreeTitle();
+							$itemTitle = $selClasses[$selectionRuleName]->selection_getItemTitle($id, $value);
+							$itemIcon = $selClasses[$selectionRuleName]->selection_getItemIcon($id, $value);
+							$deselectValue = $selClasses[$selectionRuleName]->deselectValue;
 
 						}
 
 						if(!((string)$categoryTitle == '')) {
-							$params = array('SLCMD['.$queryType.']['.$cat.']['.(string)$id.']' => $deselectValue);
+							$params = array('SLCMD['.$queryType.']['.$selectionRuleName.']['.(string)$id.']' => $deselectValue);
 							$actionIcon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_remove.gif', 'width="11" height="10"').' title="'.$LANG->getLL('remove',1).'" alt="" />';
 							$actionIcon = '<a href="'.htmlspecialchars($this->linkThisScriptSel($params)).'">'.$actionIcon.'</a>';
 
-							$rows[] = '<td width="1%"'.$rowBbgColor.'>'.$actionIcon.'</td><td nowrap="nowrap"'.$rowBbgColor.'>'.$categoryTitle.'</td><td width="70%"'.$rowBbgColor.'>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
+							$rows[] = '<td width="1%"'.$rowBbgColor.'>'.$actionIcon.'</td><td nowrap="nowrap"'.$rowBbgColor.'>'.$categoryTitle.'</td><td width="70%"'.$rowBbgColor.'>'.$itemIcon.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
 						}
 
 					}
@@ -1238,13 +1287,14 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		Output
 	 */
 	function getBrowseableFolderList ($path, $folderParam='SET[tx_dam_folder]') {
+		global $TYPO3_CONF_VARS;
 
 		$content = '';
 
 		require_once (PATH_txdam.'lib/class.tx_dam_filebrowser.php');
 		$filelist = t3lib_div::makeInstance('tx_dam_filebrowser');
 		$filelist->SOBE = &$this;
-		$this->paramName['setFolder'] = $folderParam;
+		$filelist->paramName['setFolder'] = $folderParam;
 		$content.= $filelist->getBrowseableFolderList(tx_dam::path_makeAbsolute($path));
 
 		return $content;
@@ -1281,7 +1331,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$content = '';
 		$content.= '<div style="display:block; margin: 1em 0 1em 0;">
-						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;">
+						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;" style="white-space:nowrap;">
 						<img id="'.$id.'_toggle" '.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_right.gif', 'width="11" height="10"').' alt="" />
 						'.$title.'</a></div>';
 
@@ -1370,7 +1420,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function btn_removeRecFromSel($table, $uid, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
 
-		$params = array('SLCMD[DESELECT_ID]['.$table.']['.$uid.']' => '1');
+		$params = array('SLCMD[NOT][txdamRecords]['.$uid.']' => '1');
 		$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('deselect').'" class="absmiddle" '.$addAttrib.' alt="" />';
 		$content = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript($params)).'">'.$icon.'</a>';
 
@@ -1411,14 +1461,49 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function icon_infoRec($table, $uid, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
 
-		$params = array();
-		$params['edit['.$table.']['.$uid.']'] = 'edit';
-		$params = t3lib_div::implodeArrayForUrl('', $params);
 		$onClick = 'top.launchView(\''.$table.'\','.$uid.',\''.$BACK_PATH.'\');return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif"', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
 					'</a>';
 
+		return $content;
+	}
+
+	/**
+	 * Button: file info
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param	string		$addAttrib Attribute to be added to the icon
+	 * @return	string		Button HTML code
+	 */
+	function icon_infoFile($fileInfo, $addAttrib='')	{
+		global $LANG, $BACK_PATH;
+
+		$filepath = tx_dam::file_absolutePath($fileInfo);
+		$onClick = 'top.launchView(\''.$filepath.'\',\'\',\''.$BACK_PATH.'\');return false;';
+		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
+					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+					'</a>';
+
+		return $content;
+	}
+
+	/**
+	 * Button: go back
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @return	string		Button HTML code
+	 */
+	function btn_infoFile($fileInfo)	{
+		global $LANG, $BACK_PATH;
+
+		$filepath = tx_dam::file_absolutePath($fileInfo);
+		$onClick = 'top.launchView(\''.$filepath.'\',\'\',\''.$BACK_PATH.'\');return false;';
+		$aTagAttribute = ' onclick="'.htmlspecialchars($onClick).'"';
+		$label = $LANG->sL('LLL:EXT:lang/locallang_core.xml:cm.info',1);
+		$iconImgTag = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' alt="" />';
+		$hoverText = $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1);
+		$content = $this->button ($iconImgTag, $label, $hoverText, $url='#', $aTagAttribute);
 		return $content;
 	}
 
@@ -1515,7 +1600,11 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		}
 
 			// Create icon for record
-		$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');
+		if ($refTable=='tx_dam') {
+			$elementIcon = tx_dam_guiFunc::icon_getFileTypeImgTag($row, 'class="c-recicon" align="top" title="'.$iconAltText.'"', false);
+		} else {
+			$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');
+		}
 
 			// Return item with edit link
 		return tx_dam_SCbase::wrapLink_edit($elementIcon. $elementTitle, $refTable, $row['uid']);

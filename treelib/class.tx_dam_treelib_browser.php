@@ -25,7 +25,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
-
+ * 
  * @author	René Fritz <r.fritz@colorcube.de>
  * @package DAM-Treelib
  */
@@ -142,7 +142,7 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function main()	{
-		global $TCA, $BACK_PATH;
+		global $TCA, $BACK_PATH, $TYPO3_CONF_VARS;
 
 			// get the data of the field - the currently selected items
 		$row = $this->getRecordProcessed();
@@ -186,6 +186,7 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 	 * @return array Record
 	 */
 	function getRecordProcessed () {
+		global $TYPO3_CONF_VARS;
 
 			// This will render MM relation fields in the correct way.
 			// Read the whole record, which is not needed, but there's no other way.

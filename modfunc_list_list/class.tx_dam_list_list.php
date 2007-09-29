@@ -280,7 +280,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			$dblist->setPointer($this->pObj->selection->pointer);
 			$dblist->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_list_list_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_list_list_sortRev']);
 			$dblist->setParameterNames('SET[tx_dam_list_list_sortField]', 'SET[tx_dam_list_list_sortRev]');
-
+			$this->pObj->doc->JScodeArray['dblist-JsCode'] = $dblist->getJsCode();
 
 
 
@@ -355,7 +355,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		}
 
 
-		#TODO??
+		// TODO ??
 		// Add pseudo "control" fields
 		#		$fields['_PATH_'] = '_PATH_';
 		#		$fields['_LOCALIZATION_'] = '_LOCALIZATION_';

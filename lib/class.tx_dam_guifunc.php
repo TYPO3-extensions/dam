@@ -37,7 +37,7 @@
  *
  *              SECTION: icons
  *  102:     function icon_getFileTypeImgTag($infoArr, $addAttrib='')
- *  118:     function icon_getMediaType($infoArr, $addAttrib='', $addTitleAttr=true)
+ *  118:     function icon_getMediaTypeImgTag($infoArr, $addAttrib='', $addTitleAttr=true)
  *  143:     function icon_getTitleAttribute($infoArr, $displayItems='')
  *  159:     function convert_mediaType($type)
  *
@@ -95,11 +95,15 @@ class tx_dam_guiFunc {
 	 * A title attribute will be added by default.
 	 *
 	 * @param	array		$infoArr Record/info array: eg. $pathInfo = tx_dam::path_getInfo($path)
-	 * @param	boolean		$addAttrib Additional attributes for the image tag.
+	 * @param	mixed		$addAttrib Additional attributes for the image tag.
 	 * @return	string		Icon img tag
 	 * @see tx_dam::path_getInfo()
 	 */
 	function icon_getFileTypeImgTag($infoArr, $addAttrib='')	{
+
+		if (is_array($addAttrib)) {
+			$addAttrib = tx_dam_guifunc::tools_implodeAttributes($addAttrib);
+		}
 		if (strpos($addAttrib, 'title=')===false) {
 			$addAttrib .= tx_dam_guiFunc::icon_getTitleAttribute($infoArr);
 		}
@@ -111,21 +115,33 @@ class tx_dam_guiFunc {
 	 * Returns a big media type icon from a record
 	 *
 	 * @param	array		$infoArr Record/info array: eg. $pathInfo = tx_dam::path_getInfo($path)
-	 * @param	boolean		$addAttrib Additional attributes for the image tag.
+	 * @param	mixed		$addAttrib Additional attributes for the image tag.
 	 * @param	boolean		$addTitleAttr If set a title attribute will be added
 	 * @return	string		Rendered icon img tag
 	 */
-	function icon_getMediaType($infoArr, $addAttrib='', $addTitleAttr=true) {
-		global $LANG;
+	function icon_getMediaTypeImgTag($infoArr, $addAttrib='', $addTitleAttr=true) {
+		global $LANG, $TYPO3_CONF_VARS;
+
+		require_once(PATH_t3lib.'class.t3lib_iconworks.php');
+
+		if (is_array($addAttrib)) {
+			$addAttrib = tx_dam_guifunc::tools_implodeAttributes($addAttrib);
+		}
 
 		if($addTitleAttr) {
-			$label = t3lib_befunc::getLabelFromItemlist('tx_dam', 'media_type', $infoArr['media_type']);
+			$label = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'media_type', $infoArr['media_type']);
 			$label = strtoupper(trim($LANG->sL($label)));
 			$addAttrib .= ' title="'.htmlspecialchars($label).'"';
 		}
 
 		$iconname = tx_dam::convert_mediaType($infoArr['media_type']);
-		$iconfile = PATH_txdam_rel.'i/media-'.$iconname.'.png';
+		$iconfile = 'i/media-'.$iconname.'.png';
+
+ 		if (TYPO3_MODE=='FE') {
+			$iconfile = PATH_txdam_siteRel.$iconfile;
+		} else {
+			$iconfile = PATH_txdam_rel.$iconfile;
+		}
 
 		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconfile, 'width="29" height="27"').' '.trim($addAttrib).' alt="" />';
 
@@ -160,7 +176,7 @@ class tx_dam_guiFunc {
 		global $LANG;
 
 		if(!strcmp($type,intval($type)) AND is_object($LANG)) {
-			$type = t3lib_befunc::getLabelFromItemlist('tx_dam', 'media_type', $type);
+			$type = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'media_type', $type);
 			$type = $LANG->sL($type);
 		} else {
 				// convert to code
@@ -189,13 +205,14 @@ class tx_dam_guiFunc {
 	function getMediaTypeIconBox($infoArr, $iconPlusType=TRUE) {
 		global $LANG, $BACK_PATH;
 
-		$label = t3lib_befunc::getLabelFromItemlist('tx_dam', 'media_type', $infoArr['media_type']);
+		$label = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'media_type', $infoArr['media_type']);
 		$label = strtoupper(trim($LANG->sL($label)));
 
-		$icon = tx_dam_guiFunc::icon_getMediaType($infoArr, '', !$iconPlusType);
+		$icon = tx_dam_guiFunc::icon_getMediaTypeImgTag($infoArr, '', !$iconPlusType);
 
 		if($iconPlusType) {
-			$icon = '<div class="txdam-typeiconbox" style="text-align:center;">'.$icon.'<br /><span style="color: #555;">'.htmlspecialchars($label).'</span></div>';
+			#$icon = '<div class="txdam-typeiconbox" style="display:compact;"><div class="txdam-typeiconbox-wrapper" style="text-align:center;">'.$icon.'<br /><span style="color:#555;">'.htmlspecialchars($label).'</span></div></div>';
+			$icon = '<div class="txdam-typeiconbox-wrapper" style="text-align:center;">'.$icon.'<br /><span style="color:#555;">'.htmlspecialchars($label).'</span></div>';
 		}
 
 		return $icon;
@@ -215,10 +232,13 @@ class tx_dam_guiFunc {
 	/**
 	 * Returns a table with some info and a thumbnail from a record
 	 *
-	 * @param	array		Record array
+	 * @param	array		$row Record array
+	 * @param	string		$extraContentLeft Extra HTML content for left column
+	 * @param	string		$extraContentMiddle Extra HTML content for middle column
+	 * @param	string		$extraContentRight Extra HTML content for right column
 	 * @return	string		HTML content
 	 */
-	function getRecordInfoHeader($row) {
+	function getRecordInfoHeader($row, $extraContentLeft='', $extraContentMiddle='', $extraContentRight='') {
 		global $LANG;
 
 		$content = '';
@@ -228,12 +248,12 @@ class tx_dam_guiFunc {
 		$content.= '
 			<table border="0" cellpadding="0" cellspacing="0" width="100%">
 				<tr>
-					<td valign="top" width="1%">'.$icon.'</td>
+					<td valign="top" width="1%" align="center">'.$icon.'<br />'.$extraContentLeft.'</td>
 					<td valign="top" align="left" style="padding-left:20px;">';
-
-		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.title',1).'</strong><br />'.
-					htmlspecialchars($row['title']).'</div>';
-
+		if (isset($row['title'])) {
+			$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.title',1).'</strong><br />'.
+						htmlspecialchars($row['title']).'</div>';
+		}
 		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',1).'</strong><br />'.
 					htmlspecialchars($row['file_name']).'</div>';
 
@@ -242,19 +262,19 @@ class tx_dam_guiFunc {
 
 		if ($row['media_type'] == TXDAM_mtype_image) {
 			$out = '';
-			$out.= $row['hpixels']? $row['hpixels'].'x'.$row['vpixels'].' px, ' :'';
+			$out.= $row['hpixels'] ? $row['hpixels'].'x'.$row['vpixels'].' px, ' : '';
 			$out.= t3lib_div::formatSize($row['file_size']);
-			$out.= $row['color_space'] ? ', '.$LANG->sL(t3lib_befunc::getLabelFromItemlist('tx_dam','color_space',$row['color_space'])) : '';
+			$out.= $row['color_space'] ? ', '.$LANG->sL(tx_dam_guifunc::getLabelFromItemlist('tx_dam','color_space',$row['color_space'])) : '';
 
 			$content.=	'<div style="margin-bottom:7px;"><nobr>'.htmlspecialchars($out).'</nobr></div>';
 		}
 
-		$content.= '
+		$content.= $extraContentMiddle.'
 					</td>';
 
 		$thumb = tx_dam_guiFunc::getDia($row, 115, 5, $showElements='', $onClick=NULL, $makeIcon=FALSE);
 		$content.= '
-					<td valign="top" width="1%" style="padding-left:25px;">'.$thumb.'</td>';
+					<td valign="top" width="1%" style="padding-left:25px;">'.$thumb.$extraContentRight.'</td>';
 
 		$content.= '
 				</tr>
@@ -264,7 +284,130 @@ class tx_dam_guiFunc {
 	}
 
 
+	/**
+	 * Returns a table with some info and a thumbnail from a record
+	 * May display additional buttons/icons like info button
+	 *
+	 * @param	array		$row Record array
+	 * @param	string		$extraContentLeft Extra HTML content for left column
+	 * @param	string		$extraContentMiddle Extra HTML content for middle column
+	 * @param	string		$extraContentRight Extra HTML content for right column
+	 * @return	string		HTML content
+	 */
+	function getRecordInfoHeaderExtra($row, $extraContentLeft='', $extraContentMiddle='', $extraContentRight='') {
+		$extraContentLeft = $GLOBALS['SOBE']->btn_infoFile($row).'<br />'.$extraContentLeft;
+		return tx_dam_guiFunc::getRecordInfoHeader($row, $extraContentLeft, $extraContentMiddle, $extraContentRight);
+	}
 
+
+	/**
+	 * Render a table with referenced records
+	 *
+	 * @param 	mixed 	$uidList List of media uid's to get the references for
+	 * @param	string	$displayColumns list of elements to display in the table. Available: page, content_element, content_age, media_element, media_element_age
+	 * @return	string		Rendered Table
+	 */
+	function getReferencesTable($uidList, $displayColumns='page,content_element')   {
+		global $BACK_PATH, $BE_USER, $LANG, $TCA;
+
+		$displayColumns = explode(',', $displayColumns);
+
+			// init table layout
+		$refTableLayout = array(
+			'table' => Array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
+			'0' => array(
+				'defCol' => Array('<th nowrap="nowrap" class="bgColor5">','</th>')
+			),
+			'defRow' => array(
+				'defCol' => Array('<td nowrap="nowrap" class="bgColor4">','</td>'),
+			),
+		);
+
+		$cTable=array();
+		$tr = 0;
+		$td = 0;
+
+		foreach ($displayColumns as $element) {
+			$cTable[$tr][$td++] = $LANG->getLL($element, 1).':';
+		}
+		$tr++;
+
+
+		$result = tx_dam_db::getMediaUsageReferences($uidList);
+
+		foreach ($result as $damRow) {
+
+			$refTable = $damRow['tablenames'];
+
+			if ($refTable) {
+
+					// get main fields from TCA
+				$selectFields = tx_dam_db::getTCAFieldListArray($refTable, TRUE);
+				$selectFields = tx_dam_db::compileFieldList($refTable, $selectFields, FALSE);
+				$selectFields = $selectFields ? $selectFields : ($refTable.'.uid,'.$refTable.'.pid');
+
+					// Query for non-deleted tables only
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+								$selectFields,
+								$refTable,
+								$refTable.'.uid='.intval($damRow['uid_foreign']).
+									t3lib_BEfunc::deleteClause($refTable),
+								'',
+								'tstamp DESC',
+								40
+							);
+
+
+				while($refRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+
+					$pageRow = t3lib_BEfunc::getRecord('pages', $refRow['pid']);
+
+					if (is_array($pageRow)) {
+
+						$td=0;
+						foreach ($displayColumns as $element) {
+
+							switch ($element) {
+								case 'page':	// Create output item for pages record
+										$content = tx_dam_SCbase::getRecordInfoEditLink('pages', $pageRow, true);
+									break;
+
+								case 'content_element':	// Create output item for reference record
+										$content = tx_dam_SCbase::getRecordInfoEditLink($refTable, $refRow);
+									break;
+
+								case 'content_age':	// Create output text describing the age
+										$content = t3lib_BEfunc::dateTimeAge($refRow['tstamp'], 1);
+									break;
+
+								case 'media_element':	// Create output item for tx_dam record
+										$content = tx_dam_SCbase::getRecordInfoEditLink('tx_dam', $damRow);
+									break;
+
+								case 'media_element_age':	// Create output text describing the tx_dam record age
+										$content = t3lib_BEfunc::dateTimeAge($damRow['tstamp'], 1);
+									break;
+
+								default:
+									break;
+							}
+
+								// Add row to table
+							$cTable[$tr][$td++] = $content;
+						}
+						$tr++;
+					}
+				}
+			}
+		}
+
+			// Return rendered table
+		if(count($cTable) > 1){
+			return $GLOBALS['SOBE']->doc->table($cTable, $refTableLayout);
+		}
+
+		return false;
+	}
 
 
 
@@ -398,18 +541,8 @@ class tx_dam_guiFunc {
 
 		$hpixels = $row['hpixels'];
 		$vpixels = $row['vpixels'];
-
 		if ($hpixels AND $vpixels) {
-			$maxpx = max($hpixels, $vpixels);
-			$minpx = min($hpixels, $vpixels);
-			$px = intval(round($minpx * $diaSize / $maxpx));
-			if ($hpixels > $vpixels) {
-				$hpixels = $diaSize;
-				$vpixels = $px;
-			} else {
-				$hpixels = $px;
-				$vpixels = $diaSize;
-			}
+			list($hpixels, $vpixels) = tx_dam_guifunc::tools_calcThumbSize($hpixels, $vpixels, $diaSize, $diaSize);
 		} else {
 			if($hpixels > $diaSize) {
 				$hpixels = $diaSize;
@@ -421,18 +554,16 @@ class tx_dam_guiFunc {
 
 
 		$uid = $row['uid'];
-		$tooltip = str_replace("\n", '', t3lib_div::fixed_lgd_cs($row['description'], 50));
+		$imgAttributes = array();
+		$imgAttributes['title'] = str_replace("\n", '', t3lib_div::fixed_lgd_cs($row['description'], 50));
 		if ($hpixels) {
-			$attribs = ' width="'.$hpixels.'" height="'.$vpixels.'" style="margin-top:'.(ceil(($diaSize-$vpixels)/2)+$diaMargin).'px;"';
+			$imgAttributes['style'] = 'margin-top:'.(ceil(($diaSize-$vpixels)/2)+$diaMargin).'px;';
 		} else {
-			$attribs = ' style="margin-top:'.$diaMargin.'px;"';
+			$imgAttributes['style'] = 'margin-top:'.$diaMargin.'px;';
 		}
-		#$attribsIcon = ' style="margin-top:'.$diaMargin.'px;padding:'.(ceil(($diaSize-18)/2)).'px"';
-		$attribsIcon = '';
-		$thumb = tx_dam_guiFunc::thumbnail($row['file_path'].$row['file_name'], $diaSize, $tooltip, $attribs, $attribsIcon, $onClick, FALSE);
-		#$attribsIcon = ' style="margin-top:'.$diaMargin.'px;padding:'.(ceil(($diaSize-29)/2)).'px"';
-		#$thumb = $thumb ? $thumb : '<a href="#"'.$onClick.'><span'.$attribsIcon.'>'.tx_dam_guiFunc::getMediaTypeIconBox($row).'</span></a>';
 
+		$imgAttributes['onclick'] = $onClick;
+		$thumb = tx_dam_guiFunc::image_thumbnailImgTag($row, $diaSize, $imgAttributes);
 
 		if (!$makeIcon AND empty($thumb)) { return; }
 		$thumb = $thumb ? $thumb : '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.tx_dam_guiFunc::getMediaTypeIconBox($row).'</a>';
@@ -445,7 +576,7 @@ class tx_dam_guiFunc {
 			$code = strtoupper($row['file_type']).', ';
 			$code.= $row['hpixels']? $row['hpixels'].'x'.$row['vpixels'].', ' :'';
 			$code.= t3lib_div::formatSize($row['file_size']);
-			# $code.= $row['color_space'] ? ', '.$LANG->sL(t3lib_BEfunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space'])) : '';
+			# $code.= $row['color_space'] ? ', '.$LANG->sL(tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space'])) : '';
 			$descr .= '<span class="txdam-descr">'.htmlspecialchars($code).'</span>';
 		}
 		if($descr) {
@@ -486,7 +617,7 @@ class tx_dam_guiFunc {
 		$styles = '
 
 			.txdam-title, .txdam-descr {
-				font-face:verdana,sans-serif;
+				font-family:verdana,sans-serif;
 				font-size:9.5px;
 				line-height:12px;
 				margin:2px;
@@ -608,8 +739,8 @@ class tx_dam_guiFunc {
 				break;
 // TODO
 //				case '_techinfo':
-//					if ($row['media_type'] == TXDAM_mtype_image AND $row['color_space'] AND class_exists('t3lib_befunc')) {
-//						$value = t3lib_befunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space']);
+//					if ($row['media_type'] == TXDAM_mtype_image AND $row['color_space']) {
+//						$value = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'color_space', $row['color_space']);
 //						if (is_object($GLOBALS['LANG'])) {
 //							$value = $LANG->sL($value);
 //						}
@@ -669,6 +800,242 @@ class tx_dam_guiFunc {
 
 
 
+
+
+
+	/***************************************
+	 *
+	 *   image scaling and thumbs
+	 *
+	 ***************************************/
+
+
+	/**
+	 * Checks if a thumbnail can be generated for a file
+	 *
+	 * @param	array		$item	Fileinfo array
+	 * @return	boolean
+	 */
+	function image_isThumbnailPossible ($fileInfo) {
+		$thumbnailPossible = false;
+
+		if ($fileInfo['file_type']=='ttf' || t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fileInfo['file_type'])) {
+		#if( ($fileInfo['media_type']==TXDAM_mtype_image) AND t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $fileInfo['file_type'])) {
+			$thumbnailPossible = true;
+		}
+		return $thumbnailPossible;
+	}
+
+	/**
+	 * Returns a linked image-tag for thumbnail(s)
+	 * All $TYPO3_CONF_VARS[GFX][imagefile_ext] extension are made to thumbnails + ttf file (renders font-example)
+	 *
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param	string		$size Optional: $size is [w]x[h] of the thumbnail. 56 is default.
+	 * @param	string		$titleContent Optional: Used as a title= attribute content
+	 * @param	mixed		$imgAttributes Optional: is additional attributes for the image tags
+	 * @param	mixed		$iconAttributes Optional: additional attributes for the image tags for file icons
+	 * @param	string		$onClick Optional: If falso no A tag with onclick will be wrapped. If NULL top.launchView() will be used. If string it's value will be used as onclick value.
+	 * @param	boolean		$makeFileIcon If true a file icon will be returned if no thumbnail is possible
+	 * @return	string		Thumbnail image tag.
+	 * @deprecated version - 23.05.2006
+	 */
+	function thumbnail($fileInfo, $size='', $titleContent='', $imgAttributes='', $iconAttributes='', $onClick=NULL, $makeFileIcon=TRUE)	{
+
+			// get some file information
+		if (!is_array($fileInfo)) {
+			$fileInfo = tx_dam::file_compileInfo($fileInfo);
+		}
+
+		if (!is_array($imgAttributes)) {
+			$imgAttributes = tx_dam_guifunc::tools_explodeAttributes($imgAttributes);
+		}
+		$titleContent = $titleContent ? $titleContent : ($imgAttributes['title'] ? $imgAttributes['title'] : tx_dam_guiFunc::meta_compileHoverText($fileInfo));
+		$imgAttributes['title'] = $titleContent;
+
+		if (!($onClick===false)) {
+			$filepath = tx_dam::file_absolutePath($fileInfo);
+			$imgAttributes['onclick'] = !is_null($onClick) ? $onClick : ((TYPO3_MODE=='BE') ? 'top.launchView(\''.$filepath.'\',\'\',\''.$GLOBALS['BACK_PATH'].'\');return false;' : false);
+		}
+
+		if ($makeFileIcon) {
+			if (!is_array($iconAttributes)) {
+				$iconAttributes = tx_dam_guifunc::tools_explodeAttributes($iconAttributes);
+			}
+			$iconAttributes['title'] = isset($iconAttributes['title']) ? $iconAttributes['title'] : $titleContent;
+		}
+
+		$thumbnail = tx_dam_guiFunc::image_thumbnailIconImgTag($fileInfo, $size, $imgAttributes, $iconAttributes, $makeFileIcon);
+
+		return $thumbnail;
+	}
+
+
+	/**
+	 * Returns a image-tag for thumbnail(s)
+	 * A file icon will be returned if no thumbnail is possible
+	 * If 'href' and/or 'onlick' is set as attributes a A tag will be wrapped around with these.
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param	string		$size Optional: $size is [w]x[h] of the thumbnail. 56 is default.
+	 * @param	mixed		$imgAttributes Optional: is additional attributes for the image tags
+	 * @param	mixed		$iconAttributes Optional: additional attributes for the image tags for file icons
+	 * @param	string		$onClick Optional: If falso no A tag with onclick will be wrapped. If NULL top.launchView() will be used. If string it's value will be used as onclick value.
+	 * @param	boolean		$makeFileIcon If true a file icon will be returned if no thumbnail is possible
+	 * @return	string		Thumbnail image tag.
+	 */
+	function image_thumbnailIconImgTag($fileInfo, $size='', $imgAttributes='', $iconAttributes='', $makeFileIcon=TRUE)	{
+		$thumbnail = '';
+
+		if (!is_array($imgAttributes)) {
+			$imgAttributes = tx_dam_guifunc::tools_explodeAttributes($imgAttributes);
+		}
+		$href = $imgAttributes['href'];
+		$onclick = $imgAttributes['onclick'];
+		unset($imgAttributes['href']);
+		unset($imgAttributes['onclick']);
+
+		$thumbnail = tx_dam_guiFunc::image_thumbnailImgTag($fileInfo, $size, $imgAttributes);
+
+		if (!$thumbnail AND $makeFileIcon) {
+
+			if (!is_array($iconAttributes)) {
+				$iconAttributes = tx_dam_guifunc::tools_explodeAttributes($iconAttributes);
+			}
+			$href = $iconAttributes['href'];
+			$onclick = $iconAttributes['onclick'];
+			unset($iconAttributes['href']);
+			unset($iconAttributes['onclick']);
+			$fileType = tx_dam::file_getType($fileInfo);
+			$thumbnail = tx_dam_guiFunc::icon_getFileTypeImgTag($fileType, $iconAttributes);
+		}
+
+		if ($thumbnail AND ($onclick OR $href)) {
+			$href = $href ? $href : '#';
+			$thumbnail = '<a href="'.htmlspecialchars($href).'" onclick="'.htmlspecialchars($onclick).'">'.$thumbnail.'</a>';
+		}
+
+		return $thumbnail;
+	}
+
+
+	/**
+	 * Returns a image-tag for thumbnail(s)
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param	string		$size Optional: $size is [w]x[h] of the thumbnail. 56 is default.
+	 * @param	mixed		$imgAttributes additional attributes for the image tag
+	 * @return	string		Thumbnail image tag.
+	 */
+	function image_thumbnailImgTag($fileInfo, $size='', $imgAttributes='')	{
+
+		$thumbnail = '';
+
+			// get some file information
+		if (!is_array($fileInfo)) {
+			$fileInfo = tx_dam::file_compileInfo($fileInfo);
+		}
+		$filepath = tx_dam::file_absolutePath($fileInfo);
+
+		if ($filepath)	{
+
+			$fileType = tx_dam::file_getType($fileInfo);
+
+
+			if (!is_array($imgAttributes)) {
+				$imgAttributes = tx_dam_guifunc::tools_explodeAttributes($imgAttributes);
+			}
+
+			$imgAttributes['alt'] = isset($imgAttributes['alt']) ? $imgAttributes['alt'] : ($fileInfo['alt_text'] ? $fileInfo['alt_text'] : $fileInfo['title']);
+			$imgAttributes['title'] = isset($imgAttributes['title']) ? $imgAttributes['title'] : $imgAttributes['alt'];
+
+
+				// Check and parse the size parameter
+			$size = trim($size);
+			list($sizeX, $sizeY) = tx_dam_guifunc::tools_parseThumbSize($size);
+			$sizeMax = $max = max($sizeX, $sizeY);
+
+
+				// get maximum image pixel size
+			$maxImageSize = 0;
+			if ($fileInfo['hpixels']) {
+				$maxImageSize = max($fileInfo['hpixels'], $fileInfo['vpixels']);
+
+			} elseif (t3lib_div::inList('gif,jpg,png', $fileType['file_type'])) {
+				if (is_array($imgInfo = @getimagesize($filepath)))	{
+					$fileInfo['hpixels'] = $imgInfo[0];
+					$fileInfo['vpixels'] = $imgInfo[1];
+					$maxImageSize = max($fileInfo['hpixels'], $fileInfo['vpixels']);
+				}
+			}
+
+
+				// calculate the thumbnail size
+			$useOriginalImage = false;
+			if ($maxImageSize AND $maxImageSize<=$sizeMax)	{
+				$useOriginalImage = true;
+				$thumbSizeX = $fileInfo['hpixels'];
+				$thumbSizeY = $fileInfo['vpixels'];
+				$imgAttributes['width'] = $thumbSizeX;
+				$imgAttributes['height'] = $thumbSizeY;
+
+			} elseif ($maxImageSize) {
+				list($thumbSizeX, $thumbSizeY) = tx_dam_guifunc::tools_calcThumbSize($fileInfo['hpixels'], $fileInfo['vpixels'], $sizeX, $sizeY);
+				$imgAttributes['width'] = $thumbSizeX;
+				$imgAttributes['height'] = $thumbSizeY;
+				$size = $thumbSizeX.'x'.$thumbSizeY;
+
+			} elseif (tx_dam_guifunc::image_isThumbnailPossible($fileType)) {
+				$thumbSizeX = $sizeX;
+				$thumbSizeY = $sizeY;
+// TODO calc width/height from cm size or similar
+
+			} else {
+				$thumbSizeX = 0;
+				$thumbSizeY = 0;
+			}
+
+
+
+			if ($thumbSizeX) {
+
+				$imgAttributes = tx_dam_guifunc::tools_implodeAttributes($imgAttributes);
+
+					// use the original image if it's size fits to the thumbnail size
+				if ($useOriginalImage)	{
+					if (TYPO3_MODE=='FE') {
+						$filepath = preg_replace ('#^'.preg_quote(PATH_site).'#', '', $filepath);
+					} else {
+						$filepath = $GLOBALS['BACK_PATH'].'../'.preg_replace ('#^'.preg_quote(PATH_site).'#', '', $filepath);
+					}
+					$thumbnail = '<img src="'.htmlspecialchars($filepath).'"'.$imgAttributes.' />';
+
+					// use thumbs.php script
+				} elseif (tx_dam_guifunc::image_isThumbnailPossible($fileType)) {
+
+					$url = 'thumbs.php?';
+					$url .= '&dummy='.$GLOBALS['EXEC_TIME'];
+					$url .= '&file='.rawurlencode($filepath);
+					$url .= $size?'&size='.$size:'';
+
+			 		if (TYPO3_MODE=='FE') {
+						$url = TYPO3_mainDir.$url;
+					} else {
+						$url = $GLOBALS['BACK_PATH'].$url;
+					}
+					$thumbnail = '<img src="'.htmlspecialchars($url).'"'.$imgAttributes.' />';
+				}
+				else { $thumbnail = 'no thumb: '.htmlspecialchars($filepath); }
+			}
+		}
+
+		return $thumbnail;
+	}
+
+
+
+
 	/***************************************
 	 *
 	 *   Tools - used internally but might be useful for general usage
@@ -676,17 +1043,31 @@ class tx_dam_guiFunc {
 	 ***************************************/
 
 
+	/**
+	 * Returns the TCA label for a field in the current language with the $LANG object
+	 *
+	 * @param string $field
+	 * @param boolean $hsc
+	 * @return string Field label
+	 */
+	function getFieldLabel ($field, $hsc=true) {
+		global $LANG, $TCA;
+
+		t3lib_div::loadTCA('tx_dam');
+		return $LANG->sl($TCA['tx_dam']['columns'][$field]['label'], $hsc);
+	}
+
 
 	/**
 	 * Format content of various types if $format is set to date, filesize, ...
 	 *
 	 * @param	string		$itemValue The value to display
-	 * @param	array		$format Configuration for the display
+	 * @param	array		$format Define format type like: date, datetime, truncate, ...
 	 * @param	string		$config Additional configuration options for the format type
 	 * @return	string		Formatted content
 	 * @see t3lib_tceforms::formatValue()
 	 */
-	function tools_formatValue ($itemValue, $format, $config)	{
+	function tools_formatValue ($itemValue, $format, $config='')	{
 		switch($format)	{
 			case 'date':
 				$config = $config ? $config : 'd-m-Y';
@@ -695,7 +1076,7 @@ class tx_dam_guiFunc {
 			case 'dateage':
 				$config = $config ? $config : 'd-m-Y';
 				$itemValue = date($config,$itemValue);
-				$itemValue .= ' ('.t3lib_BEfunc::calcAge((time()-$itemValue), $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')).')';
+				$itemValue .= ' ('.tx_dam_guifunc::tools_calcAge((time()-$itemValue), $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears')).')';
 				break;
 			case 'datetime':	// compatibility with "eval" (type "input")
 				$itemValue = date('H:i d-m-Y',$itemValue);
@@ -726,10 +1107,10 @@ class tx_dam_guiFunc {
 				$itemValue = md5($itemValue);
 				break;
 			case 'filesize':
-				$itemValue = t3lib_div::formatSize(intval($itemValue)).'b';
+				$itemValue = t3lib_div::formatSize(intval($itemValue)).'B';
 				break;
 			case 'filesize+bytes':
-				$itemValue = t3lib_div::formatSize(intval($itemValue)).'b';
+				$itemValue = t3lib_div::formatSize(intval($itemValue)).'B';
 				$itemValue .= ' ('.$itemValue.')';
 				break;
 			case 'truncate':
@@ -742,6 +1123,24 @@ class tx_dam_guiFunc {
 			case 'strtolower':
 				$itemValue = strtolower($itemValue);
 				break;
+			case 'shorten':
+				$config = $config ? $config : 20;
+				if (strlen($itemValue) > $config) {
+					if (is_object($GLOBALS['LANG']))	{
+						$itemValue = $GLOBALS['LANG']->csConvObj->crop($GLOBALS['LANG']->charSet, $itemValue, $config-3, '');
+					} else {
+						$itemValue = t3lib_div::fixed_lgd($itemValue, $config-3, '');
+					}
+
+					$pos = strrpos($itemValue, ' ');
+					if ($pos > intval(strlen($itemValue)*0.7)) {
+						$itemValue = substr($itemValue, 0 , $pos);
+						$itemValue = $itemValue. ' ...';
+					} else {
+						$itemValue = $itemValue. '...';
+					}
+				}
+				break;
 			default:
 			break;
 		}
@@ -749,95 +1148,162 @@ class tx_dam_guiFunc {
 		return $itemValue;
 	}
 
-
-// TODO cleeaaan up thumbnail()
-
-
 	/**
-	 * Returns a linked image-tag for thumbnail(s)
-	 * All $TYPO3_CONF_VARS[GFX][imagefile_ext] extension are made to thumbnails + ttf file (renders font-example)
-	 * Thumbsnails are linked to the show_item.php script which will display further details.
+	 * Returns the "age" in minutes / hours / days / years of the number of $seconds inputted.
+	 * Same as in t3lib_befunc (put here for FE usage).
 	 *
-	 * Usage:
-	 *
-	 * @param	string		File name with path relative to PATH_site or absolute
-	 * @param	mixed		Optional: $size is [w]x[h] of the thumbnail. 56 is default.
-	 * @param	string		Optional: Used as string for the title= attribute
-	 * @param	string		Optional: $attribs is additional attributes for the image tags
-	 * @param	string		Optional: additional attributes for the image tags for file icons
-	 * @param	string		Back path prefix for image tag src="" field. $BACK_PATH is default.
-	 * @param	boolean		$makeFileIcon: ...
-	 * @param	string		$backPath: ...
-	 * @return	string		Thumbnail image tag.
+	 * @param	integer		$seconds could be the difference of a certain timestamp and time()
+	 * @param	string		$labels should be something like ' min| hrs| days| yrs'. This value is typically delivered by this function call: $GLOBALS["LANG"]->sL("LLL:EXT:lang/locallang_core.php:labels.minutesHoursDaysYears")
+	 * @return	string		Formatted time
 	 */
-	function thumbnail($theFile, $size='', $title='', $attribs='', $attribsIcon='', $onClick=NULL, $makeFileIcon=TRUE, $backPath='')	{
-		global $BACK_PATH;
-
-		$backPath = $backPath ? $backPath : $BACK_PATH;
-		$thumbScript='thumbs.php';
-		$title = $title? ' title="'.htmlspecialchars($title).'"' : '';
-		$attribs = $attribs ? ' '.$attribs : '';
-		$attribsIcon = $attribsIcon ? ' '.$attribsIcon : $attribs;
-
-			// Check and parse the size parameter
-		$sizeParts=array();
-		if ($size = trim($size)) {
-			$sizeParts = explode('x', $size.'x'.$size);
-			if(!intval($sizeParts[0])) $size='';
+	function tools_calcAge($seconds, $labels='min|hrs|days|yrs')	{
+		$labelArr = explode('|' ,$labels);
+		$prefix = '';
+		if ($seconds<0)	{$prefix='-'; $seconds=abs($seconds);}
+		if ($seconds<3600)	{
+			$seconds = round ($seconds/60).' '.trim($labelArr[0]);
+		} elseif ($seconds<24*3600)	{
+			$seconds = round ($seconds/3600).' '.trim($labelArr[1]);
+		} elseif ($seconds<365*24*3600)	{
+			$seconds = round ($seconds/(24*3600)).' '.trim($labelArr[2]);
+		} else {
+			$seconds = round ($seconds/(365*24*3600)).' '.trim($labelArr[3]);
 		}
-
-		$thumbData='';
-
-
-		$filepath = (t3lib_div::isAbsPath($theFile)?'':'../').$theFile;
-
-		if ($filepath)	{
-			$fI = t3lib_div::split_fileref($theFile);
-			$ext = $fI['fileext'];
-			$max=0;
-
-
-$uploaddir = '';
-			if (t3lib_div::inList('gif,jpg,png',$ext)) {
-				$imgInfo=@getimagesize(PATH_site.$uploaddir.$theFile);
-				if (is_array($imgInfo))	{$max = max($imgInfo[0],$imgInfo[1]);}
-			}
-				// use the original image if it's size fits to the thumbnail size
-			if ($max && $max<=(count($sizeParts)&&max($sizeParts)?max($sizeParts):56))	{
-				$thumbData = '<img src="'.$backPath.$filepath.'" '.$imgInfo[3].' border="0"'.$title.$attribs.' alt="" />';
-
-			} elseif ($ext=='ttf' || t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],$ext)) {
-				$params = '&file='.rawurlencode($filepath);
-				$params.= $size?'&size='.$size:'';
-				$url = $thumbScript.'?&dummy='.$GLOBALS['EXEC_TIME'].$params;
-				$thumbData = '<img src="'.$backPath.$url.'" border="0"'.$title.$attribs.' alt="" />';
-
-			} elseif($makeFileIcon) {
-				$icon = t3lib_BEfunc::getFileIcon($ext);
-				$url = 'gfx/fileicons/'.$icon;
-				$thumbData = '<img src="'.$backPath.$url.'" border="0"'.$title.$attribsIcon.' alt="" />';
-			}
-
-			$onClick = !is_null($onClick) ? $onClick : 'top.launchView(\''.$filepath.'\',\'\',\''.$backPath.'\');return false;';
-			if ($thumbData AND $onClick) {
-				$thumbData = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.$thumbData.'</a>';
-			}
-		}
-
-		return $thumbData;
+		return $prefix.$seconds;
 	}
 
 
-					// Create link to showing details about the file in a window:
-//		if (true /*popup*/) {
-//			$onClick='top.launchView(\''.$fI['file_name_absolute'].'\',\'\',\''.$GLOBALS['BACK_PATH'].'\');return false;';
-//			$ATag_info ='<a href="#" onclick="'.htmlspecialchars($onClick).'">';
-//		} else {
-//			$Ahref = $GLOBALS['BACK_PATH'].'show_item.php?table='.rawurlencode($fI['file_name_absolute']).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
-//			$ATag_info = '<a href="'.htmlspecialchars($Ahref).'">';
-//		}
+	/**
+	 * Convert a text thumbnail size "default, icon, xx-small, x-small, small, medium, large, x-large, xx-large" into pixel sizes.
+	 *
+	 * @param	string $size Image size
+	 * @return array array($sizeX, $sizeY);
+	 */
+	function tools_convertThumbSize ($size) {
+		$thumbSizes = tx_dam_guifunc::tools_getThumbSizes();
+		$size = $thumbSizes[$size];
+		if (!$size) $size = $thumbSizes['default'];
+		list($sizeX, $sizeY) = explode('x', $size.'x'.$size);
+		return array($sizeX, $sizeY);
+	}
 
 
+	/**
+	 * Returns an array with thumbnail sizes
+	 *
+	 * @param	string $mode Wanted TYPO3_MODE
+	 * @return array
+	 */
+	function tools_getThumbSizes ($mode=TYPO3_MODE) {
+		return $GLOBALS['T3_VAR']['ext']['dam']['thumbsizes'][$mode];
+	}
+
+
+	/**
+	 * Check and parse the size parameter like '64x64'
+	 *
+	 * @param	string $size Image size
+	 * @return array array($sizeX, $sizeY);
+	 */
+	function tools_parseThumbSize ($size) {
+		$size = trim($size);
+		list($sizeX, $sizeY) = explode('x', $size.'x'.$size);
+		if(!intval($sizeX)) list($sizeX, $sizeY) = tx_dam_guifunc::tools_convertThumbSize($size);
+		return array($sizeX, $sizeY);
+	}
+
+
+	/**
+	 * Calculate a thumbnail size
+	 *
+	 * @param	integer $sourceX Source image size
+	 * @param	integer $sourceY Source image size
+	 * @param	integer $destMaxX Destination maximum image size
+	 * @param	integer $destMaxY Destination maximum image size
+	 * @return array Destination image size: $thumbSizeX, $thumbSizeY
+	 */
+	function tools_calcThumbSize($sourceX, $sourceY, $destMaxX, $destMaxY) {
+		if ($sourceX>$sourceY) {
+			$thumbSizeX = $destMaxX;
+			$thumbSizeY = intval(round($sourceY*$destMaxX/$sourceX));
+		} else {
+			$thumbSizeX = intval(round($sourceX*$destMaxY/$sourceY));
+			$thumbSizeY = $destMaxY;
+		}
+		return array($thumbSizeX, $thumbSizeY);
+	}
+
+
+	/**
+	 * Explode a string into a HTML tags attributes and it's values
+	 *
+	 * @param 	string 	$attributeString HTML tag or it's attributes
+	 * @return array Attribute/value pairs
+	 */
+	function tools_explodeAttributes($attributeString) {
+		$attributes = array();
+		$attributeMatches = array();
+		preg_match_all('# ([\w]+)="([^"]*)"#', $attributeString, $attributeMatches);
+		if(count($attributeMatches[1])) {
+			$attributes = array_combine($attributeMatches[1], $attributeMatches[2]);
+		}
+		return $attributes;
+	}
+
+
+
+	/**
+	 * Implode aa array into a string to be used in HTML tags as attributes and it's values
+	 *
+	 * @param 	array 	$attributes Attribute name/value pairs
+	 * @param 	boolean $hsc If set (default) all values will be htmlspecialchars()
+	 * @return string 	attributes
+	 */
+	function tools_implodeAttributes($attributes, $hsc=true) {
+		$attributeString = '';
+		foreach($attributes as $name => $value) {
+			$attributeString .= ' '.$name.'="'.($hsc ? htmlspecialchars($value) : $value).'"';
+		}
+		return $attributeString;
+	}
+
+
+
+
+
+	/***************************************
+	 *
+	 *   Misc stuff
+	 *
+	 ***************************************/
+
+
+
+
+	/**
+	 * Returns the label of the first found entry in an "items" array from $TCA (tablename=$table/fieldname=$col) where the value is $key
+	 * Same as in t3lib_befunc (put here for FE usage).
+	 *
+	 * @param	string		Table name, present in $TCA
+	 * @param	string		Field name, present in $TCA
+	 * @param	string		items-array value to match
+	 * @return	string		Label for item entry
+	 */
+	function getLabelFromItemlist($table,$col,$key)	{
+		global $TCA;
+			// Load full TCA for $table
+		t3lib_div::loadTCA($table);
+
+			// Check, if there is an "items" array:
+		if (is_array($TCA[$table]) && is_array($TCA[$table]['columns'][$col]) && is_array($TCA[$table]['columns'][$col]['config']['items']))	{
+				// Traverse the items-array...
+			reset($TCA[$table]['columns'][$col]['config']['items']);
+			while(list($k,$v)=each($TCA[$table]['columns'][$col]['config']['items']))	{
+					// ... and return the first found label where the value was equal to $key
+				if (!strcmp($v[1],$key))	return $v[0];
+			}
+		}
+	}
 }
 
 // No XCLASS inclusion code: this class shouldn't be instantiated

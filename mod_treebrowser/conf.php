@@ -1,6 +1,6 @@
 <?php
 define('TYPO3_MOD_PATH', '../typo3conf/ext/dam/mod_treebrowser/');
-$BACK_PATH='../../../../typo3/';
+$BACK_PATH = '../../../../typo3/';
 
 $MCONF['name'] = 'dam_txdamTreeBrowser';
 $MCONF['access'] = '';

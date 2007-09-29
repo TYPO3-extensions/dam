@@ -131,6 +131,8 @@ class tx_dam_listfiles extends tx_dam_listbase {
 
 		$this->paramName['setFolder'] = 'SET[tx_dam_folder]';
 
+		$this->showIcon = true;
+
 		$this->clearColumns();
 		$this->addColumn('title', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.xml:c_file'));
 		$this->addColumn('file_type', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_file_list.xml:c_fileext'));
@@ -206,7 +208,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 				break;
 				case 'size':
 					if ($type=='file') {
-						$columns[$field] = $item[$type.'_size'];
+						$columns[$field] = (string)($item[$type.'_size']);
 					}
 					else {
 						$columns[$field] = '';
@@ -243,16 +245,16 @@ class tx_dam_listfiles extends tx_dam_listbase {
 					$columns[$field] = htmlspecialchars(t3lib_div::fixed_lgd($content, $this->titleLength));
 				break;
 			}
-			if ($columns[$field] == '') {
+			if ($columns[$field] === '') {
 				$columns[$field] = '&nbsp;';
 			}
 		}
 
 			// Thumbsnails?
 		if ($this->showThumbs AND $this->thumbnailPossible($item))	{
-			$columns['title'] .= '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail($item['file_path_absolute'].$item['file_name']).'</div>';
+			$columns['title'] .= '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail($item).'</div>';
 		}
-		if ($columns['size'] AND !$this->showDetailedSize) {
+		if (!$this->showDetailedSize) {
 			$columns['size'] = t3lib_div::formatSize($columns['size']);
 		}
 		return $columns;
@@ -362,6 +364,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 				$actionCall[$item['__type']] = t3lib_div::makeInstance('tx_dam_actionCall');
 				$actionCall[$item['__type']]->setRequest('control', array('__type' => $item['__type']), '', $GLOBALS['MCONF']['name']);
 				$actionCall[$item['__type']]->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+				$actionCall[$item['__type']]->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
 // TODO pObj exist?
 				$actionCall[$item['__type']]->setEnv('pathInfo', $this->pObj->pathInfo);
 				$actionCall[$item['__type']]->initActions(true);
@@ -403,16 +406,18 @@ class tx_dam_listfiles extends tx_dam_listbase {
 		// actions
 		//
 
+
+// FIXME use API !!!!
 		if ($this->showControls AND $pathInfo['dir_writable']) {
 			$actions = array();
 			$cmd = 'tx_dam_cmd_foldernew';
-			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&target='.rawurlencode($path).'&returnUrl='.t3lib_div::getIndpEnv('TYPO3_REQUEST_URL');
+			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 			$actions[] = '<a href="'.htmlspecialchars($script).'">'.
 						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/new_webfolder.gif', 'width="17" height="12"').' title="'.$GLOBALS['LANG']->getLL('newFolder').'" alt="" valign="top" />'.
 						'</a>';
 
 //			$cmd = 'tx_dam_cmd_filenewtextfile';
-//			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&target='.rawurlencode($path).'&returnUrl='.t3lib_div::getIndpEnv('TYPO3_REQUEST_URL');
+//			$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?CMD='.$cmd.'&folder='.rawurlencode($path).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 //			$actions[] = '<a href="'.htmlspecialchars($script).'">'.
 //						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/new_file.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('newTextFile').'" alt="" valign="top" />'.
 //						'</a>';

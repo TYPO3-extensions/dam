@@ -118,6 +118,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 		return $icon;
 	}
 
+
 	/**
 	 * Returns the short label like: Delete
 	 *
@@ -126,6 +127,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:folder');
 	}
+
 
 	/**
 	 * Returns a short description for tooltips for example like: Delete folder recursivley
@@ -145,12 +147,12 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 */
 	function _getCommand() {
 
-		$path = $this->itemInfo['dir_path_relative'];
+		$path = $this->itemInfo['dir_path_absolute'];
 
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($path);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&folder='.rawurlencode($path);
+		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
 		$commands['href'] = $script;
 
@@ -253,11 +255,12 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	 * @access private
 	 */
 	function _getCommand() {
-		$filepath = $this->itemInfo['dir_path_absolute'];
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($filepath);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
+		$path = $this->itemInfo['dir_path_absolute'];
+
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&folder='.rawurlencode($path);
+		$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
 
 		$commands['href'] = $script;
 

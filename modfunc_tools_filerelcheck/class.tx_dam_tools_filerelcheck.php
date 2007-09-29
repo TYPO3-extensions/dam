@@ -156,7 +156,8 @@ class tx_dam_tools_filerelcheck extends t3lib_extobjbase {
 			$removeUids = $outsidePathUids = array();
 
 				// Select all DAM rows:
-			$where = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr(tx_dam::path_makeRelative($path).'%', 'tx_dam');
+			$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($path), 'tx_dam');
+			$where = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
 			$damRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,file_name,file_path,file_mtime','tx_dam',$where,'','file_path,file_name,tstamp DESC',1000);
 
 				// Traverse all DAM rows and check status

@@ -90,7 +90,7 @@
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
-            <label index="tx_dam_item">Media Metadata</label>
+            <label index="tx_dam_item">Media</label>
             <label index="tx_dam_item.div_overview">Overview</label>
             <label index="tx_dam_item.div_metrics">Metrics</label>
             <label index="tx_dam_item.div_copyright">Copyright</label>
@@ -151,6 +151,7 @@
             <label index="media_type.text">Text</label>
             <label index="media_type.image">Image</label>
             <label index="media_type.audio">Audio</label>
+            <label index="media_type.video">Video</label>
             <label index="media_type.dataset">Dataset</label>
             <label index="media_type.interactive">Interactive</label>
             <label index="media_type.software">Software</label>
@@ -170,6 +171,42 @@
             <label index="tx_dam_selection.type.I.1">Fixed items</label>
             <label index="tx_dam_selection.type">Selection type:</label>
             <label index="tx_dam_selection.definition">Selection definition:</label>
+			<label index="tx_dam_log_download">Download log</label>
+            <label index="tx_dam_log_download.file_id">Media ID:</label>
+            <label index="tx_dam_log_download.protected">Protected:</label>
+            <label index="tx_dam_log_download.host">Host (IP):</label>
+            <label index="tx_dam_log_download.user_id">User ID:</label>
+            <label index="tx_dam_log_download.user_name">User:</label>
+            <label index="tx_dam_log_download.user_group">User groups:</label>
+            <label index="tx_dam_log_download.page_id">Page ID:</label>
+            <label index="tx_dam_log_download.app_id">Plugin/Application ID:</label>
+            <label index="tx_dam_log_download.typo3_mode">TYPO3 mode:</label>
+            <label index="tx_dam_log_download.bytes_downloaded">Downloaded bytes:</label>
+            <label index="tx_dam_log_download.sitetitle">Website title:</label>
+			<label index="ffds_selection.sheet_label">Selection</label>
+            <label index="ffds_selection.selection_type.I.from_mode">Defined by Mode (TypoScript)</label>
+			<label index="ffds_selection.selection_type.I.items">selected items (Items to display)</label>
+            <label index="ffds_selection.selection_type.I.folder">selected Folder (Folder to display)</label>
+			<label index="ffds_selection.selection_type.I.selection">exported selection rule(s) (Selections to display)</label>
+			<label index="ffds_selection.selection_type.I.categories">categories (Categories to display)</label>
+			<label index="ffds_selection.selection_type.I.merged">merged queries (Items, Selections, Categories)</label>
+			<label index="ffds_selection.selection_type">Display items from ...:</label>
+			<label index="ffds_selection.items">Items to display:</label>
+			<label index="ffds_selection.selections">Selections to display:</label>
+            <label index="ffds_selection.folder">Folder to display:</label>
+			<label index="ffds_selection.categories">Categories to display:</label>
+			<label index="ffds_selection.categories_display.I.0">Exclude items from sub-categories</label>
+			<label index="ffds_selection.categories_display.I.1">Include items from sub-categories</label>
+			<label index="ffds_selection.categories_display">Categories display option:</label>
+			<label index="ffds_selection.categories_where">Limit to categories (not displayed):</label>
+			<label index="ffds_selection.categories_where_mode.I.0">AND (Item have to be in the limit-categories too)</label>
+			<label index="ffds_selection.categories_where_mode.I.1">NOT (Item must not be in the limit-categories)</label>
+			<label index="ffds_selection.categories_where_mode">Limit categories mode:</label>
+			<label index="ffds_selection.default_sorting.I.0">Default</label>
+			<label index="ffds_selection.default_sorting">Default sorting:</label>
+            <label index="ffds_selection.default_sorting_reverse">Reverse sorting:</label>
+            <label index="ffds_selection.limit">Maximum items to display:</label>
+			<label index="ffds_options.sheet_label">Options</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
@@ -227,6 +264,7 @@
             <label index="media_type.text">Text</label>
             <label index="media_type.image">Bild</label>
             <label index="media_type.audio">Audio</label>
+            <label index="media_type.video">Video</label>
             <label index="media_type.dataset">Daten</label>
             <label index="media_type.interactive">Interaktiv</label>
             <label index="media_type.software">Software</label>
@@ -246,6 +284,7 @@
             <label index="tx_dam_selection.type.I.1">Feste Einträge</label>
             <label index="tx_dam_selection.type">Auswahl-Typ</label>
             <label index="tx_dam_selection.definition">Auswahl Definition:</label>
+			<label index="ffds_options.sheet_label">Optionen</label>
         </languageKey>
         <languageKey index="no" type="array">
         </languageKey>

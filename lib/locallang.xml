@@ -106,9 +106,12 @@
             <label index="showUnixPerms">Display detailed file permissions</label>
             <label index="showDetailedSize">Display file size in bytes</label>
             <label index="folder">Folder</label>
+            <label index="foldername">Folder name:</label>
             <label index="folders">Folder</label>
             <label index="file">File</label>
             <label index="files">Files</label>
+            <label index="record">Record</label>
+            <label index="records">Records</label>
             <label index="newFolder">Create new folder</label>
             <label index="newTextFile">Create new text file</label>
             <label index="viewFile">View file</label>
@@ -124,9 +127,22 @@
             <label index="selectionClipboard">Selection clipboard</label>
             <label index="selectionExport">Selection Export</label>
             <label index="selection">Selection</label>
+            <label index="current_selection">Current list selection</label>
+            <label index="eb_selection">Element-Browser selection</label>
             <label index="displayExtendedInfo">Display extended info</label>
             <label index="submitProcess">Process</label>
             <label index="submitClearForm">Clear Form</label>
+            <label index="submitCreate">Create</label>
+            <label index="actionDenied">Action denied</label>
+            <label index="accessDenied">Access denied</label>
+            <label index="error">Error</label>
+            <label index="showRootline">Display rootline</label>
+            <label index="references">References</label>
+            <label index="page">Page</label>
+            <label index="content_element">Content Element</label>
+            <label index="content_age">Content Age</label>
+            <label index="media_element">Media Element</label>
+            <label index="media_element_age">Media Element Age</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
@@ -172,8 +188,13 @@
             <label index="showAlternateBgColors">Zeige wechselnde Zeilenfarben</label>
             <label index="showUnixPerms">Zeige ausführliche Dateirechte</label>
             <label index="showDetailedSize">Zeige Dateigrösse in Bytes</label>
-            <label index="folder">Verzeichnisse</label>
-            <label index="file">Dateien</label>
+            <label index="folders">Verzeichnisse</label>
+            <label index="folder">Verzeichnis</label>
+            <label index="foldername">Verzeichnisname:</label>
+            <label index="files">Dateien</label>
+            <label index="file">Datei</label>
+            <label index="record">Datensatz</label>
+            <label index="records">Datensätze</label>
             <label index="newFolder">Verzeichnis anlegen</label>
             <label index="newTextFile">Text Datei anlegen</label>
             <label index="viewFile">Datei ansehen</label>
@@ -189,9 +210,22 @@
             <label index="selectionClipboard">Auswahl-Klemmbrett</label>
             <label index="selectionExport">Auswahl-Export</label>
             <label index="selection">Auswahl</label>
+            <label index="current_selection">Aktuelle Listen-Auswahl</label>
+            <label index="eb_selection">Element-Browser Auswahl</label>
             <label index="displayExtendedInfo">Zeige zusätzliche Informationen</label>
             <label index="submitProcess">Bearbeitung durchführen</label>
             <label index="submitClearForm">Formular leeren</label>
+            <label index="submitCreate">Anlegen</label>
+            <label index="actionDenied">Aktion nicht erlaubt</label>
+            <label index="accessDenied">Zugriff verwehrt</label>
+            <label index="error">Fehler</label>
+            <label index="references">Referenzen</label>
+            <label index="showRootline">Zeige Rootline</label>
+            <label index="page">Seite</label>
+            <label index="content_element">Inhalts-Element</label>
+            <label index="content_age">Inhalts-Element Alter</label>
+            <label index="media_element">Media Element</label>
+            <label index="media_element_age">Media Element Alter</label>
         </languageKey>
     </data>
     <orig_hash type="array">

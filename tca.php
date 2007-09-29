@@ -239,7 +239,7 @@ $TCA['tx_dam'] = array(
 				'readOnly' => true,
 				'size' => '4',
 				'max' => '4',
-				'eval' => 'required,trim',
+				'eval' => 'trim',
 			)
 		),
 
@@ -892,7 +892,7 @@ $TCA['tx_dam_cat'] = array(
 			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
 			'config' => array(
 				'type' => 'check',
-				'default' => '1'
+				'default' => '0'
 			)
 		),
 		'fe_group' => array(
@@ -1091,4 +1091,8 @@ $TCA['tx_dam_selection'] = array(
 		'1' => array('showitem' => 'starttime, endtime, fe_group')
 	)
 );
+
+
+
+
 ?>

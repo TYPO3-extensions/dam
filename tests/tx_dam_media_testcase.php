@@ -44,7 +44,7 @@ class tx_dam_media_testcase extends tx_t3unit_testcase {
 		$media = $fixture['media'];
 
 		self::assertTrue ((boolean)($media->isIndexed));
-		self::assertEquals ($media->isExistent, @is_file($filename));
+		self::assertEquals ($media->isAvailable, @is_file($filename));
 		$title = $media->getMeta ('title');
 		self::assertTrue (!is_null($title), 'No title get from object');
 	}

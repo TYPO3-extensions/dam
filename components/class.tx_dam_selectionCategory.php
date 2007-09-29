@@ -93,7 +93,6 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 
 		$this->table = 'tx_dam_cat';
 		$this->parentField = $GLOBALS['TCA'][$this->table]['ctrl']['treeParentField'];
-		$this->parentField = 'parent_id';
 		$this->typeField = $GLOBALS['TCA'][$this->table]['ctrl']['type'];
 
 		$this->iconName = 'cat.gif';
@@ -105,7 +104,11 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 		if($this->typeField) $this->fieldArray[] = $this->typeField;
 		$this->defaultList = 'uid,pid,tstamp,sorting';
 
-		$this->clause = ' AND deleted=0';
+		if(TYPO3_MODE=='FE') {
+			$this->clause = $GLOBALS['TSFE']->sys_page->enableFields($this->table);
+		} else {
+			$this->clause = ' AND deleted=0';
+		}
 		$this->orderByFields = 'sorting,title';
 
 		$conf = tx_dam::config_getValue('setup.selections.'.$this->treeName);
@@ -135,20 +138,21 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @see tx_dam_SCbase::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
-
-
+		static $alias='a';
 
 		$depth = isset($this->TSconfig['sublevelDepth']) ? intval($this->TSconfig['sublevelDepth']) : 99;
 
 		$catUidList = $this->uniqueList(intval($id), $this->getSubRecordsIdList(intval($id), $depth, 'tx_dam_cat'));
 
-		if ($operator=='!=')	{
-			$query= 'tx_dam_mm_cat.uid_foreign NOT IN ('.$catUidList.')';
+		if ($queryType=='NOT')	{
+			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign NOT IN ('.$catUidList.')';
 		} else {
-			$query= 'tx_dam_mm_cat.uid_foreign IN ('.$catUidList.')';
+			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign IN ('.$catUidList.')';
 		}
 
-		$damObj->qg->addMMJoin('tx_dam_mm_cat');
+		$damObj->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam', 'tx_dam_mm_cat_'.$alias);
+
+		$alias = chr(ord($alias)+1);
 
 		return array($queryType,$query);
 	}
@@ -167,7 +171,6 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 		global $BACK_PATH;
 
 		$control = '';
-#		if ($this->modeSelIcons AND $row['uid'] || (($row['uid'] == '0') && ($this->linkRootCat))) {
 
 		if ($this->modeSelIcons
 			AND !($this->mode=='tceformsSelect')
@@ -182,11 +185,11 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/equals.gif', 'width="8" height="11"').' alt="" />';
 			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 
-//TODO minus do not work - maybe with subqueries
-#			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
-#			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' alt="" />';
-#			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
-			$control .= '<img src="'.$BACK_PATH.'clear.gif" width="12" height="11" border="0" alt="" />';
+// TODO minus do not work - maybe with subqueries
+//			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
+//			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' alt="" />';
+//			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
+//			$control .= '<img src="'.$BACK_PATH.'clear.gif" width="12" height="11" border="0" alt="" />';
 		}
 		return $control;
 	}
@@ -275,6 +278,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @return	string		Comma-list of record ids
 	 */
 	function getSubRecordsIdList($uidList, $level=1, $table='tx_dam_cat', $where='')	{
+		$uidList = $GLOBALS['TYPO3_DB']->cleanIntList($uidList);
 		$rows = $this->getSubRecords ($uidList, $level, 'uid', $table, $where);
 		return implode(',',array_keys($rows));
 	}

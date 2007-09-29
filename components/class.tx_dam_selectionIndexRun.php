@@ -221,7 +221,7 @@ class tx_dam_selectionIndexRun extends tx_dam_selBrowseTree {
 	 * @param	string		The select value (true/false,...)
 	 * @param	object		Reference to the parent DAM object.
 	 * @return	string
-	 * @see tx_dam_SCbase::getWhereClausePart()
+	 * @see tx_dam_selection::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
 		$query = $damObj->sl->getFieldMapping('tx_dam', 'crdate').$operator.intval($id);

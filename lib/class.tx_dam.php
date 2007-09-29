@@ -176,7 +176,13 @@ class tx_dam {
 			$fileInfo['file_path_absolute'] = dirname($filename).'/';
 			$fileInfo['file_path'] = tx_dam::path_makeRelative ($fileInfo['file_path_absolute']);
 			$fileInfo['file_path_relative'] = $fileInfo['file_path'];
-			if ( !$ignoreExistence  AND $fileInfo['__exists'] ) {
+
+			$pathInfo = tx_dam::path_compileInfo ($fileInfo['file_path_absolute']);
+			if (isset($pathInfo['dir_accessable'])) {
+				$fileInfo['file_accessable'] = $pathInfo['dir_accessable'];
+			}
+
+			if ($fileInfo['__exists'] OR $ignoreExistence) {
 				$fileInfo['file_mtime'] = @filemtime($filename);
 				$fileInfo['file_ctime'] = @filectime($filename);
 				$fileInfo['file_inode'] = @fileinode($filename);
@@ -200,17 +206,24 @@ class tx_dam {
 	 * $mimeType['file_mime_subtype'] = 'x-mpeg';
 	 * $mimeType['file_type'] = 'mp3';
 	 *
-	 * @param	string		$filename The file name with path
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @return	array		Describes the type of a file
 	 */
-	function file_getType ($filename) {
+	function file_getType ($fileInfo) {
+		global $TYPO3_CONF_VARS;
+
 		$mimeType = array();
 
-		if($uid = tx_dam::file_isIndexed($filename)) {
+		if (is_array($fileInfo) AND $fileInfo['file_mime_type']) {
+			$mimeType = array();
+			$mimeType['file_mime_type'] = $fileInfo['file_mime_type'];
+			$mimeType['file_mime_subtype'] = $fileInfo['file_mime_subtype'];
+			$mimeType['file_type'] = $fileInfo['file_type'];
+		} elseif($uid = tx_dam::file_isIndexed($fileInfo)) {
 			$mimeType = tx_dam::meta_getDataByUid($uid, 'file_mime_type,file_mime_subtype,file_type,media_type');
 		} else {
 			require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
-			$mimeType = tx_dam_indexing::getFileMimeType($filename);
+			$mimeType = tx_dam_indexing::getFileMimeType($fileInfo);
 		}
 
 		return $mimeType;
@@ -288,7 +301,7 @@ class tx_dam {
 
 
 	/**
-	 * Convert a file path to a a relative path to PATH_site or getIndpEnv('TYPO3_SITE_URL').
+	 * Convert a file path to a relative path to PATH_site or getIndpEnv('TYPO3_SITE_URL').
 	 * This is for files managed by the DAM only. Other files may fail.
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
@@ -311,6 +324,56 @@ class tx_dam {
 	}
 
 
+	/**
+	 * Convert a file path to a URL that can be used eg. for direct download.
+	 * This is for files managed by the DAM only. Other files may fail.
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @return	string		URL to file
+	 */
+	function file_url ($fileInfo) {
+
+		$file_url = t3lib_div::getIndpEnv('TYPO3_SITE_URL').tx_dam::file_relativeSitePath ($fileInfo);
+
+		return $file_url;
+	}
+
+
+	/**
+	 * Returns a string where any invalid character of a filename is substituted by '_'. By the way this can be used to clean folder names as well.
+	 * This function don't do any charset conversion for good reasons. Most filesystems don't have charset support. TYPO3 may use a different charset than the system locale setting. So the safest ist to set $GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'], which is then the charset for filenames automatically.
+	 *
+	 * @param	string		$filename filename (without path)
+	 * @param	string		$crop If true the name will be shortened if needed
+	 * @return	string		Output string with any invalid characters is substituted by '_'
+	 */
+	function file_makeCleanName ($filename, $crop=true)	{
+
+		if (TYPO3_OS=='WIN') {
+			$filename = str_replace('[', '(', $filename);
+			$filename = str_replace(']', ')', $filename);
+			$filename = str_replace('+', '_', $filename);
+		}
+		$filename = preg_replace('#[/|\\?"*:<>]#', '_', trim($filename));
+		if ($filename=='.' OR $filename=='..') {
+			$filename .= '_';
+		}
+
+		$maxInputNameLen = $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] ? $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] : 60;
+		if (strlen($filename) > $maxInputNameLen) {
+			$path_parts = pathinfo($filename);
+			if ($extLen = strlen($path_parts['extension'])) {
+				$extLen += 1;
+				$filename = substr ($path_parts['basename'], 0, $maxInputNameLen-$extLen).'.'.$path_parts['extension'];
+			} else {
+				$filename = substr ($path_parts['basename'], 0, $maxInputNameLen);
+			}
+		}
+
+		return $filename;
+	}
+
+
 
 	/***************************************
 	 *
@@ -322,7 +385,6 @@ class tx_dam {
 	/**
 	 * Convert a path to a relative path if possible.
 	 * The result is normally a relative path to PATH_site (but don't have to).
-	 * The result is a relative path to PATH_site.
 	 * It might be possible that back paths '../' will be supported in the future.
 	 *
 	 * @param	string		$path Path to convert
@@ -350,6 +412,10 @@ class tx_dam {
 	 */
 	function path_makeAbsolute ($path, $mountpath=NULL) {
 
+		if (is_array($path)) {
+			$path = $path['file_path_absolute'] ? $path['file_path_absolute'] : $path['file_path'];
+		}
+
 		$path = tx_dam::path_makeClean ($path);
 
 		if(t3lib_div::isAbsPath($path)) {
@@ -370,10 +436,11 @@ class tx_dam {
 	 */
 	function path_makeClean ($path) {
 		$path = t3lib_div::resolveBackPath($path);
-		$path = preg_replace('#[\/\. ]*$#','',$path).'/';
-		$path = str_replace('//','/',$path);
+		$path = preg_replace('#[\/\. ]*$#', '', $path).'/';
+		$path = str_replace('//', '/', $path);
 		return $path;
 	}
+
 
 
 	/**
@@ -405,6 +472,15 @@ class tx_dam {
 	function path_compileInfo ($path) {
 		global $FILEMOUNTS, $TYPO3_CONF_VARS;
 
+
+			// cache entries
+		static $pathInfoCache = array();
+
+		if (isset($pathInfoCache[$path])) {
+			return $pathInfoCache[$path];
+		}
+
+
 		$pathInfo = false;
 
 		require_once (PATH_t3lib.'class.t3lib_basicfilefunc.php');
@@ -419,6 +495,7 @@ class tx_dam {
 
 		if($path) {
 
+			$pathInfo = array();
 			$pathInfo['__type'] = 'dir';
 			$pathInfo['__exists'] = @is_dir($path);
 			$pathInfo['__protected'] = @is_file($path.'.htaccess');
@@ -429,7 +506,7 @@ class tx_dam {
 			$pathInfo['dir_type'] = @filetype($path);
 			$pathInfo['dir_owner'] = @fileowner($path);
 			$pathInfo['dir_perms'] = @fileperms($path);
-				// I have no idea why these are reversed in t3lib_basicfilefunc
+				// I have no idea why these are negated in t3lib_basicfilefunc
 			$pathInfo['dir_writable'] = @is_writable($path);
 			$pathInfo['dir_readable'] = @is_readable($path);
 
@@ -441,11 +518,16 @@ class tx_dam {
 			// $pathInfo['web_nonweb'] = t3lib_BEfunc::getPathType_web_nonweb($path); // prevent using t3lib_BEfunc
 			$pathInfo['web_nonweb'] = t3lib_div::isFirstPartOfStr($path, t3lib_div::getIndpEnv('TYPO3_DOCUMENT_ROOT')) ? 'web' : '';
 
+			if (TYPO3_MODE=='BE') {
+				$pathInfo['dir_accessable'] = $pathInfo['mount_id'] ? true : false;
+			}
+
 				// extra path info
 			$pathInfo['dir_name'] = basename($path);
 			$pathInfo['dir_title'] = $pathInfo['dir_name'];
 			$pathInfo['dir_path_absolute'] = $path;
 			$pathInfo['dir_path_relative'] = tx_dam::path_makeRelative($path);
+			$pathInfo['dir_path_normalized'] = $pathInfo['dir_path_relative'];
 			$pathInfo['dir_path_from_mount'] = tx_dam::path_makeRelative($path, $pathInfo['mount_path']);
 
 			// ksort($pathInfo);
@@ -459,9 +541,142 @@ class tx_dam {
 			}
 
 		}
+		$pathInfoCache[$path] = $pathInfo;
 
 		return $pathInfo;
 	}
+
+
+
+
+
+	/***************************************
+	 *
+	 *	 Access check related function
+	 *
+	 ***************************************/
+
+
+	/**
+	 * Check if a path is accessable.
+	 * This includes if the path exist and if the user has access to it.
+	 * For further information, like readable, see path_compileInfo()
+	 *
+	 * Currently for BE usage only
+	 *
+	 * @param string $path The path
+	 * @return boolean True if path exist and user has access otherwise false.
+	 * @see tx_dam::path_compileInfo()
+	 */
+	function access_checkPath($path) {
+		if ($pathInfo = tx_dam::path_compileInfo ($path)) {
+			if ($pathInfo['dir_accessable'])  {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * Check if a file is accessable.
+	 * This includes if the file exist and if the user has access to it.
+	 * For further information, like readable, see file_compileInfo()
+	 *
+	 * Currently for BE usage only
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param 	boolean 	$ignoreMissingFile If true it is ignored if a file exists.
+	 * @return 	boolean 	True if file exist and user has access otherwise false.
+	 * @see tx_dam::path_compileInfo()
+	 */
+	function access_checkFile ($fileInfo, $ignoreMissingFile=false) {
+
+		if (is_array($fileInfo) AND !isset($fileInfo['file_accessable'])) {
+			$fileInfo = tx_dam::file_compileInfo($fileInfo['file_path'].$fileInfo['file_name'], $ignoreMissingFile);
+		} else {
+			$fileInfo = tx_dam::file_compileInfo($fileInfo, $ignoreMissingFile);
+		}
+
+		if ($fileInfo['__exists'] OR $ignoreMissingFile)	{
+			return $fileInfo['file_accessable'];
+		}
+		return false;
+	}
+
+
+	/**
+	 * Check if a user is allowed to process a file action like rename or delete.
+	 *
+	 * Currently for BE usage only
+	 *
+	 * @param 	string 		$action Action name: deleteFile, moveFolder, ... .If empty the whole permission array will be returned.
+	 * @param	integer		$setup File permission integer from BE_USER object.
+	 * @see t3lib_extFileFunctions::init_actionPerms()
+	 */
+	function access_checkAction ($action, $setup=NULL) {
+
+// TODO FE
+		if (!is_object($GLOBALS['BE_USER'])) {
+			return false;
+		}
+
+		if ($action AND $GLOBALS['BE_USER']->isAdmin()) {
+			return true;
+		}
+
+		$setup = $setup ? $setup : $GLOBALS['BE_USER']->user['fileoper_perms'];
+
+		if (($setup&1)==1)	{		// Files: Upload,Copy,Move,Delete,Rename
+			$actionPerms['uploadFile']=1;
+			$actionPerms['copyFile']=1;
+			$actionPerms['moveFile']=1;
+			$actionPerms['deleteFile']=1;
+			$actionPerms['renameFile']=1;
+			$actionPerms['editFile']=1;
+			$actionPerms['newFile']=1;
+		}
+		if (($setup&2)==2)	{		// Files: Unzip
+			$actionPerms['unzipFile']=1;
+		}
+		if (($setup&4)==4)	{		// Directory: Move,Delete,Rename,New
+			$actionPerms['moveFolder']=1;
+			$actionPerms['deleteFolder']=1;
+			$actionPerms['renameFolder']=1;
+			$actionPerms['newFolder']=1;
+		}
+		if (($setup&8)==8)	{		// Directory: Copy
+			$actionPerms['copyFolder']=1;
+		}
+		if (($setup&16)==16)	{		// Directory: Delete recursively (rm -Rf)
+			$actionPerms['deleteFolderRecursively']=1;
+		}
+
+
+		if ($action) {
+			return $actionPerms[$action];
+		} else {
+			return $actionPerms;
+		}
+	}
+
+
+	/**
+	 * Check if a file is protected (eg. by .htaccess) and need a special download handling.
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @return 	mixed 	protection type string otherwise false.
+	 */
+	function access_isProtectedFile ($fileInfo) {
+
+		$path = tx_dam::path_makeAbsolute($path);
+
+		$htaccessPath = tx_dam::tools_findFileInPath('.htaccess', $path);
+
+		return false;
+	}
+
+
 
 
 
@@ -480,9 +695,10 @@ class tx_dam {
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @param	string		$fields A list of fields to be fetched. Default is a list of fields generated by tx_dam_db::getMetaInfoFieldList().
 	 * @param	boolean		$ignoreExistence The existence of the file will not be checked if filename is passed.
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	array
 	 */
-	function meta_getDataForFile($fileInfo, $fields='', $ignoreExistence=false) {
+	function meta_getDataForFile($fileInfo, $fields='', $ignoreExistence=false, $mode=TYPO3_MODE) {
 		$meta = false;
 
 		if (!is_array($fileInfo)) {
@@ -495,6 +711,7 @@ class tx_dam {
 			$where = array();
 			$where['file_name'] = 'file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'],'tx_dam');
 			$where['file_path'] = 'file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'],'tx_dam');
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
 
 			if ($rows = tx_dam_db::getDataWhere($fields, $where, '', '', '1')) {
 				reset ($rows);
@@ -512,13 +729,17 @@ class tx_dam {
 	 *
 	 * @param	integer		$uid UID of the meta data record
 	 * @param	string		$fields A list of fields to be fetched. Default is a list of fields generated by tx_dam_db::getMetaInfoFieldList().
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	array		Meta data array or false
 	 */
-	function meta_getDataByUid ($uid, $fields='') {
+	function meta_getDataByUid ($uid, $fields='', $mode=TYPO3_MODE) {
 		$row = false;
 
 		if($uid = intval($uid)) {
-			if ($rows = tx_dam_db::getDataWhere($fields, 'uid='.$uid, '', '', '1')) {
+			$where = array();
+			$where['file_name'] = 'uid='.$uid;
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
+			if ($rows = tx_dam_db::getDataWhere($fields, $where, '', '', '1')) {
 				reset ($rows);
 				$row = current($rows);
 			}
@@ -536,13 +757,17 @@ class tx_dam {
 	 *
 	 * @param	string		$hash Hash value for the file
 	 * @param	string		$fields A list of fields to be fetched. Default is a list of fields generated by tx_dam_db::getMetaInfoFieldList().
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	array		Array of Meta data arrays or false.
 	 */
-	function meta_getDataByHash ($hash, $fields='') {
+	function meta_getDataByHash ($hash, $fields='', $mode=TYPO3_MODE) {
 		$rows = false;
 
 		if($hash) {
-			$rows = tx_dam_db::getDataWhere($fields, 'file_hash='.$GLOBALS['TYPO3_DB']->fullQuoteStr($hash,'tx_dam'));
+			$where = array();
+			$where['file_hash'] = 'file_hash='.$GLOBALS['TYPO3_DB']->fullQuoteStr($hash,'tx_dam');
+			$where['enableFields'] = tx_dam_db::enableFields('tx_dam', $mode);
+			$rows = tx_dam_db::getDataWhere($fields, $where);
 		}
 
 		return $rows;
@@ -560,18 +785,19 @@ class tx_dam {
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @param	string		$hash The hash value will be used to identify the file if the file name was not found. That can happen if the file was renamed or moved without index update.
 	 * @param	string		$fields A list of fields to be fetched. Default is a list of fields generated by tx_dam_db::getMetaInfoFieldList().
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	array		Array of Meta data arrays or false.
 	 */
-	function meta_findDataForFile($fileInfo, $hash='', $fields='') {
+	function meta_findDataForFile($fileInfo, $hash='', $fields='', $mode=TYPO3_MODE) {
 		$rows = false;
 
 		if (!is_array($fileInfo)) {
-			$fileInfo = tx_dam::file_compileInfo ($fileInfo);
+			$fileInfo = tx_dam::file_compileInfo ($fileInfo, true);
 		}
 
 		if (is_array($fileInfo)) {
 
-			if (!$hash) {
+			if (!$hash AND @is_file($fileInfo['file_path'].$fileInfo['file_name'])) {
 				$hash = tx_dam::file_calcHash ($fileInfo);
 			}
 
@@ -579,7 +805,7 @@ class tx_dam {
 
 
 			$where = array();
-			$where['deleted'] = '';
+			$where['enableFields'] = '';
 			$where['file_name'] = 'file_name='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_name'],'tx_dam');
 			$where['file_path'] = 'file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($fileInfo['file_path'],'tx_dam');
 			if ($hash) {
@@ -646,6 +872,20 @@ class tx_dam {
 	 */
 	function meta_getDataVariant ($row, $language) {
 		$row = false;
+
+
+/*
+
+					// Versioning preview:
+				$GLOBALS['TSFE']->sys_page->versionOL($this->table, $this->currentData);
+
+					// Language Overlay:
+				if (is_array($this->currentData) && $GLOBALS['TSFE']->sys_language_contentOL)	{
+					$this->currentData = $GLOBALS['TSFE']->sys_page->getRecordOverlay($this->table, $this->currentData, $GLOBALS['TSFE']->sys_language_content, $GLOBALS['TSFE']->sys_language_contentOL);
+				}
+
+ */
+
 
 		if($uid = intval($row['uid'])) {
 			$fields = implode(',', array_keys($row));
@@ -724,14 +964,16 @@ class tx_dam {
 	 *
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
 	 * @param	string		$hash If set the hash value can be used to identify the file if the file name was not found. That can happen if the file was renamed or moved without index update.
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	object		media object or false
 	 * @see tx_dam_media
 	 */
-	function media_getForFile($fileInfo, $hash=false) {
-// FIXME tx_dam_media is not yet finished
-return NULL;
+	function media_getForFile($fileInfo, $hash=false, $mode=TYPO3_MODE) {
+		global $TYPO3_CONF_VARS;
+
 		require_once(PATH_txdam.'lib/class.tx_dam_media.php');
 		$media = t3lib_div::makeInstance('tx_dam_media');
+		$media->setMode($mode);
 		$media->fetchIndexFromFilename ($fileInfo, $hash);
 		return $media;
 	}
@@ -741,14 +983,16 @@ return NULL;
 	 * Fetches a media object from the index by a given UID.
 	 *
 	 * @param	integer		$uid UID of the meta data record
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	object		media object or false
 	 * @see tx_dam_media
 	 */
-	function media_getByUid ($uid) {
-// FIXME tx_dam_media is not yet finished
-return NULL;
+	function media_getByUid ($uid, $mode=TYPO3_MODE) {
+		global $TYPO3_CONF_VARS;
+
 		require_once(PATH_txdam.'lib/class.tx_dam_media.php');
 		$media = t3lib_div::makeInstance('tx_dam_media');
+		$media->setMode($mode);
 		$media->fetchIndexFromMetaUID ($uid);
 		return $media;
 	}
@@ -759,18 +1003,20 @@ return NULL;
 	 * This function returns an array of media objects because it's possible to match more than one index entry!
 	 *
 	 * @param	string		$hash Hash value for the file
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
 	 * @return	array		Array of media objects or false.
 	 * @see tx_dam_media
 	 */
-	function media_getByHash ($hash) {
-// FIXME tx_dam_media is not yet finished
-return NULL;
+	function media_getByHash ($hash, $mode=TYPO3_MODE) {
+		global $TYPO3_CONF_VARS;
+
 		require_once(PATH_txdam.'lib/class.tx_dam_media.php');
 		$mediaArr = false;
-		if ($rows = tx_dam::meta_getDataByHash ($hash, '*')) {
+		if ($rows = tx_dam::meta_getDataByHash ($hash, '*', $mode)) {
 			$mediaArr = array();
 			foreach ($rows as $row) {
 				$mediaArr[$row['uid']] = t3lib_div::makeInstance('tx_dam_media');
+				$mediaArr[$row['uid']]->setMode($mode);
 				$mediaArr[$row['uid']]->setMetaData ($row);
 			}
 		}
@@ -810,7 +1056,7 @@ return NULL;
 		if (!$hash) {
 			$hash = $fileInfo['file_hash'];
 		}
-
+// FIXME $hash is not used - what is the concept?
 		if (is_array($fileInfo)) {
 
 			$status['__status'] = TXDAM_file_unknown;
@@ -902,6 +1148,7 @@ return NULL;
 		$index->init();
 
 		$index->setDefaultSetup(dirname($filename));
+		$index->initEnabledRules();
 
 			// overrule some parameter from setup
 		$index->setPath($filename);
@@ -927,23 +1174,378 @@ return NULL;
 	 * @return	array		Info array about indexed files and meta data records.
 	 */
 	function index_process ($filename, $setup=NULL, $callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL) {
-
+		global $TYPO3_CONF_VARS;
+// TODO how to set run type???
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
+		$index->setRunType('man');
 		$index->setPID(tx_dam_db::getPid());
 		$index->setDefaultSetup();
 		if ($setup) {
 			$index->restoreSerializedSetup($setup);
-		} else {
+		} elseif(!is_array($filename)) {
 			$index->setDefaultSetup(dirname($filename));
 		}
+		$index->initEnabledRules();
 		if(is_array($filename)) {
 			$index->setPathsList($filename);
 		} else {
 			$index->setPath($filename);
 		}
 		return $index->indexUsingCurrentSetup($callbackFunc, $metaCallbackFunc, $filePreprocessingCallbackFunc);
+	}
+
+
+
+
+
+
+
+
+	/***************************************
+	 *
+	 *   process file or folder changes like rename
+	 *
+	 ***************************************/
+
+	/**
+	 * Delete a file and process DB update
+	 *
+	 * @param	string		$filename File path
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_deleteFile($filename, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = false;
+
+		$filename = tx_dam::file_absolutePath($filename);
+
+		 if(!@is_file($filename)){
+			 tx_dam::notify_fileDeleted($filename);
+
+		 } else {
+
+				// Init TCE-file-functions object:
+			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+			$TCEfile->init();
+
+				// Processing rename folder
+			$cmd = array();
+			$cmd['delete']['NONE']['data'] = $filename;
+
+			$TCEfile->setCmdmap($cmd);
+			$TCEfile->process();
+
+			if ($TCEfile->errors()) {
+				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+			}
+		}
+
+		return $error;
+	}
+
+
+	/**
+	 * Rename a file and process DB update
+	 *
+	 * @param	string		$oldPath File path
+	 * @param	string		$newName New file name
+	 * @param	array		$additionalMeta Additional meta data that can be set. Can be used to set the download name too, for example. If the file don't have an index entry this will be ignored.
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_renameFile($oldPath, $newName, $additionalMeta='', $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = false;
+
+		$oldPath = tx_dam::file_absolutePath($oldPath);
+		$oldName = basename($oldPath);
+		$newName = tx_dam::file_makeCleanName($newName);
+		$newPath = dirname($oldPath).'/'.$newName;
+
+		if ($oldPath !== $newPath) {
+
+				// Init TCE-file-functions object:
+			require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+			$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+			$TCEfile->init();
+
+				// Processing rename folder
+			$cmd = array();
+			$cmd['rename']['NONE']['target'] = $oldPath;
+			$cmd['rename']['NONE']['data'] = $newName;
+
+			$TCEfile->setCmdmap($cmd);
+			$TCEfile->process();
+			if ($TCEfile->errors()) {
+				$error = $TCEfile->getLastError($getFullErrorLogEntry);
+			}
+			// already done in tx_dam_tce_file:
+			// tx_dam::notify_fileMoved($oldPath, $newPath);
+		}
+
+		if (!$error) {
+			$meta = tx_dam::meta_getDataForFile($newPath);
+
+			if (!$additionalMeta['file_dl_name'] AND $meta['file_dl_name']===$oldName) {
+				$additionalMeta['file_dl_name'] = $newName;
+			} elseif ($additionalMeta['file_dl_name']===$meta['file_dl_name']) {
+				$additionalMeta['file_dl_name'] = $newName;
+			}
+
+			if($meta['uid'] AND is_array($additionalMeta)) {
+				unset($additionalMeta['file_name']);
+				$additionalMeta['uid'] = $meta['uid'];
+				tx_dam_db::insertUpdateData($additionalMeta);
+			}
+		}
+		return $error;
+	}
+
+
+	/**
+	 * Creates a new file
+	 *
+	 * @param 	array 	$filename Filename
+	 * @param 	array 	$content Content for the new file
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_createFile($filename, $content='', $getFullErrorLogEntry=FALSE) {
+
+		$error = false;
+
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+
+			// Processing create new file
+		$cmd = array();
+		$cmd['newfile']['NONE']['target'] = tx_dam::path_makeAbsolute(dirname($filename));
+		$cmd['newfile']['NONE']['data'] = basename($filename);
+		$cmd['newfile']['NONE']['content'] = $content;
+
+		$TCEfile->setCmdmap($cmd);
+		$log = $TCEfile->process();
+
+		if ($TCEfile->errors()) {
+
+			$error = $TCEfile->getLastError();
+
+		} else {
+
+				// index the file
+			$setup = array(
+				'recursive' => false,
+				);
+			$filepath = tx_dam::file_absolutePath($filename);
+			tx_dam::index_process ($filepath, $setup);
+		}
+
+		return $error;
+	}
+
+
+	/**
+	 * Updates a text files content
+	 *
+	 * @param 	array 	$filename Filename
+	 * @param 	array 	$content Content for the file
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_editFile($filename, $content='', $getFullErrorLogEntry=FALSE) {
+
+		$error = false;
+
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+
+			// Processing create new file
+		$cmd = array();
+		$cmd['editfile']['NONE']['target'] = tx_dam::file_absolutePath($filename);
+		$cmd['editfile']['NONE']['content'] = $content;
+
+		$TCEfile->setCmdmap($cmd);
+		$log = $TCEfile->process();
+
+		if ($TCEfile->errors()) {
+
+			$error = $TCEfile->getLastError();
+
+		} else {
+
+				// index the file
+			$setup = array(
+				'recursive' => false,
+				'doReindexing' => true,
+				);
+			$filepath = tx_dam::file_absolutePath($filename);
+			tx_dam::index_process ($filepath, $setup);
+		}
+
+		return $error;
+	}
+
+
+	/**
+	 * Replace a file and process indexing and DB update
+	 * Important: $meta['uid'] have to be used in the upload data like this $upload_data['upload'][$meta['uid']]
+	 *
+	 * @param 	array 	$meta Meta data array
+	 * @param 	array 	$upload_data Form upload data for $TCEfile->setCmdmap($upload_data)
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_replaceFile($meta, $upload_data, $getFullErrorLogEntry=FALSE) {
+
+		$error = false;
+
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+			// allow overwrite
+		$TCEfile->fileProcessor->dontCheckForUnique = true;
+
+
+// FIXME overwrite only orig file not others
+// dontCheckForUnique=true allow overwrtiting any file
+// dontCheckForUnique have to be false and the file have to be replaced afterwards?
+
+
+		if($id = $meta['uid'] AND is_array($upload_data['upload'][$id])) {
+
+				// Processing uploads
+			$TCEfile->setCmdmap($upload_data);
+			$log = $TCEfile->process();
+
+			if ($TCEfile->errors()) {
+
+				$error = $TCEfile->getLastError();
+
+			} else {
+
+				$newFile = $log['cmd']['upload'][$id]['target_file'];
+				$new_filename = basename($newFile);
+
+					// new file name - so we need to update some stuff
+				if ($new_filename !== $meta['file_name']) {
+						// rename meta data fields
+					$fields_values = array();
+					$fields_values['file_name'] = $new_filename;
+					$fields_values['file_dl_name'] = $new_filename;
+					$fields_values['uid'] = $meta['uid'];
+					tx_dam_db::insertUpdateData($fields_values);
+
+						// delete the old file
+					$oldFile = tx_dam::file_absolutePath($meta);
+					@unlink($oldFile);
+					if (@is_file($oldFile)) {
+						$error = 'File '.$meta['file_name'].' could not be deleted.';
+						if ($getFullErrorLogEntry) {
+							$error = array('msg' => $error);
+						}
+					}
+				}
+
+					// reindex the file
+				$setup = array(
+					'recursive' => false,
+					'doReindexing' => true,
+					);
+				$filepath = tx_dam::file_absolutePath($meta);
+				tx_dam::index_process ($filepath, $setup);
+
+			}
+		} else {
+			$error = true;
+		}
+
+		return $error;
+	}
+
+
+	/**
+	 * Rename a folder and process DB update
+	 *
+	 * @param	string		$oldPath Folder path
+	 * @param	string		$newName New folder name
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_renameFolder($oldPath, $newName, $getFullErrorLogEntry=FALSE) {
+		global $TYPO3_CONF_VARS;
+
+		$error = false;
+
+		$oldPath = tx_dam::path_makeAbsolute($oldPath);
+		$newName = tx_dam::file_makeCleanName($newName);
+		$newPath = dirname($oldPath).$newName.'/';
+
+			// Init TCE-file-functions object:
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+
+			// Processing rename folder
+		$cmd = array();
+		$cmd['rename']['NONE']['target'] = $oldPath;
+		$cmd['rename']['NONE']['data'] = $newName;
+
+		$TCEfile->setCmdmap($cmd);
+		$TCEfile->process();
+// FIXME does not work: Directory "/div/sites/dam/www/fileadmin/test/bbb/" was not renamed! Write-permission problem in "/div/sites/dam/www/fileadmin/test/bbb/"?
+		if ($TCEfile->errors()) {
+			$error = $TCEfile->getLastError($getFullErrorLogEntry);
+		}
+		//} else {
+			// already done in tx_dam_tce_file:
+			// tx_dam::notify_fileMoved($oldPath, $newPath);
+		//}
+		return $error;
+	}
+
+
+	/**
+	 * Deletes a folder and it's files and process DB update
+	 *
+	 * @param	string		$path Folder path
+	 * @param	boolean		$getFullErrorLogEntry If set the full error log entry will be returned as array
+	 * @return	mixed		error message or error array
+	 * @see tx_dam_tce_file::getLastError()
+	 */
+	function process_deleteFolder($path, $getFullErrorLogEntry=FALSE){
+		global $TYPO3_CONF_VARS;
+
+		$error = false;
+
+		$path = tx_dam::path_makeAbsolute($path);
+
+			// Init TCE-file-functions object:
+		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
+		$TCEfile->init();
+
+			// Processing delete folder
+		$cmd = array();
+		$cmd['delete']['NONE']['data'] = $path;
+		$TCEfile->setCmdmap($cmd);
+		$log = $TCEfile->process();
+
+		if ($TCEfile->errors()) {
+			$error = $TCEfile->getLastError($getFullErrorLogEntry);
+		}
+
+		return $error;
 	}
 
 
@@ -984,37 +1586,82 @@ return NULL;
 	 * @return	void
 	 */
 	function notify_fileMoved ($src, $dest) {
-		if ($uid = tx_dam::file_isIndexed($src)) {
-			$fileInfo = file_compileInfo ($dest);
-			if ($fileInfo['__exists']) {
-				$values = array();
-				$values['uid'] = $uid;
-				$values['deleted'] = '0';
-				$values['file_name'] = $fileInfo['file_name'];
-				$values['file_path'] = $fileInfo['file_path'];
-				$values['file_mtime'] = $fileInfo['file_mtime'];
-				tx_dam_db::insertUpdateData($values);
+		if (@is_file($dest)) {
+			if ($uid = tx_dam::file_isIndexed($src)) {
+				$fileInfo = file_compileInfo ($dest);
+				if ($fileInfo['__exists']) {
+					$values = array();
+					$values['uid'] = $uid;
+					$values['deleted'] = '0';
+					$values['file_name'] = $fileInfo['file_name'];
+					$values['file_path'] = $fileInfo['file_path'];
+					$values['file_mtime'] = $fileInfo['file_mtime'];
+					tx_dam_db::insertUpdateData($values);
+				}
+			} else {
+					// file is not yet indexed
+				tx_dam::index_autoProcess($dest);
 			}
-		} else {
-				// file is not yet indexed
-			tx_dam::index_autoProcess($dest);
+
+			// the item is a folder
+		} elseif (@is_dir($dest)) {
+			tx_dam_db::updateFilePath($src, $dest);
 		}
+		// else unknown
 	}
 
 
 	/**
-	 * Notifies the DAM about a deleted file.
-	 * This will remove the file from the index.
+	 * Notifies the DAM about a deleted file or folder.
+	 * This will remove the file(s) from the index.
 	 *
-	 * @param	string		$filename Filename with path
+	 * @param	string		$filename Filename with path or a folder which have to have a trailing slash.
+	 * @param	string		$recyclerPath New path when item is moved to recycler.
 	 * @return	void
 	 */
-	function notify_fileDeleted ($filename) {
-		if ($uid = tx_dam::file_isIndexed($filename)) {
-			$values = array();
-			$values['uid'] = $uid;
-			$values['deleted'] = '1';
-			tx_dam_db::insertUpdateData($values);
+	function notify_fileDeleted ($filename, $recyclerPath='') {
+
+		if(is_array($row = tx_dam::meta_getDataForFile ($filename, 'uid', true))) {
+			$uid = $row['uid'];
+		}
+
+		if ($uid) {
+			$fields_values = array();
+			$fields_values['uid'] = $uid;
+			$fields_values['deleted'] = '1';
+
+				// file was moved to recycler
+			if ($recyclerPath) {
+				$org_filename = basename($filename);
+				$new_filename = $recyclerPath;
+				$new_path = dirname($recyclerPath);
+
+				if ($org_filename != $new_filename) {
+					$fields_values['file_name'] = $new_filename;
+				}
+				if ($new_path) {
+					$fields_values['file_path'] = tx_dam::path_makeRelative($new_path);
+				}
+
+			} else {
+					// delete MM relations
+				$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$uid);
+			}
+
+			tx_dam_db::insertUpdateData($fields_values);
+
+			// TODO delete child elements and their MM-relation
+			// files stay at their physical storage position (usually uploads/tx_dam/_uid_/)
+
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam', 'parent_id='.intval($uid));
+			while ($childRow = $GLOBALS['TYPO3_DB']->sql_fetch_row($res)) {
+				$childUid = $childRow[0];
+				$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$childUid, array('deleted' => 1));
+				$GLOBALS['TYPO3_DB']->exec_DELETEquery( 'tx_dam_mm_ref', 'tx_dam_mm_ref.uid_local='.$childUid) ;
+			}
+
+		} elseif (preg_match('#/$#', $filename)) {
+			tx_dam_db::updateFilePathSetDeleted($filename);
 		}
 	}
 
@@ -1104,8 +1751,12 @@ return NULL;
 			$iconfile = PATH_txdam.'i/18/'.'mtype_undefined.gif';
 		}
 		if (!$absolutePath) {
-// TODO this might not work always and could be cached too
-				$iconfile = '../'.str_replace (PATH_site, '', $iconfile);
+
+// TODO could be cached too
+			$iconfile = preg_replace('#^'.preg_quote(PATH_site).'#', '', $iconfile);
+	 		if (TYPO3_MODE=='BE') {
+				$iconfile = '../'.$iconfile;
+			}
 		}
 
 		return $iconfile;
@@ -1148,7 +1799,10 @@ return NULL;
 		}
 
 		if ($absolutePath) {
-			$iconfile = PATH_t3lib.$iconfile;
+			$iconfile = PATH_site.TYPO3_mainDir.$iconfile;
+		} elseif (TYPO3_MODE=='FE') {
+			$iconfile = TYPO3_mainDir.$iconfile;
+			#$iconfile = preg_replace ('#^'.preg_quote(PATH_site).'#', '', $iconfile);
 		}
 
 		return $iconfile;
@@ -1164,18 +1818,71 @@ return NULL;
 	 * @see tx_dam::path_getInfo()
 	 */
 	function icon_getFileTypeImgTag($infoArr, $addAttrib='')	{
+		global $TYPO3_CONF_VARS;
+
+		require_once(PATH_t3lib.'class.t3lib_iconworks.php');
 
 		if (isset($infoArr['dir_name'])) {
 			$iconfile = tx_dam::icon_getFolder ($infoArr);
 		}
-		elseif (isset($infoArr['file_name'])) {
+		elseif (isset($infoArr['file_name']) OR isset($infoArr['file_type']) OR isset($infoArr['media_type'])) {
 			$iconfile = tx_dam::icon_getFileType ($infoArr);
 		}
 
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconfile, 'width="18" height="16"').' '.trim($addAttrib).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconfile, 'width="18" height="16"').' class="typo3-icon"  alt="" '.trim($addAttrib).' />';
 
 		return $icon;
 	}
+
+
+
+
+
+
+	/***************************************
+	 *
+	 *   Misc Tools
+	 *
+	 ***************************************/
+
+
+
+	/**
+	 * Search for a file and walk up the path if not found in current dir.
+	 *
+	 * @param 	string 		$fileName File name to search for
+	 * @param 	string 		$path Path to search for file
+	 * @param 	boolean 	$walkUp If set it will be searched for the file in folders above the given
+	 * @param 	string 		$basePath This absolute path is the limit for searching with $walkUp
+	 * @return	string 		file content
+	 */
+	function tools_findFileInPath($fileName, $path, $walkUp=true, $basePath='') {
+
+		$basePath = $basePath ? $basePath : PATH_site;
+
+		$path = tx_dam::path_makeAbsolute($path);
+
+		if (is_file($path.$fileName) AND is_readable($path.$fileName)) {
+
+			$setup = t3lib_div::getUrl($path.$fileName);
+			return $setup;
+		}
+
+		if (!$walkUp OR ($path == $basePath)) {
+			return false;
+		}
+
+		if (tx_dam::path_makeRelative($path)=='') {
+			return false;
+		}
+
+		if (!($path=dirname($path))) {
+			return false;
+		}
+
+		return tx_dam::tools_findFileInPath($fileName, $path, $walkUp, $basePath);
+	}
+
 
 
 
@@ -1190,6 +1897,22 @@ return NULL;
 
 	/**
 	 * Register a meta data trigger class
+	 * The class will be called when the meta data of a file was changed.
+	 *
+	 * @param	string		$idName This is the ID of the selection. Chars allowed only: [a-zA-z]
+	 * @param	string		$class reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
+	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
+	 * @return	void
+	 * @see tx_dam_db
+	 * @see tx_dam_dbTriggerMediaTypes
+	 */
+	function register_dbTrigger ($idName, $class, $position='') {
+		tx_dam::_addItem($idName, $class, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['dbTriggerClasses'], $position);
+	}
+
+	/**
+	 * Register a file trigger class
+	 * The class will be called when the a file was changed.This can be the name or the file was moved ot deleted.
 	 *
 	 * @param	string		$idName This is the ID of the selection. Chars allowed only: [a-zA-z]
 	 * @param	string		$class reference, '[file-reference":"]["&"]class'. See t3lib_div::callUserFunction().
@@ -1197,8 +1920,8 @@ return NULL;
 	 * @return	void
 	 * @see tx_dam_db
 	 */
-	function register_dbTrigger ($idName, $class, $position='') {
-		tx_dam::_addItem($idName, $class, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['dbTriggerClasses'], $position);
+	function register_fileTrigger ($idName, $class, $position='') {
+		tx_dam::_addItem($idName, $class, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileTriggerClasses'], $position);
 	}
 
 	/**
@@ -1305,7 +2028,45 @@ return NULL;
 	}
 
 
+	/**
+	 * Register a table that is related to a media folder and should be stored there.
+	 * The meaning of registering a table is that management functions know which tables are related to a media folder.
+	 *
+	 * @param	string		$table This is the table name
+	 * @param	string		$position can be used to set the position of a new item within the list of existing items. $position has this syntax: [cmd]:[item-key]. cmd can be "after", "before" or "top" (or "bottom"/blank which is default). If "after"/"before" then submodule will be inserted after/before the existing item with [item-key] if found. If not found, the bottom of list. If "top" the item is inserted in the top of the item list.
+	 * @return	void
+	 */
+	function register_mediaTable ($table, $position='') {
+		tx_dam::_addItem($table, $table, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['mediaTables'], $position);
+	}
 
+
+	/**
+	 * Returns the registry array from for a type like action, editor, mediaTable. Except fileType.
+	 *
+	 * @param string $type Registry name: mediaTable, fileIconPath, action, editor, ... (from register_XXX())
+	 * @return array
+	 */
+	function register_getEntries($type) {
+		$registry = array();
+		switch ($type) {
+			case 'mediaTable':
+					$registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['mediaTables'];
+				break;
+			case 'fileIconPath':
+					$registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths'];
+				break;
+			default:
+					if (!is_array($registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam'][$type.'Classes'])) {
+						$registry = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['registry'][$type];
+					}
+				break;
+		}
+		if (!is_array($registry)) {
+			$registry = array();
+		}
+		return $registry;
+	}
 
 
 	/***************************************
@@ -1334,8 +2095,8 @@ return NULL;
 			tx_dam::config_init();
 		}
 
-		if ($configPath AND is_object($GLOBALS['BE_USER'])) {
-			$configValues = $GLOBALS['BE_USER']->getTSConfig($configPath, $config['mergedTSconfig']);
+		if ($configPath) {
+			$configValues = tx_dam::_getTSConfigObject($configPath, $config['mergedTSconfig']);
 		}
 
 		if ($getProperties) {
@@ -1368,23 +2129,24 @@ return NULL;
 
 		if ($configPath) {
 			list ($baseKey, $options) = explode('.', $configPath, 2);
-			if (($baseKey=='setup') OR ($baseKey=='mod')) {
-				$options = explode('.', $options);
-				$lastOption = count ($options);
-				$optionArrPath = & $config['definedTSconfig'][$baseKey.'.'];
-				$optCount = 0;
-				foreach ($options as $optionValue) {
-					$optCount++;
-					if ($optCount < $lastOption) {
-						$optionArrPath = & $optionArrPath[$optionValue.'.'];
-					} else {
-						$optionArrPath = & $optionArrPath[$optionValue.(is_array($value)?'.':'')];
-					}
-
-				}
-				$optionArrPath = $value;
-				$perfomMerge = true;
+			$options = explode('.', $options);
+			$lastOption = count ($options);
+			if (!is_array($config['definedTSconfig'][$baseKey.'.'])) {
+				$config['definedTSconfig'][$baseKey.'.'] = array();
 			}
+			$optionArrPath = & $config['definedTSconfig'][$baseKey.'.'];
+			$optCount = 0;
+			foreach ($options as $optionValue) {
+				$optCount++;
+				if ($optCount < $lastOption) {
+					$optionArrPath = & $optionArrPath[$optionValue.'.'];
+				} else {
+					$optionArrPath = & $optionArrPath[$optionValue.(is_array($value)?'.':'')];
+				}
+
+			}
+			$optionArrPath = $value;
+			$perfomMerge = true;
 		}
 		if ($perfomMerge) {
 			$config['mergedTSconfig'] = t3lib_div::array_merge_recursive_overrule($config['pageUserTSconfig'], $config['definedTSconfig']);
@@ -1442,14 +2204,37 @@ return NULL;
 
 	/**
 	 * get TSConfig values for initialization
+	 *
 	 * @access private
 	 * @param integer $pid If set page TSConfig will be fetched otherwise user TSConfig
 	 * @return array
 	 */
 	function _getTSconfig ($pid=0) {
+		global $TYPO3_CONF_VARS;
+
 		$values = false;
 
-		if (is_object($GLOBALS['BE_USER'])) {
+		if (TYPO3_MODE=='FE' AND is_object($GLOBALS['TSFE'])) {
+			$TSconfig = '';
+			if ($pid) {
+				$TSconfig = $GLOBALS['TSFE']->getPagesTSconfig($pid);
+			} else {
+				$TSconfig = $GLOBALS['TSFE']->fe_user->getUserTSconf();
+			}
+
+				// get global config
+			$TSConfValues = tx_dam::_getTSConfigObject('tx_dam', $TSconfig);
+			$global = $TSConfValues['properties'];
+
+				// get plugin config
+			$plugin = $GLOBALS['TSFE']->tmpl->setup['plugin.']['tx_dam.'];
+
+			$values = array('setup.' => $global, 'plugin.' => $plugin);
+
+			// mod. properties are not used for FE
+
+
+		} elseif (is_object($GLOBALS['BE_USER'])) {
 			$TSconfig = '';
 			if ($pid) {
 				require_once(PATH_t3lib.'class.t3lib_befunc.php');
@@ -1476,7 +2261,34 @@ return NULL;
 
 
 	/**
-	 * Adds a an item to an array with the possibility to request a position efore/after another item
+	 * Returns the value/properties of a TS-object as given by $objectString, eg. 'options.dontMountAdminMounts'
+	 * Nice (general!) function for returning a part of a TypoScript array!
+	 *
+	 * @param	string		$objectString Pointer to an "object" in the TypoScript array, fx. 'options.dontMountAdminMounts'
+	 * @param	array		$config TSconfig array
+	 * @return	array		An array with two keys, "value" and "properties" where "value" is a string with the value of the objectsting and "properties" is an array with the properties of the objectstring.
+	 * @params	array	An array with the TypoScript where the $objectString is located.
+	 */
+	function _getTSConfigObject($objectString, $config)	{
+
+		$TSConf=array();
+		$parts = explode('.',$objectString,2);
+		$key = $parts[0];
+		if (trim($key))	{
+			if (count($parts)>1 && trim($parts[1]))	{
+				// Go on, get the next level
+				if (is_array($config[$key.'.']))	$TSConf = tx_dam::_getTSConfigObject($parts[1],$config[$key.'.']);
+			} else {
+				$TSConf['value']=$config[$key];
+				$TSConf['properties']=$config[$key.'.'];
+			}
+		}
+		return $TSConf;
+	}
+
+
+	/**
+	 * Adds a an item to an array with the possibility to request a position before/after another item
 	 *
 	 * @access private
 	 * @param	string		$idName
@@ -1531,6 +2343,7 @@ return NULL;
 			if ($placed) break;
 		}
 	}
+
 
 }
 

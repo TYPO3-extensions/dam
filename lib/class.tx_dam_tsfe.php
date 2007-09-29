@@ -60,9 +60,9 @@ class tx_dam_tsfe {
 
 	/**********************************************************
 	 *
-	 * Misc functions
+	 * TypoScript functions
 	 *
-	 ************************************************************/
+	 **********************************************************/
 
 
 	/**
@@ -91,13 +91,54 @@ class tx_dam_tsfe {
 			}
 		}
 
-		$damFiles = tx_dam_db::getReferencedFiles('tt_content', $this->cObj->data['uid'], $refField);
+		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
+		$damFiles = tx_dam_db::getReferencedFiles($refTable, $this->cObj->data['uid'], $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 
 		return implode(',',$files);
 	}
 
+
+
+
+
+	/**********************************************************
+	 *
+	 * Misc functions
+	 *
+	 **********************************************************/
+
+
+	/**
+	 * Creates an instance of 'language' (sysext/lang/lang.php) in $GLOBALS['LANG'] ...
+	 * ... if TYPO3_MODE=='FE' and the object do not exist
+	 *
+	 * The LANG object will be initialized with the current language used in TSFE.
+	 *
+	 * It is possible that a LANG object exist when a BE user preview a page.
+	 * The language in that object is initialized then with the BE users language (not TSFE).
+	 * This function override the language with the TSFE language. This may cause different language labels in the admin panel.
+	 *
+	 * @return void
+	 */
+	function initLangObject() {
+		if (TYPO3_MODE=='FE') {
+			if (!is_object($GLOBALS['LANG']))	{
+				require_once(PATH_site.TYPO3_mainDir.'sysext/lang/lang.php');
+				$GLOBALS['LANG'] = t3lib_div::makeInstance('language');
+			}
+
+			if ($GLOBALS['TSFE']->sys_language_isocode) {
+				$GLOBALS['LANG']->init($GLOBALS['TSFE']->sys_language_isocode);
+				if($isoCode = $this->csConvObj->isoArray[$GLOBALS['TSFE']->sys_language_isocode]) {
+					$GLOBALS['LANG']->init($isoCode);
+				}
+			} else {
+				$GLOBALS['LANG']->init($GLOBALS['TSFE']->config['config']['language']);
+			}
+		}
+	}
 
 }
 

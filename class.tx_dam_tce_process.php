@@ -112,6 +112,7 @@ class tx_dam_tce_process {
 				}
 			}
 		}
+// TODO implement DB-Trigger
 	}
 }
 

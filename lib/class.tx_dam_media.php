@@ -40,10 +40,10 @@
  *  201:     function __construct($file = null, $hash=false, $autoIndex=true)
  *  217:     function fetchIndexFromFilename ($file, $hash=false, $autoIndex=true)
  *  237:     function fetchIndexFromMetaUID ($uid)
- *  253:     function fetchFileinfo ($fileInfo=NULL, $ignoreExistence=true)
+ *  253:     function fetchFileInfo ($fileInfo=NULL, $ignoreExistence=true)
  *
  *              SECTION: Meta data
- *  292:     function fetchFullIndex ($uid=NULL)
+ *  292:     function fetchFullMetaData ($uid=NULL)
  *  309:     function setMetaData ($meta)
  *
  *              SECTION: Get Meta data
@@ -60,7 +60,7 @@
  *
  *              SECTION: Update DB meta data
  *  495:     function updateIndex ()
- *  506:     function updateIndexFileinfo ()
+ *  506:     function updateIndexFileInfo ()
  *  521:     function updateAuto ()
  *  531:     function updateHash ()
  *
@@ -102,10 +102,16 @@ class tx_dam_media {
 	var $metaUpdated = array();
 
 	/**
+	 * If the current meta data is the complete record or just an excerpt.
+	 * @see fetchFullMetaData()
+	 */
+	var $isFullMetaData = NULL;
+
+	/**
 	 * The file info like ctime, mtime.
 	 * Mainly the same format like in the meta array
 	 */
-	var $info = NULL;
+	var $fileInfo = NULL;
 
 	/**
 	 * filename (basename)
@@ -123,6 +129,27 @@ class tx_dam_media {
 	var $pathAbsolute = NULL;
 
 
+
+	/**
+	 * TYPO3_MODE to be used. Has effect for database queries and the so called 'enableFields'.
+	 */
+	var $mode = TYPO3_MODE;
+
+
+
+
+
+	/**
+	 * TRUE if the file exists and/or an index entry exists and accordingly to $this->mode and corresponding enableFields the database query found an entry.
+	 */
+	var $isAvailable = NULL;
+
+
+
+
+
+
+// TODO:
 
 	/**
 	 * If the file is already indexed or not.
@@ -144,11 +171,6 @@ var $isAutoUpdated = NULL;
 	 */
 	var $isJustAutoIndexed = NULL;
 
-	/**
-	 * If the file exists
-	 */
-	var $isExistent = NULL;
-
 
 
 	/**
@@ -159,12 +181,13 @@ var $isAutoUpdated = NULL;
 	/**
 	 * If set the file info will be updated in the index automatically.
 	 */
-	var $doAutoFileinfoUpdate = true;
+	var $doAutoFileInfoUpdate = true;
 
 /**
  * If set the meta data will be updated automatically if needed.
  */
 var $doAutoMetaUpdate = false;
+
 
 
 // TODO what todo with non-existing files??
@@ -199,12 +222,53 @@ var $doAutoMetaUpdate = false;
 	 * @return	void
 	 */
 	function __construct($file = null, $hash=false, $autoIndex=true) {
+		$this->setMode();
+		$this->setWantedVariant();
 		if($file) {
 			$this->fetchIndexFromFilename ($file, $hash, $autoIndex);
-			return $this->isExistent;
+			return $this->isAvailable;
 		}
 	}
 
+
+	/**
+	 * Set the internally used TYPO3_MODE, which is FE or BE. This has effect for database queries and the so called 'enableFields'.
+	 *
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'.
+	 * @return	void
+	 */
+	function setMode($mode=TYPO3_MODE) {
+		$this->mode = $mode;
+	}
+
+
+	/**
+	 * Set the wanted data variant which can be versions and languages
+	 *
+	 * @param	array		$conf Configuration array that defines the wanted variant
+	 * @return	void
+	 */
+	function setWantedVariant($conf='auto') {
+		if ($this->mode == 'FE' AND $conf === 'auto') {
+// TODO variant: language, versioning, ... - setup with mode and use of setup by other methods?
+
+// see tx_dam::meta_getDataVariant()
+
+/*
+
+					// Versioning preview:
+				$GLOBALS['TSFE']->sys_page->versionOL($this->table, $this->currentData);
+
+					// Language Overlay:
+				if (is_array($this->currentData) && $GLOBALS['TSFE']->sys_language_contentOL)	{
+					$this->currentData = $GLOBALS['TSFE']->sys_page->getRecordOverlay($this->table, $this->currentData, $GLOBALS['TSFE']->sys_language_content, $GLOBALS['TSFE']->sys_language_contentOL);
+				}
+
+ */
+
+
+		}
+	}
 
 	/**
 	 * Initialize the object by a given filename
@@ -216,10 +280,12 @@ var $doAutoMetaUpdate = false;
 	 */
 	function fetchIndexFromFilename ($file, $hash=false, $autoIndex=true) {
 
-		$this->fetchFileinfo($file);
-		if ($this->isExistent) {
-			if ($row = tx_dam::meta_getDataForFile($this->info, '', true)) {
+		$this->fetchFileInfo($file);
+		if ($this->isAvailable) {
+			if ($row = tx_dam::meta_getDataForFile($this->fileInfo, '*', true, $this->mode)) {
 				$this->setMetaData ($row);
+				$this->isFullMetaData = true;
+				$this->isIndexed = true;
 			} elseif ($autoIndex) {
 // TODO search for hash
 				$this->autoIndex();
@@ -235,8 +301,13 @@ var $doAutoMetaUpdate = false;
 	 * @return	void
 	 */
 	function fetchIndexFromMetaUID ($uid) {
-		if ($row = tx_dam::meta_getDataByUid($uid)) {
+		if ($row = tx_dam::meta_getDataByUid($uid, '*', $this->mode)) {
 			$this->setMetaData ($row);
+			$this->isFullMetaData = true;
+			$this->isIndexed = true;
+			$this->isAvailable = file_exists($this->getPathAbsolute());
+		} else {
+			$this->isAvailable = false;
 		}
 	}
 
@@ -249,10 +320,12 @@ var $doAutoMetaUpdate = false;
 	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().  Default from getPathAbsolute().
 	 * @param	boolean		$ignoreExistence The existence of the file will not be checked and only the file path will be splitted.
 	 * @return	boolean		If the file exists and the info could be fetched.
+	 * @see tx_dam::file_compileInfo()
 	 */
 	function fetchFileinfo ($fileInfo=NULL, $ignoreExistence=true) {
-		$this->isExistent = false;
+		$this->isAvailable = false;
 
+		$info = false;
 		if (is_array($fileInfo) AND $fileInfo['file_name'] AND $fileInfo['file_path_absolute']) {
 			$info = $fileInfo;
 
@@ -262,14 +335,14 @@ var $doAutoMetaUpdate = false;
 		}
 
 		if (is_array($info)) {
-			$this->info = $info;
-			$this->name = $this->info['file_name'];
-			$this->pathNormalized = $this->info['file_path'];
-			$this->pathAbsolute = $this->info['file_path_absolute'];
-			$this->isExistent = $this->info['__exists'];
+			$this->fileInfo = $info;
+			$this->filename = $this->fileInfo['file_name'];
+			$this->pathNormalized = $this->fileInfo['file_path'];
+			$this->pathAbsolute = $this->fileInfo['file_path_absolute'];
+			$this->isAvailable = $this->fileInfo['__exists'];
 		}
 
-		return $this->isExistent;
+		return $this->isAvailable;
 	}
 
 
@@ -289,11 +362,14 @@ var $doAutoMetaUpdate = false;
 	 * @param	integer		$uid Optional UID of the wanted meta data record. Default: $this->meta['uid']
 	 * @return	void
 	 */
-	function fetchFullIndex ($uid=NULL) {
-		$uid = $uid ? $uid : $this->meta['uid'];
-		if ($uid) {
-			if ($row = tx_dam::meta_getDataByUid($this->meta['uid'], '*')) {
-				$this->setMetaData ($row);
+	function fetchFullMetaData ($uid=NULL) {
+		if (!$this->isFullMetaData) {
+			$uid = $uid ? $uid : $this->meta['uid'];
+			if ($uid) {
+				if ($row = tx_dam::meta_getDataByUid($this->meta['uid'], '*', $this->mode)) {
+					$this->setMetaData ($row);
+					$this->isFullMetaData = true;
+				}
 			}
 		}
 	}
@@ -311,11 +387,11 @@ var $doAutoMetaUpdate = false;
 			$this->meta = $meta;
 			$this->isIndexed = is_array($meta);
 
-			$this->name = $this->meta['file_name'];
+			$this->filename = $this->meta['file_name'];
 			$this->pathNormalized = $this->meta['file_path'];
 			$this->pathAbsolute = tx_dam::path_makeAbsolute($this->meta['file_path']);
-			if ($this->isExistent==NULL) {
-				$info = $this->fetchFileinfo();
+			if ($this->isAvailable==NULL) {
+				$this->fetchFileInfo();
 			}
 		}
 	}
@@ -329,6 +405,22 @@ var $doAutoMetaUpdate = false;
 	 *	 Get Meta data
 	 *
 	 ***************************************/
+
+
+	/**
+	 * Returns the index ID
+	 *
+	 * @return	integer
+	 */
+	function getID () {
+		$uid = false;
+
+		if ($this->meta) {
+			$uid = $this->meta['uid'];
+		}
+
+		return $uid;
+	}
 
 
 	/**
@@ -373,6 +465,39 @@ var $doAutoMetaUpdate = false;
 
 
 	/**
+	 * Returns a mime content type like: 'image/jpeg'
+	 *
+	 * @return	string
+	 */
+	function getMimeContentType () {
+		$mimeContentType = '';
+
+		// TODO when not yet indexed: $mimeType = tx_dam::file_getType($this->getMetaArray());
+		if ($mimeType = $this->getTypeAll()) {
+			if ($mimeType['file_mime_type'] AND $mimeType['file_mime_subtype']) {
+				$mimeContentType = $mimeType['file_mime_type'].'/'.$mimeType['file_mime_subtype'];
+			}
+		}
+		return $mimeContentType;
+	}
+
+
+	/**
+	 * Returns raw file info data fetched directly from the file system
+	 *
+	 * @param	string		$field Field name to get from the file info array.
+	 * @return	mixed		file info value.
+	 * @see tx_dam::file_compileInfo()
+	 */
+	function getInfo ($field) {
+		if ($this->fileInfo == NULL) {
+			$media->fetchFileinfo();
+		}
+		return $this->fileInfo[$field];
+	}
+
+
+	/**
 	 * Returns raw meta data from the database record.
 	 *
 	 * @param	string		$field Field name to get meta data from. These are database fields.
@@ -382,8 +507,27 @@ var $doAutoMetaUpdate = false;
 		$value = false;
 		if (isset($this->metaUpdated[$field])) {
 			$value = $this->metaUpdated[$field];
-		} else {
+		} elseif(is_array($this->meta)) {
 			$value = $this->meta[$field];
+		}
+		return $value;
+	}
+
+
+	/**
+	 * Returns raw meta data from the database record or from fileInfo.
+	 *
+	 * @param	string		$field Field name to get meta data from. These are database fields or entries from fileInfo.
+	 * @return	mixed		Meta data value or entry from fileInfo.
+	 */
+	function getMetaInfo ($field) {
+		$value = false;
+		if (isset($this->metaUpdated[$field])) {
+			$value = $this->metaUpdated[$field];
+		} elseif (is_array($this->meta) AND isset($this->meta[$field])) {
+			$value = $this->meta[$field];
+		} else {
+			$value = $this->getInfo($field);
 		}
 		return $value;
 	}
@@ -397,19 +541,90 @@ var $doAutoMetaUpdate = false;
 	 * Example if you request a caption but the field is empty you will get the description field value.
 	 * This function will be improved by time and the processing will be configurable.
 	 *
-	 * @param	mixed		$field Field name to get meta data from. These are database fields.
+	 * @param	string		$field Field name to get meta data from. These are database fields.
+	 * @param	array		$conf Additional configuration options for the field rendering (if supported for field)
 	 * @return	mixed		Meta data value.
+	 * @todo
 	 */
-	function getDescription ($field) {
+	function getContent ($field, $conf=array())	{
+		require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
+
+		$content = '';
+		$hsc = true;
+
 		switch ($field) {
-			case value:
-// TODO
+			case 'file_size':
+				if (!$conf['format']) $conf['format'] = 'filesize';
 				break;
 
+			case '__image_thumbnailImgTag':
+				$content = tx_dam_guifunc::image_thumbnailImgTag($this->getMetaInfoArray(), $conf['size'], $conf['imgAttributes'], $conf['iconAttributes'], $conf['makeFileIcon']);
+				$hsc = false;
+				break;
+
+			case '__icon_getFileTypeImgTag':
+				$content = tx_dam_guifunc::icon_getFileTypeImgTag($this->getMetaInfoArray(), $conf['iconAttributes']);
+				$hsc = false;
+				break;
+
+			case 'caption':
+				$caption = $this->getMeta('caption');
+				if (!$caption) $caption = $this->getMeta('description');
+				$content = $caption;
+				break;
+
+			case 'media_type':
+					$content = tx_dam_guifunc::convert_mediaType($this->getMeta($field));
+				break;
+
+// TODO set substitution rules externally
+// TODO allow user functions
+
 			default:
-				$value = $this->getMeta($field);
+				$content = $this->getMetaInfo($field);
 				break;
 		}
+
+		if ($conf['format'] AND $content) {
+			$content = tx_dam_guifunc::tools_formatValue($content, $conf['format'], $conf['formatConf']);
+		}
+
+		if ($conf['stdWrap.']) {
+			$lcObj = t3lib_div::makeInstance('tslib_cObj');
+			$lcObj->start($this->getMetaArray(), 'tx_dam');
+
+			$content = $lcObj->stdWrap($content, $conf['stdWrap.']);
+			$hsc = false;
+
+		} else {
+		}
+
+		if (isset($conf['htmlSpecialChars']) AND !$conf['htmlSpecialChars']) {
+			$hsc = false;
+		}
+		if ($hsc OR $conf['htmlSpecialChars']) {
+			$content = htmlspecialchars($content);
+		}
+
+		return $content;
+	}
+
+
+	/**
+	 * Returns meta data processed with format functions.
+	 * Format content of various types if $format is set to date, filesize, ...
+	 *
+	 * @param	mixed		$field Field name to get meta data from. These are database fields.
+	 * @param	array		$format Define format type like: date, datetime, truncate, ...
+	 * @param	string		$config Additional configuration options for the format type
+	 * @return	string		Formatted content
+	 * @see tx_dam_guifunc::tools_formatValue()
+	 */
+	function getFormatedValue ($field, $format, $config='')	{
+		require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
+
+		$value = tx_dam_guifunc::tools_formatValue($this->getMeta($field), $format, $config);
+
 		return $value;
 	}
 
@@ -423,7 +638,7 @@ var $doAutoMetaUpdate = false;
 	 */
 	function getDownloadName () {
 		$dlName = $this->getMeta('file_dl_name');
-		return $dlName ? $dlName : $this->name;
+		return $dlName ? $dlName : $this->filename;
 	}
 
 
@@ -433,7 +648,7 @@ var $doAutoMetaUpdate = false;
 	 * @return	string		Absolute path to file
 	 */
 	function getPathAbsolute () {
-		return $this->pathAbsolute.$this->name;
+		return $this->pathAbsolute.$this->filename;
 	}
 
 
@@ -443,10 +658,47 @@ var $doAutoMetaUpdate = false;
 	 * @return	string		Relative path to file
 	 */
 	function getPathForSite () {
-			// for now path_makeRelative() do what we want but that may change
-		$file_path = tx_dam::path_makeRelative ($this->pathAbsolute, PATH_site);
+		$file_path = tx_dam::file_relativeSitePath ($this->pathAbsolute.$this->filename);
+		return $file_path;
+	}
 
-		return $file_path.$this->name;
+
+	/**
+	 * Returns raw meta data array of the database record.
+	 * Updated data will be merged with original table data.
+	 *
+	 * @return	array		Meta data value.
+	 */
+	function getMetaArray () {
+		if (is_array($this->meta)) {
+			return array_merge($this->meta, $this->metaUpdated);
+		}
+		return $this->metaUpdated;
+	}
+
+
+	/**
+	 * Returns raw file info data fetched directly from the file system
+	 *
+	 * @return	array		file info array.
+	 * @see tx_dam::file_compileInfo()
+	 */
+	function getInfoArray () {
+		if ($this->fileInfo == NULL) {
+			$this->fetchFileinfo();
+		}
+		return $this->fileInfo;
+	}
+
+
+	/**
+	 * Returns file info data and raw meta data array of the database record merged in one array
+	 * Updated data will be merged with original table data.
+	 *
+	 * @return	array		Meta data value.
+	 */
+	function getMetaInfoArray () {
+		return array_merge($this->getInfoArray(), $this->getMetaArray());
 	}
 
 
@@ -494,7 +746,7 @@ var $doAutoMetaUpdate = false;
 	 */
 	function updateIndex () {
 		if (count($this->metaUpdated)) {
-// TODO write index    $this->fileinfo + $this->metaUpdated;
+// TODO write index    $this->fileInfo + $this->metaUpdated;
 		}
 	}
 
@@ -503,8 +755,8 @@ var $doAutoMetaUpdate = false;
 	 *
 	 * @return	void
 	 */
-	function updateIndexFileinfo () {
-// TODO write index    $this->fileinfo + $this->metaUpdated;
+	function updateIndexFileInfo () {
+// TODO write index    $this->fileInfo + $this->metaUpdated;
 	}
 
 
