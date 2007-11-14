@@ -90,8 +90,8 @@ CREATE TABLE tx_dam (
   # pdf: 1.3
   file_type_version varchar(9) DEFAULT '' NOT NULL,
 
-  file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path varchar(255) DEFAULT '' NOT NULL,
+  file_name varchar(255) DEFAULT '' NOT NULL,
+  file_path text NOT NULL,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
   file_mtime int(11) unsigned DEFAULT '0' NOT NULL,
   file_inode int(11) DEFAULT '0' NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE tx_dam (
   file_creator varchar(45) DEFAULT '' NOT NULL,
 
   # name that should be used for download
-  file_dl_name varchar(100) DEFAULT '' NOT NULL,
+  file_dl_name varchar(255) DEFAULT '' NOT NULL,
 
 
   # dummy field for relation to content elements
@@ -208,7 +208,6 @@ CREATE TABLE tx_dam (
   KEY file_type (file_type),
   KEY file_hash (file_hash),
   KEY file_name (file_name),
-  KEY file_path (file_path)
 );
 
 
@@ -329,8 +328,8 @@ CREATE TABLE tx_dam_file_tracking (
   pid int(11) DEFAULT '0' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 
-  file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path varchar(255) DEFAULT '' NOT NULL,
+  file_name varchar(255) DEFAULT '' NOT NULL,
+  file_path text NOT NULL,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
 
   # date of file creation

@@ -203,7 +203,7 @@ $TCA['tx_dam'] = array(
 				'type' => 'input',
 				'readOnly' => true,
 				'size' => '15',
-				'max' => '100',
+				'max' => '255',
 				'eval' => 'required',
 			)
 		),
@@ -216,7 +216,7 @@ $TCA['tx_dam'] = array(
 				'type' => 'input',
 				'readOnly' => true,
 				'size' => '25',
-				'max' => '255',
+				'max' => '4096',
 				'eval' => 'required',
 			)
 		),
@@ -226,7 +226,7 @@ $TCA['tx_dam'] = array(
 			'config' => array(
 				'type' => 'input',
 				'size' => '30',
-				'max' => '100',
+				'max' => '255',
 				'eval' => 'trim',
 			)
 		),

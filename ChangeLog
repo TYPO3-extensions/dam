@@ -1,3 +1,7 @@
+2007-11-14  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6342: Length of the DB fields "file_name" and "file_path" in DB table "tx_dam" are too short
+
 2007-09-29  Michael Stucki  <michael@typo3.org>
 
 	* Takeover by the DAM development team
