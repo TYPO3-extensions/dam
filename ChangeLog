@@ -1,3 +1,7 @@
+2007-11-17  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6638: Incorrect parameter to makeInstance
+
 2007-11-14  Michiel Roos  <michiel@netcreators.com>
 
 	* Fix: 6342: Length of the DB fields "file_name" and "file_path" in DB table "tx_dam" are too short
