@@ -1,3 +1,8 @@
+2007-12-27  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6630: xclass ux_t3lib_extFileFunctions->func_upload has wrong default
+	parameters
+
 2007-11-17  Michiel Roos  <michiel@netcreators.com>
 
 	* Fix: 6638: Incorrect parameter to makeInstance

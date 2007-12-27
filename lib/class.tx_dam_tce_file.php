@@ -254,7 +254,8 @@ class local_extFileFunctions extends t3lib_extFileFunctions	{
 	 * @param	string		$id: $_FILES['upload_'.$id]
 	 * @return	string		Returns the new filename upon success
 	 */
-	function func_upload($cmds, $id)	{
+	function func_upload($cmds, $id = false) {
+		if ($id === false) $id = $cmds['data'];
 
 		if (!$this->isInit) return FALSE;
 
