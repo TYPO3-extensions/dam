@@ -827,6 +827,7 @@ class tx_dam_db {
 		$infoFields['file_size'] = 'file_size';
 		$infoFields['file_type'] = 'file_type';
 		$infoFields['file_ctime'] = 'file_ctime';
+		$infoFields['file_mtime'] = 'file_mtime';
 		$infoFields['file_hash'] = 'file_hash';
 		$infoFields['file_mime_type'] = 'file_mime_type';
 		$infoFields['file_mime_subtype'] = 'file_mime_subtype';
