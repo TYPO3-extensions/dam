@@ -537,7 +537,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				);
 
 					// Extra parameter for DAM element browser
-				$user_eb_param = $config['allowed_types'].'|'.$config['disallowed_types'];
+				$user_eb_param = $config['allowed_types'];
 				$item .= $this->dbFileIcons($PA['itemFormElName'], 'db', implode(',', $tempFT_db), $itemArray, '', $params, $PA['onFocus'], $user_eb_param);
 			break;
 		}
