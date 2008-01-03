@@ -526,7 +526,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 				// Compile items into a DIV-element:
 			$content = '
-											<!-- CONTROL PANEL: '.htmlspecialchars($item['file_name']).' -->
+											<!-- CONTROL PANEL: tx_dam:'.$item['uid'].' -->
 											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
 		}
 
