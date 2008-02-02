@@ -1393,7 +1393,7 @@ return NULL;
 			}
 		}
 		if ($perfomMerge) {
-			$config['mergedTSconfig'] = t3lib_div::array_merge_recursive_overrule($config['pageUserTSconfig'], $config['definedTSconfig']);
+			$config['mergedTSconfig'] = t3lib_div::array_merge_recursive_overrule((array)$config['pageUserTSconfig'], (array)$config['definedTSconfig']);
 		}
 	}
 

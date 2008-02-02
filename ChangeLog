@@ -1,9 +1,13 @@
-2008-1-4	Michiel Roos	<michiel@netcreators.com>
+2008-02-02  Michael Stucki  <michael@typo3.org>
+
+	* Fix block caused by change in TYPO3 4.2
+
+2008-01-04  Michiel Roos  <michiel@netcreators.com>
 
 	* Fix: 6632: DAM media browser upload not working when disallowed is set
 	* Fix: 6697: When filename has two minus signs in row, file cannot be edited (no pencil icon).
 
-2008-1-3	Michiel Roos	<michiel@netcreators.com>
+2008-01-03  Michiel Roos  <michiel@netcreators.com>
 
 	* Fix: 6724: index check always states "File changed" or file missing 
 
