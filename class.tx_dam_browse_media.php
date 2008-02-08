@@ -323,8 +323,8 @@ class tx_dam_browse_media extends browse_links {
 		$browseTrees->init($this->thisScript, 'elbrowser');
 		$trees = $browseTrees->getTrees();
 
-		$allowedFileTypes = is_array($allowedFileTypes) ? $allowedFileTypes : t3lib_div::trimeExplode(',', $allowedFileTypes, true);
-		$disallowedFileTypes = is_array($disallowedFileTypes) ? $disallowedFileTypes : t3lib_div::trimeExplode(',', $disallowedFileTypes, true);
+		$allowedFileTypes = is_array($allowedFileTypes) ? $allowedFileTypes : t3lib_div::trimExplode(',', $allowedFileTypes, true);
+		$disallowedFileTypes = is_array($disallowedFileTypes) ? $disallowedFileTypes : t3lib_div::trimExplode(',', $disallowedFileTypes, true);
 
 		$files = $this->getFileListArr($allowedFileTypes, $disallowedFileTypes, $this->mode);
 

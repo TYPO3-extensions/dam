@@ -1,3 +1,7 @@
+2008-01-04  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 7201: Fatal error when trying to add a plain image from RTE Description		
+
 2008-02-02  Michael Stucki  <michael@typo3.org>
 
 	* Fix block caused by change in TYPO3 4.2
@@ -13,8 +17,7 @@
 
 2007-12-27  Michiel Roos  <michiel@netcreators.com>
 
-	* Fix: 6630: xclass ux_t3lib_extFileFunctions->func_upload has wrong default
-	parameters
+	* Fix: 6630: xclass ux_t3lib_extFileFunctions->func_upload has wrong default parameters
 
 2007-11-17  Michiel Roos  <michiel@netcreators.com>
 
