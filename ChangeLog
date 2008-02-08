@@ -4,7 +4,7 @@
 
 2008-02-02  Michael Stucki  <michael@typo3.org>
 
-	* Fix block caused by change in TYPO3 4.2
+	* Fix: 7368: Block caused by change in TYPO3 4.2
 
 2008-01-04  Michiel Roos  <michiel@netcreators.com>
 
