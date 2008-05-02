@@ -1,5 +1,6 @@
 2008-05-02  Benjamin Mack  <benni@typo3.org>
 
+	* Fixed bug #8236: double media folder after update (Patch by Michiel)
 	* Fixed bug #6766: getReferencedFiles $whereClauses as string
 
 2008-01-04  Michiel Roos  <michiel@netcreators.com>

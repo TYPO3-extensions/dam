@@ -759,7 +759,7 @@ class tx_dam_db {
 		static $pid = 0;
 
 		if(!$pid AND is_object($GLOBALS['TYPO3_DB'])) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages', 'doktype=2 and module="dam" AND deleted=0');
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'pages', 'module="dam" AND deleted=0');
 			if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$pid = $row['uid'];
 			} else {
