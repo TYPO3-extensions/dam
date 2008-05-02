@@ -451,7 +451,9 @@ class tx_dam_db {
 	 */
 	function getReferencedFiles($foreign_table='', $foreign_uid='', $MM_ident='', $MM_table='tx_dam_mm_ref', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
 
-		$whereClauses = is_array($whereClauses) ? $whereClauses : array('where' => (preg_replace('^AND ', trim($whereClauses))));
+		if (!is_array($whereClauses)) {
+			$whereClauses = array('where' => preg_replace('/^AND /', '', trim($whereClauses)));
+		}
 
 		$fields = $fields ? $fields : tx_dam_db::getMetaInfoFieldList();
 		$local_table = 'tx_dam';
