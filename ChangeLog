@@ -1,5 +1,6 @@
 2008-05-05  Benjamin Mack  <benni@typo3.org>
 
+	* Fixed bug #7443: DB field tx_dam_mm_ref.ident is too short (Thanks to pekue)
 	* Fixed bug #8057: Logging receives wrong parameter and throws error in 4.2
 
 2008-05-02  Benjamin Mack  <benni@typo3.org>

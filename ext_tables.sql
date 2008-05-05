@@ -280,7 +280,7 @@ CREATE TABLE tx_dam_mm_ref (
   uid_local int(11) DEFAULT '0' NOT NULL,
   uid_foreign int(11) DEFAULT '0' NOT NULL,
   tablenames varchar(30) DEFAULT '' NOT NULL,
-  ident varchar(30) DEFAULT '' NOT NULL,
+  ident TEXT DEFAULT '' NOT NULL,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
   sorting_foreign int(11) unsigned DEFAULT '0' NOT NULL,
   KEY uid_local (uid_local),
