@@ -1,3 +1,7 @@
+2008-03-06  Michiel Roos  <michiel@netcreators.com>
+
+	* Fixed bug #8223: Add DEFAULT '' to field file_path in table tx_dam (not how we fixed it)
+
 2008-05-05  Benjamin Mack  <benni@typo3.org>
 
 	* Fixed bug #7443: DB field tx_dam_mm_ref.ident is too short (Thanks to pekue)
@@ -7,6 +11,10 @@
 
 	* Fixed bug #8236: double media folder after update (Patch by Michiel)
 	* Fixed bug #6766: getReferencedFiles $whereClauses as string
+
+2008-01-04  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 8236: double media folder after update
 
 2008-01-04  Michiel Roos  <michiel@netcreators.com>
 
