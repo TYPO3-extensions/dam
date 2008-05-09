@@ -1,3 +1,7 @@
+2008-05-09  Peter Keuhn  <peter.kuehn@wmdb.de>
+
+	* Fixed bug #7762: Failed query during install (perform some changes on table tx_dam_mm_ref without first checking whether it exists or not), Thanks Peter Kuehn
+
 2008-03-06  Michiel Roos  <michiel@netcreators.com>
 
 	* Fixed bug #8223: Add DEFAULT '' to field file_path in table tx_dam (not how we fixed it)
