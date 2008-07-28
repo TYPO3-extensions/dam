@@ -81,13 +81,13 @@ class tx_dam_config {
 		if($force OR !is_array($config['pageTSconfig.'])) {
 			if ($pid = tx_dam_db::getPid() AND ($TSconfig = tx_dam_config::_getTSconfig($pid))) {
 				$config['pageTSconfig.'] = $TSconfig;
-				$config['pageUserTSconfig.'] = t3lib_div::array_merge_recursive_overrule($config['pageTSconfig.'], $config['userTSconfig.']);
+				$config['pageUserTSconfig.'] = t3lib_div::array_merge_recursive_overrule((array)$config['pageTSconfig.'], (array)$config['userTSconfig.']);
 				$perfomMerge = true;
 			}
 		}
 
 		if ($perfomMerge) {
-			$config['mergedTSconfig.'] = t3lib_div::array_merge_recursive_overrule($config['pageUserTSconfig.'], $config['definedTSconfig.']);
+			$config['mergedTSconfig.'] = t3lib_div::array_merge_recursive_overrule((array)$config['pageUserTSconfig.'], (array)$config['definedTSconfig.']);
 		}
 	}
 
@@ -191,7 +191,7 @@ class tx_dam_config {
 			$perfomMerge = true;
 		}
 		if ($perfomMerge) {
-			$config['mergedTSconfig.'] = t3lib_div::array_merge_recursive_overrule($config['pageUserTSconfig.'], $config['definedTSconfig.']);
+			$config['mergedTSconfig.'] = t3lib_div::array_merge_recursive_overrule((array)$config['pageUserTSconfig.'], (array)$config['definedTSconfig.']);
 		}
 	}
 

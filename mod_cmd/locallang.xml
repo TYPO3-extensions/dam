@@ -28,7 +28,7 @@
             <label index="labelWarning">Warning:</label>
             <label index="labelCmdProcess">Process</label>
             <label index="labelCmdSave">Save</label>
-            <label index="labelCmdSaveClose">Save &amp; Cose</label>
+            <label index="labelCmdSaveClose">Save &amp; Close</label>
             <label index="tx_dam_cmd_nothing.title">[no command]</label>
             <label index="tx_dam_cmd_nothing.messageNoCmd">There's no command passed to this module. (You shouldn't see this message.)</label>
             <label index="tx_dam_cmd_nothing.messageUnknownCmd">The command passed to this module is unknown. (You shouldn't see this message.)</label>

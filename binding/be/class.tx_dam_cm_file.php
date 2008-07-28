@@ -73,8 +73,12 @@ class tx_dam_cm_file {
 			return $menuItems;
 		}
 
-			// just clear the whole menu
+			// clear the whole menu and the display constraints 
+			// once a DAM file is found
 		$menuItems = array();
+			// see typo3/alt_clickmenu.php:clickmenu::enableDisableItems() for iParts[3]
+			// which is called after this function
+		$backRef->iParts[3] = '';
 
 
 		$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');

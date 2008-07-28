@@ -46,7 +46,7 @@ $tempColumns = array(
 	'tx_dam_images' => txdam_getMediaTCA('image_field', 'tx_dam_images'),
 	'tx_dam_files' => txdam_getMediaTCA('media_field', 'tx_dam_files'),
 );
-if (!isset($TCA['tx_dam']['columns']['ce_flexform'])) {
+if (!isset($TCA['tt_content']['columns']['ce_flexform'])) {
 	$tempColumns['ce_flexform'] = array(
 		'l10n_display' => 'hideDiff',
 		'exclude' => 1,
@@ -175,12 +175,14 @@ if (TYPO3_MODE === 'BE')	{
 
 	t3lib_extMgm::addModule('txdamM1','tools','',PATH_txdam.'mod_tools/');
 
-	t3lib_extMgm::insertModuleFunction(
-		'txdamM1_tools',
-		'tx_dam_tools_indexsetup',
-		PATH_txdam.'modfunc_tools_indexsetup/class.tx_dam_tools_indexsetup.php',
-		'LLL:EXT:dam/modfunc_tools_indexsetup/locallang.xml:tx_dam_tools_indexsetup.title'
-	);
+	if(t3lib_extMgm::isLoaded('dam_index')) {
+		t3lib_extMgm::insertModuleFunction(
+			'txdamM1_tools',
+			'tx_dam_tools_indexsetup',
+			PATH_txdam.'modfunc_tools_indexsetup/class.tx_dam_tools_indexsetup.php',
+			'LLL:EXT:dam/modfunc_tools_indexsetup/locallang.xml:tx_dam_tools_indexsetup.title'
+		);
+	}
 
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_tools',

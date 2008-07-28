@@ -126,7 +126,8 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 			$error = tx_dam::process_createFile($this->folder['dir_path_absolute'].$this->pObj->data['file_name'], $this->pObj->data['file_content']);
 
 			if ($error) {
-				$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), $this->pObj->buttonBack(0), 2);
+				$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), '', 2);
+				$content .= $this->renderForm();
 
 			} else {
 				$this->pObj->redirect(true);

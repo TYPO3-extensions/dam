@@ -678,6 +678,10 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 		if (is_array($indexSession['data'])) {
 
+			$damIndexing = t3lib_div::makeInstance('tx_dam_indexing');
+			$damIndexing->init();
+			$damIndexing->dryRun=TRUE;
+
 			foreach ($indexSession['data'] as $key => $file) {
 
 					// increase progress bar
@@ -695,6 +699,9 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 					'file_hash' => $fileHash,
 				);
 				$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_file_tracking', $fields_values);
+
+				$fileInfo=array_merge($fileInfo,$damIndexing->getFileMimeType($file));
+				$fileInfo['media_type']=tx_dam::convert_mediaType($fileInfo['file_mime_type']);
 
 				$ctable = array();
 				$ctable[] = '&nbsp;';

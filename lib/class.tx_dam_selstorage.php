@@ -278,7 +278,9 @@ class tx_dam_selStorage {
 		$storeControl = t3lib_div::_GP('selStoreControl');
 		$storeIndex = $storeControl['STORE'];
 
-		if ($this->writeDevLog) t3lib_div::devLog('Store command: '.t3lib_div::arrayToLogString($storeControl), 'tx_dam_selStorage', 0);
+		if ($this->writeDevLog) {
+			t3lib_div::devLog('Store command: '.(is_array($storeControl) ? t3lib_div::arrayToLogString($storeControl) : $storeControl), 'tx_dam_selStorage', 0);
+		}
 
 		$msg = '';
 		$saveSettings = FALSE;

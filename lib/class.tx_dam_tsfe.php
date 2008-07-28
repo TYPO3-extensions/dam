@@ -96,13 +96,27 @@ class tx_dam_tsfe {
 		}
 
 
-		$uid = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
+		$uid      = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
 		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
+
+		if (isset($GLOBALS['BE_USER']->workspace) && $GLOBALS['BE_USER']->workspace !== 0) {
+			$workspaceRecord = t3lib_BEfunc::getWorkspaceVersionOfRecord(
+				$GLOBALS['BE_USER']->workspace,
+				'tt_content',
+				$uid,
+				'uid'
+			);
+
+			if ($workspaceRecord) {
+				$uid = $workspaceRecord['uid'];
+			}
+		}
+
 		$damFiles = tx_dam_db::getReferencedFiles($refTable, $uid, $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 
-		return implode(',',$files);
+		return implode(',', $files);
 	}
 
 
@@ -128,7 +142,7 @@ class tx_dam_tsfe {
 	 */
 	function initLangObject() {
 		global $TYPO3_CONF_VARS;
-		
+
 		if (TYPO3_MODE === 'FE') {
 			if (!is_object($GLOBALS['LANG']))	{
 				require_once(PATH_site.TYPO3_mainDir.'sysext/lang/lang.php');

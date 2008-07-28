@@ -2,7 +2,7 @@
 # Add field to table 'be_groups'
 #
 CREATE TABLE be_groups (
-	tx_dam_mountpoints tinytext NOT NULL
+	tx_dam_mountpoints tinytext
 );
 
 
@@ -10,7 +10,7 @@ CREATE TABLE be_groups (
 # Add field to table 'be_users'
 #
 CREATE TABLE be_users (
-	tx_dam_mountpoints tinytext NOT NULL
+	tx_dam_mountpoints tinytext
 );
 
 
@@ -21,7 +21,7 @@ CREATE TABLE be_users (
 CREATE TABLE tt_content (
     tx_dam_images int(11) unsigned DEFAULT '0' NOT NULL,
     tx_dam_files int(11) unsigned DEFAULT '0' NOT NULL,
-    ce_flexform mediumtext NOT NULL,
+    ce_flexform mediumtext,
 );
 
 
@@ -67,7 +67,7 @@ CREATE TABLE tx_dam (
   # languages
   sys_language_uid int(11) DEFAULT '0' NOT NULL,
   l18n_parent int(11) DEFAULT '0' NOT NULL,
-  l18n_diffsource mediumblob NOT NULL,
+  l18n_diffsource mediumblob,
 
   # workspaces
   t3ver_oid int(11) DEFAULT '0' NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE tx_dam (
   # Service (uri,...), Anything/Sonstiges
   media_type tinyint(4) unsigned DEFAULT '0' NOT NULL,
 
-  title tinytext NOT NULL,
+  title tinytext,
   category int(11) DEFAULT '0' NOT NULL,
 
 
@@ -100,14 +100,14 @@ CREATE TABLE tx_dam (
   file_mime_type varchar(45) DEFAULT '' NOT NULL,
   file_mime_subtype varchar(45) DEFAULT '' NOT NULL,
 
-  # psd,doc,tif
-  file_type varchar(4) DEFAULT '' NOT NULL,
+  # psd,doc,tif,class
+  file_type varchar(5) DEFAULT '' NOT NULL,
 
   # pdf: 1.3
   file_type_version varchar(9) DEFAULT '' NOT NULL,
 
-  file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path varchar(255) DEFAULT '' NOT NULL,
+  file_name varchar(255) DEFAULT '' NOT NULL,
+  file_path text,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
   file_mtime int(11) unsigned DEFAULT '0' NOT NULL,
   file_inode int(11) DEFAULT '0' NOT NULL,
@@ -133,7 +133,7 @@ CREATE TABLE tx_dam (
   file_creator varchar(45) DEFAULT '' NOT NULL,
 
   # name that should be used for download
-  file_dl_name varchar(100) DEFAULT '' NOT NULL,
+  file_dl_name varchar(255) DEFAULT '' NOT NULL,
 
 
   # dummy field for relation to content elements
@@ -142,7 +142,7 @@ CREATE TABLE tx_dam (
 
 
   # xml / array
-  meta text NOT NULL,
+  meta text,
 
 
   # sku / bestell nr
@@ -152,19 +152,19 @@ CREATE TABLE tx_dam (
   # photographer
   creator varchar(45) DEFAULT '' NOT NULL,
 
-  keywords tinytext NOT NULL,
-  description text NOT NULL,
+  keywords tinytext,
+  description text,
 
   # for web or FE applications
   alt_text varchar(255) DEFAULT '' NOT NULL,
-  caption text NOT NULL,
+  caption text,
 
 
   # if not set by hand, the first kb of a pdf, doc file for example
-  abstract text NOT NULL,
+  abstract text,
 
   # for searching and non editable: the first 60 kb of a pdf, doc file for example
-  search_content text NOT NULL,
+  search_content text,
 
   # document language
   language char(3) DEFAULT '' NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE tx_dam (
   copyright varchar(128) DEFAULT '' NOT NULL,
 
   # instructions and notes
-  instructions tinytext NOT NULL,
+  instructions tinytext,
 
   # created, modified
   # date_cr don`t have to be the file creation time. It is the time a photo is shooten not the time the slide is scanned and saved
@@ -224,7 +224,6 @@ CREATE TABLE tx_dam (
   KEY file_type (file_type),
   KEY file_hash (file_hash),
   KEY file_name (file_name),
-  KEY file_path (file_path)
 );
 
 
@@ -241,7 +240,7 @@ CREATE TABLE tx_dam_cat (
   # languages
   sys_language_uid int(11) DEFAULT '0' NOT NULL,
   l18n_parent int(11) DEFAULT '0' NOT NULL,
-  l18n_diffsource mediumblob NOT NULL,
+  l18n_diffsource mediumblob,
 
   # workspaces
   t3ver_oid int(11) DEFAULT '0' NOT NULL,
@@ -262,11 +261,11 @@ CREATE TABLE tx_dam_cat (
   hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
   fe_group varchar(100) DEFAULT '0' NOT NULL,
 
-  title tinytext NOT NULL,
-  nav_title tinytext NOT NULL,
-  subtitle tinytext NOT NULL,
-  keywords text NOT NULL,
-  description text NOT NULL,
+  title tinytext,
+  nav_title tinytext,
+  subtitle tinytext,
+  keywords text,
+  description text,
   PRIMARY KEY (uid),
   KEY parent (pid),
   KEY parent_id (parent_id)
@@ -312,7 +311,7 @@ CREATE TABLE tx_dam_mm_ref (
   uid_local int(11) DEFAULT '0' NOT NULL,
   uid_foreign int(11) DEFAULT '0' NOT NULL,
   tablenames varchar(30) DEFAULT '' NOT NULL,
-  ident varchar(30) DEFAULT '' NOT NULL,
+  ident text,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
   sorting_foreign int(11) unsigned DEFAULT '0' NOT NULL,
   KEY uid_local (uid_local),
@@ -345,7 +344,7 @@ CREATE TABLE tx_dam_log_index (
   item_count int(11) unsigned DEFAULT '0' NOT NULL,
 
   # short description
-  message tinytext NOT NULL,
+  message tinytext,
 
   PRIMARY KEY (uid),
   KEY parent (pid),
@@ -360,8 +359,8 @@ CREATE TABLE tx_dam_file_tracking (
   pid int(11) DEFAULT '0' NOT NULL,
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 
-  file_name varchar(100) DEFAULT '' NOT NULL,
-  file_path varchar(255) DEFAULT '' NOT NULL,
+  file_name varchar(255) DEFAULT '' NOT NULL,
+  file_path text,
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
 
   # date of file creation
@@ -397,8 +396,8 @@ CREATE TABLE tx_dam_selection (
 	endtime int(11) DEFAULT '0' NOT NULL,
 	fe_group int(11) DEFAULT '0' NOT NULL,
 	type int(11) DEFAULT '0' NOT NULL,
-	title tinytext NOT NULL,
-	definition text NOT NULL,
+	title tinytext,
+	definition text,
 
 	PRIMARY KEY (uid),
 	KEY parent (pid)

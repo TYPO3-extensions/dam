@@ -1,3 +1,116 @@
+2008-07-21  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #8673: Incorrect handling of images in the RTE with TYPO3 4.2 and trunk DAM
+	* Fixed bug #8599: Replace dam extension of tx_rtehtmlarea_browse_links with implementation of interface t3lib_browselinkshook
+
+2008-05-30  Benjamin Mack  <benni@typo3.org>
+
+	* Fixed bug #7342-1: dam_catedit doesn't work properly with 4.2-trunk (clickmenu javascript error), part 1
+
+2008-05-28  Ingo Renner  <ingo@typo3.org>
+
+	* Fixed bug #8528: DAM always resolves a DRAFT workspace version of records, can't get the LIVE version
+	* Bumped version to 1.1.0-dev
+
+2008-05-19  Ingo Renner  <ingo@typo3.org>
+
+	* Fixed bug #7344: DAM does not preview correct files in workspaces
+
+2008-05-16  Ingo Renner  <ingo@typo3.org>
+
+	* Fixed issue #8426: tca_media_field.php has some weird indented code
+
+2008-05-09  Michiel Roos  <michiel@netcreators.com>
+
+	* Fixed bug #5527: Go to editing of DAM record from the content element (image)
+
+2008-05-09  Benjamin Mack  <benni@typo3.org>
+
+	* Followup for #5681: jumpToUrl is now working perfectly
+	* Fixed bug #8333: DAM Browser does not show any files.
+	* Fixed bug #8007: htmlArea -> DAM Media Browser -> File -> change directory throws Exception under 4.2.0 Description
+
+2008-05-09  Peter Keuhn  <peter.kuehn@wmdb.de>
+
+	* Fixed bug #7762: Failed query during install (perform some changes on table tx_dam_mm_ref without first checking whether it exists or not), Thanks Peter Kuehn
+
+2008-05-09  Benjamin Mack  <benni@typo3.org>
+
+	* Fixed bug #7859: DAM adds column ce_flexform on wrong condition
+
+2008-05-06  Benjamin Mack  <benni@typo3.org>
+
+	* Fixed bug #5681: Link Popup javascript error when changing DAM directory in File selection
+
+2008-05-06  Michiel Roos  <michiel@netcreators.com>
+
+	* Fixed bug #8223: Add DEFAULT '' to field file_path in table tx_dam (not how we fixed it)
+
+2008-05-05  Benjamin Mack  <benni@typo3.org>
+
+	* Fixed bug #7443: DB field tx_dam_mm_ref.ident is too short (Thanks to pekue)
+	* Fixed bug #8057: Logging receives wrong parameter and throws error in 4.2
+
+2008-05-02  Benjamin Mack <benni@typo3.org>
+
+	* Fixed bug #6766: getReferencedFiles $whereClauses as string
+
+2008-04-09  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6725: No file specific icons shown in "Media Tools > Check upload index" shown
+
+2008-02-02  Michael Stucki  <michael@typo3.org>
+
+	* Fix one more bug explained in #7368
+
+2008-02-02  Michael Stucki  <michael@typo3.org>
+
+	* Fix: 7368: Block caused by change in TYPO3 4.2
+
+2008-01-04  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6632: DAM media browser upload not working when disallowed is set
+	* Fix: 6697: When filename has two minus signs in row, file cannot be edited (no pencil icon).
+
+2008-01-03  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6700: "Show edit options" doesnt work stand allone
+	* Fix: 6724: index check always states "File changed" or file missing
+
+2007-12-27  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6630: xclass ux_t3lib_extFileFunctions->func_upload has wrong default
+	* Removed dependancy on mmforeign, added depandancy on TYPO3 > 4.1.0, added 'conflicts with' mmforeign.
+
+2007-12-24  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: http://bugs.typo3.org/view.php?id=5547, error with insertion of "New
+	Magic Image" in HTMLarea
+
+2007-11-28  Michiel Roos  <michiel@netcreators.com>
+
+	* Changed 'Save & Cose' to 'Save & Close' in mod_cmd/locallang.xml
+
+2007-11-17  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 5703: after creating a file dam jumps to list of subfolder if success, or back to the folder if it doesn't success
+	* Fix: 6638: Incorrect parameter to makeInstance
+
+2007-11-14  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 6342: Length of the DB fields "file_name" and "file_path" in DB table "tx_dam" are too short
+	* Fix: 5698: Upload Number of Files Has no effect
+	* Fix: 6454: DAM does not depend on dam_index but expects it
+
+2007-10-15  Michiel Roos  <michiel@netcreators.com>
+
+	* Fix: 5473: parent category selection for category not works
+	* Fix: 5662: indexing class-files cuts field file_type to clas
+
+2007-09-29  Michael Stucki  <michael@typo3.org>
+
+  * Takeover by the DAM development team
+
 2007-04-09  Rene Fritz  <r.fritz@colorcube.de>
 
 	* Added: Added editor registering function

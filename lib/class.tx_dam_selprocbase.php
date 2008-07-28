@@ -297,13 +297,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 
 			// Wrap icon in click-menu link.
 		if (!$this->ext_IconMode)	{
-			#$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($theIcon,$this->table,$this->getId($row),0);
-// todo: dam_catedit
-			if (t3lib_extmgm::isLoaded('dam_catedit')) {
-				require_once(t3lib_extmgm::extPath('dam_catedit').'lib/class.tx_damcatedit_div.php');
-				$theIcon = tx_damcatedit_div::clickMenuWrap($theIcon, $this->table, $this->getId($row), false, $addParams='', $enDisItems='', '', $this->clickMenuScript);
-			}
-
+			$theIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($theIcon, $this->table, $this->getId($row), 0);
 		} elseif (!strcmp($this->ext_IconMode,'titlelink'))	{
 // unused for now
 			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row).'\',this,\''.$this->domIdPrefix.$this->getId($row).'_'.$this->bank.'\');';

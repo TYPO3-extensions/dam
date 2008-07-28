@@ -133,8 +133,16 @@ class tx_dam_browse_media extends browse_links {
 	 * @return void
 	 */
 	function initDAM () {
-		global $TYPO3_CONF_VARS;
-		
+
+				// load the clickmenu (simpler inclusion since 4.2.0)
+		if (t3lib_div::compat_version('4.2.0')) {
+			$this->doc->getContextMenuCode();
+		} else {	// inclusion before TYPO3 4.2.0
+			$CMparts = $this->doc->getContextMenuCode();
+			$this->doc->bodyTagAdditions = $CMparts[1];
+			$this->doc->JScode.= $CMparts[0];
+			$this->doc->postCode.= $CMparts[2];
+		}
 
 		if (!is_object($this->damSC)) {
 			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');
@@ -617,7 +625,7 @@ if (is_string($allowedFileTypes)) {
 					$titleAttrib = tx_dam_guiFunc::icon_getTitleAttribute($fI);
 
 					
-					if ($mode === 'rte' AND $act === 'file') {
+					if ($mode === 'rte' AND $act === 'media') {
 						$onClick = 'return link_folder(\''.t3lib_div::rawUrlEncodeFP(tx_dam::file_relativeSitePath($fI['_ref_file_path'])).'\');';
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 						
@@ -1042,10 +1050,10 @@ if (is_string($allowedFileTypes)) {
 	 */
 	function thumbsEnabled() {
 			// Getting flag for showing/not showing thumbnails:
-		$noThumbs = $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInEB');
+		$noThumbs = $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInEB') || ($this->mode == 'rte' && $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInRTEimageSelect'));;
 		return !$noThumbs;
 	}
-	
+
 
 	/**
 	 * Return $MOD_SETTINGS array

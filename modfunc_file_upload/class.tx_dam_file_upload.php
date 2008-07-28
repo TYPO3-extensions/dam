@@ -302,7 +302,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			$content .= $this->pObj->doc->spacer(10);
 
 			require_once(PATH_txdam.'lib/class.tx_dam_batchprocess.php');
-			$batch = t3lib_div::makeInstance(tx_dam_batchProcess);
+			$batch = t3lib_div::makeInstance('tx_dam_batchProcess');
 
 
 			if($batch->processGP()) {

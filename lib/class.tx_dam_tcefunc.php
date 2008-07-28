@@ -548,7 +548,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				);
 
 					// Extra parameter for DAM element browser
-				$user_eb_param = $config['allowed_types'].'|'.$config['disallowed_types'];
+				$user_eb_param = $config['allowed_types'];
 				$item .= $this->dbFileIcons($PA['itemFormElName'], 'db', implode(',', $tempFT_db), $itemArray, '', $params, $PA['onFocus'], $user_eb_param);
 			break;
 		}
@@ -579,7 +579,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$out = '';
 
 			// Listing the files:
-		if (is_array($filesArray) AND count($filesArray))	{
+		if (is_array($filesArray) && count($filesArray))	{
 
 			$lines=array();
 			foreach($filesArray['rows'] as $row)	{
@@ -594,7 +594,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 
 					// add clickmenu
-				if ($fileExists AND !$disabled) {
+				if ($fileExists && !$disabled) {
 #							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
 					$iconTag = $this->tceforms->getClickMenu($iconTag, 'tx_dam', $row['uid']);
 				}
@@ -616,7 +616,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 					// Thumbnail/size generation:
 				$clickThumb = '';
-				if ($displayThumbs AND $fileExists AND tx_dam_image::isPreviewPossible($row))	{
+				if ($displayThumbs && $fileExists && tx_dam_image::isPreviewPossible($row))	{
 					$clickThumb = tx_dam_image::previewImgTag($row);
 					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$clickThumb.'</div>';
 				} elseif ($displayThumbs) {
@@ -1249,7 +1249,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 							'</a>';
 				}
 			}
-			
+
 // todo Clipboard
 			$clipElements = $this->tceforms->getClipboardElements($allowed, $mode);
 			if (count($clipElements))	{

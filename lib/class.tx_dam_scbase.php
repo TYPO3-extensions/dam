@@ -345,6 +345,12 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				'tx_damindex_storedSettings' => '',
 
 				'tx_dam_resultPointer' => '',
+				'tx_dam_file_uploadFields' => array(
+					5 => '5',
+					10 => '10',
+					15 => '15',
+				),
+				'tx_dam_file_upload_overwrite' => '',
 				'tx_dam_resultsPerPage' => array(
 						20 => '20',
 						50 => '50',
@@ -460,10 +466,20 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			var script_ended = 0;
 			var changed = 0;';
 
-		$this->doc->JScodeArray['jumpToUrl'] = '
-			function jumpToUrl(URL)	{
-				document.location.href = URL;
-			}';
+			// we first want to check if jumpTourl was set already, 
+			// and check this twice (in case rtehtmlarea decides to use
+			// JScodeArray as well later on, we don't want to react again)
+			// the second check is done in javascript to not define jumpToUrl
+			// twice (= overriding the initial function)
+		if (!isset($this->doc->JScodeArray['jumpToUrl'])) {
+			$this->doc->JScodeArray['jumpToUrl'] = '
+				if (!(typeof jumpToUrl == "function")) {
+					function jumpToUrl(URL) {
+						document.location.href = URL;
+					}
+				}
+			';
+		}
 
 		$this->doc->JScodeArray['jumpExt'] = '
 			function jumpExt(URL,anchor)	{
