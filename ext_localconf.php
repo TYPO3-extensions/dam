@@ -124,6 +124,9 @@ if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['mediatag']) {
 	require_once(PATH_txdam.'binding/mediatag/ext_localconf.php');
 }
 
+	// txdam attribute on img tag for FE
+require_once(PATH_txdam.'binding/imgtag/ext_localconf.php');
+
 	// FE stuff
 
 $pluginContent = t3lib_div::getUrl(PATH_txdam.'pi/setup.txt');

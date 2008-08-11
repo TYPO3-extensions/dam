@@ -1,3 +1,7 @@
+2008-08-11  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Added feature #9113: Render new image in RTE-enabled content when the file name is changed in DAM record
+
 2008-08-10  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Follow-up for issues #8673 and #8599: Correction for drag and drop
