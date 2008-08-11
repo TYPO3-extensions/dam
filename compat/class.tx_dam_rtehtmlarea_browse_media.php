@@ -149,7 +149,7 @@ class tx_dam_rtehtmlarea_browse_media implements t3lib_browseLinksHook {
 	 * @return	string		a tab for the selected action
 	 */
 	public function getTab($act) {
-		global $BE_USER;
+		global $BE_USER, $LANG;
 		
 		$content = '';
 		switch ($act) {
@@ -174,6 +174,7 @@ class tx_dam_rtehtmlarea_browse_media implements t3lib_browseLinksHook {
 				$this->browserRenderObj->addDisplayOptions();
 				$content .= $this->browserRenderObj->dam_select($this->allowedFileTypes);
 				$content .= $this->browserRenderObj->damSC->getOptions();
+				$content .= $this->invokingObject->getMsgBox($LANG->getLL('findDragDrop'));
 				$this->addDAMStylesAndJSArrays();
 				break;
 			case 'media_upload':

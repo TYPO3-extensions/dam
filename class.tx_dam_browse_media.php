@@ -544,7 +544,7 @@ if (is_string($allowedFileTypes)) {
 	 * @return	string		HTML output
 	 */
 	function renderFileList($files, $mode='file', $act='') {
-		global $LANG, $BACK_PATH, $TCA;
+		global $LANG, $BACK_PATH, $TCA, $TYPO3_CONF_VARS;
 
 		$out = '';
 
@@ -586,6 +586,7 @@ if (is_string($allowedFileTypes)) {
 		if (is_array($files) AND count($files))	{
 
 			$displayThumbs = $this->displayThumbs();
+			$dragdropImage = ($mode == 'rte' && ($act == 'dragdrop' ||$act == 'media_dragdrop'));
 			$addAllJS = '';
 
 				// Traverse the file list:
@@ -629,7 +630,7 @@ if (is_string($allowedFileTypes)) {
 						$onClick = 'return link_folder(\''.t3lib_div::rawUrlEncodeFP(tx_dam::file_relativeSitePath($fI['_ref_file_path'])).'\');';
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 						
-					} else {
+					} elseif (!$dragdropImage) {
 						$onClick = 'return insertElement('.$onClick_params.');';
 						$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 						$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
@@ -637,12 +638,10 @@ if (is_string($allowedFileTypes)) {
 						$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 						
-						$addAllJS .= 'insertElement('.$onClick_params.'); ';
+						$addAllJS .= ($mode === 'rte')?'':'insertElement('.$onClick_params.'); ';
 					}
-				
-					
 				}
-
+				
 					// Create link to showing details about the file in a window:
 				if ($fI['__exists']) {
 					$Ahref = $GLOBALS['BACK_PATH'].'show_item.php?table='.rawurlencode($fI['file_name_absolute']).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
@@ -664,13 +663,34 @@ if (is_string($allowedFileTypes)) {
 				} elseif ($displayThumbs) {
 					$clickThumb = '<div style="width:68px"></div>';
 				}
-
+					// Image for drag & drop replaces the thumbnail
+				if ($dragdropImage AND t3lib_div::inList($TYPO3_CONF_VARS['GFX']['imagefile_ext'], $fI['file_type']) AND is_file($fI['file_name_absolute']))	{
+					if (t3lib_div::_GP('noLimit'))	{
+						$maxW=10000;
+						$maxH=10000;
+					} else {
+						$maxW=380;
+						$maxH=500;
+					}
+					$IW = $fI['hpixels'];
+					$IH = $fI['vpixels'];
+					if ($IW>$maxW)	{
+						$IH=ceil($IH/$IW*$maxW);
+						$IW=$maxW;
+					}
+					if ($IH>$maxH)	{
+						$IW=ceil($IW/$IH*$maxH);
+						$IH=$maxH;
+					}
+					$clickThumb = '<img src="'.t3lib_div::getIndpEnv('TYPO3_SITE_URL').substr($fI['file_name_absolute'],strlen(PATH_site)).'" width="'.$IW.'" height="'.$IH.'"' . ($this->defaultClass?(' class="'.$this->defaultClass.'"'):''). ' alt="'.$fI['alt_text'].'" title="'.$fI[$this->imgTitleDAMColumn].'" txdam="'. $fI['uid'] .'" />';
+					$clickThumb = '<div style="width:380px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$clickThumb.'</div>';
+				}
 
 					// Show element:
 				$lines[] = '
 					<tr>
-						<td valign="middle" class="bgColor4" nowrap="nowrap" style="min-width:20em">'.$ATag_insert.$iconAndFilename.'</a>'.'&nbsp;</td>
-						<td valign="middle" class="bgColor4" width="1%">'.$addIcon.'</td>
+						<td valign="middle" class="bgColor4" nowrap="nowrap" style="min-width:20em">'.($dragdropImage?'':$ATag_insert).$iconAndFilename.'</a>'.'&nbsp;</td>
+						<td valign="middle" class="bgColor4" width="1%">'.($mode != 'rte'?'':$addIcon).'</td>
 						<td valign="middle" nowrap="nowrap" width="1%">'.$info.'</td>
 					</tr>';
 
@@ -684,7 +704,7 @@ if (is_string($allowedFileTypes)) {
 				}
 
 
-				if ($displayThumbs AND $infoText) {
+				if (($displayThumbs || $dragdropImage) AND $infoText) {
 					$lines[] = '
 						<tr class="bgColor">
 							<td valign="top" colspan="3">
@@ -1050,7 +1070,7 @@ if (is_string($allowedFileTypes)) {
 	 */
 	function thumbsEnabled() {
 			// Getting flag for showing/not showing thumbnails:
-		$noThumbs = $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInEB') || ($this->mode == 'rte' && $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInRTEimageSelect'));;
+		$noThumbs = $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInEB') || ($this->mode == 'rte' && $GLOBALS['BE_USER']->getTSConfigVal('options.noThumbsInRTEimageSelect'));
 		return !$noThumbs;
 	}
 

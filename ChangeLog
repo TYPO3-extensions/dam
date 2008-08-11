@@ -1,3 +1,7 @@
+2008-08-10  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Follow-up for issues #8673 and #8599: Correction for drag and drop
+
 2008-07-21  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Fixed bug #8673: Incorrect handling of images in the RTE with TYPO3 4.2 and trunk DAM
