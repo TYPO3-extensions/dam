@@ -1,3 +1,7 @@
+2008-08-12  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* DAM 1.1.0 requires TYPO3 4.2.2
+
 2008-08-11  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Added feature #9113: Render new image in RTE-enabled content when the file name is changed in DAM record
