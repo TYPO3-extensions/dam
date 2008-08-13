@@ -531,11 +531,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 			$actionCall->setRequest('control', $item);
 			$actions = $actionCall->renderActionsHorizontal(true);
-
-				// Compile items into a DIV-element:
-			$content = '
-											<!-- CONTROL PANEL: tx_dam:'.$item['uid'].' -->
-											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
+			$content = implode('&nbsp;', $actions);
 		}
 
 		return $content;

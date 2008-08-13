@@ -393,11 +393,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 
 			$actionCall[$item['__type']]->setRequest('control', $item);
 			$actions = $actionCall[$item['__type']]->renderActionsHorizontal(true);
-
-				// Compile items into a DIV-element:
-			$content = '
-											<!-- CONTROL PANEL: tx_dam:'.$item['uid'].' -->
-											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
+			$content = implode('&nbsp;', $actions);
 		}
 
 		return $content;
