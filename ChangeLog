@@ -1,3 +1,7 @@
+2008-08-13  Dan Osipov  <dosipov@phillyburbs.com>
+
+	* Fixed bug #8598: Media > File: Icons are hidden by Fieldsize in IE 7.0
+
 2008-05-09  Peter Keuhn  <peter.kuehn@wmdb.de>
 
 	* Fixed bug #7762: Failed query during install (perform some changes on table tx_dam_mm_ref without first checking whether it exists or not), Thanks Peter Kuehn
