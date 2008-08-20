@@ -38,8 +38,11 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	
 	protected $invokingObject;
 	protected $mode;
+	protected $act;
+	protected $bparams;
 	protected $isHtmlAreaRTE;
 	protected $isEnabled;
+	protected $browserRenderObj; // DAM browser object
 	
 	/**
 	 * initializes the hook object
@@ -51,12 +54,13 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	public function init($parentObject, $additionalParameters) {
 		$this->invokingObject =& $parentObject;
 		$this->mode =& $this->invokingObject->mode;
+		$this->act =& $this->invokingObject->act;
+		$this->bparams =& $this->invokingObject->bparams;
 		$invokingObjectClass = get_class($this->invokingObject);
 		$this->isHtmlAreaRTE = ($invokingObjectClass == 'tx_rtehtmlarea_browse_links' || $invokingObjectClass == 'ux_tx_rtehtmlarea_browse_links');
 		$this->isEnabled = ((string)$this->mode == 'rte') && $this->isHtmlAreaRTE;
 		if ($this->isEnabled) {
 			$this->invokingObject->anchorTypes[] = 'media';
-			
 		}
 	}
 	
@@ -110,10 +114,9 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 		$content = '';
 		if ($this->isEnabled && $linkSelectorAction == 'media') {
 			$content .= $this->invokingObject->addAttributesForm();
-			$browserRenderObj = t3lib_div::makeInstance('tx_dam_browse_media');
-			if ($browserRenderObj->isValid('part_rte_linkfile', $this->invokingObject)) {
-				$content .=  $browserRenderObj->renderPart('rte_linkfile', $this->invokingObject);
-			}
+			$this->initMediaBrowser();
+			$content .= $this->browserRenderObj->part_rte_linkfile();
+			$this->addDAMStylesAndJSArrays();
 		}
 		return $content;
 	}
@@ -132,6 +135,30 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 			$info['act'] = 'media';
 		}
 		return $info;
+	}
+
+	protected function initMediaBrowser() {
+		$this->browserRenderObj = t3lib_div::makeInstance('tx_dam_browse_media');
+		$this->browserRenderObj->pObj =& $this->invokingObject;
+		$this->invokingObject->browser =& $this->browserRenderObj;
+			// init class browse_links
+		$this->browserRenderObj->init();
+		$this->browserRenderObj->mode =& $this->mode;
+		$this->browserRenderObj->act =& $this->act;
+		$this->browserRenderObj->bparams =& $this->bparams;
+			// init the DAM object
+		$this->browserRenderObj->initDAM();
+			// processes MOD_SETTINGS
+		$this->browserRenderObj->getModSettings();
+			// Processes bparams parameter
+		$this->browserRenderObj->processParams();
+			// init the DAM selection after we've got the params
+		$this->browserRenderObj->initDAMSelection();
+	}
+
+	protected function addDAMStylesAndJSArrays() {
+		$this->invokingObject->doc->inDocStylesArray = array_merge($this->invokingObject->doc->inDocStylesArray, $this->browserRenderObj->doc->inDocStylesArray);
+		$this->invokingObject->doc->JScodeArray = array_merge($this->invokingObject->doc->JScodeArray, $this->browserRenderObj->doc->JScodeArray);
 	}
 }
 

@@ -109,18 +109,9 @@ class tx_dam_browse_media extends browse_links {
 
 		if ($type === 'db' AND $pArr[3]=='tx_dam') {
 			$isValid = true;
-
-		} 
-		elseif ($type === 'file') {
-			$isValid = true;
-
-		} 
-		elseif ($type === 'part_rte_linkfile') {
+		} elseif ($type === 'file') {
 			$isValid = true;
 		}
-//		elseif (method_exists($this, 'main_rte') AND $type === 'rte' AND $pObj->button == 'image') {
-//			$isValid = true;
-//		}
 
 		return $isValid;
 	}
