@@ -130,7 +130,7 @@
             <label index="pathNoAccess">You have no access to the requested path.</label>
             <label index="pathNotExists">The requested path do not exists.</label>
             <label index="fileNotIndexed">The file is not indexed yet.</label>
-            <label index="fileNotExists">The file do not exist in the filesystem.</label>
+            <label index="fileNotExists">The file does not exist in the filesystem.</label>
             <label index="fileNotUsed">The file is not used.</label>
             <label index="fileReference">File reference</label>
             <label index="fileCopy">File copy</label>
