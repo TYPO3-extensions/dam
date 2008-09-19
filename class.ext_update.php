@@ -21,10 +21,6 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-
-
-
-
 /**
  * Class for updating the db
  *
@@ -62,8 +58,7 @@ class ext_update  {
 	function access()	{
 		
 		
-		// Just do the upgrade without asking
-		
+			// Just do the upgrade without asking
 		$this->perform_update();
 		return false;
 		
@@ -77,11 +72,12 @@ class ext_update  {
 		$doit = $row[0] ? true : $doit;
 		
 		$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tt_content');
-		if (isset($res['tx_dam_flexform']) AND !isset($res['ce_flexform'])) {
+
+		if (isset($res['tx_dam_flexform']) && !isset($res['ce_flexform'])) {
 			$doit = true;
 		}
-		
-		if (t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
+
+		if (t3lib_div::compat_version('4.1')) {
 			$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
 			if (!isset($res['sorting_foreign'])) {
 				$doit = true;
@@ -111,13 +107,12 @@ class ext_update  {
 		$content .= 'Updated Media folder to be a SysFolder<br />';
 
 		$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tt_content');
-		if (isset($res['tx_dam_flexform']) AND !isset($res['ce_flexform'])) {
+		if (isset($res['tx_dam_flexform']) && !isset($res['ce_flexform'])) {
 			$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tt_content CHANGE tx_dam_flexform ce_flexform mediumtext NOT NULL');
 			$content .= 'Renamed field tt_content.tx_dam_flexform to ce_flexform<br />';
 		}	
 
-		if (t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
-			
+		if (t3lib_div::compat_version('4.1')) {
 			$existingTables=$GLOBALS['TYPO3_DB']->admin_get_tables();
 			if(isset($existingTables['tx_dam_mm_ref']))	{
 				$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
