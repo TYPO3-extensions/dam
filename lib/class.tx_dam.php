@@ -2359,12 +2359,13 @@ class tx_dam {
 
 		$iconfile = false;
 
+			// first see if the icon is in the icon cache
 		if (is_array($mimeType)) {
 
-			if (!$absolutePath AND $cached = $iconCacheRel[$mimeType['file_type']]) {
+			if (!$absolutePath && $cached = $iconCacheRel[$mimeType['file_type']]) {
 				return $cached;
 
-			} elseif (!$absolutePath AND $cached = $iconCacheRel['_mtype_'.$mimeType['media_type']]) {
+			} elseif (!$absolutePath && $cached = $iconCacheRel['_mtype_'.$mimeType['media_type']]) {
 				return $cached;
 
 			} elseif ($cached = $iconCache[$mimeType['file_type']]) {
@@ -2374,8 +2375,16 @@ class tx_dam {
 				$iconfile = $cached;
 
 			} else {
+				foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
+						// first try PNG
+					if (@file_exists($pathIcons.$mimeType['file_type'].'.png')) {
+						$iconfile = $pathIcons.$mimeType['file_type'].'.png';
+						$cacheKey = $mimeType['file_type'];
+						$iconCache[$cacheKey] = $iconfile;
+						break;
+					}
 
-				foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
+						// then go for GIF
 					if (@file_exists($pathIcons.$mimeType['file_type'].'.gif')) {
 						$iconfile = $pathIcons.$mimeType['file_type'].'.gif';
 						$cacheKey = $mimeType['file_type'];
@@ -2384,13 +2393,22 @@ class tx_dam {
 					}
 				}
 
-				if(!$iconfile AND $mediaType = tx_dam::convert_mediaType($mimeType['media_type'])) {
+				if(!$iconfile && $mediaType = tx_dam::convert_mediaType($mimeType['media_type'])) {
 					foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
+							// first try PNG
+						if (@file_exists($pathIcons.'mtype_'.$mediaType.'.png')) {
+							$iconfile = $pathIcons.'mtype_'.$mediaType.'.png';
+							$cacheKey = '_mtype_'.$mimeType['media_type'];
+							$iconCache[$cacheKey] = $iconfile;
+							break;
+						}
+
+							// then go for GIF
 						if (@file_exists($pathIcons.'mtype_'.$mediaType.'.gif')) {
 							$iconfile = $pathIcons.'mtype_'.$mediaType.'.gif';
 							$cacheKey = '_mtype_'.$mimeType['media_type'];
 							$iconCache[$cacheKey] = $iconfile;
-						break;
+							break;
 						}
 					}
 				}
