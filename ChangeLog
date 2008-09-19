@@ -1,5 +1,6 @@
 2008-09-19  Benjamin Mack  <benni@typo3.org>
 
+	* Fixed bug #4933: Category/folder association (Thanks to David Steeb)
 	* Fixed bug #8365: Cleanup class.ext_update.php
 
 2008-08-19  Stanislas Rolland  <typo3@sjbr.ca>

@@ -148,11 +148,13 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 	 */
 	function getOptionsForm()	{
 		global $LANG;
-
 		$code = array();
 		$code[1][1] = 	'<input type="hidden" name="data[rules][tx_damindex_rule_folderAsCat][fuzzy]" value="0" />'.
-						'<input type="checkbox" name="data[rules][tx_damindex_rule_folderAsCat][fuzzy]"'.($this->setup['fuzzy']?' checked="checked"':'').' value="1" />&nbsp;';
+						'<input type="checkbox" name="data[rules][tx_damindex_rule_folderAsCat][fuzzy]"'.($this->setup['fuzzy'] ? ' checked="checked"' : '').' value="1" />&nbsp;';
 		$code[1][2] = $LANG->sL('LLL:EXT:dam/components/locallang_indexrules.xml:folderAsCat.use_fuzzy');
+		$code[2][1] =	'<input type="hidden" name="data[rules][tx_damindex_rule_folderAsCat][createCategory]" value="0" />'.
+						'<input type="checkbox" name="data[rules][tx_damindex_rule_folderAsCat][createCategory]"'.($this->setup['createCategory'] ? ' checked="checked"' : '').' value="1" />&nbsp;';
+		$code[2][2] = $LANG->sL('LLL:EXT:dam/components/locallang_indexrules.xml:folderAsCat.createCategory');
 		return $GLOBALS['SOBE']->doc->table($code);
 	}
 
@@ -178,43 +180,88 @@ class tx_dam_index_rule_folderAsCat extends tx_dam_indexRuleBase {
 	 * @return	array Processed meta data array
 	 */
 	function processMeta($meta)	{
-		
 		if ($this->writeDevLog) 	t3lib_div::devLog('processMeta(): setup', 'tx_dam_index_rule_folderAsCat', 0, $this->setup);
 
-		$folder = tx_dam::path_basename($meta['fields']['file_path']);
-		if ($folder) {
-			
+		$folderArr = explode('/', $meta['fields']['file_path']);
+		if ($folderArr[count($folderArr)-1] == '') {
+			array_pop($folderArr);
+		}
 
-			if($this->setup['fuzzy']) {
-				
-				$folder = str_replace ('_', ' ', $folder);
-				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($folder,'tx_dam');
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr('%'.$likeStr.'%', 'tx_dam_cat').' AND deleted=0');
+		// skip first folder, because $meta['fields']['file_path'] starts in the typo3-folder, 
+		// so the first entry would be e.g. fileadmin, which should not be a category itself
+		array_shift($folderArr);		
+		
+		$nextParentId = 0;
+		$categoryId = FALSE;
 
+		foreach ($folderArr as $folder) {
+			$res = FALSE;
+			$row = FALSE;
+			$parentId = $nextParentId;
+						
+			if ($this->setup['fuzzy']) {
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'parent_id = '.$parentId.' and title LIKE "%'.$GLOBALS['TYPO3_DB']->quoteStr($folder, 'tx_dam_cat').'%" and deleted = "0"');
 			} else {
-				$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike($folder,'tx_dam');
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title='.$GLOBALS['TYPO3_DB']->fullQuoteStr($folder, 'tx_dam_cat').' AND deleted=0');
-				# $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'title LIKE '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr, 'tx_dam_cat').' AND deleted=0');
-			}
-			$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-
-			if ($row['uid']) {
-				$meta['fields']['category'].= ',tx_dam_cat_'.$row['uid'];
+				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid', 'tx_dam_cat', 'parent_id = '.$parentId.' and title="'.$GLOBALS['TYPO3_DB']->quoteStr($folder, 'tx_dam_cat').'" and deleted = "0"');
 			}			
 			
-			if ($this->writeDevLog) 	{
-				$devLog = array ('folder' => $folder, 'uid' => $row['uid'], 'category' => $meta['fields']['category']);
-				t3lib_div::devLog('processMeta(): category', 'tx_dam_index_rule_folderAsCat', 0, $devLog);
+			if ($res) {
+				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
 			}
-			
+			if (is_array($row)) {
+				$categoryId = $row['uid'];
+				$nextParentId = $row['uid'];
+			} else {
+				$categoryId = FALSE;
+				
+				// Create a new Category if category is not present and createCategory is selected;
+				// otherwise stop indexing the current file, since there is no corresponding category available
+				if ($this->setup['createCategory']) {
+					$nextParentId = $this->createCategory($folder, $parentId);
+				} else {
+					$skipThisFile = TRUE;
+					break;				
+				}
+			}
 		}
+		
+		if (!$skipThisFile) {
+			$meta['fields']['category'].= ',tx_dam_cat_'.$nextParentId;	
+		} else {
+			$skipThisFile = FALSE;
+		}
+
+		if ($this->writeDevLog) {
+			$devLog = array ('folder' => $folder, 'uid' => $row['uid'], 'category' => $meta['fields']['category']);
+			t3lib_div::devLog('processMeta(): category', 'tx_dam_index_rule_folderAsCat', 0, $devLog);
+		}
+		
 		return $meta;
 	}
 
+	/**
+	 * Creates a new category
+	 *
+	 * @param	[string]		$folder: Foldername for creating the category
+	 * @param	[integer]		$parentId: Parent ID
+	 * @return	[integer]		uid of created category
+	 */
+		function createCategory($folder, $parentId='0') {
+        	$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+        	$NEW_id = substr(md5((time()-98*123123).$folder),0,8);
+			$newdata['tx_dam_cat']['NEW'.$NEW_id] = array(
+				'pid' => tx_dam_db::getPid(),
+				'title' => $folder,
+				'parent_id' => $parentId
+			);
+			$tce->start($newdata,array());
+			$tce->process_datamap();
+
+			return $tce->substNEWwithIDs['NEW'.$NEW_id];
+		}
+
 }
-
-
-
+		
 
 /**
  * Index rule plugin for the DAM

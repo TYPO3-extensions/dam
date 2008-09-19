@@ -27,6 +27,7 @@
             <label index="folderAsCat.title">Categorize files from folder names</label>
             <label index="folderAsCat.desc">Existing categories will be applied to files if a category has the same name as the files folder.</label>
             <label index="folderAsCat.use_fuzzy">Use fuzzy folder/category comparison.</label>
+            <label index="folderAsCat.createCategory">Create categories based on foldertree if not already present.</label> 
             <label index="dryRun.title">Dry run</label>
             <label index="dryRun.desc">Do not actually insert any data into the DAM; just print what would happen.</label>
             <label index="doReindexing.title">Reindexing</label>

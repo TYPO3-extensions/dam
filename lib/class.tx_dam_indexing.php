@@ -598,6 +598,7 @@ class tx_dam_indexing {
 	 * @return	void
 	 */
 	function indexUsingCurrentSetup($callbackFunc=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL)	{
+		
 		if(is_array($this->pathlist) AND count($this->pathlist) AND $this->pid) {
 			if ($this->writeDevLog) 	t3lib_div::devLog('indexUsingCurrentSetup: pathlist and pid, alright', 'tx_dam_indexing', 0, $this->pathlist);
 
@@ -707,9 +708,9 @@ class tx_dam_indexing {
 	 * @return	array		Meta data array. $meta['fields'] has the record data.
 	 */
 	function indexFile($filepath, $crdate=0, $pid=NULL, $metaCallbackFunc=NULL, $filePreprocessingCallbackFunc=NULL, $metaPreset=array())	{
+
 		global $TYPO3_CONF_VARS;
 		
-
 		$pathname = $this->getFilePath($filepath);
 		$pathname = tx_dam::file_absolutePath($pathname);
 
