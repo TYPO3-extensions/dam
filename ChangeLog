@@ -1,3 +1,7 @@
+2008-09-20  Benjamin Mack  <benni@typo3.org>
+
+	* Fixed bug #9247: Bug: Indexing of IPTC-Data can't work (Thanks to Steffen Gebert)
+
 2008-09-19  Benjamin Mack  <benni@typo3.org>
 
 	* Fixed bug #8369: Add possibility to have media_type icons as PNGs as well (Thanks to Andreas Balzer)

@@ -1160,23 +1160,20 @@ class tx_dam_indexing {
 			$extraServiceTypes = array();
 			
 			if (!isset($meta['fields']['meta']['EXIF']) AND !$meta['exif_done']) {
-				$metaExtractServices[] = 'image:exif';
+				$metaExtractServices[TXDAM_mtype_image][] = 'image:exif';
 			}
 			if ((!isset($meta['fields']['meta']['IPTC']) AND !$meta['iptc_done']) AND (!isset($meta['fields']['meta']['XMP']) AND !$meta['xmp_done'])) {
-				$metaExtractServices[] = 'image:iptc';
+				$metaExtractServices[TXDAM_mtype_image][] = 'image:iptc';
 			}
 			if ($extraServiceTypes) {
-				$metaExtractServices = array(TXDAM_mtype_image => implode(', ', $extraServiceTypes));
+				$metaExtractServices[TXDAM_mtype_image] = t3lib_div::array_merge($metaExtractServices[TXDAM_mtype_image], implode(', ', $extraServiceTypes));
 			}
 			
 // TODO should be possible to register other services too?!
 
 					// read exif, iptc data
-			if ($metaExtractServices[$meta['fields']['media_type']]) {	// 2
-
-				$metaExtractSubTypes = t3lib_div::trimExplode(',', $metaExtractServices[$meta['fields']['media_type']], 1);
-				foreach ($metaExtractSubTypes as $subType) {
-
+			if (is_array($metaExtractServices[$meta['fields']['media_type']])) {
+				foreach ($metaExtractServices[$meta['fields']['media_type']] as $subType) {
 					if ($serviceObj = t3lib_div::makeInstanceService('metaExtract', $subType)) {
 
 						$serviceObj->setInputFile($pathname, $fileType);
