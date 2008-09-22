@@ -147,9 +147,7 @@ class tx_dam_browse_media extends browse_links {
 
 		$path = tx_dam::path_makeAbsolute($this->damSC->path);
 		if (!$path OR !@is_dir($path))	{
-			$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
-			$fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-			$path = $fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
+			$path = $this->fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
 		}
 		$this->damSC->path = tx_dam::path_makeRelative($path); // mabe not needed
 	}
@@ -335,15 +333,16 @@ class tx_dam_browse_media extends browse_links {
 			// Starting content:
 		$content = $this->doc->startPage('TBE file selector');
 
-
 			// Initializing the action value, possibly removing blinded values etc:
 		$allowedItems = array('file', 'upload');
 		$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',',$this->thisConfig['blindLinkOptions'],1));
+		$path = tx_dam::path_makeAbsolute($this->damSC->path);
+		if ($this->isReadOnlyFolder($path)) {
+			$allowedItems = array_diff($allowedItems, array('upload'));
+		}
 		if (!in_array($this->act, $allowedItems))	{
-				// hooray
 			$this->act = 'file';
 		}
-
 		$this->reinitParams();
 
 
@@ -783,10 +782,8 @@ if (is_string($allowedFileTypes)) {
 
 		$path = tx_dam::path_makeAbsolute($this->damSC->path);
 
-		$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
-		$fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-		if (!$path OR !@is_dir($path) OR !$fileProcessor->checkPathAgainstMounts($path))	{
-			$path = $fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
+		if (!$path OR !@is_dir($path) OR !$this->fileProcessor->checkPathAgainstMounts($path) OR $this->isReadOnlyFolder($path)) {
+			$path = $this->fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
 		}
 		$this->damSC->path = tx_dam::path_makeRelative($path); // maybe not needed
 
@@ -820,7 +817,7 @@ if (is_string($allowedFileTypes)) {
 
 				// Create folder tree:
 			$browseTrees = t3lib_div::makeInstance('tx_dam_browseTrees');
-			$browseTrees->init($this->thisScript, 'elbrowser', true);
+			$browseTrees->init($this->thisScript, 'elbrowser', true, true);
 			$trees = $browseTrees->getTrees();
 
 

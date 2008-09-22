@@ -587,7 +587,7 @@ class ux_tx_rtehtmlarea_select_image extends tx_rtehtmlarea_select_image {
 		if (is_array($this->buttonConfig['options.']) && $this->buttonConfig['options.']['removeItems']) {
 			$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',', $this->buttonConfig['options.']['removeItems'], 1));
 		} else {
-			$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',', $this->buttonConfig['blindImageOptions'], 1));
+			$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',', $this->thisConfig['blindImageOptions'], 1));
 		}
 		return $allowedItems;
 	}

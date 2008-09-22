@@ -109,7 +109,11 @@ class tx_dam_rtehtmlarea_select_image extends tx_dam_browse_media {
 		
 			// the script to link to
 		$this->thisScript = t3lib_div::getIndpEnv('SCRIPT_NAME');
-		
+
+			// init fileProcessor
+		$this->fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
+		$this->fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
+
 		if (!$this->act)	{
 			$this->act='magic';
 		}
@@ -221,10 +225,11 @@ class tx_dam_rtehtmlarea_select_image extends tx_dam_browse_media {
 		global $LANG, $TYPO3_CONF_VARS, $FILEMOUNTS, $BE_USER;
 		
 		$path = tx_dam::path_makeAbsolute($this->damSC->path);
+		if ($this->isReadOnlyFolder($path)) {
+			$this->allowedItems = array_diff($this->allowedItems, array('upload'));
+		}
 		if (!$path OR !@is_dir($path))	{
-			$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
-			$fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-			$path = $fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
+			$path = $this->fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
 		}
 		$this->damSC->path = tx_dam::path_makeRelative($path); // mabe not needed
 		

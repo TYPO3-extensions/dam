@@ -1,3 +1,7 @@
+2008-09-22  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed issue #9123: Alternative Filemounts for element browser
+
 2008-09-20  Benjamin Mack  <benni@typo3.org>
 
 	* Fixed bug #9247: Bug: Indexing of IPTC-Data can't work (Thanks to Steffen Gebert)

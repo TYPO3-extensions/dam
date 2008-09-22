@@ -635,6 +635,7 @@ class tx_dam {
 			$pathInfo['mount_path'] =  $FILEMOUNTS[$pathInfo['mount_id']]['path'];
 			$pathInfo['mount_name'] =  $FILEMOUNTS[$pathInfo['mount_id']]['name'];
 			$pathInfo['mount_type'] =  $FILEMOUNTS[$pathInfo['mount_id']]['type'];
+			$pathInfo['dir_readonly'] = ($pathInfo['mount_type'] == 'readonly');
 			// $pathInfo['web_nonweb'] = t3lib_BEfunc::getPathType_web_nonweb($path); // prevent using t3lib_BEfunc
 			$pathInfo['web_nonweb'] = t3lib_div::isFirstPartOfStr($path, t3lib_div::getIndpEnv('TYPO3_DOCUMENT_ROOT')) ? 'web' : '';
 			$pathInfo['web_sys'] = $pathInfo['web_nonweb'] ? 'web' : 'sys';
@@ -2447,9 +2448,18 @@ class tx_dam {
 
 		if ($pathInfo['mount_path'] === $pathInfo['dir_path_absolute']) {
 			switch($pathInfo['mount_type'])	{
-				case 'user':	$iconfile = 'folder_mount_user.gif';	break;
-				case 'group':	$iconfile = 'folder_mount_group.gif';	break;
-				default:		$iconfile = 'folder_mount.gif';	break;
+				case 'user':
+					$iconfile = 'folder_mount_user.gif';
+					break;
+				case 'group':
+					$iconfile = 'folder_mount_group.gif';
+					break;
+				case 'readonly':
+					$iconfile = 'folder_mount_readonly.gif';
+					break;
+				default:
+					$iconfile = 'folder_mount.gif';
+					break;
 			}
 		}
 		else {
@@ -2466,7 +2476,7 @@ class tx_dam {
 			elseif ($pathInfo['mount_id'] === '_temp_')	{
 				$iconfile = 'folder_mount.gif';
 			} else {
-				$iconfile = 'folder_'.($pathInfo['web_sys']?$pathInfo['web_sys']:'web').($pathInfo['dir_writable']?'':'_ro').'.gif';
+				$iconfile = 'folder_'.($pathInfo['web_sys']?$pathInfo['web_sys']:'web').(($pathInfo['dir_writable'] && !$pathInfo['dir_readonly'])?'':'_ro').'.gif';
 			}
 		}
 

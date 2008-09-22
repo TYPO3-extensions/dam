@@ -119,22 +119,35 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 *
 	 * @return	void
 	 */
-	function tx_dam_selectionFolder()	{
-
+	function tx_dam_selectionFolder() {
 		$this->title='Folder tree';
 		$this->treeName='txdamFolder';
 		$this->domIdPrefix=$this->treeName;
 		$this->MOUNTS = $GLOBALS['FILEMOUNTS'];
-
 		$this->iconPath = PATH_txdam_rel.'i/18/';
 		$this->iconName = 'folder_web_ro.gif';
 		$this->rootIcon = PATH_txdam_rel.'i/18/folder_mount.gif';
 		$this->ext_IconMode = '1'; // no context menu on icons
-
 	}
-
-
-
+	
+	/**
+	 * Initialize the tree class. Needs to be overwritten
+	 * Will set ->fieldsArray, ->backPath and ->clause
+	 *
+	 * @param	string		record WHERE clause
+	 * @param	string		record ORDER BY field
+	 * @return	void
+	 */
+	function init($clause='', $orderByFields='', $excludeReadOnlyMounts=false) {
+		parent::init($clause, $orderByFields);
+		if ($excludeReadOnlyMounts) {
+			foreach ($this->MOUNTS as $key => $val) {
+				if ($val['type'] == 'readonly') {
+					unset($this->MOUNTS[$key]);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Returns the id from the record (typ. uid)
@@ -367,6 +380,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 				'mount_type' => $val['type'],
 				'mount_path' => $val['path'],
 				'dir_path_absolute' => $val['path'],
+				'dir_readonly' => ($val['type'] == 'readonly')
 			);
 		
 				// Preparing rootRec for the mount
@@ -446,17 +460,9 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 				}
 
 					// Set HTML-icons, if any:
-				if ($this->makeHTML)	{
+				if ($this->makeHTML) {
 					$HTML=$depthData.$this->PMicon($row,$a,$c,$nextCount,$exp);
-
-					
-					$pathInfo = array(
-						'dir_name' => $val,
-						'dir_path_absolute' => $path,
-						'web_sys' => 'web',
-						'dir_writable' => true,
-					);
-				
+					$pathInfo = tx_dam::path_compileInfo($path);
 					$HTML.=$this->wrapIcon(tx_dam::icon_getFileTypeImgTag($pathInfo),$row);
 				}
 

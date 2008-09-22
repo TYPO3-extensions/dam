@@ -99,7 +99,11 @@ class tx_dam_rtehtmlarea_browse_media implements t3lib_browseLinksHook {
 					break;
 			}
 		}
-		$allowedItems[] = 'media_upload';
+		$this->initMediaBrowser();
+		$path = tx_dam::path_makeAbsolute($this->browserRenderObj->damSC->path);
+		if (!$this->browserRenderObj->isReadOnlyFolder($path)) {
+			$allowedItems[] = 'media_upload';
+		}
 		return $allowedItems;
 	}
 	
@@ -185,15 +189,13 @@ class tx_dam_rtehtmlarea_browse_media implements t3lib_browseLinksHook {
 				if ($BE_USER->isAdmin() || $BE_USER->getTSConfigVal('options.createFoldersInEB'))	{
 					$path = tx_dam::path_makeAbsolute($this->browserRenderObj->damSC->path);
 					if (!$path OR !@is_dir($path))	{
-						$fileProcessor = t3lib_div::makeInstance('t3lib_basicFileFunctions');
-						$fileProcessor->init($GLOBALS['FILEMOUNTS'], $GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-						$path = $fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
+						$path = $this->fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
 					}
 					$content .= $this->browserRenderObj->createFolder($path);
 					$content .= '<br />';
 				}
 				$this->addDAMStylesAndJSArrays();
-			break;
+				break;
 		}
 		return $content;
 	}

@@ -68,7 +68,7 @@ class tx_dam_browseTrees {
 	 * @param	boolean		Shows the folder tree only
 	 * @return	void
 	 */
-	function init($thisScript, $mode='browse', $folderOnly=false)	{
+	function init($thisScript, $mode='browse', $folderOnly=false, $excludeReadOnlyMounts=false)	{
 		global $BE_USER,$LANG,$BACK_PATH,$TYPO3_CONF_VARS;
 
 		tx_dam::config_init();
@@ -81,7 +81,7 @@ class tx_dam_browseTrees {
 			$selectionClasses = $TYPO3_CONF_VARS['EXTCONF']['dam']['selectionClasses'];
 		}
 
-		$this->initSelectionClasses($selectionClasses , $thisScript, $mode);
+		$this->initSelectionClasses($selectionClasses , $thisScript, $mode, $excludeReadOnlyMounts);
 	}
 
 	/**
@@ -92,7 +92,7 @@ class tx_dam_browseTrees {
 	 * @param	boolean		Element browser mode
 	 * @return	void
 	 */
-	function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse')	{
+	function initSelectionClasses($selectionClassesArr, $thisScript, $mode='browse', $excludeReadOnlyMounts=false) {
 		global $BE_USER,$LANG,$BACK_PATH, $TYPO3_CONF_VARS;
 		
 
@@ -115,7 +115,7 @@ class tx_dam_browseTrees {
 						if ($obj->isTreeViewClass)	{
 								// object is a treeview class itself
 							$this->treeObjArr[$classKey] = &$obj;
-							$this->treeObjArr[$classKey]->init();
+							$this->treeObjArr[$classKey]->init('', '', $excludeReadOnlyMounts);
 
 						} else {
 								// object does not include treeview functionality. Therefore the standard browsetree is used with setup from the object

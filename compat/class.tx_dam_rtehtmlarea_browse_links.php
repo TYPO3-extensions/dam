@@ -67,6 +67,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	/**
 	 * Adds new items to the currently allowed ones and returns them
 	 * Replaces the 'file' item with the 'media' item
+	 * Adds DAM upload tab
 	 *
 	 * @param	array	currently allowed items
 	 * @return	array	currently allowed items plus added items
@@ -80,6 +81,11 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 					break;
 				}
 			}
+			$this->initMediaBrowser();
+			$path = tx_dam::path_makeAbsolute($this->browserRenderObj->damSC->path);
+			if (!$this->browserRenderObj->isReadOnlyFolder($path)) {
+				$allowedItems[] = 'media_upload';
+			}
 		}
 		return $allowedItems;
 	}
@@ -92,13 +98,19 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	 * @return	array	modified menu definition
 	 */
 	public function modifyMenuDefinition($menuDefinition) {
-		global $LANG;
 		$menuDef =& $menuDefinition;
 		if ($this->isEnabled && in_array('media', $this->invokingObject->allowedItems)) {
 			$menuDef['media']['isActive'] = $this->invokingObject->act == 'media';
-			$menuDef['media']['label'] =  $LANG->sL('LLL:EXT:dam/mod_main/locallang_mod.xml:mlang_tabs_tab',1);
+			$menuDef['media']['label'] =  $GLOBALS['LANG']->sL('LLL:EXT:dam/mod_main/locallang_mod.xml:mlang_tabs_tab',1);
 			$menuDef['media']['url'] = '#';
 			$menuDef['media']['addParams'] = 'onclick="jumpToUrl(\''.htmlspecialchars('?act=media&editorNo='.$this->invokingObject->editorNo.'&contentTypo3Language='.$this->invokingObject->contentTypo3Language.'&contentTypo3Charset='.$this->invokingObject->contentTypo3Charset).'\');return false;"';
+		}
+		if ($this->isEnabled && in_array('media_upload', $this->invokingObject->allowedItems)) {
+			$menuDef['media_upload']['isActive'] = $this->act == 'media_upload';
+			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');
+			$menuDef['media_upload']['label'] =  $GLOBALS['LANG']->getLL('tx_dam_file_upload.title',1);
+			$menuDef['media_upload']['url'] = '#';
+			$menuDef['media_upload']['addParams'] = 'onclick="jumpToUrl(\''.htmlspecialchars($this->invokingObject->thisScript.'?act=media_upload&mode='.$this->mode.'&bparams='.$this->bparams).'\');return false;"';
 		}
 		return $menuDef;
 	}
@@ -112,11 +124,30 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	 */
 	public function getTab($linkSelectorAction) {
 		$content = '';
-		if ($this->isEnabled && $linkSelectorAction == 'media') {
-			$content .= $this->invokingObject->addAttributesForm();
-			$this->initMediaBrowser();
-			$content .= $this->browserRenderObj->part_rte_linkfile();
-			$this->addDAMStylesAndJSArrays();
+		if ($this->isEnabled) {
+			switch ($linkSelectorAction) {
+				case 'media':
+					$content .= $this->invokingObject->addAttributesForm();
+					$this->initMediaBrowser();
+					$content .= $this->browserRenderObj->part_rte_linkfile();
+					$this->addDAMStylesAndJSArrays();
+					break;
+				case 'media_upload':
+					$this->initMediaBrowser();
+					$content .= $this->browserRenderObj->dam_upload($this->allowedFileTypes);
+					$content .= $this->browserRenderObj->damSC->getOptions();
+					$content .='<br /><br />';
+					if ($GLOBALS['BE_USER']->isAdmin() || $GLOBALS['BE_USER']->getTSConfigVal('options.createFoldersInEB'))	{
+						$path = tx_dam::path_makeAbsolute($this->browserRenderObj->damSC->path);
+						if (!$path OR !@is_dir($path))	{
+							$path = $this->fileProcessor->findTempFolder().'/';	// The closest TEMP-path is found
+						}
+						$content .= $this->browserRenderObj->createFolder($path);
+						$content .= '<br />';
+					}
+					$this->addDAMStylesAndJSArrays();
+					break;
+			}
 		}
 		return $content;
 	}
