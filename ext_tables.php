@@ -169,9 +169,16 @@ if (TYPO3_MODE === 'BE')	{
 		'LLL:EXT:dam/modfunc_list_batch/locallang.xml:tx_dam_list_batch.title'
 	);
 
-
-	t3lib_extMgm::addModule('txdamM1','info','',PATH_txdam.'mod_info/');
 	
+		// add the info module and the info->reference modfunc (previously dam_info)
+	t3lib_extMgm::addModule('txdamM1', 'info', '', PATH_txdam . 'mod_info/');
+
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_info',
+		'tx_dam_info_reference',
+		PATH_txdam.'modfunc_info_reference/class.tx_dam_info_reference.php',
+		'LLL:EXT:dam/modfunc_info_reference/locallang.xml:tx_dam_info_reference.title'
+	);
 
 	t3lib_extMgm::addModule('txdamM1','tools','',PATH_txdam.'mod_tools/');
 

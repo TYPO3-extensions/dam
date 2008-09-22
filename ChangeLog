@@ -1,3 +1,8 @@
+2008-09-22  Benjamin Mack  <benni@typo3.org>
+
+	* Integrated mod_info into main DAM 1.1 (is the one below)
+	* Fixed issue #8466: Info module does not show any information (blank main frame) (thanks to David Steeb)
+
 2008-09-22  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Fixed issue #9123: Alternative Filemounts for element browser
