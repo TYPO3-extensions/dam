@@ -1,3 +1,7 @@
+2008-09-24  Benjamin Mack  <benni@typo3.org>
+
+	* Allow additional Clickmenu items in the Filelist Clickmenu (Thanks to Steffen Kamper)
+
 2008-09-22  Benjamin Mack  <benni@typo3.org>
 
 	* Integrated mod_info into main DAM 1.1 (is the one below)

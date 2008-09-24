@@ -45,47 +45,49 @@ require_once (PATH_txdam.'lib/class.tx_dam_actioncall.php');
  */
 class tx_dam_cm_file {
 
-	function main(&$backRef, $menuItems, $file, $uid)	{
-		global $BE_USER, $TCA, $LANG, $TYPO3_CONF_VARS;
-		
+	function main(&$backRef, $menuItems, $file, $uid) {
 
+		// Returns directly, because the clicked item was not a file
+		if ($backRef->cmLevel == 0 && $uid != '') {
+			return $menuItems;
+		}
 
-			// Returns directly, because the clicked item was not a file
-		if ($backRef->cmLevel==0 AND $uid!='')	return $menuItems;
-			// Returns directly, because the clicked item was not the second level menu from DAM records
-		if ($backRef->cmLevel==1 AND t3lib_div::_GP('subname')!='tx_dam_cm_file')	return $menuItems;
+		// Returns directly, because the clicked item was not the second level menu from DAM records
+		if ($backRef->cmLevel == 1 && t3lib_div::_GP('subname') != 'tx_dam_cm_file') {
+			return $menuItems;
+		}
 
 		$this->backRef = &$backRef;
 
 			// this is second level menu from DAM records
 		$fileDAM = t3lib_div::_GP('txdamFile');
-		$file = $fileDAM ? $fileDAM : $file;
+		$file = ($fileDAM ? $fileDAM : $file);
 
 		if (@is_file($file)) {
-			$item = tx_dam::file_compileInfo($file);
-			$permsEdit = tx_dam::access_checkFile($item) AND tx_dam::access_checkFileOperation('editFile');
-			$permsDelete = tx_dam::access_checkFile($item) AND tx_dam::access_checkFileOperation('deleteFile');
+			$item        = tx_dam::file_compileInfo($file);
+			$permsEdit   = (tx_dam::access_checkFile($item) && tx_dam::access_checkFileOperation('editFile'));
+			$permsDelete = (tx_dam::access_checkFile($item) && tx_dam::access_checkFileOperation('deleteFile'));
 		} elseif (@is_dir($file)) {
-			$item = tx_dam::path_compileInfo($file);
-			$permsEdit = tx_dam::access_checkPath($item) AND tx_dam::access_checkFileOperation('renameFolder');
-			$permsDelete = tx_dam::access_checkPath($item) AND tx_dam::access_checkFileOperation('deleteFolder');
+			$item        = tx_dam::path_compileInfo($file);
+			$permsEdit   = (tx_dam::access_checkPath($item) && tx_dam::access_checkFileOperation('renameFolder'));
+			$permsDelete = (tx_dam::access_checkPath($item) && tx_dam::access_checkFileOperation('deleteFolder'));
 		} else {
 			return $menuItems;
 		}
 
-			// clear the whole menu and the display constraints 
-			// once a DAM file is found
-		$menuItems = array();
-			// see typo3/alt_clickmenu.php:clickmenu::enableDisableItems() for iParts[3]
-			// which is called after this function
+		// clear the existing menu now and fill it with DAM specific things
+		$damMenuItems = array();
+
+		// see typo3/alt_clickmenu.php:clickmenu::enableDisableItems() for iParts[3]
+		// which is called after this function
 		$backRef->iParts[3] = '';
 
 
-		$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+		$actionCallMenuItems = t3lib_div::makeInstance('tx_dam_actionCall');
 				
 		if (is_array($backRef->disabledItems)) {
 			foreach ($backRef->disabledItems as $idName) {
-				$actionCall->removeAction ($idName);
+				$actionCall->removeAction($idName);
 			}
 		}		
 				
@@ -104,22 +106,31 @@ class tx_dam_cm_file {
 
 		$actions = $actionCall->renderActionsContextMenu(true);
 		foreach ($actions as $id => $action) {
-				if ($action['isDivider']) {
-				$menuItems[$id] = 'spacer';
+			if ($action['isDivider']) {
+				$damMenuItems[$id] = 'spacer';
 			} else {
 				$onclick = $action['onclick'] ? $action['onclick'] : $this->createOnClick($action['url'], $action['dontHide']);
 
-                $menuItems[$id] = $backRef->linkItem(
-	                    $GLOBALS['LANG']->makeEntities($action['label']),
-                    	$backRef->excludeIcon($action['icon']),
-	                    $onclick,
-	                    $action['onlyCM'],
-	                    $action['dontHide']
-                );
+				$damMenuItems[$id] = $backRef->linkItem(
+						$GLOBALS['LANG']->makeEntities($action['label']),
+						$backRef->excludeIcon($action['icon']),
+						$onclick,
+						$action['onlyCM'],
+						$action['dontHide']
+				);
 			}
 		}
 
-		return $menuItems;
+		// clear the file context menu, allow additional items from extensions,
+		// like TemplaVoila, and the display constraints 
+		// once a DAM file is found
+		foreach ($menuItems as $key => $var) {
+			if (!t3lib_div::inList('edit,rename,info,copy,cut,delete', $key) && !array_key_exists($key, $damMenuItems)) {
+				$damMenuItems[$key] = $var;		
+			}
+		}
+
+		return $damMenuItems;
 	}
 
 
