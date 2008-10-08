@@ -407,7 +407,10 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			#$content.= '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post" name="'.$dblist->paramName['form'].'">';
 			// get all avalibale languages for the page
 			if ($languageSwitch = $this->pObj->languageSwitch($langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']))) {
-				$content.= '<div style="margin:0 0.5em 0.4em auto; text-align:right;">'.$languageSwitch.'</div>';
+				$this->pObj->markers['LANGUAGE_SELECT'] = '<div class="languageSwitch">'.$languageSwitch.'</div>';
+			}
+			else {
+				$this->pObj->markers['LANGUAGE_SELECT'] = '';
 			}
 			$content.= $dblist->getListTable();
 			#$content.= '<input type="hidden" name="cmd_table"><input type="hidden" name="cmd"></form>';
@@ -421,8 +424,11 @@ class tx_dam_list_list extends t3lib_extobjbase {
 				// no search result: showing selection box
 
 			if ($languageSwitch = $this->pObj->languageSwitch($langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']))) {
-				$content .= '<div style="margin:0 0.5em 0.4em auto; text-align:right;">'.$languageSwitch.'</div>';
+				$this->pObj->markers['LANGUAGE_SELECT'] = '<div class="languageSwitch">'.$languageSwitch.'</div>';
 			}
+			else {
+				$this->pObj->markers['LANGUAGE_SELECT'] = '';
+			}			
 			// is in footer now $content .= $this->pObj->getCurrentSelectionBox();
 		}
 

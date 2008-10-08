@@ -428,7 +428,7 @@ class tx_dam_actionBase {
 		}
 		$iconImgTag = $this->_addTitleToImg ($iconImgTag, $hoverText);
 		$hoverText = $hoverText ? ' title="'.htmlspecialchars($hoverText).'" ' : '';
-		return $command['preHTML'].'<span class="button"'.$hoverText.'>'.$aTags[0].$iconImgTag.htmlspecialchars($label).$aTags[1].'</span>'.$command['postHTML'];
+		return $command['preHTML'].$aTags[0].$iconImgTag.$aTags[1].$command['postHTML'];
 	}
 
 

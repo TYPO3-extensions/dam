@@ -519,10 +519,10 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 
 		if ($this->parentField AND in_array($row[$this->parentField],$this->TCEforms_nonSelectableItemsArray)) {
 			$this->TCEforms_nonSelectableItemsArray[] = $row['uid'];
-			$out = '<span style="color:grey;vertical-align:top;">'.$title.'</span>';
+			$out = '<span class="titleWrap">'.$title.'</span>';
 
 		} elseif (in_array($row['uid'],$this->TCEforms_nonSelectableItemsArray)) {
-			$out = '<span style="color:grey;vertical-align:top;">'.$title.'</span>';
+			$out = '<span class="titleWrap">'.$title.'</span>';
 
 		} else {
 			if ($row['uid']) {
@@ -533,7 +533,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			$id = $this->TCEFormsSelect_prefixTreeName ? $this->treeName.':'.$row['uid'] : $row['uid'];
 			$aOnClick = $this->jsParent.'setFormValueFromBrowseWin(\''.$this->TCEforms_itemFormElName.'\',\''.$id.'\',\''.t3lib_div::slashJS($selectTitle).'\'); return false;';
 			if (is_array($this->selectedIdArr) AND in_array($row['uid'], $this->selectedIdArr)) {
-				$title = '<span style="color:grey;vertical-align:top;">'.$title.'</span>';
+				$title = '<span class="titleWrap">'.$title.'</span>';
 			}
 			$out = '<a style="vertical-align:top;" href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a>';
 		}

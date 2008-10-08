@@ -264,13 +264,13 @@ class tx_dam_guiFunc {
 					<td valign="top" width="1%" align="center">'.$icon.'<br />'.$extraContentLeft.'</td>
 					<td valign="top" align="left" style="padding-left:20px;">';
 		if (isset($row['title'])) {
-			$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.title',1).'</strong><br />'.
+			$content.=	'<div class="tableRow"><strong>'.$LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.title',1).'</strong><br />'.
 						tx_dam_guiFunc::tools_insertWordBreak(htmlspecialchars($row['title']),35).'</div>';
 		}
-		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',1).'</strong><br />'.
+		$content.=	'<div class="tableRow"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',1).'</strong><br />'.
 					tx_dam_guiFunc::tools_insertWordBreak(htmlspecialchars($row['file_name']),35).'</div>';
 
-		$content.=	'<div style="margin-bottom:7px;"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path',1).'</strong><br />'.
+		$content.=	'<div class="tableRow"><strong>'.$LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path',1).'</strong><br />'.
 					str_replace('/', '/<wbr>', htmlspecialchars($row['file_path'])).'</div>';
 
 		if ($row['media_type'] == TXDAM_mtype_image) {
@@ -279,7 +279,7 @@ class tx_dam_guiFunc {
 			$out.= t3lib_div::formatSize($row['file_size']);
 			$out.= $row['color_space'] ? ', '.$LANG->sL(tx_dam_guifunc::getLabelFromItemlist('tx_dam','color_space',$row['color_space'])) : '';
 
-			$content.=	'<div style="margin-bottom:7px;"><nobr>'.htmlspecialchars($out).'</nobr></div>';
+			$content.=	'<div class="tableRow"><nobr>'.htmlspecialchars($out).'</nobr></div>';
 		}
 
 		$content.= $extraContentMiddle.'
@@ -287,13 +287,13 @@ class tx_dam_guiFunc {
 
 		$thumb = tx_dam_guiFunc::getDia($row, 115, 5, $showElements='', $onClick=NULL, $makeIcon=FALSE);
 		$content.= '
-					<td valign="top" width="1%" style="padding-left:25px;">'.$thumb.$extraContentRight.'</td>';
+					<td valign="top" width="1%" class="extraContentRight">'.$thumb.$extraContentRight.'</td>';
 
 		$content.= '
 				</tr>
 			</table>';
 
-		return '<div style="margin:0px;">'.$content.'</div>';
+		return '<div class="recordInfoHeader">'.$content.'</div>';
 	}
 
 

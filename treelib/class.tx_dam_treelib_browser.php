@@ -110,38 +110,6 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->docType='xhtml_trans';
 		$this->doc->backPath = $this->backPath;
-
-
-			// from tx_dam_SCbase
-		$this->doc->buttonColor = '#e3dfdb';
-		$this->doc->buttonColorHover = t3lib_div::modifyHTMLcolor($this->doc->buttonColor,-20,-20,-20);
-
-			// in typo3/stylesheets.css css is defined with id instead of a class: TABLE#typo3-tree
-			// that's why we need TABLE.typo3-browsetree
-		$this->doc->inDocStylesArray['typo3-browsetree'] = '
-					/* Trees */
-			TABLE.typo3-browsetree A { text-decoration: none;  }
-			TABLE.typo3-browsetree TR TD { white-space: nowrap; vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG { vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG.c-recIcon { margin-right: 1px;}
-			TABLE.typo3-browsetree { margin-bottom: 10px; width: 95%; }
-
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control {
-				padding: 0px;
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control a {
-				padding: 0px 3px 0px 3px;
-				background-color: '.$this->doc->buttonColor.';
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover {
-				background-color:'.$this->doc->buttonColorHover.';
-			}';
-
-
-		$this->doc->inDocStylesArray['background-color'] = '
-			#ext-dam-mod-treebrowser-index-php { background-color:#fff; }
-			#ext-treelib-browser { background-color:#fff; }
-		';
 	}
 
 	/**

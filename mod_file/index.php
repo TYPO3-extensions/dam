@@ -114,9 +114,10 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 		//
 		// Initialize the template object
 		//
-
-		$this->doc = t3lib_div::makeInstance('mediumDoc');
+		$this->doc = t3lib_div::makeInstance('template'); 
 		$this->doc->backPath = $BACK_PATH;
+		$this->doc->setModuleTemplate(t3lib_extMgm::extRelPath('dam') . 'res/templates/mod_file_list.html');
+		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
 		$this->doc->docType = 'xhtml_trans';
 
 
@@ -138,18 +139,15 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 
 			$this->doc->form = $this->getFormTag();
 
-				// Draw the header.
-			$this->content.= $this->doc->startPage($LANG->getLL('title'));
-			$this->content.= $this->doc->header($LANG->getLL('title'));
-			$this->content.= $this->doc->spacer(5);
-
-
 			//
 			// Output tabmenu if not a single function was forced
 			//
 
 			if (!$this->forcedFunction AND count($this->MOD_MENU['function'])>1) {
-				$this->content.= $this->doc->section('',$this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
+				$this->markers['FUNC_MENU'] = t3lib_BEfunc::getFuncMenu($this->id, 'SET[function]', $this->MOD_SETTINGS['function'], $this->MOD_MENU['function']);
+			}
+			else {
+				$this->markers['FUNC_MENU'] = '';
 			}
 
 			//
@@ -170,14 +168,29 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 
 			// ShortCut
 			if ($BE_USER->mayMakeShortcut())	{
-				$this->content.= $this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
+				$this->markers['SHORTCUT'] = $this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']);
 			}
 
 			$this->content.= $this->doc->spacer(10);
 
+			$this->markers['CONTENT'] = $this->content;
+			$this->markers['TITLE'] = ''; // Needed?
+			$docHeaderButtons = array(
+				'NEW' => $this->markers['NEW'],
+				'UPLOAD' => $this->markers['UPLOAD'],
+				'REFRESH' => $this->markers['REFRESH'], 
+				'LEVEL_UP' => $this->markers['LEVEL_UP'], 
+				'RECORD_LIST' => $this->markers['RECORD_LIST'],
+				'SHORTCUT' => $this->markers['SHORTCUT'],
+			);
+			$this->markers['CSH'] = ''; // TODO
+				// Build the <body> for the module
+			$this->content = $this->doc->startPage($LANG->getLL('title'));
+			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $this->markers);
+			$this->content.= $this->doc->endPage();
+
 		} else {
 				// If no access or no path
-
 			$this->content.= $this->doc->startPage($LANG->getLL('title'));
 			$this->content.= $this->doc->header($LANG->getLL('title'));
 			$this->content.= $this->doc->spacer(5);
@@ -199,10 +212,8 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 	 * @return	string		HTML
 	 */
 	function printContent()	{
-
-		$this->content.= $this->doc->middle();
-		$this->content.= $this->doc->endPage();
 		$this->content = $this->doc->insertStylesAndJS($this->content);
+
 		echo $this->content;
 	}
 

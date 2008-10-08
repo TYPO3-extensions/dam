@@ -134,11 +134,6 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 	function renderForm()	{
 		global  $BACK_PATH, $LANG;
 
-
-		$GLOBALS['SOBE']->doc->inDocStylesArray['mod_cmd'] = '
-				#c-select { margin: 1.5em 0 0.8em 0; }
-				#c-createFolders div { margin-bottom:0.8em; }';
-
 		$content = '';
 		$msg='';
 

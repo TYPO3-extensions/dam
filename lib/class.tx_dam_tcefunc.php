@@ -618,7 +618,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$clickThumb = '';
 				if ($displayThumbs && $fileExists && tx_dam_image::isPreviewPossible($row))	{
 					$clickThumb = tx_dam_image::previewImgTag($row);
-					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$clickThumb.'</div>';
+					$clickThumb = '<div class="clickThumb">'.$clickThumb.'</div>';
 				} elseif ($displayThumbs) {
 					$clickThumb = '<div style="width:68px"></div>';
 				}
@@ -792,10 +792,10 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		}
 
 		$itemMediaInfo = '';
-		$itemMediaInfo .= '<div style="margin-bottom:7px;">'.$this->tceforms->sL('LLL:EXT:lang/locallang_general.xml:LGL.title', true).'<br />'.
+		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:lang/locallang_general.xml:LGL.title', true).'<br />'.
 					'<strong>'.htmlspecialchars($row['title']).'</strong></div>';
 
-		$itemMediaInfo .= '<div style="margin-bottom:7px;">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name', true).'<br />'.
+		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name', true).'<br />'.
 					'<strong>'.htmlspecialchars($row['file_name']).'</strong></div>';
 
 		if ($row['media_type'] == TXDAM_mtype_image) {
@@ -804,7 +804,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			$out .= t3lib_div::formatSize($row['file_size']);
 			$out .= $row['color_space'] ? ', '.$this->tceforms->sL(t3lib_befunc::getLabelFromItemlist($PA['table'], 'color_space', $row['color_space']), true) : '';
 
-			$itemMediaInfo .= '<div style="margin-bottom:7px;"><nobr>'.htmlspecialchars($out).'</nobr></div>';
+			$itemMediaInfo .= '<div class="tableRow"><nobr>'.htmlspecialchars($out).'</nobr></div>';
 		}
 
 		$itemMediaTypeIcon = tx_dam_guiFunc::getMediaTypeIconBox($row);

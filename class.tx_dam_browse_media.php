@@ -276,7 +276,7 @@ class tx_dam_browse_media extends browse_links {
 
 			$this->damSC->debugContent['browse_links'] = '<h4>EB SETTINGS</h4>'.t3lib_div::view_array($debugArr);
 
-			$dbgContent = '<div style="background-color:#eee; border:1px solid #888; padding:5px;">'.implode('', $this->damSC->debugContent).'</div>';
+			$dbgContent = '<div class="debugContent">'.implode('', $this->damSC->debugContent).'</div>';
 			$content.= $this->damSC->buttonToggleDisplay('debug', 'Debug output', $dbgContent);
 		}
 
@@ -649,7 +649,7 @@ if (is_string($allowedFileTypes)) {
 					$addAttrib = array();
 					$addAttrib['title'] = tx_dam_guiFunc::meta_compileHoverText($fI);
 					$clickThumb = tx_dam_image::previewImgTag($fI, '', $addAttrib);
-					$clickThumb = '<div style="width:56px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$ATag_insert.$clickThumb.'</a>'.'</div>';
+					$clickThumb = '<div class="clickThumb">'.$ATag_insert.$clickThumb.'</a>'.'</div>';
 				} elseif ($displayThumbs) {
 					$clickThumb = '<div style="width:68px"></div>';
 				}
@@ -673,7 +673,7 @@ if (is_string($allowedFileTypes)) {
 						$IH=$maxH;
 					}
 					$clickThumb = '<img src="'.t3lib_div::getIndpEnv('TYPO3_SITE_URL').substr($fI['file_name_absolute'],strlen(PATH_site)).'" width="'.$IW.'" height="'.$IH.'"' . ($this->defaultClass?(' class="'.$this->defaultClass.'"'):''). ' alt="'.$fI['alt_text'].'" title="'.$fI[$this->imgTitleDAMColumn].'" txdam="'. $fI['uid'] .'" />';
-					$clickThumb = '<div style="width:380px; overflow:auto; padding: 5px; background-color:#fff; border:solid 1px #ccc;">'.$clickThumb.'</div>';
+					$clickThumb = '<div class="clickThumb2">'.$clickThumb.'</div>';
 				}
 
 					// Show element:
@@ -742,7 +742,7 @@ if (is_string($allowedFileTypes)) {
 			$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 			$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' alt="" />';
 	
-			$addAllButton = '<div style="margin:1.5em 0 1em 1em; text-align:left;"><span class="button"'.$titleAttrib.'>'.$ATag_add.$addIcon.$label.'</a></span></div>';
+			$addAllButton = '<div class="addAllButton"><span class="button"'.$titleAttrib.'>'.$ATag_add.$addIcon.$label.'</a></span></div>';
 			$out = $out.$addAllButton;
 		}
 

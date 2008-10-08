@@ -552,99 +552,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->doc->buttonColorBorder = '#aaa';
 
 		$this->doc->hoverColorTR = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-20,-20,-20);
-
-
-		$this->doc->inDocStylesArray['gui_general'] = '
-				IMG.typo3-icon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; text-decoration: none; }
-				IMG.c-recicon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; text-decoration: none; }';
-
-		$this->doc->inDocStylesArray['typo3-dblist_add'] = '
-				DIV.typo3-DBctrl { padding:2px; }
-				DIV.typo3-DBctrl IMG { margin-left: 1px; margin-right: 1px; }
-				TABLE.typo3-dblist TR TD.c-headLine { background-color: #e0e0e0; }
-				td.c-actionBar { background-color: #e0e0e0; }
-				td.c-actionBar div { margin: 2px 0px 2px 0px;  vertical-align: middle; font-size:0.99em; line-height:2em;}
-				td.c-actionBar select { background-color: #ccc; height:2em; font-size:0.99em;}
-				td.c-actionBar input { background-color: #ccc; height:2em; font-size:0.99em;}
-				.typo3-dblist TD { padding-top: 1px; }
-				.typo3-dblist TD.item, .typo3-dblist TD.typo3-dblist-item { border-bottom: 1px dotted '.$borderColor.'; }';
-
-		$this->doc->inDocStylesArray['typo3-filelist'] = '
-				.typo3-foldernavbar { margin: 12px 0px 2px 5px; }
-				.typo3-topactions { margin: 7px 0px 10px 0px; }
-				.typo3-filelist TD { padding: 1px 3px 0 3px; }
-				.typo3-filelist TD.typo3-filelist-item { border-bottom: 1px dotted '.$borderColor.'; }
-				.typo3-filelist TD.c-headLine { background-color: #ccc; font-weight: bold; height: 16px; }
-				';
-// todo span.spacer does not work well
-		$this->doc->inDocStylesArray['gui_buttons'] = '
-				.buttonToggleDisplayWrap { display:block; margin: 1em 0 1em 0; }
-				.buttonToggleDisplay { background-color: '.$this->doc->buttonColor.'; border: 1px solid #888; padding: 0px 2px 0px 0px; width:30%; }
-				.buttonToggleDisplay:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.buttonToggleDisplay a { text-decoration: none; display: block; }
-				.buttonToggleDisplay img { vertical-align: middle; margin-bottom:2px;}
-
-				.guiElementBox { background-color: '.$this->doc->bgColor4.'; border: 1px solid #aaa; padding: 2px; }
-
-				span.spacer05em { position:relative; margin-left:0.5em; }
-				span.spacer1em  { position:relative; margin-left:1em;}
-
-				.button { white-space:nowrap; padding: 1px 4px 2px 2px; background-color: '.$this->doc->buttonColor.'; border: 1px solid '.$this->doc->buttonColorBorder.'; margin-left: 0.5em; margin-right: 0.55em }
-				.buttonAct { background-color: '.$this->doc->buttonColorAct.'; }
-				.button img { vertical-align: middle; padding:0px 2px 2px 1px; }
-				.button a { vertical-align: baseline; text-decoration:none; }
-				.button:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.bgColorBtn { background-color: '.$this->doc->buttonColor.'; }';
-// was: .button { xvertical-align: middle;
-		$this->doc->inDocStylesArray['list_browseresults'] = '
-				.browsebox {  }
-				.browsebox TD, .browsebox TD P { line-height:1em; padding:0; font-size:0.8em; }
-				.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA { border: 1px solid #aaa; width:1.6em; text-align:center; background-color:'.$this->doc->buttonColor.'; padding: 1px 0.7em 1px 0.7em; }
-				.browsebox TD.browsebox-CellA:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.browsebox TD.browsebox-Select { }
-				.browsebox TD.browsebox-Select SELECT { padding:0; font-size:0.8em; width:100%; font-weight:normal; border: 1px solid #aaa; background-color:'.$this->doc->buttonColor.'; }
-				.browsebox TD P { font-weight:bold; color:#888; }
-				.browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }';
-		$this->doc->inDocStylesArray['list_browseresults'] = '
-				.browsebox {  }
-				.browsebox TD, .browsebox TD P { padding:0; font-size:0.9em; line-height:1em; }
-				.browsebox TD { padding:0; height:2em; font-size:0.9em; }
-				.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA { border: 1px solid #aaa; width:1.6em; text-align:center; background-color:'.$this->doc->buttonColor.'; padding: 1px 0.7em 1px 0.7em; }
-				.browsebox TD.browsebox-CellA:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.browsebox TD.browsebox-Select { }
-				.browsebox TD.browsebox-Select SELECT { padding:0; font-size:1em; width:100%; height:2em; font-weight:normal; border: 1px solid #aaa; background-color:'.$this->doc->buttonColor.'; }
-				.browsebox TD P { font-weight:bold; color:#888; }
-				.browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }';
-
-			// in typo3/stylesheets.css css is defined with id instead of a class: TABLE#typo3-tree
-			// that's why we need TABLE.typo3-browsetree
-		$this->doc->inDocStylesArray['typo3-browsetree'] = '
-					/* Trees */
-			TABLE.typo3-browsetree A { text-decoration: none;  }
-			TABLE.typo3-browsetree TR TD { white-space: nowrap; vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG { vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG.c-recIcon { margin-right: 1px;}
-			TABLE.typo3-browsetree { margin-bottom: 10px; width: 95%; }
-
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control {
-				padding: 0px;
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control a {
-				padding: 0px 3px 0px 3px;
-				background-color: '.$this->doc->buttonColor.';
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover {
-				background-color:'.$this->doc->buttonColorHover.';
-			}';
-
-
-		$this->doc->inDocStylesArray['uploads'] = '
-			#c-override, #c-upload, #c-submit { margin: 0.3em 0 1em 0; }
-			#c-upload input { margin: 0 0 0.3em 0; }';
-
-		$this->doc->inDocStylesArray['mod_cmd'] = '
-				#c-select { padding-bottom:0.8em; }
-				#c-createFolders div { margin-bottom:0.8em; }';
 	}
 
 
@@ -734,22 +641,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$content = $contentLeft.$contentRight;
 		}
 
-		$bgColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
-		$this->doc->inDocStylesArray['getHeaderBar'] = '
-			div.infobar { display:block; width:100%; min-height:2.5em; padding:2px 0 2px 0; background-color:'.$bgColor.'; border-bottom: 1px solid #888; }
-
-			div.infobar>table, div.infobar>div, div.infobar>table>td>div { vertical-align:middle; height:2.5em; line-height:2.5em; }
-			div.infobar, div.infobar table td, div.infobar-td, div.infobar-td>span, div.infobar-td>div { vertical-align:middle; }
-			div.infobar-left-table  { display:table; height:2.5em; }
-			div.infobar-right-table { display:table; height:2.5em; }
-			div.infobar-td { display:table-cell; vertical-align:middle; height:2.5em; }
-			div.infobar-left-table div.infobar-td { padding-left:0.5em; }
-			div.infobar-right-table div.infobar-td { padding-right:0.5em; text-align:right; }
-			div.infobar-right-table div.infobar-td select { vertical-align:middle; }
-
-			div.infobar-extraline { padding:0.2em; padding-left:0.5em; background-color:'.$bgColor.'; }
-			';
-
 		return '<div class="infobar">'.$content.'</div>';
 	}
 
@@ -797,12 +688,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$content .= '<div class="msgboxButtons">'.$buttons.'</div>';
 		}
 
-		$this->doc->inDocStylesArray['getHeaderBar'] = '
-			div.msgbox-wrap { display:block; width:auto; padding:1.5em; }
-			div.msgbox { display:block; width:auto; border: 1px solid #888; }
-			div.msgboxContent { display:block; width:auto; padding:1.5em;  }
-			div.msgboxButtons { display:block; text-align:right; padding:1.5em;  }';
-
 		return '<div class="msgbox-wrap"><div class="msgbox bgColor-10">'.$content.'</div></div>';
 	}
 
@@ -816,11 +701,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	function old_getHeaderBar($content, $options='') {
 		$content = $options ? $this->doc->funcMenu($content, $options) : $content;
-		$bgColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
-		$this->doc->inDocStylesArray['getHeaderBar'] = '
-				div.infobar { display:table; width:100%; height:3em; background-color:'.$bgColor.'; border-bottom: 1px solid #888; }
-				div.infobar div.infobar-content { display:table-cell; width:100%; vertical-align:middle; padding: 2px 5px 2px 5px; }
-				div.infobar div.infobar-content td { vertical-align:middle; }';
 
 		return '<div class="infobar"><div class="infobar-content">'.$content.'</div></div>';
 	}
@@ -1334,7 +1214,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		if ($browsable AND in_array('popup', $allowedIcons)) {
 				// open in new window button
 			if (!$this->forcedFunction) {
-				$cmdIconRight['popup'] = $this->btn_openMod_inNewWindow();
+				$this->markers['NEW'] = $this->btn_openMod_inNewWindow();
 			}
 		}
 			// put func menu to the end
@@ -1346,7 +1226,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $extraIconArr);
 		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $cmdIconRight);
 
-		return $this->getHeaderBar($infoHeader, implode('<span class="spacer05em"><span>', $cmdIcons));
+		//return $this->getHeaderBar($infoHeader, implode('<span class="spacer05em"><span>', $cmdIcons));
 	}
 
 
@@ -1393,7 +1273,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			if ($browsable AND in_array('refresh', $allowedIcons)) {
 				$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/refresh_n.gif', 'width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.reload',1).'" class="absmiddle" alt="" />';
 				$elements['refresh'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('tx_dam_scbase')))).'">'.$icon.'</a>';
-				$elements['refreshSpacer'] = '<span class="spacer05em"><span>';
+				//$elements['refreshSpacer'] = '<span class="spacer05em"><span>';
 			}
 
 				// folder up button
@@ -1407,17 +1287,12 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 			$elements['path'] = tx_dam_guiFunc::getPathBreadcrumbMenu($pathInfo, $browsable, $maxLength=35);
 
-			$out = '
-
-		<!--
-			Page header for file list
-		-->
-				<table border="0" cellpadding="0" cellspacing="0" id="typo3-pathBreadcrumbBar">
-					<tr><td>'.implode('</td><td>', $elements).'</td></tr>
-				</table>';
-
+			$this->markers['REFRESH'] .= $elements['refresh'];
+			$this->markers['LEVEL_UP'] .= $elements['up'];
+			$this->markers['FOLDER_INFO'] .= $elements['path']; 
+			$this->markers['PAGE_ICON'] .= $elements['icon']; 
 		}
-		return $out;
+		return '';
 	}
 
 

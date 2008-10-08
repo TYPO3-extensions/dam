@@ -190,7 +190,7 @@ class tx_dam_batchProcess {
 						$code.
 						'</td></tr></table>',0,1);
 
-		$content.= '<br /><div style="margin-left:35px;">
+		$content.= '<br /><div class="batchProcess">
 				<input type="submit" name="tx_dam_batchProcess_clearForm" value="'.$LANG->getLL('submitClearForm',1).'" />
 				<input type="submit" name="'.$this->startParam.'" value="'.$LANG->getLL('submitProcess',1).'" />
 				</div><br />';
@@ -248,7 +248,7 @@ class tx_dam_batchProcess {
 			// add message for checkboxes
 		$content.= '<tr bgcolor="'.$GLOBALS['SOBE']->doc->bgColor4.'">
 				<td nowrap="nowrap" valign="middle">'.
-				'<span style="padding: 0 10px 0 10px">'.
+				'<span class="presetForm">'.
 				'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/pil2down.gif', 'width="12" height="7"').' vspace="2" alt="" />'.
 				'</span></td>
 				<td valign="top">'.$description.'</td>

@@ -341,13 +341,13 @@ class tx_dam_listfiles extends tx_dam_listbase {
 	function getHeaderControl() {
 		global $TYPO3_CONF_VARS;
 		
-		static $actionCall = array();;
+		static $actionCall = array();
 
 		$content = '';
 
 		if ($this->showControls) {
 			$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
-			$actionCall->setRequest('globalcontrol', $this->actionsEnv['pathInfo']);
+			//$actionCall->setRequest('globalcontrol', $this->actionsEnv['pathInfo']);
 			$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
 			$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
 			$actionCall->setEnv($this->actionsEnv);

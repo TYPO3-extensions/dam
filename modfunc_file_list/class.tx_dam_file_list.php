@@ -392,8 +392,8 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 			$actionCall->setEnv('pathInfo', $this->pObj->pathInfo);
 			$actionCall->initActions();
 			$actions = $actionCall->renderActionsHorizontal();
-
-			$content = count($actions) ? '<div class="typo3-topactions">'.implode('', $actions).'</div>' : '';
+			$this->pObj->markers['UPLOAD'] = $actions[0];
+			$this->pObj->markers['NEW'] = $actions[1];
 		}
 		return $content;
 	}

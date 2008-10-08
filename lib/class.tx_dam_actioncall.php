@@ -370,7 +370,7 @@ class tx_dam_actionCall {
 				$actions[] = '&nbsp; &nbsp;';
 			}
 			elseif ($this->enableDivider AND $item === '__divider') {
-				$actions[] = '&nbsp;<span style="border-left:1px dotted #666">&nbsp;</span>';
+				$actions[] = '&nbsp;<span class="actionHorizontal">&nbsp;</span>';
 			}
 			elseif (is_object($item)) {
 				if ($checkValidStrict) {
