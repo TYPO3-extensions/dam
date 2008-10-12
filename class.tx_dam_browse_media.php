@@ -680,7 +680,7 @@ if (is_string($allowedFileTypes)) {
 				$lines[] = '
 					<tr>
 						<td valign="middle" class="bgColor4" nowrap="nowrap" style="min-width:20em">'.($dragdropImage?'':$ATag_insert).$iconAndFilename.'</a>'.'&nbsp;</td>
-						<td valign="middle" class="bgColor4" width="1%">'.($mode != 'rte'?'':$addIcon).'</td>
+						<td valign="middle" class="bgColor4" width="1%">'.($mode == 'rte'?'':$addIcon).'</td>
 						<td valign="middle" nowrap="nowrap" width="1%">'.$info.'</td>
 					</tr>';
 
