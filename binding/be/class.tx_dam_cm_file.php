@@ -83,7 +83,7 @@ class tx_dam_cm_file {
 		$backRef->iParts[3] = '';
 
 
-		$actionCallMenuItems = t3lib_div::makeInstance('tx_dam_actionCall');
+		$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
 				
 		if (is_array($backRef->disabledItems)) {
 			foreach ($backRef->disabledItems as $idName) {
