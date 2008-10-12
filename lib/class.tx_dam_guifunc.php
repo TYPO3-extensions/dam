@@ -618,7 +618,7 @@ class tx_dam_guiFunc {
 
 		$diaCode = '
 		<table class="txdam-dia" cellspacing="0" cellpadding="0" border="0">
-		<tr><td><span><span class="txdam-dia">'.$thumb.'</span></td></tr>
+		<tr><td><span class="txdam-dia">'.$thumb.'</span></td></tr>
 		'. ( ($descr.$icons.$actions) ? '<tr><td align="center" bgcolor="'.$iconBgColor.'">'.$descr.$icons.$actions.'</td></tr>' : '').'
 		</table> ';
 
