@@ -110,9 +110,6 @@ class tx_dam_filebrowser extends tx_dam_listfiles {
 			// enable browsing links
 		$this->enableBrowsing = true;
 
-		if ($renderNavHeader AND is_object($this->SOBE)) {
-			$content.= '<div class="typo3-foldernavbar">'.$this->SOBE->getFolderNavBar($pathInfo).'</div>';
-		}
 		$content.= $this->getListTable();
 
 		return $content;

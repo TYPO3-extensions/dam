@@ -1,3 +1,8 @@
+2008-10-12  Dan Osipov <dosipov@phillyburbs.com>
+
+	* Fixed bugs #9550: DAM>FILE submodules have double refresh and fileadmin
+	* Fixed bugs #9555: Information about services
+
 2008-10-12  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Follow-up for issue #8673: Correction for add icon

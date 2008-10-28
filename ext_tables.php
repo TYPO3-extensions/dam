@@ -211,6 +211,13 @@ if (TYPO3_MODE === 'BE')	{
 		PATH_txdam.'modfunc_tools_categories/class.tx_dam_tools_categories.php',
 		'LLL:EXT:dam/lib/locallang.xml:categories'
 	);
+	
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_tools',
+		'tx_dam_tools_serviceinfo',
+		PATH_txdam.'modfunc_tools_serviceinfo/class.tx_dam_tools_serviceinfo.php',
+		'LLL:EXT:dam/lib/locallang.xml:serviceinfo'
+	);	
 
 
 		// command modules (invisible)

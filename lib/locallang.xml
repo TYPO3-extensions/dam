@@ -167,6 +167,7 @@
             <label index="langCurrentExclusive">exclusive</label>
             <label index="langCurrentAndDefault">+ default</label>
             <label index="langCreateTrans">Create translation</label>
+            <label index="serviceinfo">Services Info</label> 
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>
