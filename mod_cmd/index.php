@@ -323,17 +323,17 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	function main()	{
 		global $BE_USER, $LANG, $BACK_PATH, $TYPO3_CONF_VARS, $HTTP_GET_VARS, $HTTP_POST_VARS;
 
-
 		$this->extObjCmdInit();
-
 
 		//
 		// Initialize the template object
 		//
 
 		if (!is_object($this->doc)) {
-			$this->doc = t3lib_div::makeInstance($this->templateClass);
-			$this->doc->backPath = $BACK_PATH;
+			$this->doc = t3lib_div::makeInstance('template'); 
+ 			$this->doc->backPath = $BACK_PATH;
+			$this->doc->setModuleTemplate(t3lib_extMgm::extRelPath('dam') . 'res/templates/mod_cmd.html');
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
 			$this->doc->docType = 'xhtml_trans';
 		}
 
@@ -410,8 +410,9 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			//
 			// Output page header
 			//
-
 			$this->actionTarget = $this->actionTarget ? $this->actionTarget : t3lib_div::linkThisScript(array('returnUrl' => $this->returnUrl, 'redirect' => $this->redirect));
+			if($this->CMD == 'tx_dam_cmd_foldernew')
+            	$this->actionTarget = $BACK_PATH.'tce_file.php';
 			$this->doc->form = '<form action="'.htmlspecialchars($this->actionTarget).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 
 				// JavaScript
@@ -445,6 +446,7 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			//
 
 			$this->extObjContent();
+			$this->markers['CONTENT'] = $this->content;
 
 
 		} else {
@@ -470,8 +472,6 @@ class tx_dam_cmd extends tx_dam_SCbase {
 			$this->content.= $this->accessDeniedMessageBox(implode('', $accessDeniedInfo));
 		}
 
-
-		$this->content.= $this->doc->spacer(10);
 	}
 
 
@@ -481,8 +481,10 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	 * @return	string		HTML
 	 */
 	function printContent()	{
-		$this->content.= $this->doc->middle();
-		$this->content.= $this->doc->endPage();
+		$this->content = $this->doc->startPage($this->pageTitle);     
+		$this->content.= $this->doc->moduleBody($this->pageinfo, $this->docHeaderButtons, $this->markers);
+ 		$this->content.= $this->doc->endPage();
+ 		
 		$this->content=$this->doc->insertStylesAndJS($this->content);
 		echo $this->content;
 	}
@@ -603,12 +605,9 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	function makePageHeader()	{
 		$this->extObjHeader();
 
-		$this->content.= $this->doc->startPage($this->pageTitle);
-		$this->content.= $this->doc->header($this->pageTitle);
 		if (is_callable(array($this->extObj,'getContextHelp'))) {
-			$this->content.= '<div style="float:right">'.$this->extObj->getContextHelp().'</div>';
+			$this->markers['CSH'] = $this->extObj->getContextHelp();
 		}
-		$this->content.= $this->doc->spacer(10);
 	}
 
 

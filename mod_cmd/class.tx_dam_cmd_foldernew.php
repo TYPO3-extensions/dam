@@ -135,7 +135,7 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 		global  $BACK_PATH, $LANG;
 
 		$content = '';
-		$msg='';
+		$msg='<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->redirect).'" />';
 
 		$number = t3lib_div::intInRange(t3lib_div::_GP('number'),1,10);
 
@@ -151,9 +151,9 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 		');
 
 
-		$content .='</form><form action="'.$BACK_PATH.'tce_file.php" method="post" name="editform">';
+		//$content .='</form><form action="'.$BACK_PATH.'tce_file.php" method="post" name="editform">';
 
-		$msg.= tx_dam_guiFunc::getFolderInfoBar($this->folder);
+		$this->pObj->markers['FOLDER_INFO'] = tx_dam_guiFunc::getFolderInfoBar($this->folder);
 
 			// Making the selector box for the number of concurrent folder-creations
 		$msg.='
@@ -183,16 +183,10 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 			</div>
 		';
 
-
-		$buttons = '
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.submit',1).'" />
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />
-				<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->redirect).'" />';
-
-
+		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.submit',1) . '" height="16" type="image" width="16">';
+		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
 		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
-		$content .='</form><form>';
 
 		return $content;
 	}

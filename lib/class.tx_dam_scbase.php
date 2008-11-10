@@ -688,7 +688,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$content .= '<div class="msgboxButtons">'.$buttons.'</div>';
 		}
 
-		return '<div class="msgbox-wrap"><div class="msgbox bgColor-10">'.$content.'</div></div>';
+		return '<div class="msgbox-wrap"><div class="msgbox">'.$content.'</div></div>';
 	}
 
 
