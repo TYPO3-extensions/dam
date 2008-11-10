@@ -1,5 +1,6 @@
 2008-11-10  Benjamin Mack <benni@typo3.org>
 
+	* Fixed #9548: No docheader for edit text (Thanks to Dan Osipov and Steffen Gebert)
 	* Fixed #9559: Cleanup: DAM doesn't depend on ceflexform anymore (Thanks to Francois Suter)
 	* Fixed #9702: New Folder module lacks docheaders (Patch by Dan Osipov)
 
