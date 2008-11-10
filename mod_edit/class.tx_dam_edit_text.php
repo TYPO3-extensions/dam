@@ -167,7 +167,7 @@ class tx_dam_edit_text extends tx_dam_editorBase {
 			if ($error) {
 				$content .= $this->pObj->errorMessageBox ($error);
 
-			} elseif (t3lib_div::_GP('save_close')) {
+			} elseif (t3lib_div::_GP('_saveandclosedok_x')) {
 				$this->pObj->redirect(true);
 				return;
 			}
@@ -187,29 +187,23 @@ class tx_dam_edit_text extends tx_dam_editorBase {
 	function renderForm($fileContent='')	{
 		global $BE_USER, $LANG, $TYPO3_CONF_VARS;
 
-		$content = '';
 		$msg = array();
 
-		$msg[] = tx_dam_guiFunc::getFolderInfoBar(tx_dam::path_compileInfo($this->pObj->media->pathAbsolute));
+		$this->pObj->markers['FOLDER_INFO'] = tx_dam_guiFunc::getFolderInfoBar(tx_dam::path_compileInfo($this->pObj->media->pathAbsolute));
 		$msg[] = '&nbsp;';
 
-		$msg[] = $GLOBALS['LANG']->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',1).' <strong>'.htmlspecialchars($this->pObj->media->filename).'</strong>';
+		$this->pObj->markers['FILE_INFO'] = $GLOBALS['LANG']->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',1).' <strong>'.htmlspecialchars($this->pObj->media->filename).'</strong>';
 		$msg[] = '&nbsp;';
 		$msg[] = $GLOBALS['LANG']->getLL('tx_dam_cmd_filenew.text_content',1);
 		$msg[] = '<textarea rows="30" name="data[file_content]" wrap="off"'.$this->pObj->doc->formWidthText(48,'width:99%;height:65%','off').' class="fixed-font enable-tab">'.
 					t3lib_div::formatForTextarea($fileContent).
 					'</textarea>';
 
+        $this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $GLOBALS['LANG']->getLL('labelCmdSave',1) . '" height="16" type="image" width="16">';
+        $this->pObj->docHeaderButtons['SAVE_CLOSE'] = '<input class="c-inputButton" name="_saveandclosedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/saveandclosedok.gif') . ' title="' . $GLOBALS['LANG']->getLL('labelCmdSaveClose',1) . '" height="16" type="image" width="16">';
+        $this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
-		$buttons = '
-			<input type="submit" name="save" value="'.$GLOBALS['LANG']->getLL('labelCmdSave',1).'" />
-			<input type="submit" name="save_close" value="'.$GLOBALS['LANG']->getLL('labelCmdSaveClose',1).'" />
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
-
-
-		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
-
-		return $content;
+		return implode('<br />', $msg);
 	}
 }
 

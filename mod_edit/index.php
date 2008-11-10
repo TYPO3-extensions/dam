@@ -171,11 +171,6 @@ class tx_dam_edit extends tx_dam_SCbase {
 	var $pageTitle = '[no title]';
 
 	/**
-	 * the class name to be used for $this->doc
-	 */
-	var $templateClass = 'mediumDoc';
-
-	/**
 	 * tx_dam_tce_file object
 	 */
 	var $TCEfile;
@@ -425,9 +420,11 @@ class tx_dam_edit extends tx_dam_SCbase {
 				//
 		
 				if (!is_object($this->doc)) {
-					$this->doc = t3lib_div::makeInstance($this->templateClass);
+					$this->doc = t3lib_div::makeInstance('template'); 
 					$this->doc->backPath = $BACK_PATH;
-					$this->doc->docType = 'xhtml_trans';
+					$this->doc->setModuleTemplate(t3lib_extMgm::extRelPath('dam') . 'res/templates/mod_edit.html');
+					$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
+					$this->doc->docType = 'xhtml_trans';	
 				}
 		
 		
@@ -478,10 +475,10 @@ class tx_dam_edit extends tx_dam_SCbase {
 					//
 					// Call submodule function
 					//
-		
+
 					$this->extObjContent();
-					
-					
+					$this->markers['CONTENT'] = $this->content; 
+
 				} else {
 					$access = false;
 					$this->errorMessages['error'][] = sprintf($LANG->getLL('messageCmdDenied', true),$this->pageTitle);
@@ -491,8 +488,10 @@ class tx_dam_edit extends tx_dam_SCbase {
 		
 
 		if (!is_object($this->doc)) {
-			$this->doc = t3lib_div::makeInstance($this->templateClass);
+			$this->doc = t3lib_div::makeInstance('template'); 
 			$this->doc->backPath = $BACK_PATH;
+			$this->doc->setModuleTemplate(t3lib_extMgm::extRelPath('dam') . 'res/templates/mod_edit.html');
+			$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
 			$this->doc->docType = 'xhtml_trans';
 		}
 
@@ -548,9 +547,6 @@ class tx_dam_edit extends tx_dam_SCbase {
 				$this->content.= $this->errorMessageBox(implode('', $messages));
 			}
 		}
-
-
-		$this->content.= $this->doc->spacer(10);
 	}
 
 
@@ -560,8 +556,10 @@ class tx_dam_edit extends tx_dam_SCbase {
 	 * @return	string		HTML
 	 */
 	function printContent()	{
-		$this->content.= $this->doc->middle();
+		$this->content = $this->doc->startPage($this->pageTitle);     
+		$this->content.= $this->doc->moduleBody($this->pageinfo, $this->docHeaderButtons, $this->markers);
 		$this->content.= $this->doc->endPage();
+
 		$this->content=$this->doc->insertStylesAndJS($this->content);
 		echo $this->content;
 	}
@@ -690,12 +688,9 @@ class tx_dam_edit extends tx_dam_SCbase {
 	function makePageHeader()	{
 		$this->extObjHeader();
 
-		$this->content.= $this->doc->startPage($this->pageTitle);
-		$this->content.= $this->doc->header($this->pageTitle);
 		if (is_callable(array($this->extObj,'getContextHelp'))) {
-			$this->content.= '<div style="float:right">'.$this->extObj->getContextHelp().'</div>';
+			$this->markers['CSH'] = $this->extObj->getContextHelp();
 		}
-		$this->content.= $this->doc->spacer(10);
 	}
 
 

@@ -188,11 +188,6 @@ class tx_dam_cmd extends tx_dam_SCbase {
 	var $pageTitle = '[no title]';
 
 	/**
-	 * the class name to be used for $this->doc
-	 */
-	var $templateClass = 'mediumDoc';
-
-	/**
 	 * tx_dam_tce_file object
 	 */
 	var $TCEfile;
@@ -715,9 +710,6 @@ class tx_dam_cmd extends tx_dam_SCbase {
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php'])    {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod_cmd/index.php']);
 }
-
-
-
 
 
 
