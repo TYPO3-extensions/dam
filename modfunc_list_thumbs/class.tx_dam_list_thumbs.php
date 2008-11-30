@@ -238,9 +238,9 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$sortingSelector = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$sortingSelector.'</form>';
 		}
 
-		$languageSelector = $this->pObj->languageSwitch($this->langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']));
+		$this->pObj->markers['LANGUAGE_SELECT'] = $this->pObj->languageSwitch($this->langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']));
 		
-		$content.= $this->pObj->contentLeftRight($sortingSelector, $languageSelector);
+		$content.= $this->pObj->contentLeftRight($sortingSelector, '');
 		$content.= $this->pObj->doc->spacer(10);
 		
 		

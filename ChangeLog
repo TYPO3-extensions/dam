@@ -1,3 +1,6 @@
+2008-11-17  Dan Osipov <dosipov@phillyburbs.com>
+	* Fixed #9551: Inconsistent placement lang selector in docheader
+
 2008-11-10  Benjamin Mack <benni@typo3.org>
 
 	* Fixed #9548: No docheader for edit text (Thanks to Dan Osipov and Steffen Gebert)
