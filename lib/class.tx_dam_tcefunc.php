@@ -189,7 +189,22 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				// In the configuration of the TCA treeViewBrowseable is set to TRUE. The value 'iframeContent' for treeViewBrowseable will
 				// be set in dam/mod_treebrowser/index.php as internal configuration logic
 
-				$thumbnails = $renderBrowseTrees->renderIFrame();
+				// Uschi: respect $TCA[table]['columns'][field]['config']['itemListStyle']
+				// This will enable us to have a higher category selection tree. 
+				if(isset($config['itemListStyle'])) {
+					$tempIframeStyle = t3lib_div::trimExplode(';', $config['itemListStyle']);
+					$iframestyle = array();
+					foreach($tempIframeStyle as $style) {
+						$kv = t3lib_div::trimExplode(':', $style);
+						$iframestyle[$kv[0]] = $kv[1];
+					}
+				}
+
+				$iframeWidth = ($iframestyle['width']) ? $iframestyle['width'] : NULL;
+				$iframeHeight = ($iframestyle['height']) ? $iframestyle['height'] : NULL;
+
+				$thumbnails = $renderBrowseTrees->renderIFrame($iframeWidth, $iframeHeight);
+				
 
 			} else {
 					// tree frame <div>
@@ -232,7 +247,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$minitems = t3lib_div::intInRange($config['minitems'], 0);
 		$maxitems = t3lib_div::intInRange($config['maxitems'], 0);
 		if (!$maxitems)	$maxitems = 100000;
-
+		$selectedListStyle = ($config['selectedListStyle']) ? ' style="' .$config['selectedListStyle'] .'"' : ' style="width:200px"';
+		
 		$this->tceforms->requiredElements[$PA['itemFormElName']] = array($minitems, $maxitems, 'imgName' => $table.'_'.$row['uid'].'_'.$field);
 
 
@@ -243,7 +259,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$params = array(
 			'size' => ($disabled ? count($disabled) : $config['size']),
 			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'], 0),
-			'style' => ' style="width:200px;"',
+			'style' => $selectedListStyle,
 			'dontShowMoveIcons' => ($maxitems<=1),
 			'maxitems' => $maxitems,
 			'info' => '',
@@ -798,6 +814,9 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name', true).'<br />'.
 					'<strong>'.htmlspecialchars($row['file_name']).'</strong></div>';
 
+		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path', true).'<br />'.
+					'<strong>'.htmlspecialchars($row['file_path']).'</strong></div>'; 
+									
 		if ($row['media_type'] == TXDAM_mtype_image) {
 			$out = '';
 			$out .= $row['hpixels'] ? $row['hpixels'].'x'.$row['vpixels'].' px, ' : '';
