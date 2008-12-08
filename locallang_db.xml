@@ -86,6 +86,7 @@
             <label index="tx_dam_selection.type.I.1"></label>
             <label index="tx_dam_selection.type"></label>
             <label index="tx_dam_selection.definition"></label>
+            <label index="cm.edit_popup"></label>
         </labelContext>
     </meta>
     <data type="array">
@@ -211,6 +212,7 @@
             <label index="ffds_selection.default_sorting_reverse">Reverse sorting:</label>
             <label index="ffds_selection.limit">Maximum items to display:</label>
 			<label index="ffds_options.sheet_label">Options</label>
+			<label index="cm.edit_popup">Edit (new window)</label>    
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>

@@ -204,7 +204,7 @@ class tx_dam_action_cmSubFile extends tx_dam_action_recordBase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('context');
+	var $typesAvailable = array();
 
 
 	/**
@@ -537,6 +537,15 @@ class tx_dam_action_editRecPopup extends tx_dam_action_editRec {
 	function getDescription () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.openInNewWindow');
 	}
+	
+	/**
+	 * Returns the short label like: Delete
+	 *
+	 * @return	string
+	 */
+	function getLabel () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:dam/locallang_db.xml:cm.edit_popup');
+	}	
 
 
 	/**
@@ -582,7 +591,7 @@ class tx_dam_action_viewFileRec extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control'); // , 'context' - disabled because it's available through 'file ...' sub menu
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -745,6 +754,19 @@ class tx_dam_action_infoRec extends tx_dam_action_recordBase {
 	function getDescription () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo');
 	}
+	
+	/**
+	 * Tells the wanted position for a list of actions
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: after:tx_dam_newFolder;before:tx_other_item
+	 */
+	function getWantedPosition ($type) {
+		if($type === 'context') {
+			return 'before:tx_dam_action_editFileRec';
+		}
+		return '';
+	}	
 
 
 	/**
@@ -1114,6 +1136,19 @@ class tx_dam_action_deleteRec extends tx_dam_action_recordBase {
 
 		return $commands;
 	}
+	
+	/**
+	 * Tells the wanted position for a list of actions
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: after:tx_dam_newFolder;before:tx_other_item
+	 */
+	function getWantedPosition ($type) {
+		if($type === 'context') {
+			return 'after:tx_dam_action_replaceFileRec';
+		}
+		return '';
+	}	
 }
 
 
@@ -1163,7 +1198,7 @@ class tx_dam_action_renameFileRec extends tx_dam_action_renameFile {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 	
 	/**
 	 * Returns true if the action is of the wanted type
@@ -1182,6 +1217,20 @@ class tx_dam_action_renameFileRec extends tx_dam_action_renameFile {
 		}
 		return $valid;
 	}
+	
+	/**
+	 * Tells the wanted position for a list of actions
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: after:tx_dam_newFolder;before:tx_other_item
+	 */
+	function getWantedPosition ($type) {
+		if($type === 'context') {
+			return 'after:tx_dam_action_editFileRec;after:tx_dam_action_infoRec';
+		}
+		return '';
+	}
+
 }
 
 /**
@@ -1198,7 +1247,7 @@ class tx_dam_action_replaceFileRec extends tx_dam_action_replaceFile {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 	
 	/**
 	 * Returns true if the action is of the wanted type
@@ -1217,6 +1266,19 @@ class tx_dam_action_replaceFileRec extends tx_dam_action_replaceFile {
 		}
 		return $valid;
 	}
+	
+	/**
+	 * Tells the wanted position for a list of actions
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: after:tx_dam_newFolder;before:tx_other_item
+	 */
+	function getWantedPosition ($type) {
+		if($type === 'context') {
+			return 'after:tx_dam_action_renameFileRec';
+		}
+		return '';
+	}	
 }
 
 
@@ -1393,7 +1455,21 @@ class tx_dam_action_editFileRec extends tx_dam_actionbase {
 	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:dam/mod_edit/locallang.xml:tx_dam_edit.title');
 	}
-
+	
+	
+	/**
+	 * Tells the wanted position for a list of actions
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: after:tx_dam_newFolder;before:tx_other_item
+	 */
+	function getWantedPosition ($type) {
+		if($type === 'context') {
+			return 'before:tx_dam_action_renameFileRec';
+		}
+		return '';
+	}			
+	
 
 	/**
 	 * Returns a command array for the current type

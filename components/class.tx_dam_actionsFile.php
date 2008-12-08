@@ -422,7 +422,7 @@ class tx_dam_action_viewFile extends tx_dam_actionbase {
 	 * @return	string
 	 */
 	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:viewFile');
+		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.view');
 	}
 
 
@@ -497,7 +497,7 @@ class tx_dam_action_infoFile extends tx_dam_action_viewFile {
 	 * @return	string
 	 */
 	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo');
+		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.info');
 	}
 
 
@@ -936,7 +936,7 @@ class tx_dam_action_editFile extends tx_dam_actionbase {
 	 */
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
 		static $editorList=array();
-		
+
 		$valid = false;
 
 		if ($this->isTypeValid ($type, $itemInfo, $env) AND $this->itemInfo['__type'] === 'file') {
@@ -989,6 +989,7 @@ class tx_dam_action_editFile extends tx_dam_actionbase {
 	function getLabel () {
 		return $GLOBALS['LANG']->sL('LLL:EXT:dam/mod_edit/locallang.xml:tx_dam_edit.title');
 	}
+
 
 
 
