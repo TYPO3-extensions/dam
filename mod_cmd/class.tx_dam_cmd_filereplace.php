@@ -160,6 +160,7 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 		$content = '';
 		$msg = array();
 
+		$this->pObj->markers['FOLDER_INFO'] = '[' . $this->file['file_path'] . ']:' . $this->file['file_name'];
 		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($this->meta);
 		$msg[] = '&nbsp;';
 
@@ -168,9 +169,8 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 				<input type="hidden" name="data[upload]['.$id.'][target]" value="'.htmlspecialchars($path).'" />
 				<input type="hidden" name="data[upload]['.$id.'][data]" value="'.$id.'" />';
 
-		$buttons = '
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.submit',1).'" />
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.submit',1) . '" height="16" type="image" width="16">';
+		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
 		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
 

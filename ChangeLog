@@ -1,4 +1,5 @@
-2008-12-08  Michiel Roos  <michiel@netcreators.com>
+2008-12-08  Michiel Roos <michiel@netcreators.com>
+	* Fixed #9733: Rename, Replace file and Delete functionalities missing docheaders (Thanks to Dan Osipov)
 	* Fixed #9644: DAM 1.1 is not aware of mpeg4 (Thanks to Dan Osipov and Uschi Renziehausen)
 	* Fixed #9403: Missing media types: psd and odt (Thanks to Dan Osipov)
 	* Fixed #9558: Lay out of DAM>list>thumbnails messed up in Opera (Thanks to Pee Jee Kruidhof and Steffen Gebert)

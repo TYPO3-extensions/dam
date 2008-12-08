@@ -143,17 +143,16 @@ class tx_dam_cmd_folderrename extends t3lib_extobjbase {
 		$content = '';
 
 		$msg = array();
-		$msg[] = tx_dam_guiFunc::getFolderInfoBar($this->folder);
+		$this->pObj->markers['FOLDER_INFO'] = tx_dam_guiFunc::getFolderInfoBar($this->folder);
 		$msg[] = '&nbsp;';
 		$msg[] = $LANG->getLL('foldername', 1);
 		$msg[] = '<input'.$GLOBALS['SOBE']->doc->formWidth(20).' type="text" name="data[new_name]" value="'.htmlspecialchars($this->pObj->data['new_name']?$this->pObj->data['new_name']:$this->folder['dir_name']).'">';
 
-		$buttons = '
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_rename.php.submit',1).'" />
-			<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />
-			<input type="hidden" name="folder" value="'.htmlspecialchars($this->folder['dir_path_absolute']).'" />';
+		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_rename.php.submit',1) . '" height="16" type="image" width="16">';
+		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
 		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
+		$content .= '<input type="hidden" name="folder" value="'.htmlspecialchars($this->folder['dir_path_absolute']).'" />';
 
 		return $content;
 	}
