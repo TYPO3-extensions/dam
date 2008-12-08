@@ -1,3 +1,6 @@
+2008-12-08  Michiel Roos  <michiel@netcreators.com>
+	* Fixed #9558: Lay out of DAM>list>thumbnails messed up in Opera (Thanks to Pee Jee Kruidhof and Steffen Gebert)
+
 2008-11-17  Dan Osipov <dosipov@phillyburbs.com>
 	* Fixed #9551: Inconsistent placement lang selector in docheader
 
