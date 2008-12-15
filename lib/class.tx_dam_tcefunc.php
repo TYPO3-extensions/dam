@@ -1039,8 +1039,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		return $this->tceforms->getSingleField_typeNone_render($config, $content);
 	}
 
-
-
 	/**
 	 * Renders file usage field
 	 *
@@ -1048,75 +1046,9 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 * @param	object		$fobj TCEForms object reference
 	 * @return	string		The HTML code for the TCEform field
 	 */
-	function tx_dam_fileUsage ($PA, &$fobj) {
-		global $TCA, $LANG;
-
-		$this->tceforms = &$PA['pObj'];
-
-		$config = $PA['fieldConf']['config'];
-
-		$itemOut = '';
-
-		$itemOut .= '<h4>'.$LANG->sl('LLL:EXT:dam/lib/locallang.xml:fileReference').'</h4>';
-		$rows = tx_dam_db::getMediaUsageReferences($PA['row']['uid'], '');
-
-		for ($index = 0; $index < 2; $index++) {
-
-			if ($rows) {
-				foreach($rows as $row) {
-					$table = $row['tablenames'];
-
-					$contentRec = t3lib_BEfunc::getRecord ($table, $row['uid_foreign'], 'uid,pid,'.$TCA[$table]['ctrl']['label']);
-					$iconAltText = t3lib_BEfunc::getRecordIconAltText($contentRec, $table);
-					$contentIcon = t3lib_iconWorks::getIconImage($table, $contentRec, $this->tceforms->backPath, 'title="'.$iconAltText.'" align="top"');
-
-					$pageRec = t3lib_BEfunc::getRecord ('pages', $contentRec['pid'], 'uid,pid,'.$TCA['pages']['ctrl']['label']);
-					$iconAltText = t3lib_BEfunc::getRecordIconAltText($pageRec, 'pages');
-					$pageIcon = t3lib_iconWorks::getIconImage('pages', $pageRec, $this->tceforms->backPath, 'title="'.$iconAltText.'" align="top"');
-
-
-					$aOnClick = "top.fsMod.recentIds['web']=".$pageRec['uid'].";top.goToModule('web_layout',1);";
-					$itemOut .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$pageIcon.t3lib_BEfunc::getRecordTitle('pages', $pageRec, true).'</a>';
-
-					$itemOut .= ' ';
-
-					$params='&edit['.$table.']['.$contentRec['uid'].']=edit';
-					$aOnClick = t3lib_beFunc::editOnClick($params, $this->tceforms->backPath='', $requestUri='');
-					$itemOut .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$contentIcon.t3lib_BEfunc::getRecordTitle($table, $contentRec, true).' - '.$LANG->sl($TCA[$table]['ctrl']['title']).', id='.$contentRec['uid'].'</a><br />';
-				}
-			} else {
-				$itemOut .= $LANG->sl('LLL:EXT:dam/lib/locallang.xml:fileNotUsed');
-			}
-
-			if(!$index) {
-				$itemOut .= '<h4>'.$LANG->sl('LLL:EXT:dam/lib/locallang.xml:fileCopy').'</h4>';
-				$rows = tx_dam_db::getMediaUsageUploads($PA['row']['uid']);
-			}
-		}
-
-
-		$out = $this->tceforms->intoTemplate( array(
-					'NAME' => $this->tceforms->sL($PA['label'], true),
-					'ID' => $row['uid'],
-					'FIELD' => $PA['field'],
-					'TABLE' => $PA['table'],
-					'ITEM' => $itemOut,
-					'HELP_ICON' => $this->tceforms->helpTextIcon($PA['table'], $PA['field'], true)
-				),
-				$fieldTemplate='');
-
-
-		return $out;
+	function tx_dam_fileUsage ($PA, $fobj) {
+		return tx_dam_guiFunc::getReferencesTable($PA['row']['uid']);
 	}
-
-
-
-
-
-
-
-
-
 
 
 

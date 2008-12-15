@@ -1723,7 +1723,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $BACK_PATH, $BE_USER;
 
 		if($refTable === 'pages') {
-			$onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
+			//$onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
+			$params = '&edit['.$refTable.']['.$id.']=edit';
+			$onClick = t3lib_BEfunc::editOnClick($params, $BACK_PATH);
 		} else {
 			$params = '&edit['.$refTable.']['.$id.']=edit';
 			$onClick = t3lib_BEfunc::editOnClick($params, $BACK_PATH);
@@ -1831,9 +1833,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		HTML code for tab menu
 	 */
 	function getTabMenu($mainParams, $elementName, $currentValue, $menuItems, $script='', $addparams='')	{
-		$content = '';
-
-		if (is_array($menuItems))	{
+		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['tabs'] == 1 && is_array($menuItems))	{
 			if (!is_array($mainParams)) {
 				$mainParams = array('id' => $mainParams);
 			}
@@ -1848,10 +1848,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				// original: $menuDef[$value]['url'] = htmlspecialchars($script.'?'.$mainParams.$addparams.'&'.$elementName.'='.$value);
 				$menuDef[$value]['url'] = $script.'?'.$mainParams.$addparams.'&'.$elementName.'='.$value;
 			}
-			$content = $this->doc->getTabMenuRaw($menuDef);
-
+			$this->content .= $this->doc->getTabMenuRaw($menuDef);
+			return '';
 		}
-		return $content;
+		else {
+			return t3lib_BEfunc::getFuncMenu($this->id,$elementName,$currentValue,$menuItems);
+		}
+
 	}
 
 

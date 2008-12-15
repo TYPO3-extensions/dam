@@ -634,8 +634,8 @@ if (is_string($allowedFileTypes)) {
 				
 					// Create link to showing details about the file in a window:
 				if ($fI['__exists']) {
-					$Ahref = $GLOBALS['BACK_PATH'].'show_item.php?table='.rawurlencode($fI['file_name_absolute']).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
-					$ATag_info = '<a href="'.htmlspecialchars($Ahref).'">';
+					$infoOnClick = 'launchView(\'' . t3lib_div::rawUrlEncodeFP($fI['file_name_absolute']) . '\', \'\'); return false;';
+					$ATag_info = '<a href="#" onclick="' . htmlspecialchars($infoOnClick) . '">';
 					$info = $ATag_info.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->getLL('info',1).'" alt="" /> '.$LANG->getLL('info',1).'</a>';
 					$info = '<span class="button">'.$info.'</span>';
 				} else {

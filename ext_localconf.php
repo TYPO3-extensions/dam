@@ -124,6 +124,9 @@ if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['mediatag']) {
 	require_once(PATH_txdam.'binding/mediatag/ext_localconf.php');
 }
 
+	// user-defined soft reference parsers
+require_once(PATH_txdam.'binding/softref/ext_localconf.php');
+
 	// txdam attribute on img tag for FE
 require_once(PATH_txdam.'binding/imgtag/ext_localconf.php');
 

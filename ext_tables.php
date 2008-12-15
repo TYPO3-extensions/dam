@@ -83,7 +83,8 @@ t3lib_extMgm::addTCAcolumns('tt_content',$tempColumns,1);
 
 unset($tempColumns);
 
-
+	// Adding soft reference keys to tt_content configuration
+require_once(PATH_txdam.'binding/softref/ext_tables.php');
 
 if (TYPO3_MODE === 'BE')	{
 

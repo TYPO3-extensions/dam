@@ -944,6 +944,86 @@ class tx_dam_db {
 		return $files;
 	}
 
+	/**
+	 * Returns the result of a db query on a soft ref table
+	 *
+	 *
+	 * @param 	string 		$local_table Eg tx_dam
+	 * @param 	string 		$local_uid Uid list of tx_dam records the references shall be fetched for
+	 * @param	string		$foreign_table Table name to get references for. Eg tt_content
+	 * @param	integer		$foreign_uid The uid of the referenced record
+	 * @param	mixed		$softRef_ident Array of field/value pairs that should match in soft references table. If it is a string, it will be used as value for the field 'softref_key'.
+	 * @param	string		$softRef_table The soft referneces table to use. Default: sys_refindex
+	 * @param	string		$fields The fields to select. Needs to be prepended with table name: tx_dam.uid, tx_dam.title
+	 * @param	array		$whereClauses WHERE clauses as array with associative keys (which can be used to overwrite 'enableFields') or a single one as string.
+	 * @param	string		$groupBy: ...
+	 * @param	string		$orderBy: ...
+	 * @param	string		$limit: Default: 1000
+	 * @return	mixed		db result pointer
+	 */
+	function softRefIndexQuery($local_table, $local_uid, $foreign_table, $foreign_uid, $softRef_ident='', $softRef_table='sys_refindex', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
+
+		if (!is_array($whereClauses)) {
+			$whereClauses = array('where' => preg_replace('/^AND /', '', trim($whereClauses)));
+		}
+
+		$softRef_table = $softRef_table ? $softRef_table : 'sys_refindex';
+
+		$where = array();
+		if (!isset($whereClauses['deleted']) && !isset($whereClauses['enableFields'])) {
+			$where['enableFields'] = tx_dam_db::enableFields($local_table);
+				// soft references table has no TCA
+			$where['deleted'] = $softRef_table.'.deleted=0';
+			if ($foreign_table) {
+				$where['enableFields'] .= ' AND '.tx_dam_db::enableFields($foreign_table);
+			}
+		}
+		$where['ref'] = $local_table.'.uid='.$softRef_table.'.ref_uid';
+		$where['ref'] .= $foreign_table ? ' AND ' . $foreign_table . '.uid=' . $softRef_table . '.recuid' : '';
+		$where = array_merge($where, $whereClauses);
+
+		if ($foreign_table) {
+			$where[] = $softRef_table.'.tablename='.$GLOBALS['TYPO3_DB']->fullQuoteStr($foreign_table, $softRef_table);
+		}
+		if ($foreign_uid = $GLOBALS['TYPO3_DB']->cleanIntList($foreign_uid)) {
+			$where[] = $softRef_table.'.recuid IN ('.$foreign_uid.')';
+		}
+		if ($local_uid = $GLOBALS['TYPO3_DB']->cleanIntList($local_uid)) {
+			$where[] = $softRef_table.'.ref_uid IN ('.$local_uid.')';
+		}
+		if ($softRef_ident) {
+			if (!is_array($softRef_ident)) {
+				$softRef_ident = array('softref_key' => $softRef_ident);
+			}
+			foreach ($softRef_ident as $field => $value) {
+				if ($value) {
+					$where[] = $softRef_table.'.'.$field.'='.$GLOBALS['TYPO3_DB']->fullQuoteStr($value, $softRef_table);
+				}
+			}
+		}
+
+		if(!$orderBy) {
+			$orderBy = $softRef_table.'.sorting';
+		}
+
+		while ($key = array_search('', $where)) {
+			unset ($where[$key]);
+		}
+		$where = implode(' AND ', $where);
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			$fields,
+			$local_table . ',' .$softRef_table . ($foreign_table ? ','. $foreign_table : ''),
+			$where,
+			$groupBy,
+			$orderBy,
+			$limit
+		);
+
+		echo $GLOBALS['TYPO3_DB']->sql_error();
+
+		return $res;
+	}
 
 	/**
 	 * Returns info about the usage of a media item as reference to a given table.
@@ -959,33 +1039,35 @@ class tx_dam_db {
 	 * @return array
 	 */
 	function getMediaUsageReferences($uidList, $foreign_table='', $MM_ident='', $fields='', $whereClauses=array(), $groupBy='', $orderBy='', $limit=1000) {
-
+		$rows = array();
+			// References in tx_dam_mm_ref table
 		$fields = $fields ? $fields : 'tx_dam_mm_ref.*';
-
 		$local_table= 'tx_dam';
 		$MM_table = 'tx_dam_mm_ref';
-
 		$res = tx_dam_db::referencesQuery($local_table, $uidList, $foreign_table, '', $MM_ident, $MM_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
-
-		$rows = array();
 		if ($res) {
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$rows[] = $row;
 			}
 		}
-
+			// References in sys_refindex table
+		$softRef_table = 'sys_refindex';
+		$fields = $softRef_table . '.tablename AS tablenames, ' . $softRef_table . '.recuid AS uid_foreign, ' . $softRef_table . '.ref_uid AS uid_local, ' . $softRef_table . '.field, ' . $softRef_table . '.softref_key';
+		$res = tx_dam_db::softRefIndexQuery($local_table, $uidList, $foreign_table, '', $softRef_ident, $softRef_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
+		if ($res) {
+			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+				$rows[] = $row;
+			}
+		}
+			// References in tx_dam_file_tracking table
+		$rows = array_merge($rows, tx_dam_db::getMediaUsageUploads($uidList, '', ''));
+		
 		return $rows;
 	}
 
-
 	/**
-	 * Fetches for media items the tt_content that use that file as copy in uploads
+	 * Fetches reference data from reference index based on file tracking content
 	 *
-	 * Returns:
-	 *	$rows[] = array (
-	 *		'tablenames' => 'tt_content',
-	 *		'uid_foreign' => $row['uid'],
-	 *	);
 	 *
 	 * @param 	string 		$uidList Uid list of tx_dam records the references shall be fetched for
 	 * @param 	array 		$tableConf Unused/reserved
@@ -995,46 +1077,42 @@ class tx_dam_db {
 	 * @return array
 	 */
 	function getMediaUsageUploads($uidList, $tableConf='', $uploadsPath='uploads/pics/', $orderBy='', $limit=1000) {
+		$rows = array();
 
-		$fields = $fields ? $fields : 'tx_dam_file_tracking.*';
-
-		if(!$orderBy) {
-			$orderBy = 'tx_dam_file_tracking.tstamp';
+		$softRef_table = 'sys_refindex';
+		$local_table = 'tx_dam';
+		$tracking_table = 'tx_dam_file_tracking';
+		$fields = array();
+		$fields[] = 'tx_dam.*';
+		$fields[] = $tracking_table . '.file_path AS tracking_file_path,' . $tracking_table . '.file_name AS tracking_file_name';
+		$fields[] = $softRef_table . '.tablename AS tablenames,' . $softRef_table . '.recuid AS uid_foreign,' . $softRef_table . '.field';
+		if (!$orderBy) {
+			$orderBy = $tracking_table . '.tstamp';
 		}
-
 		$where = array();
 		$where[] = 'tx_dam.uid IN ('.$GLOBALS['TYPO3_DB']->cleanIntList($uidList).')';
 		$where[] = 'tx_dam_file_tracking.file_hash=tx_dam.file_hash';
-		if($uploadsPath) {
+		if ($uploadsPath) {
 			$where[] = 'tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($uploadsPath,'tx_dam_file_tracking');
 		}
-		$where = implode(' AND ', $where);
+		$where[] = $softRef_table . '.ref_string LIKE CONCAT(' . $tracking_table . '.file_path,' . $tracking_table . '.file_name)';
+		$selectFields = implode(',', $fields);
+		$whereClause = implode(' AND ', $where);
 		$rowsUploads = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			$fields,
-			'tx_dam_file_tracking,tx_dam',
-			$where,
+			$selectFields,
+			$local_table . ',' . $tracking_table . ',' . $softRef_table,
+			$whereClause,
 			'',
 			$orderBy,
 			$limit
 		);
-
-		$rows = array();
-
-		if($rowsUploads) {
-			$whereFilenames = array();
-			foreach ($rowsUploads as $row) {
-				$whereFilenames[] = 'image REGEXP BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr('[^, ]*'.$row['file_name'].'[^, ]*','tt_content');
-			}
-			$where = implode(' OR ', $whereFilenames);
-			$rowsContent = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,pid,image', 'tt_content', $where.' AND '.tx_dam_db::deleteClause('tt_content'));
-			foreach ($rowsContent as $row) {
-				$rows[] = array (
-					'tablenames' => 'tt_content',
-					'uid_foreign' => $row['uid'],
-				);
+		if (count($rowsUploads)) {
+			foreach ($rowsUploads as $uploadRow) {
+				$uploadRow['softref_key'] = 'file_copy';
+				$uploadRow['uid_local'] = $uploadRow['uid'];
+				$rows[] = $uploadRow;
 			}
 		}
-
 		return $rows;
 	}
 

@@ -1,4 +1,10 @@
+2008-12-15  Michiel Roos <michiel@netcreators.com>
+
+	* Fixed #9819: DAM Usage Information Enhancement (Thanks to Stanislas Rolland)
+	* Fixed #9928: Bring back Tabs! (Thanks to Dan Osipov)
+
 2008-12-08  Michiel Roos <michiel@netcreators.com>
+
 	* Fixed #9552: Clean Up Click Menu (Thanks to Dan Osipov)
 	* Fixed #9646: DAM does not honour config['selectedListStyle'] and config['itemListStyle'] (Thanks to Uschi Renziehausen)
 	* Fixed #9733: Rename, Replace file and Delete functionalities missing docheaders (Thanks to Dan Osipov)
@@ -7,6 +13,7 @@
 	* Fixed #9558: Lay out of DAM>list>thumbnails messed up in Opera (Thanks to Pee Jee Kruidhof and Steffen Gebert)
 
 2008-11-17  Dan Osipov <dosipov@phillyburbs.com>
+
 	* Fixed #9551: Inconsistent placement lang selector in docheader
 
 2008-11-10  Benjamin Mack <benni@typo3.org>

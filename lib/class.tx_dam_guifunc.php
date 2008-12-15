@@ -81,7 +81,7 @@
  *
  */
 
-
+require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 
 
 /**
@@ -320,110 +320,51 @@ class tx_dam_guiFunc {
 	 * @param	string	$displayColumns list of elements to display in the table. Available: page, content_element, content_age, media_element, media_element_age
 	 * @return	string		Rendered Table
 	 */
-	function getReferencesTable($uidList, $displayColumns='page,content_element')   {
-		global $BACK_PATH, $BE_USER, $LANG, $TCA;
-
-		$displayColumns = explode(',', $displayColumns);
-
-			// init table layout
-		$refTableLayout = array(
-			'table' => Array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
-			'0' => array(
-				'defCol' => Array('<th nowrap="nowrap" class="bgColor5">','</th>')
-			),
-			'defRow' => array(
-				'defCol' => Array('<td nowrap="nowrap" class="bgColor4">','</td>'),
-			),
-		);
-
-		$cTable=array();
-		$tr = 0;
-		$td = 0;
-
-		foreach ($displayColumns as $element) {
-			$cTable[$tr][$td++] = $LANG->getLL($element, 1).':';
+	function getReferencesTable($uidList, $displayColumns='page,content_element,content_field,softref_key')   {
+			// File references
+		$itemOut = '';
+		//$itemOut .= '<h4>' . $GLOBALS['LANG']->sl('LLL:EXT:dam/lib/locallang.xml:fileReference') . '</h4>';
+		$rows = tx_dam_db::getMediaUsageReferences($uidList, '', '', '', '');
+		if ($rows) {
+			$itemOut .= tx_dam_guiFunc::renderReferencesTable($rows, $displayColumns);
+		} else {
+			$itemOut .= $GLOBALS['LANG']->sl('LLL:EXT:dam/lib/locallang.xml:fileNotUsed');
 		}
-		$tr++;
-
-
-		$result = tx_dam_db::getMediaUsageReferences($uidList);
-
-		foreach ($result as $damRow) {
-
-			$refTable = $damRow['tablenames'];
-
-			if ($refTable) {
-
-					// get main fields from TCA
-				$selectFields = tx_dam_db::getTCAFieldListArray($refTable, TRUE);
-				$selectFields = tx_dam_db::compileFieldList($refTable, $selectFields, FALSE);
-				$selectFields = $selectFields ? $selectFields : ($refTable.'.uid,'.$refTable.'.pid');
-
-					// Query for non-deleted tables only
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-								$selectFields,
-								$refTable,
-								$refTable.'.uid='.intval($damRow['uid_foreign']).
-									t3lib_BEfunc::deleteClause($refTable),
-								'',
-								'tstamp DESC',
-								40
-							);
-
-
-				while($refRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-
-					$pageRow = t3lib_BEfunc::getRecord('pages', $refRow['pid']);
-
-					if (is_array($pageRow)) {
-
-						$td=0;
-						foreach ($displayColumns as $element) {
-
-							switch ($element) {
-								case 'page':	// Create output item for pages record
-										$content = tx_dam_SCbase::getRecordInfoEditLink('pages', $pageRow, true);
-									break;
-
-								case 'content_element':	// Create output item for reference record
-										$content = tx_dam_SCbase::getRecordInfoEditLink($refTable, $refRow);
-									break;
-
-								case 'content_age':	// Create output text describing the age
-										$content = t3lib_BEfunc::dateTimeAge($refRow['tstamp'], 1);
-									break;
-
-								case 'media_element':	// Create output item for tx_dam record
-										$content = tx_dam_SCbase::getRecordInfoEditLink('tx_dam', $damRow);
-									break;
-
-								case 'media_element_age':	// Create output text describing the tx_dam record age
-										$content = t3lib_BEfunc::dateTimeAge($damRow['tstamp'], 1);
-									break;
-
-								default:
-									break;
-							}
-
-								// Add row to table
-							$cTable[$tr][$td++] = $content;
-						}
-						$tr++;
-					}
-				}
-			}
-		}
-
-			// Return rendered table
-		if(count($cTable) > 1){
-			return $GLOBALS['SOBE']->doc->table($cTable, $refTableLayout);
-		}
-
-		return false;
+		return $itemOut;
 	}
-
-
-
+	
+	/**
+	 * Render a table with referenced records
+	 *
+	 * @param 	array 	$rows: Array of reference records
+	 * @param	string	$displayColumns: list of elements to display in the table. Available: page, content_element, content_field, content_age, media_element, media_element_age
+	 * @return	string	Rendered Table
+	 */
+	function renderReferencesTable($rows, $displayColumns='page,content_element,content_field,softref_key') {
+		$content = '';
+		require_once(PATH_txdam.'lib/class.tx_dam_listreferences.php');
+		require_once (PATH_txdam.'lib/class.tx_dam_iterator_references.php');
+		$referenceList = t3lib_div::makeInstance('tx_dam_listreferences');
+		$referenceList->displayColumns = t3lib_div::trimExplode(',', $displayColumns, 1);
+		$referenceList->init();
+		$referenceList->enableSorting = false;
+			// Build the references object
+		$references = t3lib_div::makeInstance('tx_dam_iterator_references');
+		$references->processEntries($rows, $referenceList->displayColumns);
+		$references->sort('page');
+			// Return rendered table
+		if ($references->count()) {
+			$referenceList->addData($references, 'references');
+				// Make up a pointer
+			require_once(PATH_txdam.'lib/class.tx_dam_listpointer.php');
+			$pointer = t3lib_div::makeInstance('tx_dam_listPointer');
+			$pointer->init(0, 40, 1);
+			$referenceList->setPointer($pointer);
+			$referenceList->pointer->setTotalCount($references->count());
+			$content .= $referenceList->getListTable();
+		}
+		return $content;
+	}
 
 	/********************************
 	 *

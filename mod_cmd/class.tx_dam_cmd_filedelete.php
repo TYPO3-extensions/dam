@@ -195,6 +195,7 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 			$msg[] = '&nbsp;';
 			$msg[] = '<strong><span class="typo3-red">'.$LANG->getLL('labelWarning',1).'</span> '.$LANG->getLL('tx_dam_cmd_filedelete.messageReferencesUsed',1).'</strong>';
 			$msg[] = $LANG->getLL('tx_dam_cmd_filedelete.messageReferencesDelete',1);
+			$msg[] = $references;
 		}
 
 		$msg[] = '&nbsp;';
@@ -206,9 +207,9 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 		$content .= '<input type="hidden" name="data[delete]['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />';
 		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
 
-		$content .= $GLOBALS['SOBE']->doc->spacer(5);
+		//$content .= $GLOBALS['SOBE']->doc->spacer(5);
 
-		$content .= $references;
+		//$content .= $references;
 
 		return $content;
 	}

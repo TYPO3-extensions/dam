@@ -405,7 +405,6 @@ $TCA['tx_dam'] = array(
 				// 'allowed' => '*', // this might be needed for bidi MM relations sometimes
 				'type' => 'user',
 				'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->tx_dam_fileUsage',
-				'noTableWrapping' => TRUE,
 			)
 		),
 

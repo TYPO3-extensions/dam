@@ -144,7 +144,7 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 			//
 
 			if (!$this->forcedFunction AND count($this->MOD_MENU['function'])>1) {
-				$this->markers['FUNC_MENU'] = t3lib_BEfunc::getFuncMenu($this->id, 'SET[function]', $this->MOD_SETTINGS['function'], $this->MOD_MENU['function']);
+				$this->markers['FUNC_MENU'] = $this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']);
 			}
 			else {
 				$this->markers['FUNC_MENU'] = '';
