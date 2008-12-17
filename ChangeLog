@@ -1,6 +1,7 @@
 2008-12-15  Michiel Roos <michiel@netcreators.com>
 
 	* Fixed #9960: Move tab config to page TSconfig (Thanks to Steffen Gebert)
+	* follow up patch to feature #9819, fixing two issues in the Info->Usage submodule (Thanks to Stanislas Rolland)
 
 2008-12-15  Michiel Roos <michiel@netcreators.com>
 

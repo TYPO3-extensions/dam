@@ -337,33 +337,42 @@ class tx_dam_iterator_references extends tx_dam_iterator_base {
 	 */
 	function read(&$selection, $columns) {
 
-		$rows = array();
+		$local_table = 'tx_dam';
+		$softRef_table = 'sys_refindex';
+		$tracking_table = 'tx_dam_file_tracking';
 			// Use the current selection to create a query and count selected records
 		$selection->qg->query['DISTINCT'] = false;
 		$selection->addSelectionToQuery();
+		$countTotal = 0;
 			// Save selection where for softRef query
 		$queryParts = $selection->qg->getQueryParts();
 		$softRefWhere = $queryParts['WHERE'];
 			// Look for references in mm table
-		$selection->qg->queryAddMM($mm_table='tx_dam_mm_ref', $foreign_table='', $local_table='tx_dam');
-		$selection->execSelectionQuery(TRUE);
+		$selection->qg->queryAddMM($mm_table='tx_dam_mm_ref', $foreign_table='', $local_table);
+		$selection->prepareSelectionQuery(TRUE);
+		$queryArr = $selection->qg->getQueryParts();
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
+		echo $GLOBALS['TYPO3_DB']->sql_error();
+		if ($res) {
+			list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+		}
 			// If we have a selection...
 		if ($selection->sl->hasSelection()) {
 				// Look for references in refindex table
-			$softRef_table = 'sys_refindex';
-			$fields = ' COUNT(tx_dam.uid) as count';
-			$res = tx_dam_db::softRefIndexQuery('tx_dam', '', '', '', '', '', $fields, array($softRefWhere));
+			$fields = ' COUNT(' . $local_table . '.uid) as count';
+			$res = tx_dam_db::softRefIndexQuery($local_table, '', '', '', '', '', $fields, array($softRefWhere));
 			if ($res) {
 				list($softRefCountTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-				$selection->pointer->setTotalCount(intval($selection->pointer->countTotal) + intval($softRefCountTotal));
+				$countTotal += $softRefCountTotal;
 			}
 				// Look for references in file tracking table
 			$where = array($softRefWhere);
-			$where[] = 'tx_dam_file_tracking.file_hash=tx_dam.file_hash';
+			$where[] = $tracking_table . '.file_hash=' . $local_table . '.file_hash';
+			$where[] = $softRef_table . '.ref_string LIKE CONCAT(' . $tracking_table . '.file_path,' . $tracking_table . '.file_name)';
 			$whereClause = implode(' AND ', $where);
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 				$fields,
-				'tx_dam_file_tracking,tx_dam',
+				$local_table . ',' . $tracking_table . ',' . $softRef_table,
 				$whereClause,
 				'',
 				'',
@@ -372,42 +381,63 @@ class tx_dam_iterator_references extends tx_dam_iterator_base {
 			echo $GLOBALS['TYPO3_DB']->sql_error();
 			if ($res) {
 				list($fileTrackingCountTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-				$selection->pointer->setTotalCount(intval($selection->pointer->countTotal) + intval($fileTrackingCountTotal));
+				$countTotal += $fileTrackingCountTotal;
 			}
 		}
-
-		if ($selection->pointer->countTotal) {
-			$selection->qg->query['FROM']['tx_dam'] = tx_dam_db::getMetaInfoFieldList();
+			// If we have references..
+		if ($countTotal) {
+			$rows = array();
+				// Get references from mm table
+			$selection->qg->query['FROM'][$local_table] = tx_dam_db::getMetaInfoFieldList();
 			$selection->qg->query['FROM']['tx_dam_mm_ref'] = 'tx_dam_mm_ref.uid_foreign,tx_dam_mm_ref.tablenames,tx_dam_mm_ref.ident';
-			$selection->qg->query['ORDERBY']['tx_dam_mm_ref'] = 'tablenames';
-			$selection->addLimitToQuery();
-			$res = $selection->execSelectionQuery();
+			$selection->qg->addOrderBy ('tablenames', 'tx_dam_mm_ref');
+			$selection->qg->addLimit($countTotal);
+			$selection->prepareSelectionQuery(FALSE);
+			$queryArr = $selection->qg->getQueryParts();
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
+			echo $GLOBALS['TYPO3_DB']->sql_error();
 			if ($res) {
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 					$rows[] = $row;
 				}
 			}
 				// Get soft references
-			$softRef_table = 'sys_refindex';
 			$queryParts = $selection->qg->getQueryParts();
 			$fields = tx_dam_db::getMetaInfoFieldList() . ', ' . $softRef_table . '.tablename AS tablenames, ' . $softRef_table . '.recuid AS uid_foreign, ' . $softRef_table . '.ref_uid AS uid_local, ' . $softRef_table . '.field, ' . $softRef_table . '.softref_key';
-			$res = tx_dam_db::softRefIndexQuery('tx_dam', '', '', '', '', '', $fields, array($softRefWhere), $queryParts['GROUPBY'], $queryParts['ORDERBY'], $queryParts['LIMIT']);
+			$res = tx_dam_db::softRefIndexQuery($local_table, '', '', '', '', '', $fields, array($softRefWhere), $queryParts['GROUPBY'], $queryParts['ORDERBY'], $queryParts['LIMIT']);
 			if ($res) {
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 					$rows[] = $row;
 				}
 			}
-				// Get upload references
+				// Look for references in file tracking table
 			$uids = array();
-			foreach ($rows as $row) {
-				$uids[] = $row['uid'];
+			$fields = $local_table . '.uid';
+			$where = array($softRefWhere);
+			$where[] = $tracking_table . '.file_hash=' . $local_table . '.file_hash';
+			$where[] = $softRef_table . '.ref_string LIKE CONCAT(' . $tracking_table . '.file_path,' . $tracking_table . '.file_name)';
+			$whereClause = implode(' AND ', $where);
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				$fields,
+				$local_table . ',' . $tracking_table . ',' . $softRef_table,
+				$whereClause,
+				'',
+				'',
+				1000
+			);
+			echo $GLOBALS['TYPO3_DB']->sql_error();
+			if ($res) {
+				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+					$uids[] = $row['uid'];
+				}
 			}
+				// Get upload references
 			$rows = array_merge($rows, tx_dam_db::getMediaUsageUploads(implode(',', array_unique($uids)), '', ''));
-
 				// Post-process these rows to produce the reference entries array
 			$this->processEntries($rows, $columns);
 		}
-
+			// Set the pointer
+		$selection->pointer->setTotalCount(count($this->entries));
 		if (count($this->entries)) {
 			$this->sort('page');
 			$this->rewind();

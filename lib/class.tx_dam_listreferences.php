@@ -74,17 +74,11 @@ require_once(PATH_txdam.'lib/class.tx_dam_listbase.php');
  */
 class tx_dam_listreferences extends tx_dam_listbase {
 
-
 	/**
 	 * stores two tx_dam_dir objects
 	 */
 	var $dataObjects = array();
 
-	/**
-	 * Display file sizes in bytes or formatted
-	 */
-	var $showDetailedSize = false;
-	
 	/**
 	 * Columns to display among: page, content_element, softref_key, content_age, media_element, media_element_age
 	 * The following is the default for show item.
@@ -102,9 +96,9 @@ class tx_dam_listreferences extends tx_dam_listbase {
 	public $showAlternateBgColors = true;
 
 	/**
-	 * Dummy table name
+	 * Table name
 	 */
-	var $table = 'files';
+	var $table = 'references';
 
 	/***************************************
 	 *
@@ -123,7 +117,6 @@ class tx_dam_listreferences extends tx_dam_listbase {
 		$this->__construct();
 	}
 
-
 	/**
 	 * Initialization of object
 	 * PHP5 constructor
@@ -133,6 +126,10 @@ class tx_dam_listreferences extends tx_dam_listbase {
 	function __construct() {
 
 		parent::__construct();
+
+		$this->showMultiActions = false;
+		$this->showAction = false;
+		$this->showIcon = false;
 
 		$this->paramName['setFolder'] = 'SET[tx_dam_folder]';
 	}
@@ -149,23 +146,15 @@ class tx_dam_listreferences extends tx_dam_listbase {
 	 * @return	void
 	 */
 	function init() {
-		
-		$this->showMultiActions = false;
-		$this->showAction = false;
-		$this->showIcon = false;
-		
 			// Table columns
 		$this->clearColumns();
 		foreach ($this->displayColumns as $element) {
 			$this->addColumn($element, $GLOBALS['LANG']->sl('LLL:EXT:dam/lib/locallang.xml:' . $element));
 		}
-		//$this->addColumn('_CONTROL_', '');
-		
 			// Table styling
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%;" class="typo3-dblist typo3-filelist"';
-		
+
 		$this->returnUrl = t3lib_div::_GP('returnUrl');
-		$this->processParams();
 	}
 
 	/***************************************
@@ -200,9 +189,17 @@ class tx_dam_listreferences extends tx_dam_listbase {
 						$title = t3lib_BEfunc::getRecordTitle('pages', $pageRow, TRUE);
 					}
 					if ($pageRow['doktype'] == 1 || $pageRow['doktype'] == 6) {
-						$columns[$field] = '<a href="#" onclick="'.htmlspecialchars($pageOnClick).'">'.$icon.$title.'</a>';
+						if ($this->enableContextMenus) {
+							$columns[$field] = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($icon, 'pages', $pageRow['uid'], 1, '', '+view,edit,info').$title;
+						} else {
+							$columns[$field] = '<a href="#" onclick="'.htmlspecialchars($pageOnClick).'">'.$icon.$title.'</a>';
+						}
 					} else {
-						$columns[$field] = $icon.$title;
+						if ($this->enableContextMenus) {
+							$columns[$field] = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($icon, 'pages', $pageRow['uid'], 1, '', '+edit,info').$title;
+						} else {
+							$columns[$field] = $icon.$title;
+						}
 					}
 					break;
 				case 'content_element':
@@ -281,17 +278,15 @@ class tx_dam_listreferences extends tx_dam_listbase {
 				$columns[$field] = '&nbsp;';
 			}
 		}
-
 			// Thumbsnails?
 		if ($this->showThumbs AND $this->thumbnailPossible($item))	{
 			$columns['media_element'] .= '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail($item).'</div>';
 		}
 		return $columns;
 	}
-
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_listreferences.php'])	{
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_listreferences.php']) {
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_listreferences.php']);
 }
 ?>

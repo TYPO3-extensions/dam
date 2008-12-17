@@ -59,9 +59,8 @@ class tx_dam_info_reference extends t3lib_extobjbase {
 		);
 	}
 
-
 	/**
-	 * Do some init things and aet some styles in HTML header
+	 * Do some init things
 	 *
 	 * @return	void
 	 */
@@ -69,11 +68,8 @@ class tx_dam_info_reference extends t3lib_extobjbase {
 			// Init gui items
 		$this->pObj->guiItems->registerFunc('getResultInfoBar', 'header');
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
-		$this->pObj->guiItems->registerFunc(array(&$this, 'getActions'), 'header');
-
 			// add some options
 		$this->pObj->addOption('funcCheck', 'tx_dam_info_reference_showRootline', $GLOBALS['LANG']->getLL('showRootline'));
-
 	}
 
 	
@@ -83,8 +79,6 @@ class tx_dam_info_reference extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main() {
-		
-		$content = '';
 			// Create reference listing object
 		$referenceList = t3lib_div::makeInstance('tx_dam_listreferences');
 		$referenceList->displayColumns = array('page', 'content_element', 'content_age', 'media_element', 'media_element_age');
@@ -94,23 +88,26 @@ class tx_dam_info_reference extends t3lib_extobjbase {
 		$references = t3lib_div::makeInstance('tx_dam_iterator_references');
 		$references->read($this->pObj->selection, $referenceList->displayColumns);
 		$references->sort($this->pObj->MOD_SETTINGS['tx_dam_info_reference_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_info_reference_sortRev']);
-			// Output header: info bar, result browser
-		$content = $this->pObj->guiItems->getOutput('header');
-		$content.= $this->pObj->doc->spacer(10);
-			// Any records found?
+			// Any references found?
 		if ($this->pObj->selection->pointer->countTotal) {
 			$referenceList->setParameterName('form', $this->pObj->formName);
+				// Enable context menus
+			$referenceList->enableContextMenus = $this->pObj->config_checkValueEnabled('contextMenuOnListItems', true);
 			$referenceList->addData($references, 'references');
 			$referenceList->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_info_reference_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_info_reference_sortRev']);
 			$referenceList->setParameterName('sortField', 'SET[tx_dam_info_reference_sortField]');
 			$referenceList->setParameterName('sortRev', 'SET[tx_dam_info_reference_sortRev]');
 			$referenceList->setPointer($this->pObj->selection->pointer);
-			$this->pObj->doc->JScodeArray['referencelist-JsCode'] = $referenceList->getJsCode();
-			$content .= $this->pObj->doc->section('', $referenceList->getListTable(), 0, 1);
+				// Render list
+			$list = $referenceList->getListTable();
 		} else {
 				// No search result: showing selection box
-			$content .= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
+			$list = $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
 		}
+			// Output header: info bar, result browser
+		$content = $this->pObj->guiItems->getOutput('header');
+		$content .= $this->pObj->doc->spacer(10);
+		$content .= $list;
 		return $content;
 	}
 }

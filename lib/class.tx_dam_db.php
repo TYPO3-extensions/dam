@@ -991,6 +991,7 @@ class tx_dam_db {
 		if ($local_uid = $GLOBALS['TYPO3_DB']->cleanIntList($local_uid)) {
 			$where[] = $softRef_table.'.ref_uid IN ('.$local_uid.')';
 		}
+		$where[] = 'NOT ' . $softRef_table.'.softref_key=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $softRef_table);
 		if ($softRef_ident) {
 			if (!is_array($softRef_ident)) {
 				$softRef_ident = array('softref_key' => $softRef_ident);
