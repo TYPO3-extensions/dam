@@ -1,5 +1,9 @@
 2008-12-15  Michiel Roos <michiel@netcreators.com>
 
+	* Fixed #9960: Move tab config to page TSconfig
+
+2008-12-15  Michiel Roos <michiel@netcreators.com>
+
 	* Fixed #9819: DAM Usage Information Enhancement (Thanks to Stanislas Rolland)
 	* Fixed #9928: Bring back Tabs! (Thanks to Dan Osipov)
 

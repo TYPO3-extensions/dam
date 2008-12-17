@@ -1833,7 +1833,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		HTML code for tab menu
 	 */
 	function getTabMenu($mainParams, $elementName, $currentValue, $menuItems, $script='', $addparams='')	{
-		if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['tabs'] == 1 && is_array($menuItems))	{
+		// read page TSconfig
+		$useTabs = tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.useTabs');
+		
+		if ($useTabs && is_array($menuItems))	{
 			if (!is_array($mainParams)) {
 				$mainParams = array('id' => $mainParams);
 			}
