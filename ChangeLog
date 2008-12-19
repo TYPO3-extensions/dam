@@ -1,3 +1,7 @@
+2008-12-19  Michiel Roos <michiel@netcreators.com>
+
+	* Fixed #8209: add flv mime-type to tx_dam_types.php (Thanks to Alexander Onea)
+
 2008-12-15  Michiel Roos <michiel@netcreators.com>
 
 	* Fixed #9960: Move tab config to page TSconfig (Thanks to Steffen Gebert)

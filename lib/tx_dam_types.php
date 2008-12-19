@@ -408,6 +408,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'anim5'	=> 'video/x-anim',
 		'flc'	=> 'video/x-flc',
 		'fli'	=> 'video/x-fli',
+		'flv'	=> 'video/x-flv',
 		'mng'	=> 'video/x-mng',
 		'asx'	=> 'video/x-ms-asf',
 		'asf'	=> 'video/x-ms-asf',
