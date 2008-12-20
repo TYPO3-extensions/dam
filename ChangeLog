@@ -1,3 +1,8 @@
+2008-12-20  Michiel Roos <michiel@netcreators.com>
+
+	* Fixed #9954 Mark All / Mark None does not work in Media->List (Thanks to Martin Holtz)
+	* Fixed #9939 Category selection does not work when processing files (Thanks to Michiel Roos)
+
 2008-12-19  Michiel Roos <michiel@netcreators.com>
 
 	* Fixed #8209: add flv mime-type to tx_dam_types.php (Thanks to Alexander Onea)
