@@ -1,3 +1,7 @@
+2008-12-22  Michiel Roos <michiel@netcreators.com>
+
+	* Fixed #9998: Add upload button (Thanks to Dan Osipov and Steffen Kamper)
+
 2008-12-20  Michiel Roos <michiel@netcreators.com>
 
 	* Fixed #9954 Mark All / Mark None does not work in Media->List (Thanks to Martin Holtz)

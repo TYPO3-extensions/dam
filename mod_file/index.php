@@ -178,6 +178,7 @@ class tx_dam_mod_file extends tx_dam_SCbase {
 			$docHeaderButtons = array(
 				'NEW' => $this->markers['NEW'],
 				'UPLOAD' => $this->markers['UPLOAD'],
+				'FOLDER' => $this->markers['FOLDER'],
 				'REFRESH' => $this->markers['REFRESH'], 
 				'LEVEL_UP' => $this->markers['LEVEL_UP'], 
 				'RECORD_LIST' => $this->markers['RECORD_LIST'],
