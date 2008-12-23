@@ -1,3 +1,7 @@
+2008-12-23  Michiel Roos <michiel@netcreators.com>
+
+	* DAM now requires TYPO3 version 4.2.4 because of http://bugs.typo3.org/view.php?id=9511
+
 2008-12-22  Michiel Roos <michiel@netcreators.com>
 
 	* Fixed #9998: Add upload button (Thanks to Dan Osipov and Steffen Kamper)
