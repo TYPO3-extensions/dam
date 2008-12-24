@@ -1,3 +1,8 @@
+2008-12-24  Michiel Roos <michiel@netcreators.com>
+
+	* Fixed #9750: Images in RTE are not rendered in Frontend (Thanks to Gerhard Rupp and Stanislas Rolland)
+	* Fixed #9921: Markers not filled during 'batch operations' (Thanks to Dan Osipov)
+
 2008-12-23  Michiel Roos <michiel@netcreators.com>
 
 	* DAM now requires TYPO3 version 4.2.4 because of http://bugs.typo3.org/view.php?id=9511
