@@ -234,7 +234,7 @@ class tx_dam_indexing {
 		if ($TYPO3_CONF_VARS['SC_OPTIONS']['ext/dam/lib/class.tx_dam_indexing.php']['writeDevLog']) $this->writeDevLog = TRUE;
 		if (TYPO3_DLOG) $this->writeDevLog = TRUE;
 
-		if ($this->writeDevLog AND !isset($TYPO3_CONF_VARS['EXTCONF']['cc_devlog']['pid'])) 	$TYPO3_CONF_VARS['EXTCONF']['cc_devlog']['pid'] = tx_dam_db::getPid();
+		if ($this->writeDevLog && !isset($TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['debugData']['pid'])) $TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['debugData']['pid'] = tx_dam_db::getPid();
 		if ($this->writeDevLog) 	t3lib_div::devLog('## Beginning of dam indexing logging.', 'tx_dam_indexing');
 		
 		$this->setup['useInternalMediaTypeList'] = tx_dam::config_checkValueEnabled('setup.indexing.useInternalMediaTypeList', true);

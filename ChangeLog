@@ -1,5 +1,6 @@
 2008-12-24  Michiel Roos <michiel@netcreators.com>
 
+	* Fixed #9481: Replace hard-coded reference to cc_devlog (Thanks to Francois Suter)
 	* Fixed #9750: Images in RTE are not rendered in Frontend (Thanks to Gerhard Rupp and Stanislas Rolland)
 	* Fixed #9921: Markers not filled during 'batch operations' (Thanks to Dan Osipov)
 
