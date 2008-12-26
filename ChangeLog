@@ -1,5 +1,6 @@
 2008-12-26  Michiel Roos <michiel@netcreators.com>
 
+	* DAM now requires TYPO3 version 4.2.3 because of http://bugs.typo3.org/view.php?id=10016
 	* Updated manual (Setup DAM-Backend-Permissions (Backend-Users/Groups))
 	* Removed execute permission from Changelog and ext_update.php
 	* Fixed #10015: dam tries to load $TCA['tt_news'] without checking whether tt_news is loaded (Thanks to Uschi Renziehausen)
