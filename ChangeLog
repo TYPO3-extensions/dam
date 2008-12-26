@@ -1,5 +1,7 @@
-2008-12-26  Benjamin Mack <benni@typo3.org>
+2008-12-26  Michiel Roos <michiel@netcreators.com>
 
+	* Updated manual (Setup DAM-Backend-Permissions (Backend-Users/Groups))
+	* Removed execute permission from Changelog and ext_update.php
 	* Fixed #10015: dam tries to load $TCA['tt_news'] without checking whether tt_news is loaded (Thanks to Uschi Renziehausen)
 	* Fixed #10016: DAM 1.1 relies on fix for bug 0009511 (Thanks to Michael Stucki)
 
