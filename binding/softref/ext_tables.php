@@ -27,8 +27,9 @@ foreach ($tempTables as $table) {
 }
 unset($tempTables);
 
-t3lib_div::loadTCA('tt_news');
-$TCA['tt_news']['columns']['title']['config']['softref'] = 'mediatag' . ($TCA['tt_news']['columns']['title']['config']['softref'] ? ',' . $TCA['tt_news']['columns']['title']['config']['softref'] : '');
-$TCA['tt_news']['columns']['bodytext']['config']['softref'] = 'media,mediatag' . ($TCA['tt_news']['columns']['bodytext']['config']['softref'] ? ',' . $TCA['tt_news']['columns']['bodytext']['config']['softref'] : '');
-
+if(t3lib_extMgm::isLoaded('tt_news')) {
+	t3lib_div::loadTCA('tt_news');
+	$TCA['tt_news']['columns']['title']['config']['softref'] = 'mediatag' . ($TCA['tt_news']['columns']['title']['config']['softref'] ? ',' . $TCA['tt_news']['columns']['title']['config']['softref'] : '');
+	$TCA['tt_news']['columns']['bodytext']['config']['softref'] = 'media,mediatag' . ($TCA['tt_news']['columns']['bodytext']['config']['softref'] ? ',' . $TCA['tt_news']['columns']['bodytext']['config']['softref'] : '');
+}
 ?>

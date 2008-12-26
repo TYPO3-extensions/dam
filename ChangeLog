@@ -1,3 +1,8 @@
+2008-12-26  Benjamin Mack <benni@typo3.org>
+
+	* Fixed #10015: dam tries to load $TCA['tt_news'] without checking whether tt_news is loaded (Thanks to Uschi Renziehausen)
+	* Fixed #10016: DAM 1.1 relies on fix for bug 0009511 (Thanks to Michael Stucki)
+
 2008-12-25  Benjamin Mack <benni@typo3.org>
 
 	* Updated manual (minor spelling issues)
