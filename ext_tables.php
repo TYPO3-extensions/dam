@@ -255,8 +255,7 @@ $TCA['tx_dam'] = array(
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
 		'type' => 'media_type',
-		'sortby' => 'sorting',
-		'default_sortby' => 'ORDER BY sorting,title',
+		'default_sortby' => 'ORDER BY title',
 		'delete' => 'deleted',
 
 		'versioning' => false,
