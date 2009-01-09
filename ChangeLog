@@ -1,6 +1,7 @@
 2008-03-06  Michiel Roos  <michiel@netcreators.com>
 
 	* Fixed bug #9907: $TCA['tx_dam']['ctrl']['sortby'] => 'sorting' causes Performance Issue (Thanks to Georg Keuhnberger)
+	* Fixed bug #9837: Language Switch in Listview shows SQL Error and no translated dam-records Typo 4.1.7 (Thanks to Marvin Nisbett)
 
 2008-08-13  Dan Osipov  <dosipov@phillyburbs.com>
 

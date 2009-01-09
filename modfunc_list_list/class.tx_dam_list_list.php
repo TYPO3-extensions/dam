@@ -150,7 +150,10 @@ class tx_dam_list_list extends t3lib_extobjbase {
 			# $this->pObj->selection->qg->addWhere('AND '.$table.'.'.$languageField.'='.$lang, 'WHERE', $table.'.'.$languageField);
 			$this->pObj->selection->setSelectionLanguage($lang);
 
+			$tmp = $this->pObj->selection->qg->query['FROM']['tx_dam'];
+			unset($this->pObj->selection->qg->query['FROM']['tx_dam']);
 			$this->pObj->selection->qg->query['FROM']['tx_dam as tx_dam_lgovl'] = implode(', ', $lgOvlFields).', tx_dam.uid as __uid';
+			$this->pObj->selection->qg->query['FROM']['tx_dam'] = $tmp;
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl_selfjoin'] = 'AND tx_dam.uid=tx_dam_lgovl.'.$transOrigPointerField;
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND tx_dam_lgovl.'.$languageField.'='.$lang;
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND tx_dam_lgovl.deleted=0';
