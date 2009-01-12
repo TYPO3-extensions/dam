@@ -170,7 +170,7 @@ if (TYPO3_MODE === 'BE')	{
 		'LLL:EXT:dam/modfunc_list_batch/locallang.xml:tx_dam_list_batch.title'
 	);
 
-	
+
 		// add the info module and the info->reference modfunc (previously dam_info)
 	t3lib_extMgm::addModule('txdamM1', 'info', '', PATH_txdam . 'mod_info/');
 
@@ -212,13 +212,13 @@ if (TYPO3_MODE === 'BE')	{
 		PATH_txdam.'modfunc_tools_categories/class.tx_dam_tools_categories.php',
 		'LLL:EXT:dam/lib/locallang.xml:categories'
 	);
-	
+
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_tools',
 		'tx_dam_tools_serviceinfo',
 		PATH_txdam.'modfunc_tools_serviceinfo/class.tx_dam_tools_serviceinfo.php',
 		'LLL:EXT:dam/lib/locallang.xml:serviceinfo'
-	);	
+	);
 
 
 		// command modules (invisible)
@@ -303,8 +303,7 @@ if (TYPO3_MODE === 'BE')	{
 
 		// media folder type and icon
 	$ICON_TYPES['dam'] = array('icon' => PATH_txdam_rel.'modules_dam.gif');
-	$TCA['pages']['columns']['module']['config']['items'][] = array('Media', 'dam');
-
+	$TCA['pages']['columns']['module']['config']['items'][] = array('Media', 'dam', PATH_txdam_rel.'modules_dam.gif');
 
 
 		// language hotlist
@@ -355,9 +354,9 @@ if (TYPO3_MODE === 'BE')	{
 
 	tx_dam::register_previewer ('tx_dam_previewerImage', 'EXT:dam/components/class.tx_dam_previewerImage.php:&tx_dam_previewerImage');
 	tx_dam::register_previewer ('tx_dam_previewerMP3',   'EXT:dam/components/class.tx_dam_previewerMP3.php:&tx_dam_previewerMP3');
-	
-	
-	
+
+
+
 	tx_dam::register_editor ('tx_dam_edit_text',   'EXT:dam/mod_edit/class.tx_dam_edit_text.php:&tx_dam_edit_text');
 
 }
