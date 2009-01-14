@@ -35,6 +35,10 @@
  *
  *
  *
+ *   66: class tx_dam_treebrowser extends tx_dam_treelib_browser
+ *
+ * TOTAL FUNCTIONS: 0
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -59,7 +63,7 @@ require_once (PATH_txdam.'treelib/class.tx_dam_treelib_browser.php');
  * @package DAM-Mod
  * @ignore
  */
-class SC_tx_dam_treebrowser extends tx_dam_treelib_browser {
+class tx_dam_treebrowser extends tx_dam_treelib_browser {
 	// nothing to do here
 }
 
@@ -74,7 +78,7 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/mod
 
 
 // Make instance:
-$SOBE = t3lib_div::makeInstance('SC_tx_dam_treebrowser');
+$SOBE = t3lib_div::makeInstance('tx_dam_treebrowser');
 $SOBE->init();
 $SOBE->main();
 $SOBE->printContent();

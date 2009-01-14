@@ -70,7 +70,7 @@ class tx_dam_previewerMP3 extends tx_dam_previewerProcBase {
 	function isValid($row, $size, $type, $conf=array()) {
 		$valid = false;
 
-		if ($row['file_type'] == 'mp3'
+		if ($row['file_type'] === 'mp3'
 			AND $size <= '200') {
 			 $valid = true;
 		}
@@ -107,7 +107,7 @@ class tx_dam_previewerMP3 extends tx_dam_previewerProcBase {
 		$size = 'width="120" height="37"';
 		$playerRelPath .= 'res/emff_inx.swf';
 
-		$outArr['htmlCode'] = '<div style="margin:15px 20px 0px 0px;">
+		$outArr['htmlCode'] = '<div class="previewMP3">
 			<object type="application/x-shockwave-flash" data="'.htmlspecialchars($siteUrl.$playerRelPath).'?streaming=yes&src='.htmlspecialchars($siteUrl.t3lib_div::rawUrlEncodeFP($fileRelPath)).'" '.$size.'>
 			<param name="movie" value="'.htmlspecialchars($siteUrl.$playerRelPath).'?streaming=yes&src='.htmlspecialchars($siteUrl.t3lib_div::rawUrlEncodeFP($fileRelPath)).'" />
 			<param name="quality" value="high" />

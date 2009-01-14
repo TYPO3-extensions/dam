@@ -34,36 +34,37 @@
  *
  *
  *
- *   82: class tx_dam_querygen
- *  102:     function tx_dam_querygen()
+ *   83: class tx_dam_querygen
+ *  103:     function tx_dam_querygen()
  *
  *              SECTION: Initialize
- *  122:     function init($table='')
- *  156:     function initBESelect($table='', $pidList='')
- *  175:     function initFESelect($table='', $pidList='')
+ *  123:     function init($table='')
+ *  157:     function initBESelect($table='', $pidList='')
+ *  176:     function initFESelect($table='', $pidList='')
  *
  *              SECTION: Modify query definition
- *  196:     function setCount($count=false)
- *  212:     function addSelectFields($fields='*', $table='')
- *  225:     function addPidList($pidList='', $table='')
- *  239:     function addEnableFields($table='')
- *  251:     function addOrderBy ($orderBy, $table='')
- *  264:     function addLimit ($limit, $begin='')
- *  279:     function addWhere($where, $type='WHERE', $key='')
- *  298:     function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')
- *  320:     function addMMJoin($mmtable, $local_table='')
- *  333:     function mergeWhere($where)
+ *  197:     function setCount($count=false)
+ *  213:     function addSelectFields($fields='*', $table='')
+ *  226:     function addPidList($pidList='', $table='')
+ *  240:     function addEnableFields($table='')
+ *  252:     function addOrderBy ($orderBy, $table='')
+ *  265:     function addLimit ($limit, $begin='')
+ *  280:     function addWhere($where, $type='WHERE', $key='')
+ *  299:     function queryAddMM($mm_table='tx_dam_mm_cat', $foreign_table='tx_dam_cat', $local_table='tx_dam')
+ *  321:     function addMMJoin($mmtable, $local_table='', $mmtableAlias='')
+ *  336:     function mergeWhere($where)
+ *  348:     function hasWhere()
  *
  *              SECTION: Create query from definition
- *  354:     function getQuery()
- *  375:     function getQueryParts()
+ *  372:     function getQuery()
+ *  393:     function getQueryParts()
  *
  *              SECTION: helper functions
- *  497:     function makeSearchQueryPart($table, $searchString)
- *  536:     function compileFieldList($table, $fields)
- *  562:     function enableFields($table='')
+ *  518:     function makeSearchQueryPart($table, $searchString)
+ *  558:     function compileFieldList($table, $fields)
+ *  584:     function enableFields($table='')
  *
- * TOTAL FUNCTIONS: 19
+ * TOTAL FUNCTIONS: 20
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -140,7 +141,7 @@ class tx_dam_querygen {
 			'enableFields' => array(),
 			'GROUPBY' => array(),
 			'ORDERBY' => array(),
-			'LIMIT' => array(),
+			'LIMIT' => '',
 		);
 		$this->addSelectFields();
 	}
@@ -175,7 +176,6 @@ class tx_dam_querygen {
 	function initFESelect($table='', $pidList='') {
 		$this->mode = 'FE';
 		$this->initBESelect($table='', $pidList='');
-
 		$this->mode = 'FE';
 	}
 
@@ -264,7 +264,7 @@ class tx_dam_querygen {
 	 */
 	function addLimit ($limit, $begin='') {
 		if($limit) {
-			$this->query['LIMIT'] = array((intval($begin)?$begin.',':'').$limit);
+			$this->query['LIMIT'] = (intval($begin)?$begin.',':'').$limit;
 		}
 	}
 
@@ -313,14 +313,18 @@ class tx_dam_querygen {
 	/**
 	 * Adds a JOIN with a MM table to the query
 	 *
-	 * @param	string		$mm_table MM table
+	 * @param	string		$mmtable MM table (original name)
 	 * @param	string		$local_table Local table. Default $this->table
+	 * @param	string		$mmtableAlias Alias of the MM table to be used.
+	 * @param	string		$additionalClause Additional ON clause
 	 * @return	void
 	 */
-	function addMMJoin($mmtable, $local_table='')	{
+	function addMMJoin($mmtable, $local_table='', $mmtableAlias='', $additionalClause='')	{
 		$local_table = $local_table ? $local_table : $this->table;
+		$mmtableName = $mmtableAlias ? $mmtableAlias : $mmtable;
+		$mmtableNameDef = $mmtableAlias ? $mmtable.' AS '.$mmtableAlias : $mmtable ;
 
-		$this->query['LEFT_JOIN'][$mmtable] = $local_table.'.uid='.$mmtable.'.uid_local';
+		$this->query['LEFT_JOIN'][$mmtableNameDef] = $local_table.'.uid='.$mmtableName.'.uid_local '.$additionalClause;
 	}
 
 
@@ -334,6 +338,21 @@ class tx_dam_querygen {
 		if(is_array($where)) {
 			$this->query['WHERE'] = t3lib_div::array_merge_recursive_overrule($this->query['WHERE'], $where);
 		}
+	}
+
+
+	/**
+	 * Look for entries in the select WHERE array part and return true if there are any.
+	 *
+	 * @return	boolean
+	 */
+	function hasWhere()	{
+		foreach ($this->query['WHERE'] as $type => $where) {
+			if (is_array($where) AND count($where)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
@@ -410,11 +429,12 @@ class tx_dam_querygen {
 				// FROM
 				//
 
-				$queryParts['SELECT'].= implode (',',$select['FROM']+$select['SELECT']);
+				$queryParts['SELECT'].= implode (', ',$select['FROM']+$select['SELECT']);
 			}
 
 				// tables
-			$queryParts['FROM'].= ' '.implode (',',array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM']))));
+			$selectTables = array_unique(array_merge(array_keys($select['FROM']), array_keys($select['MM'])));
+			$queryParts['FROM'].= ' '.implode (', ', $selectTables);
 
 
 			//
@@ -429,10 +449,20 @@ class tx_dam_querygen {
 
 
 			//
+			// FROM
+			//
+			
+			if ($selectTables_enableFields = array_diff(array_unique(array_keys($select['enableFields'])), $selectTables)) {
+				$queryParts['FROM'].= ', '.implode (', ',$selectTables_enableFields);
+			}
+
+
+			//
 			// WHERE
 			//
 
 			$query = array();
+
 			$query[] = '1';
 
 			if (is_array($select['WHERE']['WHERE']) AND count($select['WHERE']['WHERE'])) {
@@ -472,7 +502,7 @@ class tx_dam_querygen {
 				$queryParts['ORDERBY'] = implode (',',$select['ORDERBY']);
 			}
 			if(count($select['LIMIT']) AND !$count) {
-				$queryParts['LIMIT'] = implode (' ',$select['LIMIT']); // TODO ???
+				$queryParts['LIMIT'] = $select['LIMIT'];
 			}
 		}
 
@@ -490,7 +520,7 @@ class tx_dam_querygen {
 
 
 	/**
-	 * Creates part of query for searching after a word ($this->searchString) fields in input table
+	 * Creates part of query for searching after a word ($searchString) fields in input table
 	 *
 	 * @param	string		Table, in which the fields are being searched.
 	 * @param	string		search string
@@ -506,13 +536,13 @@ class tx_dam_querygen {
 			t3lib_div::loadTCA($table);
 
 				// Initialize field array:
-			$sfields=array();
-			$sfields[]='uid';	// Adding "uid" by default.
+			$sfields = array();
+			$sfields[] = 'uid';	// Adding "uid" by default.
 
 				// Traverse the configured columns and add all columns that can be searched:
 			foreach($TCA[$table]['columns'] as $fieldName => $info)	{
-				if ($info['config']['type']=='text' || ($info['config']['type']=='input' && !ereg('date|time|int',$info['config']['eval'])))	{
-					$sfields[]=$table.'.'.$fieldName;
+				if ($info['config']['type'] === 'text' || ($info['config']['type'] === 'input' && !ereg('date|time|int',$info['config']['eval'])))	{
+					$sfields[] = $table.'.'.$fieldName;
 				}
 			}
 
@@ -539,7 +569,7 @@ class tx_dam_querygen {
 	function compileFieldList($table, $fields) {
 		$fieldList = array();
 
-		if ($fields=='*') {
+		if ($fields === '*') {
 			$fieldList[$table] = $table.'.*';
 		} else {
 			$fields = is_array($fields) ? $fields : t3lib_div::trimExplode(',', $fields, 1);
@@ -548,7 +578,7 @@ class tx_dam_querygen {
 			}
 		}
 
-		return implode(',',$fieldList);
+		return implode(', ',$fieldList);
 	}
 
 
@@ -565,11 +595,7 @@ class tx_dam_querygen {
 	function enableFields($table='')	{
 		$table = $table ? $table : $this->table;
 
-		if ($this->mode == 'FE' AND is_object($GLOBALS['TSFE'])) {
-			return $GLOBALS['TSFE']->sys_page->enableFields($table);
-		} else {
-			return t3lib_BEfunc::deleteClause($table);
-		}
+		return tx_dam_db::enableFields($table, 'AND', $this->mode);
 	}
 }
 

@@ -44,19 +44,19 @@
  *  121: class tx_dam_selStorage
  *
  *              SECTION: Init / setup
- *  160:     function init()
+ *  166:     function init()
  *
  *              SECTION: Process storage array
- *  186:     function initStorage()
- *  215:     function cleanupStorageArray($storedSettings)
- *  237:     function compileEntry($data)
- *  261:     function processStoreControl()
+ *  190:     function initStorage($uidList='', $pidList='')
+ *  226:     function cleanupStorageArray($storedSettings)
+ *  248:     function compileEntry($data)
+ *  272:     function processStoreControl()
  *
  *              SECTION: GUI
- *  343:     function getStoreControl($showElements='load,remove,save', $useOwnForm=TRUE)
+ *  354:     function getStoreControl($showElements='load,remove,save', $useOwnForm=TRUE)
  *
  *              SECTION: Misc
- *  445:     function processEntry($storageArr)
+ *  456:     function processEntry($storageArr)
  *
  * TOTAL FUNCTIONS: 7
  * (This index is automatically created/updated by the script "update-class-index")
@@ -108,7 +108,7 @@
  *
  */
 
-// TODO localization
+
 
 /**
  * Manage storing and restoring of $GLOBALS['SOBE']->MOD_SETTINGS settings.
@@ -117,6 +117,7 @@
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-BeLib
  * @subpackage GUI
+ * @todo localization
  */
 class tx_dam_selStorage {
 
@@ -142,6 +143,8 @@ class tx_dam_selStorage {
 	 * Name of the storage table
 	 */
 	var $table = 'tx_dam_selection';
+
+
 
 	var $writeDevLog = 0; 				// write messages into the devlog?
 
@@ -185,12 +188,19 @@ class tx_dam_selStorage {
 	 *
 	 * @return	void
 	 */
-	function initStorage()	{
+	function initStorage($uidList='', $pidList='')	{
+
+		$pidList = $pidList ? $GLOBALS['TYPO3_DB']->cleanIntList($pidList) : '';
+		$pidList = $pidList ? $pidList : tx_dam_db::getPid();
+		$pidList = $this->table.'.pid IN ('.$pidList.')';
+
+		$uidList = $uidList ? $GLOBALS['TYPO3_DB']->cleanIntList($uidList) : '';
+		$uidList = $uidList ? ' AND '.$this->table.'.uid IN ('.$uidList.')' :  '';
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 					'*',
 					$this->table,
-					'1'.t3lib_BEfunc::deleteClause($this->table),
+					$pidList.$uidList.' AND '.tx_dam_db::deleteClause($this->table),
 					'',
 					$this->table.'.title',
 					100
@@ -420,7 +430,7 @@ class tx_dam_selStorage {
 			$code.= '
 			<div><strong>'.htmlspecialchars($this->msg).'</strong></div>';
 		}
-// TODO need to add parameters
+// todo need to add parameters
 		if ($useOwnForm AND trim($code)) {
 			$code = '
 		<form action="'.t3lib_div::getIndpEnv('SCRIPT_NAME').'" method="post" name="'.$this->formName.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">'.$code.'</form>';

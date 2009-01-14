@@ -34,32 +34,35 @@
  *
  *
  *
- *   80: class tx_dam_tools_indexupdate extends t3lib_extobjbase
- *   88:     function modMenu()
- *  112:     function main()
- *  134:     function moduleContent()
- *  278:     function checkIndex($indexSessionID)
- *  373:     function checkUploads($indexSessionID)
- *  467:     function getFilesInDir($path, $recursive=FALSE, $filearray=array(), $maxDirs=999)
- *  502:     function infoIcon ($type)
- *  533:     function indexing_getProgessTable()
- *  538:     function progress_bar_update(intCurrentPercent)
- *  549:     function addTableRow(cells)
- *  571:     function setMessage(msg)
- *  576:     function finished()
- *  625:     function indexing_progressBar($intCurrentCount = 100, $intTotalCount = 100)
- *  646:     function indexing_addTableRow($contentArr)
- *  660:     function indexing_setMessage($msg)
- *  669:     function indexing_finished()
- *  678:     function indexing_flushNow()
+ *   84: class tx_dam_tools_indexupdate extends t3lib_extobjbase
+ *   92:     function modMenu()
+ *  120:     function main()
+ *  140:     function moduleContent()
+ *  347:     function statisticsLostRecords()
+ *  406:     function statisticsMediaType($addFileTypes=true)
+ *  515:     function statisticsFileType($media_type)
+ *  553:     function checkIndex($indexSessionID)
+ *  648:     function checkUploads($indexSessionID)
+ *  742:     function getFilesInDir($path, $recursive=FALSE, $filearray=array(), $maxDirs=999)
+ *  777:     function infoIcon ($type)
+ *  808:     function indexing_getProgessTable()
+ *  813:     function progress_bar_update(intCurrentPercent)
+ *  824:     function addTableRow(cells)
+ *  846:     function setMessage(msg)
+ *  851:     function finished()
+ *  900:     function indexing_progressBar($intCurrentCount = 100, $intTotalCount = 100)
+ *  921:     function indexing_addTableRow($contentArr)
+ *  935:     function indexing_setMessage($msg)
+ *  944:     function indexing_finished()
+ *  953:     function indexing_flushNow()
  *
  *              SECTION: indexSession
- *  700:     function indexSessionClear()
- *  710:     function indexSessionNew($totalFilesCount, $data='')
- *  727:     function indexSessionFetch()
- *  736:     function indexSessionWrite($indexSession)
+ *  975:     function indexSessionClear()
+ *  985:     function indexSessionNew($totalFilesCount, $data='')
+ * 1002:     function indexSessionFetch()
+ * 1011:     function indexSessionWrite($indexSession)
  *
- * TOTAL FUNCTIONS: 21
+ * TOTAL FUNCTIONS: 24
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -68,6 +71,7 @@
 
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
+require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 
 
 /**
@@ -99,10 +103,14 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			'tx_dam_tools_indexupdate.func' => array(
 				'index' => $LANG->getLL('tx_dam_tools_indexupdate.index_check'),
 				'uploads' => $LANG->getLL('tx_dam_tools_indexupdate.uploads_check'),
+				'lost_records' => $LANG->getLL('tx_dam_tools_indexupdate.lost_records_check'),
+				'cleanup_meta' => $LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta'),
+				'statistics' => $LANG->getLL('tx_dam_tools_indexupdate.statistics'),
 			),
 		);
-
 	}
+
+
 
 	/**
 	 * Main function
@@ -114,10 +122,8 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 
 		$content = '';
-		$content.= $this->pObj->doc->spacer(5);
-		$content.=  $this->pObj->doc->funcMenu('', t3lib_BEfunc::getFuncMenu($this->pObj->id,'SET[tx_dam_tools_indexupdate.func]',$this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.func'],$this->pObj->MOD_MENU['tx_dam_tools_indexupdate.func']));
-		#$content.= $this->pObj->doc->divider(5);
-		#$content.= $this->pObj->doc->spacer(10);
+		$content.=  $this->pObj->getHeaderBar('', t3lib_BEfunc::getFuncMenu($this->pObj->id,'SET[tx_dam_tools_indexupdate.func]',$this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.func'],$this->pObj->MOD_MENU['tx_dam_tools_indexupdate.func']));
+		$content.= $this->pObj->doc->spacer(10);
 		$content.= $this->moduleContent();
 
 		return $content;
@@ -154,8 +160,78 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 		switch($func)    {
 
+			case 'lost_records':
+
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.lost_records_check'), $LANG->getLL('tx_dam_tools_indexupdate.lost_records_description',1),0,1);
+				$content.= $this->pObj->doc->spacer(10);
+
+				if (t3lib_div::_GP('collect_lost_records')) {
+					$values = array ('pid' => $this->pObj->defaultPid);
+					$mediaTables = tx_dam::register_getEntries('mediaTable');
+					foreach ($mediaTables as $table) {
+						$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery($table, $table.'.pid NOT IN ('.tx_dam_db::getPidList().')', $values);
+					}
+				}
+
+
+				list($lostRecordsFound, $statisticsLostRecords) = $this->statisticsLostRecords();
+
+				if ($lostRecordsFound) {
+
+					$content.= $statisticsLostRecords;
+					$content.= $this->pObj->doc->spacer(10);
+					$content.= '<p><input type="submit" name="collect_lost_records" value="'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_collect').'" /></p>';
+
+				} else {
+
+					$content.= '<p><strong>'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_all_fine').'</strong></p>';
+					$content.= $statisticsLostRecords;
+					$content.= $this->pObj->doc->spacer(10);
+					$content.= '<p><input type="submit" name="" value="'.$LANG->getLL('tx_dam_tools_indexupdate.lost_records_check_again').'" /></p>';
+				}
+
+			break;
+
+			case 'cleanup_meta':
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta'), $LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta_description',1),0,1);
+				$content.= $this->pObj->doc->spacer(10);
+
+				if (t3lib_div::_GP('cleanup_meta')) {
+					$countTotal = 0;
+
+					$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'color_space='.$GLOBALS['TYPO3_DB']->fullQuoteStr('sRGB', 'tx_dam'), array('color_space' => 'RGB'));
+					$countTotal += $GLOBALS['TYPO3_DB']->sql_affected_rows();
+
+					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('uid,title,file_name', 'tx_dam', 'title=\'\'');
+					foreach ($rows as $row) {
+						$title = tx_dam_indexing::makeTitleFromFilename($row['file_name']);
+						$values = array('title' => $title);
+						$res = $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $values);
+						$countTotal ++;
+					}
+					$content.= '<h4>Processing: '.$countTotal. ' changes made</h4>';
+				}
+
+				$content.= '<h4>Available functions:</h4>';
+				$content.= '<ul>';
+				$content.= '<li>Create title for empty titles</li>';
+				$content.= '<li>Change unused color space \'sRGB\' to \'RGB\'</li>';
+				$content.= '</ul>';
+				$content.= $this->pObj->doc->spacer(10);
+				$content.= '<p><input type="submit" name="cleanup_meta" value="'.$LANG->getLL('tx_dam_tools_indexupdate.cleanup_meta').'" /></p>';
+			break;
+
+			case 'statistics':
+
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.statistics'), $LANG->getLL('tx_dam_tools_indexupdate.statistics_description',1),0,1);
+				$content.= $this->pObj->doc->spacer(10);
+				$content.= $this->statisticsMediaType();
+				$content.= $this->pObj->doc->spacer(10);
+				$content.= '<p><input type="submit" name="update" value="'.$LANG->getLL('tx_dam_tools_indexupdate.update').'" /></p>';
+			break;
+
 			case 'index':
-				$content.= $LANG->getLL('tx_dam_tools_indexupdate.index_description',1);
+				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.index_check'), $LANG->getLL('tx_dam_tools_indexupdate.index_description',1),0,1);
 				$content.= $this->pObj->doc->spacer(10);
 
 				$code = '';
@@ -173,7 +249,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				$code.= '<p><br /></p>';
 
 				$code.= '<p><input type="submit" name="start" /></p>';
-				$content.= $this->pObj->doc->section($LANG->getLL('tx_dam_tools_indexupdate.index_check'), $code,0,1);
+				$content.= $code;
 
 				$code = '';
 				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('COUNT(uid) as count', 'tx_dam', $where_clause='');
@@ -263,9 +339,208 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 	}
 
 
+	/**
+	 * Render statistics about lostrecords
+	 *
+	 * @return	array		array($countTotal, $content)
+	 */
+	function statisticsLostRecords() {
+		global $LANG, $TCA;
+
+		$content = '';
+		$countTotal = 0;
+
+			// init table layout
+		$tableLayout = array(
+			'table' => array('<table border="0" cellspacing="1" cellpadding="2" style="width:auto;">', '</table>'),
+			'0' => array(
+				'tr' => array('<tr class="bgColor2">','</tr>'),
+				'defCol' => array('<td align="center">','</td>'),
+			),
+			'defRow' => array(
+				'tr' => array('<tr class="bgColor3-20">','</tr>'),
+				'1' => array('<td align="center">','</td>'),
+				'defCol' => array('<td>','</td>'),
+			)
+		);
+
+		$tableOutput = array();
+		$tr = 0;
+
+			// add header row
+		$tableOutput[$tr][] = 'Table';
+		$tableOutput[$tr][] = 'Count';
+
+
+		$mediaTables = tx_dam::register_getEntries('mediaTable');
+
+		foreach ($mediaTables as $table) {
+			$count = 0;
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('COUNT(uid) as count', $table, $table.'.pid NOT IN ('.tx_dam_db::getPidList().')');
+			if ($res) {
+				$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+				$count = $row['count'];
+				$countTotal += $count;
+			}
+			$title = is_array($TCA[$table]) ? $GLOBALS['LANG']->sl($TCA[$table]['ctrl']['title']) : $table;
+
+			$icon = t3lib_iconWorks::getIconImage($table, array(), $GLOBALS['BACK_PATH'],' align="top"');
+
+				// add row to table
+			$tr++;
+			$tableOutput[$tr][] = $icon.$title.' ('.$table.')';
+			$tableOutput[$tr][] = $count;
+		}
+
+		$content .= $this->pObj->doc->table($tableOutput, $tableLayout);
+
+		return array($countTotal, $content);
+	}
+
+
+	/**
+	 * Render statistics about indexed media types
+	 *
+	 * @return	string		HTML output
+	 */
+	function statisticsMediaType($addFileTypes=true) {
+		global $LANG;
+
+		$content = '';
+
+			// init table layout
+		$tableLayout = array(
+			'table' => array('<table border="0" cellspacing="1" cellpadding="2" style="width:auto;">', '</table>'),
+			'0' => array(
+				'tr' => array('<tr class="bgColor2">','</tr>'),
+				'defCol' => array('<td align="center">','</td>'),
+			),
+			'defRow' => array(
+				'tr' => array('<tr class="bgColor3-20">','</tr>'),
+				'1' => array('<td align="center">','</td>'),
+				'4' => array('<td align="right" style="padding-right:0.5em;">','</td>'),
+				'5' => array('<td align="right" style="padding-right:0.5em;">','</td>'),
+				'defCol' => array('<td>','</td>'),
+			)
+		);
+
+		$table = array();
+		$tr = 0;
+
+			// add header row
+		$table[$tr][] = '&nbsp';
+		$table[$tr][] = $LANG->getLL('mediaTypes',1);
+		$table[$tr][] = '&nbsp';
+		$table[$tr][] = '&nbsp';
+		$table[$tr][] = 'Count';
+		$table[$tr][] = 'Total';
+
+		$totalCount = 0;
+
+		foreach ($GLOBALS['T3_VAR']['ext']['dam']['media2code'] as $media_type) {
+
+
+			$whereClauses = array();
+			$whereClauses['media_type'] = 'media_type='.$media_type;
+			$rows = tx_dam_db::getDataWhere ('COUNT(uid) as count', $whereClauses);
+			reset($rows);
+			$row = current($rows);
+			$count = $row['count'];
+
+			$totalCount += $count;
+
+			$icon = tx_dam_guiFunc::icon_getMediaTypeImgTag(array('media_type' => $media_type), '', false);
+			$mediaTypeName = tx_dam_guiFunc::convert_mediaType($media_type);
+
+
+				// add row to table
+			$tr++;
+			$table[$tr][] = $icon;
+			$table[$tr][] = '<strong>'.htmlspecialchars($mediaTypeName).'</strong>';
+			$table[$tr][] = '&nbsp;';
+			$table[$tr][] = '&nbsp;';
+			$table[$tr][] = '&nbsp;';
+			$table[$tr][] = '<strong>'.$count.'</strong>';
+
+			$tableLayout[$tr]['tr'] = array('<tr class="bgColor4">','</tr>');
+
+			if ($addFileTypes) {
+				if ($contentFileTypes = $this->statisticsFileType($media_type)) {
+					foreach ($contentFileTypes as $fileTypeRow) {
+							// add row to table
+						$tr++;
+						$table[$tr][] = '&nbsp';
+						$table[$tr][] = '&nbsp';
+						$table[$tr][] = $fileTypeRow[0];
+						$table[$tr][] = $fileTypeRow[1];
+						$table[$tr][] = $fileTypeRow[2];
+						$table[$tr][] = '&nbsp';
+
+					}
+				}
+			}
+			// add row to table
+		$tr++;
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$table[$tr][] = '<span></span>';
+		$tableLayout[$tr]['tr'] = array('<tr class="bgColor" style="height:0.5em;">','</tr>');
+
+		}
+
+			// add row to table
+		$tr++;
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '&nbsp;';
+		$table[$tr][] = '<strong>'.$totalCount.'</strong>';
+		$tableLayout[$tr]['tr'] = array('<tr class="bgColor4-20">','</tr>');
+
+		$content .= $this->pObj->doc->table($table, $tableLayout);
+		return $content;
+	}
 
 
 
+	/**
+	 * Render statistics about indexed media types
+	 *
+	 * @return	string		HTML output
+	 */
+	function statisticsFileType($media_type) {
+
+		$table = array();
+		$tr = 0;
+
+		$whereClauses = array();
+		$whereClauses['media_type'] = 'media_type='.$media_type;
+		$rows = tx_dam_db::getDataWhere ('DISTINCT file_type', $whereClauses);
+
+		foreach ($rows as $row) {
+			$file_type = $row['file_type'];
+			$whereClauses['file_type'] = 'file_type='.$GLOBALS['TYPO3_DB']->fullQuoteStr($file_type, 'tx_dam');
+			$rowsCount = tx_dam_db::getDataWhere ('COUNT(uid) as count', $whereClauses);
+			reset($rowsCount);
+			$rowsCount = current($rowsCount);
+			$count = $rowsCount['count'];
+
+			$icon = tx_dam::icon_getFileTypeImgTag(array('media_type' => $media_type, 'file_type' => $file_type), '', false);
+
+				// add row to table
+			$tr++;
+			$table[$tr][] = $icon;
+			$table[$tr][] = htmlspecialchars(strtoupper($file_type));
+			$table[$tr][] = $count;
+
+		}
+
+		return $table;
+	}
 
 
 
@@ -285,7 +560,6 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			// get session data - which might have left files stored
 		$indexSession = $this->indexSessionFetch();
 
-
 		$where = array();
 		if ($age = intval($this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.age'])) {
 			$where['tstamp'] = 'tstamp<'.(time()-$age);
@@ -301,11 +575,16 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			$indexSession = $this->indexSessionNew($countTotal);
 
 		}
-		$rows = tx_dam_db::getDataWhere('', $where, '', '', intval($indexSession['currentCount']).',200');
+
+		$files_at_a_time = 200;
+
+		$rows = tx_dam_db::getDataWhere('', $where, '', '', intval($indexSession['currentCount']).','.$files_at_a_time);
 
 		if ($rows) {
 
+			$c = 0;
 			foreach ($rows as $meta) {
+				$c ++;
 
 					// increase progress bar
 				$indexSession['currentCount']++;
@@ -341,7 +620,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 				$this->indexSessionWrite($indexSession);
 
-				if (($this->indexEndtime < time()) AND ($indexSession['currentCount'] < $indexSession['totalFilesCount'])) {
+				if (($this->indexEndtime < time() OR $c == $files_at_a_time) AND ($indexSession['currentCount'] < $indexSession['totalFilesCount'])) {
 					$params = $this->pObj->addParams;
 					$params['indexSessionID'] = $indexSession['ID'];
 					echo '
@@ -399,6 +678,10 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 		if (is_array($indexSession['data'])) {
 
+			$damIndexing = t3lib_div::makeInstance('tx_dam_indexing');
+			$damIndexing->init();
+			$damIndexing->dryRun=TRUE;
+
 			foreach ($indexSession['data'] as $key => $file) {
 
 					// increase progress bar
@@ -416,6 +699,9 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 					'file_hash' => $fileHash,
 				);
 				$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_file_tracking', $fields_values);
+
+				$fileInfo=array_merge($fileInfo,$damIndexing->getFileMimeType($file));
+				$fileInfo['media_type']=tx_dam::convert_mediaType($fileInfo['file_mime_type']);
 
 				$ctable = array();
 				$ctable[] = '&nbsp;';
@@ -511,10 +797,10 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			break;
 			case '2':
 				$icon = 'gfx/icon_warning.gif';
+				$title = 'File changed';
 			break;
 			case '1':
 				$icon = 'gfx/icon_note.gif';
-				$title = 'File changed';
 			break;
 			case '-1':
 				$icon = 'gfx/icon_ok.gif';
@@ -581,7 +867,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		');
 
 
-		if(tx_dam::config_getValue('setup.debug')) {
+		if(tx_dam::config_getValue('setup.devel')) {
 			$iframeSize = 'width="100%" height="300" border="1" scrolling="yes" frameborder="1"';
 		} else {
 			$iframeSize = 'width="0" height="0" border="0" scrolling="no" frameborder="0"';

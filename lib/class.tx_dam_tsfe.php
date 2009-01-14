@@ -33,12 +33,16 @@
  *
  *
  *
- *   56: class tx_dam_tsfe
+ *   60: class tx_dam_tsfe
+ *
+ *              SECTION: TypoScript functions
+ *   85:     function fetchFileList ($content, $conf)
  *
  *              SECTION: Misc functions
- *   81:     function fetchFileList ($content, $conf)
+ *  129:     function initLangObject()
+ *  155:     function getFieldLabel($field, $table='tx_dam')
  *
- * TOTAL FUNCTIONS: 1
+ * TOTAL FUNCTIONS: 3
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -91,15 +95,91 @@ class tx_dam_tsfe {
 			}
 		}
 
-		$uid = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
+
+		$uid      = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
 		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
+
+		if (isset($GLOBALS['BE_USER']->workspace) && $GLOBALS['BE_USER']->workspace !== 0) {
+			$workspaceRecord = t3lib_BEfunc::getWorkspaceVersionOfRecord(
+				$GLOBALS['BE_USER']->workspace,
+				'tt_content',
+				$uid,
+				'uid'
+			);
+
+			if ($workspaceRecord) {
+				$uid = $workspaceRecord['uid'];
+			}
+		}
+
 		$damFiles = tx_dam_db::getReferencedFiles($refTable, $uid, $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 
-		return implode(',',$files);
+		return implode(',', $files);
 	}
 
+
+
+	/**********************************************************
+	 *
+	 * Misc functions
+	 *
+	 **********************************************************/
+
+
+	/**
+	 * Creates an instance of 'language' (sysext/lang/lang.php) in $GLOBALS['LANG'] ...
+	 * ... if TYPO3_MODE === 'FE' and the object do not exist
+	 *
+	 * The LANG object will be initialized with the current language used in TSFE.
+	 *
+	 * It is possible that a LANG object exist when a BE user preview a page.
+	 * The language in that object is initialized then with the BE users language (not TSFE).
+	 * This function override the language with the TSFE language. This may cause different language labels in the admin panel.
+	 *
+	 * @return void
+	 */
+	function initLangObject() {
+		global $TYPO3_CONF_VARS;
+
+		if (TYPO3_MODE === 'FE') {
+			if (!is_object($GLOBALS['LANG']))	{
+				require_once(PATH_site.TYPO3_mainDir.'sysext/lang/lang.php');
+				$GLOBALS['LANG'] = t3lib_div::makeInstance('language');
+			}
+
+			if ($GLOBALS['TSFE']->sys_language_isocode) {
+				$GLOBALS['LANG']->init($GLOBALS['TSFE']->sys_language_isocode);
+				if($isoCode = $GLOBALS['LANG']->csConvObj->isoArray[$GLOBALS['TSFE']->sys_language_isocode]) {
+					$GLOBALS['LANG']->init($isoCode);
+				}
+			} else {
+				$GLOBALS['LANG']->init($GLOBALS['TSFE']->config['config']['language']);
+			}
+		}
+	}
+
+
+	/**
+	 * Get a language label for a table field
+	 * appended ':' will be removed
+	 *
+	 * @param string $field
+	 * @param string $table Default: tx_dam
+	 */
+	function getFieldLabel($field, $table='tx_dam') {
+		global $TCA;
+
+		if (!is_object($GLOBALS['LANG'])) tx_dam_tsfe::initLangObject();
+
+		t3lib_div::loadTCA('tx_dam');
+
+		$label = $TCA[$table]['columns'][$field]['label'];
+		$label = $GLOBALS['LANG']->sL($label);
+		$label = preg_replace('#:$#', '', $label);
+		return $label;
+	}
 
 }
 

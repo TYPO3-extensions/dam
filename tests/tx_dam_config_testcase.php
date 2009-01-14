@@ -23,12 +23,12 @@
 ***************************************************************/
 
 /**
- * @author	2005 Rene Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  */
+ 
+require_once (PATH_txdam.'tests/class.tx_dam_testlib.php');
 
-require_once (PATH_txdam.'lib/class.tx_dam.php');
-
-class tx_dam_config_testcase extends tx_t3unit_testcase {
+class tx_dam_config_testcase extends tx_dam_testlib {
 
 
 
@@ -37,17 +37,16 @@ class tx_dam_config_testcase extends tx_t3unit_testcase {
 	 * tx_dam::config_setValue()
 	 */
 	public function test_config_setValue () {
-
-
-//		tx_dam::config_init();
-//
-//		$config = & $GLOBALS['T3_VAR']['ext']['dam']['config'];
-//
-//
-//		$setup = tx_dam::config_getValue('setup.selections.txdamStatus.');
-
-
-
+		tx_dam::config_init();
+		
+		tx_dam::config_setValue('setup.indexing.auto', true);
+		$value = tx_dam::config_getValue('setup.indexing.auto');
+		self::assertEquals ($value, true);
+		
+		tx_dam::config_setValue('setup.indexing.auto', false);
+		$value = tx_dam::config_getValue('setup.indexing.auto');
+		self::assertEquals ($value, false);
+		
 	}
 
 

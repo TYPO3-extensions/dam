@@ -36,12 +36,12 @@
  *
  *   64: class tx_dam_selectionStatus extends tx_dam_selBrowseTree
  *   83:     function tx_dam_selectionStatus()
- *  101:     function getTreeArray()
- *  148:     function getDataInit($parentId)
+ *  102:     function getTreeArray()
+ *  150:     function getDataInit($parentId)
  *
  *              SECTION: DAM specific functions
- *  174:     function selection_getItemTitle($id)
- *  193:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
+ *  176:     function selection_getItemTitle($id)
+ *  195:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
  *
  * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
@@ -82,8 +82,8 @@ class tx_dam_selectionStatus extends tx_dam_selBrowseTree {
 	 */
 	function tx_dam_selectionStatus()	{
 		global $LANG;
-// TODO Localization
-		$this->title = 'Status'; # $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status');
+
+		$this->title = $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status');
 		$this->treeName = 'txdamStatus';
 		$this->domIdPrefix = $this->treeName;
 
@@ -93,41 +93,43 @@ class tx_dam_selectionStatus extends tx_dam_selBrowseTree {
 	}
 
 
+
 	/**
 	 * Returns an array that can be browsed by the treebrowse-class
 	 *
 	 * @return  array       Multidimensional.
 	 */
 	function getTreeArray()	{
-// TODO Localization
+		global $LANG;
+
 		$tree = array(
 			1 => array(
-				'title' => 'file ok',
+				'title' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status_file_ok'),
 				'id' => TXDAM_status_file_ok,
 				'_field' => 'file_status',
 			),
 			2 => array(
-				'title' => 'file changed',
+				'title' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status_file_changed'),
 				'id' => TXDAM_status_file_changed,
 				'_field' => 'file_status',
 			),
 			3 => array(
-				'title' => 'file missing',
+				'title' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status_file_missing'),
 				'id' => TXDAM_status_file_missing,
 				'_field' => 'file_status',
 			),
 			4 => array(
-				'title' => 'Manually indexed',
+				'title' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status_idx_man'),
 				'id' => 'man',
 				'_field' => 'index_type',
 			),
 			5 => array(
-				'title' => 'Auto indexed',
+				'title' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status_idx_auto'),
 				'id' => 'auto',
 				'_field' => 'index_type',
 			),
 			6 => array(
-				'title' => 'Cron indexed',
+				'title' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:status_idx_cron'),
 				'id' => 'cron',
 				'_field' => 'index_type',
 			)

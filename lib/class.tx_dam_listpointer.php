@@ -34,7 +34,7 @@
  *
  *
  *   62: class tx_dam_listPointer
- *  149:     function init ($page, $itemsPerPage, $countTotal=0, $maxPages=20)
+ *  149:     function init ($page, $itemsPerPage, $countTotal=0, $maxPages=100)
  *  165:     function setPagePointer ($page)
  *  177:     function setTotalCount($countTotal)
  *
@@ -146,7 +146,7 @@ class tx_dam_listPointer {
 	 * @param	integer		$maxPages Max allowed pages.
 	 * @return	void
 	 */
-	function init ($page, $itemsPerPage, $countTotal=0, $maxPages=20) {
+	function init ($page, $itemsPerPage, $countTotal=0, $maxPages=100) {
 		$this->page = intval($page);
 		$this->itemsPerPage = t3lib_div::intInRange(intval($itemsPerPage), 1, 1000);
 		$this->countTotal = intval($countTotal);

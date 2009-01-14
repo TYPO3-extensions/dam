@@ -34,61 +34,68 @@
  *
  *
  *
- *  118: class tx_dam_SCbase extends t3lib_SCbase
- *  193:     function init()
- *  295:     function menuConfig()
+ *  125: class tx_dam_SCbase extends t3lib_SCbase
+ *  201:     function init()
+ *  305:     function menuConfig()
  *
  *              SECTION: Path related functions
- *  343:     function checkOrSetPath()
- *  380:     function checkPathAccess($pathInfo)
+ *  353:     function checkOrSetPath()
+ *  390:     function checkPathAccess($pathInfo)
  *
  *              SECTION: GUI misc
- *  405:     function addDocJavaScript ()
- *  412:     function jumpToUrl(URL)
- *  418:     function toggleDisplay(toggleId, e)
- *  460:     function addDocStyles ()
- *  544:     function getResultBrowser()
- *  559:     function getResultInfoBar()
- *  577:     function getResultInfoHeader()
- *  589:     function getHeaderBar($left, $right='')
- *  646:     function contentLeftRight($left,$right)
- *  664:     function old_getHeaderBar($content, $options='')
- *  685:     function getResultInfo($showBrowseResult=true)
- *  721:     function renderResultBrowser($showResultInfo=true, $alwaysPrev=true, $tableParams='cellspacing="5"')
- *  799:     function list_browseresults($tableParams='cellspacing="5"', $alwaysPrev=true)
- *  846:     function getStoreControl()
- *  871:     function getSearchBox($mode='simple', $useFormTag=TRUE, $formAction='')
+ *  415:     function addDocJavaScript ()
+ *  423:     function jumpToUrl(URL)
+ *  428:     function jumpExt(URL,anchor)
+ *  436:     function toggleDisplay(toggleId, e)
+ *  488:     function addDocStyles ()
+ *  599:     function getResultBrowser()
+ *  614:     function getResultInfoBar($left = array())
+ *  632:     function getResultInfoHeader()
+ *  644:     function getHeaderBar($left, $right='')
+ *  706:     function contentLeftRight($left,$right)
+ *  726:     function getMessageBox ($headerContent, $msg, $buttons='', $icon=0)
+ *  758:     function old_getHeaderBar($content, $options='')
+ *  779:     function getResultInfo($showBrowseResult=true)
+ *  815:     function renderResultBrowser($showResultInfo=true, $alwaysPrev=true, $tableParams='cellspacing="5"')
+ *  894:     function list_browseresults($tableParams='cellspacing="5"', $alwaysPrev=true)
+ *  941:     function getStoreControl()
+ *  966:     function getSearchBox($mode='simple', $useFormTag=TRUE, $formAction='')
  *
  *              SECTION: GUI options
- *  912:     function getOptions()
- *  930:     function addOption($type, $paramName, $description, $items=array())
- * 1045:     function getCurrentSelectionBoxItems($sel, $queryType, $rows)
- * 1106:     function linkThisScriptSel($getParams=array())
- * 1123:     function linkThisScriptStraight($params)
+ * 1007:     function getOptions()
+ * 1025:     function addOption($type, $paramName, $description, $items=array())
+ * 1056:     function disableOption ($paramName)
+ * 1143:     function getCurrentSelectionBoxItems($sel, $queryType, $rows)
+ * 1192:     function linkThisScriptSel($getParams=array())
+ * 1209:     function linkThisScriptStraight($params)
+ * 1224:     function linkThisScript($addParams=array())
  *
  *              SECTION: GUI files and folder
- * 1148:     function getPathInfoHeaderBar($pathInfo, $browsable=TRUE, $extraIconArr=array(), $allowedIcons=NULL)
- * 1190:     function getFolderNavBar($pathInfo, $browsable=true, $allowedIcons=NULL)
- * 1240:     function getBrowseableFolderList ($path, $folderParam='SET[tx_dam_folder]')
+ * 1258:     function getInfoHeaderBar($infoHeader, $browsable=TRUE, $extraIconArr=array(), $allowedIcons=NULL)
+ * 1296:     function getPathInfoHeaderBar($pathInfo, $browsable=TRUE, $extraIconArr=array(), $allowedIcons=NULL)
+ * 1315:     function getFolderNavBar($pathInfo, $browsable=true, $allowedIcons=NULL)
+ * 1365:     function getBrowseableFolderList ($path, $folderParam='SET[tx_dam_folder]')
  *
  *              SECTION: GUI buttons and icons
- * 1276:     function buttonToggleDisplay($id, $title, $guiElement, $displayOpen=false)
- * 1306:     function button ($iconImgTag, $label, $hoverText, $href, $aTagAttribute='')
- * 1326:     function btn_openMod_inNewWindow($function_name=NULL, $addAttrib='')
- * 1347:     function btn_editRec_inNewWindow($table, $uid, $addAttrib='')
- * 1370:     function btn_removeRecFromSel($table, $uid, $addAttrib='')
- * 1388:     function icon_editRec($table, $uid, $addAttrib='')
- * 1411:     function icon_infoRec($table, $uid, $addAttrib='')
- * 1432:     function btn_back($params=array(), $absUrl='')
- * 1462:     function wrapLink_edit($str, $refTable, $id)
- * 1483:     function wrapLink ($href, $content)
- * 1499:     function getRecordInfoEditLink($refTable, $row, $showRootline=FALSE)
+ * 1402:     function buttonToggleDisplay($id, $title, $guiElement, $displayOpen=false)
+ * 1432:     function button ($iconImgTag, $label, $hoverText, $href, $aTagAttribute='')
+ * 1452:     function btn_openMod_inNewWindow($function_name=NULL, $addAttrib='')
+ * 1473:     function btn_editRec_inNewWindow($table, $uid, $addAttrib='')
+ * 1496:     function btn_removeRecFromSel($table, $uid, $addAttrib='')
+ * 1515:     function icon_editRec($table, $uid, $addAttrib='')
+ * 1539:     function icon_infoRec($table, $uid, $addAttrib='')
+ * 1558:     function icon_infoFile($fileInfo, $addAttrib='')
+ * 1577:     function btn_infoFile($fileInfo)
+ * 1597:     function btn_back($params=array(), $absUrl='')
+ * 1627:     function wrapLink_edit($str, $refTable, $id)
+ * 1648:     function wrapLink ($href, $content, $attributes='')
+ * 1664:     function getRecordInfoEditLink($refTable, $row, $showRootline=FALSE)
  *
  *              SECTION: misc
- * 1542:     function getFormTag($name='editform')
- * 1568:     function getTabMenu($mainParams, $elementName, $currentValue, $menuItems, $script='', $addparams='')
+ * 1711:     function getFormTag($name='editform')
+ * 1737:     function getTabMenu($mainParams, $elementName, $currentValue, $menuItems, $script='', $addparams='')
  *
- * TOTAL FUNCTIONS: 40
+ * TOTAL FUNCTIONS: 47
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -167,6 +174,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * Array of HTML which will be print as options form
 	 */
 	var $modOptions = array();
+	var $modOptionsDisabled = array();
 
 
 	/**
@@ -194,12 +202,26 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $TYPO3_CONF_VARS, $FILEMOUNTS;
 
 
-		parent::init();
+			// name might be set from outside
+		if (!$this->MCONF['name']) {
+			$this->MCONF = $GLOBALS['MCONF'];
+		}
 
 		tx_dam::config_init();
 
-#		tx_dam::config_setValue('setup.debug', '1');
+		# tx_dam::config_setValue('setup.devel', '1');
 
+
+		$this->defaultPid = tx_dam_db::getPid();
+		$this->id = $this->defaultPid;
+		
+			// from parent::init();
+		$this->CMD = t3lib_div::_GP('CMD');
+		$this->perms_clause = $GLOBALS['BE_USER']->getPagePermsClause(1);
+		$this->menuConfig();
+		$this->handleExternalFunctionValue();	
+		
+		
 
 			// include the default language file
 		$GLOBALS['LANG']->includeLLFile('EXT:dam/lib/locallang.xml');
@@ -220,11 +242,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->path = tx_dam::path_makeRelative(key($SLCMD['SELECT']['txdamFolder']));
 		}
 		$this->checkOrSetPath();
-		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
-
-
-		$this->defaultPid = tx_dam_db::getPid();
-		$this->id = $this->defaultPid;
 
 
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->defaultPid, $this->perms_clause);
@@ -255,7 +272,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$this->selection = t3lib_div::makeInstance('tx_dam_selectionQuery');
 
-		$this->MOD_SETTINGS['tx_dam_resultPointer'] = $this->selection->initPointer($this->MOD_SETTINGS['tx_dam_resultPointer'], $this->MOD_SETTINGS['tx_dam_resultsPerPage']);
+
+		$maxPages = $this->config_checkValueEnabled('browserMaxPages', 20);
+		$this->MOD_SETTINGS['tx_dam_resultPointer'] = $this->selection->initPointer($this->MOD_SETTINGS['tx_dam_resultPointer'], $this->MOD_SETTINGS['tx_dam_resultsPerPage'], $maxPages);
 
 		$this->selection->initSelection($this /*$GLOBALS['SOBE']*/,
 										$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['selectionClasses'],
@@ -265,21 +284,17 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->selection->initQueryGen();
 		$this->selection->qg->initBESelect('tx_dam', tx_dam_db::getPidList());
 
-
 		$this->selection->addFilemountsToQuerygen();
 
 
 
-
-
-
 			// debug output
-		if (tx_dam::config_getValue('setup.debug')) {
-			$this->debugContent['query'] = '<h4>MOD_SETTINGS</h4>'.t3lib_div::view_array($this->MOD_SETTINGS);
+		if (tx_dam::config_getValue('setup.devel')) {
+			$this->debugContent['MOD_SETTINGS'] = '<h4>MOD_SETTINGS</h4>'.t3lib_div::view_array($this->MOD_SETTINGS);
 		}
-
+		
 			// BE Info output
-		if (tx_dam::config_getValue('setup.debug') AND t3lib_extMgm::isLoaded('cc_beinfo')) {
+		if (tx_dam::config_getValue('setup.devel') AND t3lib_extMgm::isLoaded('cc_beinfo')) {
 			require_once(t3lib_extMgm::extPath('cc_beinfo').'class.tx_ccbeinfo.php');
 			$beinfo = t3lib_div::makeInstance('tx_ccbeinfo');
 			$beinfoContent = $beinfo->makeInfo($this);
@@ -288,7 +303,26 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 	}
 
-
+	/**
+	 * Creates an instance of the class found in $this->extClassConf['name'] in $this->extObj if any (this should hold three keys, "name", "path" and "title" if a "Function menu module" tries to connect...)
+	 * This value in extClassConf might be set by an extension (in a ext_tables/ext_localconf file) which thus "connects" to a module.
+	 * The array $this->extClassConf is set in handleExternalFunctionValue() based on the value of MOD_SETTINGS[function]
+	 * (Should be) called from global scope right after inclusion of files from the ->include_once array.
+	 * If an instance is created it is initiated with $this passed as value and $this->extClassConf as second argument. Further the $this->MOD_SETTING is cleaned up again after calling the init function.
+	 *
+	 * @return	void
+	 * @see handleExternalFunctionValue(), t3lib_extMgm::insertModuleFunction(), $extObj
+	 */
+	function checkExtObj()	{
+		parent::checkExtObj();
+	
+		foreach ($this->MOD_MENU as $key => $value) {
+			$override = $this->config_checkValueEnabled('options.'.$key.'.value', '_magic_MOD_MENU_');
+			if (!is_array($value) AND $override !== '_magic_MOD_MENU_') {
+				$this->MOD_SETTINGS[$key] = $override;
+			}
+		}
+	}
 
 	/**
 	 * Adds items to the ->MOD_MENU array. Used for the function menu selector.
@@ -311,12 +345,25 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				'tx_damindex_storedSettings' => '',
 
 				'tx_dam_resultPointer' => '',
+				'tx_dam_file_uploadFields' => array(
+					5 => '5',
+					10 => '10',
+					15 => '15',
+				),
+				'tx_dam_file_upload_overwrite' => '',
 				'tx_dam_resultsPerPage' => array(
 						20 => '20',
 						50 => '50',
 						100 => '100',
 						200 => '200',
 					),
+					
+				'tx_dam_list_langSelector' => '',
+				'tx_dam_list_langOverlay' => array (
+						'exclusive' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:langCurrentExclusive'),
+						'andUntranslated' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:langCurrentAndDefault'),
+					),
+					
 			)
 		);
 		parent::menuConfig();
@@ -340,11 +387,17 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	/**
 	 * Checks if $this->path is a path under one of the filemounts
 	 *
+	 * @param string $path If set this path will be set as current
 	 * @return	void
 	 * @see init()
+	 * @todo check path access in modules or set path to a valid path?
 	 */
-	function checkOrSetPath()	{
+	function checkOrSetPath($path='')	{
 		global $FILEMOUNTS;
+
+		if ($path) {
+			$this->path = $path;
+		}
 
 		if (!$this->path) {
 			reset($FILEMOUNTS);
@@ -366,9 +419,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->pathInfo = $pathInfo;
 			$this->pathAccess = false;
 		}
-// TODO check path access in modules or set path to a valid path?
+		
+		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
 
-		if (tx_dam::config_getValue('setup.debug')) {
+		if (tx_dam::config_getValue('setup.devel')) {
 			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>'.t3lib_div::view_array($this->pathInfo);
 		}
 	}
@@ -408,14 +462,32 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function addDocJavaScript () {
 		global $BACK_PATH;
 
-		$this->doc->JScodeArray['jumpToUrl'] = '
+		$this->doc->JScodeArray['init'] = '
 			var script_ended = 0;
-			var changed = 0;
+			var changed = 0;';
 
-			function jumpToUrl(URL)	{
-				document.location = URL;
-			}
+			// we first want to check if jumpTourl was set already, 
+			// and check this twice (in case rtehtmlarea decides to use
+			// JScodeArray as well later on, we don't want to react again)
+			// the second check is done in javascript to not define jumpToUrl
+			// twice (= overriding the initial function)
+		if (!isset($this->doc->JScodeArray['jumpToUrl'])) {
+			$this->doc->JScodeArray['jumpToUrl'] = '
+				if (!(typeof jumpToUrl == "function")) {
+					function jumpToUrl(URL) {
+						document.location.href = URL;
+					}
+				}
 			';
+		}
+
+		$this->doc->JScodeArray['jumpExt'] = '
+			function jumpExt(URL,anchor)	{
+				var anc = anchor?anchor:"";
+				document.location.href = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
+			}';
+
+		$this->doc->JScodeArray['redirectUrls'] = $this->doc->redirectUrls($this->linkThisScript());
 
 		$this->doc->JScodeArray['toggleDisplay'] = '
 			function toggleDisplay(toggleId, e) {
@@ -450,8 +522,18 @@ class tx_dam_SCbase extends t3lib_SCbase {
 						e.stopPropagation();
 					}
 				}
-			}
-			';
+			}';
+
+		$this->doc->postCode.= $this->doc->wrapScriptTags('
+			script_ended = 1;');
+
+
+			// This will return content necessary for the context sensitive clickmenus to work: bodytag events, JavaScript functions and DIV-layers.
+		$CMparts = $this->doc->getContextMenuCode();
+		$this->doc->bodyTagAdditions = $CMparts[1];
+		$this->doc->JScode.= $CMparts[0];
+		$this->doc->postCode.= $CMparts[2];
+
 	}
 
 
@@ -463,77 +545,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function addDocStyles () {
 		$borderColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-30,-30,-30);
 
-		$this->doc->buttonColor = '#e3dfdb'; #t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
+		#$this->doc->buttonColor = '#d3cfcb';
+		$this->doc->buttonColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-30,-30,-30);
 		$this->doc->buttonColorAct = '#e7dba8'; #t3lib_div::modifyHTMLcolor($this->doc->bgColor5,25,25,25);
 		$this->doc->buttonColorHover = t3lib_div::modifyHTMLcolor($this->doc->buttonColor,-20,-20,-20);
 		$this->doc->buttonColorBorder = '#aaa';
 
 		$this->doc->hoverColorTR = t3lib_div::modifyHTMLcolor($this->doc->bgColor,-20,-20,-20);
-
-		$this->doc->inDocStylesArray['typo3-dblist_add'] = '
-				.typo3-dblist TD { padding-top: 1px; }
-				.typo3-dblist TD.item, .typo3-dblist TD.typo3-dblist-item { border-bottom: 1px dotted '.$borderColor.'; }';
-
-		$this->doc->inDocStylesArray['typo3-filelist'] = '
-				.typo3-foldernavbar { margin: 12px 0px 2px 5px; }
-				.typo3-topactions { margin: 7px 0px 10px 0px; }
-				.typo3-filelist TD { padding-top: 1px;  }
-				.typo3-filelist TD.typo3-filelist-item { border-bottom: 1px dotted '.$borderColor.'; }';
-
-		$this->doc->inDocStylesArray['gui_buttons'] = '
-				.buttonToggleDisplay { background-color: '.$this->doc->buttonColor.'; border: 1px solid #888; padding: 0px 2px 0px 0px; width:30%; }
-				.buttonToggleDisplay:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.buttonToggleDisplay a { text-decoration: none; display: block; }
-				.buttonToggleDisplay img { vertical-align: middle; margin-bottom:2px;}
-
-				.guiElementBox { background-color: '.$this->doc->bgColor4.'; border: 1px solid #aaa; padding: 2px; }
-
-				span.spacer1em { width:1em; height:1em; }
-				span.spacer2em { width:2em; height:1em; }
-				span.spacer3em { width:3em; height:1em; }
-
-				.button { vertical-align: middle; padding: 1px 4px 2px 2px; background-color: '.$this->doc->buttonColor.'; border: 1px solid '.$this->doc->buttonColorBorder.'; margin-left: 0.5em; margin-right: 0.55em }
-				.buttonAct { background-color: '.$this->doc->buttonColorAct.'; }
-				.button img { vertical-align: middle; margin-right:0.1em; padding:1px; }
-				.button a { vertical-align: baseline; text-decoration:none; }
-				.button:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.bgColorBtn { background-color: '.$this->doc->buttonColor.'; }';
-
-		$this->doc->inDocStylesArray['list_browseresults'] = '
-				.browsebox {  }
-				.browsebox TD, .browsebox TD P { line-height:1em; padding:0; font-size:0.8em; }
-				.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA { border: 1px solid #aaa; width:1.6em; text-align:center; background-color:'.$this->doc->buttonColor.'; padding: 1px 0.7em 1px 0.7em; }
-				.browsebox TD.browsebox-CellA:hover { background-color: '.$this->doc->buttonColorHover.'; }
-				.browsebox TD.browsebox-Select { }
-				.browsebox TD.browsebox-Select SELECT { padding:0; font-size:0.8em; width:100%; font-weight:normal; border: 1px solid #aaa; background-color:'.$this->doc->buttonColor.'; }
-				.browsebox TD P { font-weight:bold; color:#888; }
-				.browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }';
-
-			// in typo3/stylesheets.css css is defined with id instead of a class: TABLE#typo3-tree
-			// that's why we need TABLE.typo3-browsetree
-		$this->doc->inDocStylesArray['typo3-browsetree'] = '
-					/* Trees */
-			TABLE.typo3-browsetree A { text-decoration: none;  }
-			TABLE.typo3-browsetree TR TD { white-space: nowrap; vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG { vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG.c-recIcon { margin-right: 1px;}
-			TABLE.typo3-browsetree { margin-bottom: 10px; width: 95%; }
-
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control {
-				padding: 0px;
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control a {
-				padding: 0px 3px 0px 3px;
-				background-color: '.$this->doc->buttonColor.';
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover {
-				background-color:'.$this->doc->buttonColorHover.';
-			}';
-
-
-		$this->doc->inDocStylesArray['uploads'] = '
-			#c-override, #c-upload, #c-submit { margin: 0.3em 0 1em 0; }
-			#c-upload input { margin: 0 0 0.3em 0; }';
 	}
 
 
@@ -559,10 +577,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 *
 	 * @return	string
 	 */
-	function getResultInfoBar() {
+	function getResultInfoBar($left = array()) {
 		global $LANG;
 
-		$left = array();
+
 		$left[] = $this->getResultInfo();
 		if($this->selection->pointer->lastPage>0) {
 			$left[] .= $this->renderResultBrowser();
@@ -609,7 +627,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$right = array($right);
 			}
 			foreach ($right as $rightContent) {
-				$contentRight .= '<div class="infobar-td"><div style="height:100%;">'.$rightContent.'</div></div>';
+				#$contentRight .= '<div class="infobar-td"><div style="height:100%;">'.$rightContent.'</div></div>';
+				$contentRight .= '<div class="infobar-td">'.$rightContent.'</div>';
 			}
 			$contentRight = '<div class="infobar-right-table">'.$contentRight.'</div>';
 			if ($contentLeft=='')
@@ -621,18 +640,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		} else {
 			$content = $contentLeft.$contentRight;
 		}
-
-		$bgColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
-		$this->doc->inDocStylesArray['getHeaderBar'] = '
-			div.infobar { display:block; width:100%; min-height:2.5em; background-color:'.$bgColor.'; border-bottom: 1px solid #888; }
-
-			div.infobar>table, div.infobar>div, div.infobar>table>td>div { vertical-align:middle; height:2.5em; line-height:2.5em; }
-			div.infobar, div.infobar table td, div.infobar-td, div.infobar-td>span, div.infobar-td>div { vertical-align:middle; }
-			div.infobar-left-table  { display:table; height:2.5em; }
-			div.infobar-right-table { display:table; height:2.5em; }
-			div.infobar-td { display:table-cell; vertical-align:middle; height:2.5em; }
-			div.infobar-left-table div.infobar-td { padding-left:0.5em; }
-			div.infobar-right-table div.infobar-td { padding-right:0.5em; text-align:right; }';
 
 		return '<div class="infobar">'.$content.'</div>';
 	}
@@ -658,6 +665,34 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 
 	/**
+	 * Render a box with a header and a message
+	 *
+	 * @param	string		$headerContent
+	 * @param	mixed		$msg The message. Have to be htmlspechialchars() already. If it is an array the elements will be rendered in <p> tags.
+	 * @param	string		$buttons Buttons - right aligned. Have to be htmlspechialchars() already.
+	 * @param	integer		$iconThe number of an icon to show with the header (see the icon-function). -1,1,2,3
+	 * @return	string		HTML output
+	 */
+	function getMessageBox ($headerContent, $msg, $buttons='', $icon=0) {
+		$content = '';
+
+		if ($headerContent OR $icon) {
+			$content .= '<h3>'.$this->doc->icons($icon).htmlspecialchars($headerContent).'</h3>';
+		}
+		if (is_array($msg)) {
+			$msg = '<p>'.implode('</p><p>', $msg).'</p>';
+		}
+		$content .= '<div class="msgboxContent">'.$msg.'</div>';
+
+		if ($buttons) {
+			$content .= '<div class="msgboxButtons">'.$buttons.'</div>';
+		}
+
+		return '<div class="msgbox-wrap"><div class="msgbox">'.$content.'</div></div>';
+	}
+
+
+	/**
 	 * shows a result information and a "results per page" selector
 	 *
 	 * @param	string		$content: Content
@@ -666,11 +701,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	function old_getHeaderBar($content, $options='') {
 		$content = $options ? $this->doc->funcMenu($content, $options) : $content;
-		$bgColor = t3lib_div::modifyHTMLcolor($this->doc->bgColor4,0,0,0);
-		$this->doc->inDocStylesArray['getHeaderBar'] = '
-				div.infobar { display:table; width:100%; height:3em; background-color:'.$bgColor.'; border-bottom: 1px solid #888; }
-				div.infobar div.infobar-content { display:table-cell; width:100%; vertical-align:middle; padding: 2px 5px 2px 5px; }
-				div.infobar div.infobar-content td { vertical-align:middle; }';
 
 		return '<div class="infobar"><div class="infobar-content">'.$content.'</div></div>';
 	}
@@ -722,6 +752,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		Output HTML, wrapped in <div>-tags with a class attribute
 	 */
 	function renderResultBrowser($showResultInfo=true, $alwaysPrev=true, $tableParams='cellspacing="5"')	{
+		global $LANG;
 
 		$links = array();
 
@@ -732,7 +763,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$class = 'browsebox-CellA';
 				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->firstPage)));
 			}
-			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('|<')).'</p></td>';
+			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('|<'), ' title="'.$LANG->getLL('browse_first',true).'"').'</p></td>';
 		}
 
 		if ($alwaysPrev)	{
@@ -742,7 +773,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$class = 'browsebox-CellA';
 				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->getPagePointer(-1))));
 			}
-			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('<')).'</p></td>';
+			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('<'), ' title="'.$LANG->getLL('browse_previous',true).'"').'</p></td>';
 		}
 
 
@@ -768,7 +799,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$class = 'browsebox-CellA';
 				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->getPagePointer(1))));
 			}
-			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('>')).'</p></td>';
+			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('>'), ' title="'.$LANG->getLL('browse_next',true).'"').'</p></td>';
 		}
 
 		if ($alwaysPrev)	{
@@ -778,7 +809,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				$class = 'browsebox-CellA';
 				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->lastPage)));
 			}
-			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('>|')).'</p></td>';
+			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('>|'), ' title="'.$LANG->getLL('browse_last',true).'"').'</p></td>';
 		}
 
 		$sTables = '<span class="browsebox">'.
@@ -914,10 +945,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	function getOptions() {
 		global $LANG;
-
-		if (count($this->modOptions)) {
-			# return $this->doc->spacer(15).$this->doc->section($LANG->getLL('options').':',implode('<br />', $this->modOptions),0,0);
-			return $this->buttonToggleDisplay('options', $LANG->getLL('options'), '<div>'.implode('<br />', $this->modOptions).'</div>');
+		$modOptions = array_diff_key($this->modOptions, $this->modOptionsDisabled);
+		if (count($modOptions)) {
+			# return $this->doc->spacer(15).$this->doc->section($LANG->getLL('options').':',implode('<br />', $modOptions),0,0);
+			return $this->buttonToggleDisplay('options', $LANG->getLL('options'), '<div>'.implode('<br />', $modOptions).'</div>');
 		}
 	}
 
@@ -931,6 +962,11 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function addOption($type, $paramName, $description, $items=array()) {
+		
+		$this->develAvailableOptions[$paramName] = $description;
+	
+		if (!$this->config_checkValueEnabled('options.'.$paramName, true)) return;
+		
 		$id = 'l'.uniqid('tx_dam_scbase');
 		$idAttr = ' id="'.$id.'"';
 		$descriptionLabel = htmlspecialchars($description);
@@ -955,8 +991,15 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		}
 	}
 
-
-
+	/**
+	 * Remove options
+	 *
+	 * @param	string		$paramName Name of the MOD_MENU/MOD_SETTINGS parameter
+	 * @return	void
+	 */
+	function disableOption ($paramName) {
+		$this->modOptionsDisabled[$paramName]=true;
+	}
 
 
 	/********************************
@@ -982,8 +1025,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		if (in_array('box', $showElements)) {
 			$rows = array();
 			$lastHeader = '';
-			$headBbgColor = ' bgColor="'.$GLOBALS['SOBE']->doc->bgColor6.'"';
-			foreach (array('SELECT','OR','AND','NOT','DESELECT_ID','SEARCH') as $queryType) {
+			$headBbgColor = is_object($GLOBALS['SOBE']->doc) ? $GLOBALS['SOBE']->doc->bgColor6 : $this->doc->bgColor6;
+			$headBbgColor = ' bgColor="'.$headBbgColor.'"';
+			foreach (array('SELECT','OR','AND','NOT','SEARCH') as $queryType) {
 				if(is_array($this->selection->sl->sel[$queryType])) {
 
 					switch($queryType) {
@@ -1006,13 +1050,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 						break;
 
 						case 'NOT':
-						case 'DESELECT_ID':
-							if($lastHeader!='NOT') {
-								$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus_16.gif', 'width="12" height="16"').' class="absmiddle" alt="" />';
-								$rows[] = '<td'.$headBbgColor.' colspan="3" valign="middle"><strong>'.$icon.' &nbsp;'.
-								$LANG->getLL('selMinus').'</strong></td>';
-							}
-							$lastHeader = 'NOT';
+							$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus_16.gif', 'width="12" height="16"').' class="absmiddle" alt="" />';
+							$rows[] = '<td'.$headBbgColor.' colspan="3" valign="middle"><strong>'.$icon.' &nbsp;'.
+							$LANG->getLL('selMinus').'</strong></td>';
 							$rows = $this->getCurrentSelectionBoxItems($this->selection->sl->sel, $queryType, $rows);
 						break;
 
@@ -1049,46 +1089,35 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $LANG, $BACK_PATH, $BE_USER;
 		static $selClasses = array();
 
-		$rowBbgColor = ' bgColor="'.t3lib_div::modifyHTMLColor($GLOBALS['SOBE']->doc->bgColor4,+10,+10,+10).'"';
+		$rowBbgColor = is_object($GLOBALS['SOBE']->doc) ? $GLOBALS['SOBE']->doc->bgColor4 : $this->doc->bgColor4;
+		$rowBbgColor = ' bgColor="'.t3lib_div::modifyHTMLColor($rowBbgColor, +10, +10, +10).'"';
 
-		foreach ($sel[$queryType] as $cat => $items) {
+		foreach ($sel[$queryType] as $selectionRuleName => $items) {
 			if(is_array($items)) {
 				foreach($items as $id => $value) {
 					if($value) {
 						$categoryTitle = '';
 						$deselectValue = '0';
 
-						if (!is_object($selClasses[$cat]) AND $this->selection->sl->selectionClasses[$cat]) {
-							if (is_object($obj = &t3lib_div::getUserObj($this->selection->sl->selectionClasses[$cat], 'user_',TRUE)))	{
-								$selClasses[$cat] = &$obj;
+						if (!is_object($selClasses[$selectionRuleName]) AND $this->selection->sl->selectionClasses[$selectionRuleName]) {
+							if (is_object($obj = &t3lib_div::getUserObj($this->selection->sl->selectionClasses[$selectionRuleName], 'user_',TRUE)))	{
+								$selClasses[$selectionRuleName] = &$obj;
 							}
 						}
-						if (is_object($selClasses[$cat])) {
-							$categoryTitle = $selClasses[$cat]->getTreeTitle();
-							$itemTitle = $selClasses[$cat]->selection_getItemTitle($id, $value);
-							$deselectValue = $selClasses[$cat]->deselectValue;
-
-							// DESELECT_ID
-						} elseif($cat == 'tx_dam') {
-
-// TODO implement this as SelectionClass
-							$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('uid,title,file_type,media_type', 'tx_dam', 'uid='.$id);
-
-							while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-								$titletext = t3lib_BEfunc::getRecordIconAltText($row, 'tx_dam');
-								$icon = t3lib_iconWorks::getIconImage('tx_dam', $row, $BACK_PATH ,'title="'.$titletext.'"');
-								$categoryTitle = $icon;
-								$itemTitle = htmlspecialchars(t3lib_div::fixed_lgd($row['title'],25));
-							}
+						if (is_object($selClasses[$selectionRuleName])) {
+							$categoryTitle = $selClasses[$selectionRuleName]->getTreeTitle();
+							$itemTitle = $selClasses[$selectionRuleName]->selection_getItemTitle($id, $value);
+							$itemIcon = $selClasses[$selectionRuleName]->selection_getItemIcon($id, $value);
+							$deselectValue = $selClasses[$selectionRuleName]->deselectValue;
 
 						}
 
 						if(!((string)$categoryTitle == '')) {
-							$params = array('SLCMD['.$queryType.']['.$cat.']['.(string)$id.']' => $deselectValue);
+							$params = array('SLCMD['.$queryType.']['.$selectionRuleName.']['.(string)$id.']' => $deselectValue);
 							$actionIcon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_remove.gif', 'width="11" height="10"').' title="'.$LANG->getLL('remove',1).'" alt="" />';
 							$actionIcon = '<a href="'.htmlspecialchars($this->linkThisScriptSel($params)).'">'.$actionIcon.'</a>';
 
-							$rows[] = '<td width="1%"'.$rowBbgColor.'>'.$actionIcon.'</td><td nowrap="nowrap"'.$rowBbgColor.'>'.$categoryTitle.'</td><td width="70%"'.$rowBbgColor.'>'.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
+							$rows[] = '<td width="1%"'.$rowBbgColor.'>'.$actionIcon.'</td><td nowrap="nowrap"'.$rowBbgColor.'>'.$categoryTitle.'</td><td width="70%"'.$rowBbgColor.'>'.$itemIcon.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
 						}
 
 					}
@@ -1130,6 +1159,30 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		return $pString ? $parts.'?'.ereg_replace('^&','',$pString) : $parts;
 	}
 
+	/**
+	 * Returns the link-url to the current script.
+	 * Unneded parameters will be removed.
+	 * In $params you can set associative keys corresponding to the GET-vars you wish to add to the URL.
+	 *
+	 * @param	array		$params Array of GET parameters to include
+	 * @return	string
+	 */
+	function linkThisScript($addParams=array())	{
+		$function = array();
+		$function['SET']['function'] = $this->MOD_SETTINGS['function'];
+		$paramsRemove = array(
+					'CB' => '',
+					'SET' => '',
+					'cmd' => '',
+					'SLCMD' => ''
+				);
+		$params = t3lib_div::array_merge_recursive_overrule($paramsRemove, $this->addParams);
+		$params = t3lib_div::array_merge_recursive_overrule($params, $addParams);
+		$params = t3lib_div::array_merge_recursive_overrule($params, $function);
+		$thisLocation = t3lib_div::linkThisScript($params);
+		return $thisLocation;
+	}
+
 
 
 	/********************************
@@ -1137,6 +1190,44 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * GUI files and folder
 	 *
 	 ********************************/
+
+
+	/**
+	 * Output header with path info and folder browser
+	 *
+	 * @param	string		$infoHeader Left header
+	 * @param	boolean		$browsable Define if the info header includes browsable links
+	 * @param	array		$extraIconArr Array of icons with extra HTML code which should be shown additionally at the end of the bar. Could be also a list of icon keys which should not be shown - is the same like array with empty value of a key
+	 * @param	mixed		$allowedIcons Show the icon keys which are allowed to show (array or comma list)
+	 * @return	string		HTML content
+	 */
+	 function getInfoHeaderBar($infoHeader, $browsable=TRUE, $extraIconArr=array(), $allowedIcons=NULL) {
+
+		$cmdIcons = array();
+		$cmdIconRight = array();
+		$extraIconArr = is_array($extraIconArr) ? $extraIconArr : t3lib_div::trimExplode(',', $extraIconArr,TRUE);
+		$allowedIcons = is_null($allowedIcons) ? ('up,refresh,popup,'.implode(',', array_keys($extraIconArr))) : $allowedIcons;
+		$allowedIcons = is_array($allowedIcons) ? $allowedIcons : t3lib_div::trimExplode(',', $allowedIcons,TRUE);
+
+		$allowedIcons = array_diff($allowedIcons, $this->guiCmdIconsDeny);
+
+		if ($browsable AND in_array('popup', $allowedIcons)) {
+				// open in new window button
+			if (!$this->forcedFunction) {
+				$this->markers['NEW'] = $this->btn_openMod_inNewWindow();
+			}
+		}
+			// put func menu to the end
+		if ($extraIconArr['funcMenu']) {
+				$cmdIconRight['funcMenu'] = $extraIconArr['funcMenu'];
+				unset($extraIconArr['funcMenu']);
+		}
+
+		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $extraIconArr);
+		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $cmdIconRight);
+
+		//return $this->getHeaderBar($infoHeader, implode('<span class="spacer05em"><span>', $cmdIcons));
+	}
 
 
 	/**
@@ -1155,30 +1246,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$fileheader = $this->getFolderNavBar($pathInfo, $browsable, $allowedIcons);
 
-		$cmdIcons = array();
-		$cmdIconRight = array();
-		$extraIconArr = is_array($extraIconArr) ? $extraIconArr : t3lib_div::trimExplode(',', $extraIconArr,TRUE);
-		$allowedIcons = is_null($allowedIcons) ? ('up,refresh,popup,'.implode(',', array_keys($extraIconArr))) : $allowedIcons;
-		$allowedIcons = is_array($allowedIcons) ? $allowedIcons : t3lib_div::trimExplode(',', $allowedIcons,TRUE);
-
-		$allowedIcons = array_diff($allowedIcons, $this->guiCmdIconsDeny);
-
-		if ($browsable AND in_array('popup', $allowedIcons)) {
-				// open in new window button
-			if (!$this->forcedFunction) {
-				$cmdIconRight['popup'] = $this->btn_openMod_inNewWindow();
-			}
-		}
-			// put func menu to the end
-		if ($extraIconArr['funcMenu']) {
-				$cmdIconRight['funcMenu'] = $extraIconArr['funcMenu'];
-				unset($extraIconArr['funcMenu']);
-		}
-
-		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $extraIconArr);
-		$cmdIcons = t3lib_div::array_merge_recursive_overrule($cmdIcons, $cmdIconRight);
-
-		return $this->getHeaderBar($fileheader, implode('<span class="spacer2em"><span>', $cmdIcons));
+		return $this->getInfoHeaderBar($fileheader, $browsable, $extraIconArr, $allowedIcons);
 	}
 
 
@@ -1205,7 +1273,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			if ($browsable AND in_array('refresh', $allowedIcons)) {
 				$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/refresh_n.gif', 'width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.reload',1).'" class="absmiddle" alt="" />';
 				$elements['refresh'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('tx_dam_scbase')))).'">'.$icon.'</a>';
-				$elements['refreshSpacer'] = '<span class="spacer2em"><span>';
+				//$elements['refreshSpacer'] = '<span class="spacer05em"><span>';
 			}
 
 				// folder up button
@@ -1219,17 +1287,12 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 			$elements['path'] = tx_dam_guiFunc::getPathBreadcrumbMenu($pathInfo, $browsable, $maxLength=35);
 
-			$out = '
-
-		<!--
-			Page header for file list
-		-->
-				<table border="0" cellpadding="0" cellspacing="0" id="typo3-pathBreadcrumbBar">
-					<tr><td>'.implode('</td><td>', $elements).'</td></tr>
-				</table>';
-
+			$this->markers['REFRESH'] .= $elements['refresh'];
+			$this->markers['LEVEL_UP'] .= $elements['up'];
+			$this->markers['FOLDER_INFO'] .= $elements['path']; 
+			$this->markers['PAGE_ICON'] .= $elements['icon']; 
 		}
-		return $out;
+		return '';
 	}
 
 
@@ -1257,6 +1320,119 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 
 
+	/***************************
+	 *
+	 * Localization stuff
+	 *
+	 ***************************/
+
+	/**
+	 * Make selector box for creating new translation for a record or switching to edit the record in an existing language.
+	 * Displays only languages which are available for the current page.
+	 *
+	 * @param	array		$langRowsLanguage records including faked record for default language
+	 * @param	integer		$currentLanguage uid of the current language
+	 * @param	boolean		$formFields If true, form-fields will be wrapped around
+	 * @return	string		<select> HTML element (if there were items for the box anyways...)
+	 */
+	function languageSwitch($langRows, $currentLanguage, $formFields = true) {
+		$content = '';
+
+			// page available in other languages than default language?
+		if (is_array($langRows) && count($langRows)) {
+
+			$langSelItems=array();
+			foreach ($langRows as $lang) {
+				$langSelItems[$lang['uid']]=$lang['title'];
+			}
+
+				// If any languages are left, make selector:
+			if (count($langSelItems)>1)		{
+				$content .= $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_general.xml:LGL.language',1).' ';
+				$content .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_langSelector]', $currentLanguage, $langSelItems);
+				if ($currentLanguage>0) {
+					$content .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_langOverlay]', $this->MOD_SETTINGS['tx_dam_list_langOverlay'], $this->MOD_MENU['tx_dam_list_langOverlay']);
+				}
+				if ($formFields) {
+					$content = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$content.'</form>';
+				}
+			}
+		}
+		return $content;
+	}
+
+
+	/**
+	 * Returns sys_language records.
+	 *
+	 * @param	integer		$id Page id: If zero, the query will select all sys_language records from root level which are NOT hidden. If set to another value, the query will select all sys_language records that has a pages_language_overlay record on that page (and is not hidden, unless you are admin user)
+	 * @param	string		$mode TYPO3_MODE to be used: 'FE', 'BE'. Constant TYPO3_MODE is default.
+	 * @return	array		Language records including faked record for default language
+	 */
+	function getLanguages($id, $mode=TYPO3_MODE)	{
+		global $LANG;
+		
+		static $cache = array();
+		
+		$mode = $mode ? $mode : 'NONE';
+		
+		if (is_array($cache[$mode])) {
+			return $cache[$mode];
+		}
+		
+		$modSharedTSconfig = t3lib_BEfunc::getModTSconfig($id, 'mod.SHARED');
+
+		$languages = array(
+			0 => array(
+				'uid' => 0,
+				'pid' => 0,
+				'hidden' => 0,
+				'title' => strlen($modSharedTSconfig['properties']['defaultLanguageLabel']) ? $modSharedTSconfig['properties']['defaultLanguageLabel'].' ('.$GLOBALS['LANG']->sl('LLL:EXT:lang/locallang_mod_web_list.xml:defaultLanguage').')' : $GLOBALS['LANG']->sl('LLL:EXT:lang/locallang_mod_web_list.xml:defaultLanguage'),
+				'flag' => $modSharedTSconfig['properties']['defaultLanguageFlag'],
+			)
+		);
+
+		$exQ = ' AND sys_language.hidden=0';
+		if ($mode === 'BE' AND $GLOBALS['BE_USER']->isAdmin()) {
+			$exQ = '';
+		}
+		
+		if ($id)	{
+			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+							'sys_language.*',
+							'pages_language_overlay,sys_language',
+							'pages_language_overlay.sys_language_uid=sys_language.uid AND pages_language_overlay.pid='.intval($id).$exQ,
+							'pages_language_overlay.sys_language_uid,sys_language.uid,sys_language.pid,sys_language.tstamp,sys_language.hidden,sys_language.title,sys_language.static_lang_isocode,sys_language.flag',
+							'sys_language.title'
+						);
+		} else {
+			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+							'sys_language.*',
+							'sys_language',
+							'sys_language.hidden=0',
+							'',
+							'sys_language.title'
+						);
+		}
+		if ($rows) {
+			if ($mode === 'BE') {
+				foreach ($rows as $row) {
+					if ($GLOBALS['BE_USER']->checkLanguageAccess($row['uid']))	{
+						$languages[$row['uid']] = $row;
+					}
+				}
+			} else {
+				foreach ($rows as $row) {
+					$languages[$row['uid']] = $row;
+				}
+			}
+		}
+		
+		$cache[$mode] = $languages;
+		
+		return $languages;
+	}
+
 
 
 	/********************************
@@ -1265,6 +1441,40 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 *
 	 ********************************/
 
+
+	/**
+	 * Check a config value if its enabled
+	 * 
+	 * The typical module path will be used to search for a value
+	 * 
+	 * mod.txdamM1_file
+	 * mod.txdamM1_file.menu.function.tx_dam_file_upload
+	 * 
+	 * Anything except '' and 0 is true
+	 * If the the option is not set the default value will be returned
+	 *
+	 * @param	string		$configPath Pointer to an "object" in the TypoScript array, fx. 'my.option'
+	 * @param	mixed 		$default Default value when option is not set
+	 * @return boolean
+	 */
+	function config_checkValueEnabled($configPath, $default=false) {
+		$enabled='__magic__';
+
+		if ($this->extClassConf['name']) {
+			$path = 'mod.'.$this->MCONF['name'].'.modfunc.'.$this->extClassConf['name'].'.'.$configPath;
+			$enabled = tx_dam::config_checkValueEnabled($path, '__magic__');
+		}
+		if ($enabled==='__magic__') {
+			$path = 'mod.'.$this->MCONF['name'].'.'.$configPath;
+			$enabled = tx_dam::config_checkValueEnabled($path, '__magic__');
+		}
+		if ($enabled==='__magic__') {
+			$path = 'mod.txdamM1_SHARED.'.$configPath;
+			return tx_dam::config_checkValueEnabled($path, $default);
+		}
+	
+		return $enabled;
+	}
 
 
 	/**
@@ -1283,8 +1493,14 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->addDocJavaScript();
 		$this->addDocStyles();
 
+		$collapsed = $this->config_checkValueEnabled('optionsCollapse', true);
+
+		if (!$collapsed) {
+			$displayOpen = true;
+		}
+
 		$content = '';
-		$content.= '<div style="display:block; margin: 1em 0 1em 0;">
+		$content.= '<div class="buttonToggleDisplayWrap">
 						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;" style="white-space:nowrap;">
 						<img id="'.$id.'_toggle" '.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_right.gif', 'width="11" height="10"').' alt="" />
 						'.$title.'</a></div>';
@@ -1305,9 +1521,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	string		$hoverText The hover text. Expected to be already htmlspecialchars().
 	 * @param	string		$href The url
 	 * @param	string		$aTagAttribute Additional A tag attribute (eg onclick="").
+	 * @param	string		$spanTagAttribute Additional span tag attribute (eg style="").
 	 * @return	string		Button as HTML
 	 */
-	function button ($iconImgTag, $label, $hoverText, $href, $aTagAttribute='') {
+	function button ($iconImgTag, $label, $hoverText, $href, $aTagAttribute='', $spanTagAttribute='') {
 		$this->addDocStyles();
 
 		$aTagAttribute = $aTagAttribute ? ' '.$aTagAttribute : '';
@@ -1316,7 +1533,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$iconImgTag = str_ireplace('<img ', '<img title="'.$hoverText.'" ', $iconImgTag);
 		}
 		$hoverText = $hoverText ? ' title="'.$hoverText.'" ' : '';
-		return '<span class="button"'.$hoverText.'>'.$aTag.$iconImgTag.$label.'</a></span>';
+		return '<span class="button"'.$hoverText.$spanTagAttribute.'>'.$aTag.$iconImgTag.$label.'</a></span>';
 	}
 
 
@@ -1357,7 +1574,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$params['returnUrl'] = PATH_txdam_rel.'close.html';
 		$onClick = 'vHWin=window.open(\''.t3lib_div::linkThisUrl($BACK_PATH.'alt_doc.php', $params).'\',\''.md5(t3lib_div::getIndpEnv('TYPO3_REQUEST_SCRIPT')).'\',\''.($BE_USER->uc['edit_wideDocument']?'width=670,height=550':'width=600,height=550').',status=0,menubar=0,scrollbars=1,resizable=1\');vHWin.focus();return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/open_in_new_window.gif', 'width="19" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.openInNewWindow',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+					'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/edit_popup.gif', 'width="16" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.openInNewWindow',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
 					'</a>';
 
 		return $content;
@@ -1374,7 +1591,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function btn_removeRecFromSel($table, $uid, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
 
-		$params = array('SLCMD[DESELECT_ID]['.$table.']['.$uid.']' => '1');
+		$params = array('SLCMD[NOT][txdamRecords]['.$uid.']' => '1');
 		$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('deselect').'" class="absmiddle" '.$addAttrib.' alt="" />';
 		$content = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript($params)).'">'.$icon.'</a>';
 
@@ -1388,6 +1605,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	integer		$uid The uid
 	 * @param	string		$addAttrib Attribute to be added to the icon
 	 * @return	string		Button HTML code
+	 * @todo still in use?
 	 */
 	function icon_editRec($table, $uid, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
@@ -1411,6 +1629,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	integer		$uid The uid
 	 * @param	string		$addAttrib Attribute to be added to the icon
 	 * @return	string		Button HTML code
+	 * @todo still in use?
 	 */
 	function icon_infoRec($table, $uid, $addAttrib='')	{
 		global $LANG, $BACK_PATH;
@@ -1420,6 +1639,46 @@ class tx_dam_SCbase extends t3lib_SCbase {
 					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
 					'</a>';
 
+		return $content;
+	}
+
+	/**
+	 * Button: file info
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @param	string		$addAttrib Attribute to be added to the icon
+	 * @return	string		Button HTML code
+	 * @todo still in use?
+	 */
+	function icon_infoFile($fileInfo, $addAttrib='')	{
+		global $LANG, $BACK_PATH;
+
+		$filepath = tx_dam::file_absolutePath($fileInfo);
+		$onClick = 'top.launchView(\''.$filepath.'\',\'\',\''.$BACK_PATH.'\');return false;';
+		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
+					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+					'</a>';
+
+		return $content;
+	}
+
+	/**
+	 * Button: file info popup
+	 *
+	 * @param	mixed		$fileInfo Is a file path or an array containing a file info from tx_dam::file_compileInfo().
+	 * @return	string		Button HTML code
+	 * @todo still in use?
+	 */
+	function btn_infoFile($fileInfo)	{
+		global $LANG, $BACK_PATH;
+
+		$filepath = tx_dam::file_absolutePath($fileInfo);
+		$onClick = 'top.launchView(\''.$filepath.'\',\'\',\''.$BACK_PATH.'\');return false;';
+		$aTagAttribute = ' onclick="'.htmlspecialchars($onClick).'"';
+		$label = $LANG->sL('LLL:EXT:lang/locallang_core.xml:cm.info',1);
+		$iconImgTag = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' alt="" />';
+		$hoverText = $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1);
+		$content = tx_dam_SCbase::button ($iconImgTag, $label, $hoverText, $url='#', $aTagAttribute);
 		return $content;
 	}
 
@@ -1463,8 +1722,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function wrapLink_edit($str, $refTable, $id)    {
 		global $BACK_PATH, $BE_USER;
 
-		if($refTable == 'pages') {
-			$onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
+		if($refTable === 'pages') {
+			//$onClick = "top.fsMod.recentIds['web']=".$id.";top.goToModule('web_layout',1);";
+			$params = '&edit['.$refTable.']['.$id.']=edit';
+			$onClick = t3lib_BEfunc::editOnClick($params, $BACK_PATH);
 		} else {
 			$params = '&edit['.$refTable.']['.$id.']=edit';
 			$onClick = t3lib_BEfunc::editOnClick($params, $BACK_PATH);
@@ -1481,9 +1742,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	string		The string to be wrapped
 	 * @return	string		Rendered link
 	 */
-	function wrapLink ($href, $content) {
+	function wrapLink ($href, $content, $attributes='') {
 		if ($href) {
-			$content = '<a href="'.htmlspecialchars($href).'">'.$content.'</a>';
+			$content = '<a href="'.htmlspecialchars($href).'"'.$attributes.'>'.$content.'</a>';
 		}
 		return $content;
 	}
@@ -1500,15 +1761,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function getRecordInfoEditLink($refTable, $row, $showRootline=FALSE) {
 		global $BACK_PATH, $LANG, $TCA;
 
-		$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
-
-			// Prepend table description for non-pages tables
-		if(!($refTable=='pages')) {
-			$iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
-		}
-
 			// Create record title or rootline for pages if option is selected
-		if($refTable=='pages' AND $showRootline) {
+		if($refTable === 'pages' AND $showRootline) {
 			$elementTitle = t3lib_BEfunc::getRecordPath($row['uid'], '1=1', 0);
 			$elementTitle = t3lib_div::fixed_lgd_cs($elementTitle, -($BE_USER->uc['titleLen']));
 		} else {
@@ -1516,7 +1770,19 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		}
 
 			// Create icon for record
-		$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');
+		if ($refTable === 'tx_dam') {
+			$elementIcon = tx_dam_guiFunc::icon_getFileTypeImgTag($row, 'class="c-recicon" align="top"');
+			
+		} else {
+
+			$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
+
+				// Prepend table description for non-pages tables
+			if(!($refTable === 'pages')) {
+				$iconAltText = htmlspecialchars($LANG->sl($TCA[$refTable]['ctrl']['title']).': ').$iconAltText;
+			}
+				$elementIcon = t3lib_iconworks::getIconImage($refTable, $row, $BACK_PATH, 'class="c-recicon" align="top" title="'.$iconAltText.'"');
+			}
 
 			// Return item with edit link
 		return tx_dam_SCbase::wrapLink_edit($elementIcon. $elementTitle, $refTable, $row['uid']);
@@ -1543,8 +1809,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function getFormTag($name='editform') {
 		global $TYPO3_CONF_VARS;
 
-		$formAction =t3lib_div::linkThisScript($this->addParams);
-		return '<form action="'.htmlspecialchars($formAction).'" method="post" name="'.$name.'" id="'.$name.'" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+		$formAction = t3lib_div::linkThisScript($this->addParams);
+		return '<form action="'.htmlspecialchars($formAction).'" method="post" name="'.$name.'" id="'.$name.'" autocomplete="off" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 	}
 
 
@@ -1567,9 +1833,10 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	string		HTML code for tab menu
 	 */
 	function getTabMenu($mainParams, $elementName, $currentValue, $menuItems, $script='', $addparams='')	{
-		$content = '';
-
-		if (is_array($menuItems))	{
+		// read page TSconfig
+		$useTabs = tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.useTabs');
+		
+		if ($useTabs && is_array($menuItems))	{
 			if (!is_array($mainParams)) {
 				$mainParams = array('id' => $mainParams);
 			}
@@ -1584,10 +1851,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				// original: $menuDef[$value]['url'] = htmlspecialchars($script.'?'.$mainParams.$addparams.'&'.$elementName.'='.$value);
 				$menuDef[$value]['url'] = $script.'?'.$mainParams.$addparams.'&'.$elementName.'='.$value;
 			}
-			$content = $this->doc->getTabMenuRaw($menuDef);
-
+			$this->content .= $this->doc->getTabMenuRaw($menuDef);
+			return '';
 		}
-		return $content;
+		else {
+			return t3lib_BEfunc::getFuncMenu($this->id,$elementName,$currentValue,$menuItems);
+		}
+
 	}
 
 
@@ -1595,6 +1865,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 
 }
+
 
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_scbase.php'])    {

@@ -33,23 +33,26 @@
  *
  *
  *
- *   75: class tx_dam_selectionQuery
- *  107:     function initPointer($resultPointer, $resultsPerPage)
- *  124:     function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)
- *  137:     function initQueryGen()
+ *   78: class tx_dam_selectionQuery
+ *  113:     function initPointer($resultPointer, $resultsPerPage, $maxPages=100)
+ *  132:     function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)
+ *  145:     function initQueryGen()
  *
  *              SECTION: General selection handling
- *  160:     function addSelectionToQuery ()
- *  174:     function addLimitToQuery ($limit='', $begin='')
- *  189:     function prepareSelectionQuery($count=false)
- *  200:     function getSelectionQueryParts($count=false)
- *  214:     function execSelectionQuery($count=false, $select='')
+ *  166:     function processSubmittedSelection()
+ *  178:     function addSelectionToQuery ()
+ *  192:     function addLimitToQuery ($limit='', $begin='')
+ *  207:     function prepareSelectionQuery($count=false)
+ *  218:     function getSelectionQueryParts($count=false)
+ *  232:     function execSelectionQuery($count=false, $select='')
+ *  251:     function execQuery($count=false, $select='')
  *
  *              SECTION: Special selection handling
- *  267:     function addFilemountsToQuerygen()
- *  287:     function setSelectionLanguage($sysLanguage=0)
+ *  306:     function addFilemountsToQuerygen()
+ *  332:     function addDefaultFilter()
+ *  343:     function setSelectionLanguage($sysLanguage=0)
  *
- * TOTAL FUNCTIONS: 10
+ * TOTAL FUNCTIONS: 13
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -77,16 +80,19 @@ class tx_dam_selectionQuery {
 
 	/**
 	 * Selection object
+	 * @var object
 	 */
 	var $sl;
 
 	/**
 	 * Query generator object
+	 * @var object
 	 */
 	var $qg;
 
 	/**
 	 * Pointer object
+	 * @var integer
 	 */
 	var $pointer;
 
@@ -94,23 +100,33 @@ class tx_dam_selectionQuery {
 
 	/**
 	 * Current SQL result
+	 * @var mixed
 	 */
 	var $res = false;
 
 
 
 	/**
+	 * If set the user has access check is extended to other selection trees, not only for file mounts
+	 * @var boolean
+	 */
+	var $additionalAccessLimit = false;
+	
+	
+
+	/**
 	 * Initializes the pointer object
 	 *
 	 * @param 	integer 	$resultPointer The current pointer value - may come from GET var
 	 * @param 	integer 	$resultsPerPage Defines how many items should be displayed per page
+	 * @param	integer		$maxPages Max allowed pages.
 	 * @return void
 	 */
-	function initPointer($resultPointer, $resultsPerPage) {
+	function initPointer($resultPointer, $resultsPerPage, $maxPages=100) {
 		global $TYPO3_CONF_VARS;
 
 		$this->pointer = t3lib_div::makeInstance('tx_dam_listPointer');
-		$this->pointer->init(intval($resultPointer), $resultsPerPage);
+		$this->pointer->init(intval($resultPointer), $resultsPerPage, 0, $maxPages);
 
 		return $this->pointer->getPagePointer();
 	}
@@ -126,7 +142,9 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function initSelection(&$SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS)	{
-		$this->SOBE = $SOBE;
+		global $TYPO3_CONF_VARS;
+		
+		$this->SOBE = & $SOBE;
 
 		$this->sl = t3lib_div::makeInstance('tx_dam_selection');
 		$this->sl->init($this, $SOBE, $selectionClasses, $paramPrefix, $store_MOD_SETTINGS);
@@ -139,6 +157,8 @@ class tx_dam_selectionQuery {
 	 * @return	void
 	 */
 	function initQueryGen()	{
+		global $TYPO3_CONF_VARS;
+		
 		$this->qg = t3lib_div::makeInstance('tx_dam_querygen');
 	}
 
@@ -154,7 +174,17 @@ class tx_dam_selectionQuery {
 	 *
 	 ********************************/
 
-
+	/**
+	 * Get the users last stored selection or processes an undo command
+	 *
+	 * @return	void
+	 */
+	function processSubmittedSelection() {
+		$this->sl->initSelection_getStored_mergeSubmitted();
+		if ($this->sl->hasChanged) {
+			$this->pointer->setPagePointer(0);
+		}
+	}
 
 	/**
 	 * Adds the current selection to the query
@@ -164,6 +194,10 @@ class tx_dam_selectionQuery {
 	function addSelectionToQuery () {
 		if($this->sl->hasSelection()) {
 			$this->qg->mergeWhere($this->sl->getSelectionWhereClauseArray());
+	
+			if ($this->additionalAccessLimit) {
+				$this->qg->mergeWhere($this->sl->getRestrictAccessWhereClauseArray());
+			}
 		}
 	}
 
@@ -223,21 +257,42 @@ class tx_dam_selectionQuery {
 			return $this->res;
 		}
 
+		return $this->execQuery($count, $select);
+	}
+
+
+	/**
+	 * Executes the query from the db querygen array.
+	 *
+	 * @param	boolean		$count If set count query will be generated
+	 * @param	string		$select Overrule SELECT query part
+	 * @return	mixed		Query result pointer
+	 */
+	function execQuery($count=false, $select='') {
+
 		$this->prepareSelectionQuery($count);
 		$queryArr = $this->qg->getQueryParts();
 		if ($select) {
 			$queryArr['SELECT'] = $select;
 		}
+		$this->error = '';
 		$this->res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
+		$this->error = $GLOBALS['TYPO3_DB']->sql_error();
+
 		if($count) {
-			list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
-			$this->pointer->setTotalCount($countTotal);
+			if ($this->res) {
+				list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
+				$this->pointer->setTotalCount($countTotal);
+			} else {
+				$this->pointer->setTotalCount(0);
+			}
 		}
 
 
 			// collect debug information
-		if (tx_dam::config_getValue('setup.debug')) {
-				if (!$count OR $countTotal==0) {
+		if (tx_dam::config_getValue('setup.devel')) {
+				if ($this->error OR !$count OR $countTotal==0) {
+					if ($this->error) $this->SOBE->debugContent['queryArr'] = '<h4>ERROR</h4>'.$this->error;
 					$this->SOBE->debugContent['queryArr'] = '<h4>$queryArr</h4>'.t3lib_div::view_array($queryArr);
 					$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 								$queryArr['SELECT'],
@@ -270,16 +325,32 @@ class tx_dam_selectionQuery {
 	 */
 	function addFilemountsToQuerygen() {
 			// init filemounts
-		if(!$GLOBALS['BE_USER']->user['admin'] AND count($GLOBALS['FILEMOUNTS'])){
-			$whereArr = array();
-			foreach($GLOBALS['FILEMOUNTS'] as $mount){
+		if(is_object($GLOBALS['BE_USER']) AND !$GLOBALS['BE_USER']->isAdmin()) {
+			if (count($GLOBALS['FILEMOUNTS'])){
+				$whereArr = array();
+				foreach($GLOBALS['FILEMOUNTS'] as $mount){
 					$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($mount['path']), 'tx_dam');
 					$whereArr[] = 'tx_dam.file_path LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
+				}
+				$where = implode(' OR ', $whereArr);
+				$where = $where ? '('.$where.')' : '';
+				$this->qg->addWhere($where, 'AND', 'tx_dam.FILEMOUNTS');
+
+			} else {
+					// no filemounts - no access at all
+				$this->qg->addWhere('1=0', 'AND', 'tx_dam.FILEMOUNTS');
 			}
-			$where = implode(' OR ', $whereArr);
-			$where = $where ? '('.$where.')' : '';
-			$this->qg->addWhere($where, 'AND', 'tx_dam.FILEMOUNTS');
 		}
+	}
+
+
+	/**
+	 * Set some additional 'enable fields' which are common in use but not always
+	 *
+	 * @return	void
+	 */
+	function addDefaultFilter() {
+		$this->qg->addWhere('tx_dam.file_status!='.TXDAM_status_file_missing, 'AND', 'file_status');
 	}
 
 

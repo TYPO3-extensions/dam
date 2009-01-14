@@ -44,6 +44,7 @@
 
 if(!defined('TXDAM_mtype_undefined')) {
 
+
 	/**
 	 *  Return values for some index related functions
 	 */
@@ -227,6 +228,42 @@ $GLOBALS['T3_VAR']['ext']['dam']['code2sorting'] = array(
 		'0'=> 5000, //'undefined',
 	);
 
+
+/**
+ * @access private
+ */
+if (!is_array($GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['BE'])) {
+$GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['BE'] = array(
+		'default'=> '56x56',
+		'icon'=> '18x16',
+		'xx-small'=> '56x56',
+		'x-small'=> '64x64',
+		'small'=> '96x96',
+		'medium'=> '192x192',
+		'large'=> '256x256',
+		'x-large'=> '384x384',
+		'xx-large'=> '512x512',
+	);
+}
+
+/**
+ * @access private
+ */
+if (!is_array($GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['FE'])) {
+$GLOBALS['T3_VAR']['ext']['dam']['thumbsizes']['FE'] = array(
+		'default'=> '96x96',
+		'icon'=> '18x16',
+		'xx-small'=> '64x64',
+		'x-small'=> '96x96',
+		'small'=> '128x128',
+		'medium'=> '192x192',
+		'large'=> '384x384',
+		'x-large'=> '512x512',
+		'xx-large'=> '800x600',
+	);
+}
+
+
 /**
  * @access private
  */
@@ -264,6 +301,10 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'ra'	=> 'audio/x-pn-realaudio',
 		'rm'	=> 'audio/x-pn-realaudio',
 		'wav'	=> 'audio/x-wav',
+		'm4a'	=> 'audio/x-m4a',
+		'm4b'	=> 'audio/mp4a-latm',
+		'm4p'	=> 'audio/mp4a-latm',
+		'm4r'	=> 'audio/aac',		
 
 		'z' 	=> 'encoding/x-compress',
 		'gz'	=> 'encoding/x-gzip',
@@ -295,6 +336,8 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'xbm'	=> 'image/x-xbitmap',
 		'xpm'	=> 'image/x-xpixmap',
 		'xwd'	=> 'image/x-xwindowdump',
+		'svg'	=> 'image/svg+xml',
+		'xcf'	=> 'image/xcf',
 
 		'iges'	=> 'model/iges',
 		'igs'	=> 'model/iges',
@@ -365,6 +408,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'anim5'	=> 'video/x-anim',
 		'flc'	=> 'video/x-flc',
 		'fli'	=> 'video/x-fli',
+		'flv'	=> 'video/x-flv',
 		'mng'	=> 'video/x-mng',
 		'asx'	=> 'video/x-ms-asf',
 		'asf'	=> 'video/x-ms-asf',
@@ -378,6 +422,9 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'movi'	=> 'video/x-sgi-movie',
 		'movie'	=> 'video/x-sgi-movie',
 		'vcr'	=> 'video/x-sunvideo',
+		'mp4'	=> 'video/mp4v-es',
+		'm4v'	=> 'video/x-m4v',
+		'mp4v'	=> 'video/mp4v-es',
 
 		'ez'	=> 'application/andrew-inset',
 		'cu'	=> 'application/cu-seeme',
@@ -532,6 +579,35 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mime'] = array(
 		'ms'	=> 'application/x-troff-ms',
 		'zip'	=> 'application/x-zip-compressed',
 		'xht'	=> 'application/xhtml+xml',
+		'psd'	=> 'application/photoshop',
+		'odt'	=> 'application/vnd.oasis.opendocument.text',
+		'otf'	=> 'application/vnd.oasis.opendocument.formula-template',
+		'ott'	=> 'application/vnd.oasis.opendocument.text-template',
+		'oth'	=> 'application/vnd.oasis.opendocument.text-web',
+		'odm'	=> 'application/vnd.oasis.opendocument.text-master',
+		'odg'	=> 'application/vnd.oasis.opendocument.graphics',
+		'otg'	=> 'application/vnd.oasis.opendocument.graphics-template',
+		'odp'	=> 'application/vnd.oasis.opendocument.presentation',
+		'otp'	=> 'application/vnd.oasis.opendocument.presentation-template',
+		'ods'	=> 'application/vnd.oasis.opendocument.spreadsheet',
+		'ots'	=> 'application/vnd.oasis.opendocument.spreadsheet-template',
+		'odc'	=> 'application/vnd.oasis.opendocument.chart',
+		'odf'	=> 'application/vnd.oasis.opendocument.formula',
+		'odb'	=> 'application/vnd.oasis.opendocument.database',
+		'odi'	=> 'application/vnd.oasis.opendocument.image',
+		'oxt'	=> 'application/vnd.openofficeorg.extension',
+		'docm'	=> 'application/vnd.ms-word.document.macroEnabled.12',
+		'docx'	=> 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		'dotm'	=> 'application/vnd.ms-word.template.macroEnabled.12',
+		'dotx'	=> 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
+		'ppsm'	=> 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
+		'ppsx'	=> 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+		'pptm'	=> 'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+		'pptx'	=> 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+		'xlsb'	=> 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
+		'xlsm'	=> 'application/vnd.ms-excel.sheet.macroEnabled.12',
+		'xlsx'	=> 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		'xps'	=> 'application/vnd.ms-xpsdocument',
 	);
 
 /**
@@ -543,15 +619,20 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mediaCode'] = array(
 		'ogg'=> 'audio',
 
 		'doc'=> 'text',
+		'docx'=> 'text',
+		'docm'=> 'text',
 		'dot'=> 'text',
 		'pdf'=> 'text',
 		'ps'=> 'text',
 		'wp5'=> 'text',
 		'rtf'=> 'text',
 		'dvi'=> 'text',
+		'odt'=> 'text',
 
 		'ai'=> 'image',
 		'eps'=> 'image',
+		'psd'=> 'image',
+		'svg'=> 'image',
 
 		'csv'=> 'dataset',
 		'xls'=> 'dataset',

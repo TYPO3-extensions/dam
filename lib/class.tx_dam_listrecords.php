@@ -36,26 +36,32 @@
  *
  *
  *
- *   74: class tx_dam_listrecords extends tx_dam_listbase
+ *   80: class tx_dam_listrecords extends tx_dam_listbase
  *
  *              SECTION: Setup
- *  124:     function tx_dam_listrecords()
- *  134:     function __construct()
- *  163:     function init($table, $dbObj)
- *  185:     function excludeControls($elements)
+ *  130:     function tx_dam_listrecords()
+ *  140:     function __construct()
+ *  166:     function init($table)
+ *  181:     function setDataObject($dbObj)
+ *
+ *              SECTION: Process params and commands
+ *  199:     function processParams()
+ *  214:     function getMultiActionCommand()
  *
  *              SECTION: Rendering
- *  208:     function renderList()
+ *  246:     function renderList()
  *
  *              SECTION: Column rendering
- *  348:     function getItemAction ($item)
- *  382:     function getItemIcon (&$item)
- *  409:     function isEditableColumn($field)
- *  434:     function getHeaderColumnControl($field)
- *  460:     function getHeaderControl()
- *  491:     function getItemControl($item)
+ *  393:     function getItemMultiAction ($item)
+ *  410:     function getItemAction ($item)
+ *  441:     function getItemIcon (&$item)
+ *  470:     function isEditableColumn($field)
+ *  495:     function getHeaderColumnControl($field)
+ *  522:     function getHeaderControl()
+ *  554:     function getItemControl($item)
+ *  613:     function getMultiActions()
  *
- * TOTAL FUNCTIONS: 11
+ * TOTAL FUNCTIONS: 15
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -74,35 +80,15 @@ require_once (PATH_txdam.'lib/class.tx_dam_actioncall.php');
 class tx_dam_listrecords extends tx_dam_listbase {
 
 
-
-
-
-	// Used in this class:
-	var $no_noWrap = 0;
-	var $oddColumnsTDAttr = ''; // If set this is <td>-params for odd columns in addElement. Used with db_layout / pages section
-
-	// Not used in this class - but maybe extension classes...
-	var $fixedL = 50; // Max length of strings
-	var $headLineCol = '#dddddd'; // Head line color
-
-
-	// internal
-	var $table = ''; // set to the tablename if single-table mode
+	var $table = ''; // set to the tablename
+	
 	var $returnUrl = '';
-
-	var $res;
+	
 	var $allItemCount = 0; // Counting the elements no matter what...
-
-	var $addElement_tdParams = array(); // Keys are fieldnames and values are td-parameters to add in addElement();
-
-
+	
 	var $calcPerms = 0;
+	
 	var $currentTable = array();
-
-
-	var $noControlPanels = 0;
-
-
 
 
 
@@ -136,20 +122,23 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 		parent::__construct();
 
-		$this->showControls = array('viewPage', 'editPage', 'newPage', 'unHidePage', 'movePage', 'pasteIntoPage', 'clearPageCache', 'refresh', 'permsRec', 'revertRec', 'editRec', 'infoRec', 'newRec', 'sortRec', 'unHideRec', 'delRec');
-		$this->showControls = array('cvsExp', 'refresh', 'editRec', 'sortRec', 'unHideRec', 'delRec', 'revertRec');
-
 		$this->elementAttr['table'] = ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist"';
 
+		$this->showMultiActions = false;
 		$this->showAction = true;
+		$this->showIcon = true;
 
 		$this->calcPerms = $GLOBALS['SOBE']->calcPerms;
-
 	}
 
 
 
 
+	/***************************************
+	 *
+	 *	 Set data
+	 *
+	 ***************************************/
 
 
 
@@ -157,37 +146,27 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 * Initialize the object
 	 *
 	 * @param	string		$table: ...
-	 * @param	object		$dbObj Data object (iterator)
 	 * @return	void
 	 */
-	function init($table, $dbObj) {
-		global $TCA, $BE_USER, $BACK_PATH;
-// TODO
+	function init($table) {
 
-		$this->dataObjects['db'] = $dbObj;
 		$this->table = $table;
 		$this->returnUrl = t3lib_div::_GP('returnUrl');
 
+		$this->processParams();
 	}
-
-
-
-
-// TODO	 misc todo
 
 
 	/**
-	 * Defines control elements not to be shown
+	 * Set the data iterator object
 	 *
-	 * @param	mixed		$elements Comma list or array of control elements to be ecluded from display
+	 * @param	object		$dbObj Data object (iterator)
 	 * @return	void
 	 */
-	function excludeControls($elements) {
-		$elements = is_array($elements) ? $elements : t3lib_div::trimExplode(',', $elements, 1);
-		$this->showControls = array_diff($this->showControls, $elements);
+	function setDataObject($dbObj) {
+		$this->dataObjects['db'] = $dbObj;
+
 	}
-
-
 
 
 
@@ -228,7 +207,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 				if ($list->count())	{
 
-					while ($list->valid()) {
+					while ($list->valid() AND $list->currentPointer < $this->pointer->itemsPerPage) {
 
 						$row = $list->current();
 
@@ -248,7 +227,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 					}
 				}
 			}
-			unset($this->dbObj);
+			unset($this->dataObjects);
 
 
 
@@ -267,8 +246,10 @@ class tx_dam_listrecords extends tx_dam_listbase {
 				$item['__table'] = $this->table;
 
 					// 	Columns rendering
-				$itemAction = $this->getItemAction ($item);
-				$itemIcon = $this->getItemIcon ($item);
+				if ($this->showMultiActions)	$itemMultiAction = $this->getItemMultiAction ($item);
+				if ($this->showAction)	$itemAction = $this->getItemAction ($item);
+				if ($this->showIcon)	$itemIcon = $this->getItemIcon ($item);
+
 				#$itemColumns = $this->getItemColumns ($item);
 
 				$itemColumns = array();
@@ -280,25 +261,26 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 						$thumbImg = '';
 						if ($this->showThumbs) {
-							$thumbImg = '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail(tx_dam::path_makeAbsolute($item['file_path']).$item['file_name']).'</div>';
+							$thumbImg = '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail($item).'</div>';
 						}
 
 						$itemColumns[$fCol] = $recTitle.$thumbImg;
 					}
-					elseif ($fCol == 'pid') {
+					elseif ($fCol  === 'pid') {
 						$itemColumns[$fCol] = $item[$fCol];
 					}
-					elseif ($fCol == '_CONTROL_') {
+					elseif ($fCol  === '_CONTROL_') {
 						$itemColumns[$fCol] = $this->getItemControl($item);
 					} else {
-						$itemColumns[$fCol] = t3lib_BEfunc::getProcessedValueExtra($this->table, $fCol, $item[$fCol], 100);
+						$itemColumns[$fCol] = t3lib_BEfunc::getProcessedValueExtra($this->table, $fCol, $item[$fCol], 100, $item['uid']);
+						
+#				$theData[$fCol] = $this->linkUrlMail(htmlspecialchars(t3lib_BEfunc::getProcessedValueExtra($table,$fCol,$row[$fCol],100,$row['uid'])),$row[$fCol]);
 					}
 				}
 
 
 
 
-				# $trStyle = '';
 				$trStyle = ' background-color:'.$this->colorTREven.';';
 				if ($this->showAlternateBgColors) {
 					if ($this->allItemCount % 2) {
@@ -314,7 +296,10 @@ class tx_dam_listrecords extends tx_dam_listbase {
 					$tdStyleAppend = ' border-bottom:1px solid #888;';
 				}
 
+
+
 				$this->addRow(	array(
+						'multiAction' => $itemMultiAction,
 						'action' => $itemAction,
 						'icon' => $itemIcon,
 						'data' => $itemColumns,
@@ -332,6 +317,8 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	}
 
 
+
+
 	/***************************************
 	 *
 	 *	 Column rendering
@@ -339,29 +326,44 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 ***************************************/
 
 
+
+	/**
+	 * Renders the multi-action
+	 *
+	 * @param	array		$item item array
+	 * @return	string
+	 */
+	function getItemMultiAction ($item) {
+
+		$multiActionID = $item['uid'];
+		$multiActionSelected = in_array($multiActionID, $this->recs);
+
+		$multiAction = '<input type="checkbox" name="'.$this->paramName['recs'].'['.$this->table.'][]" value="'.$multiActionID.'"'.($multiActionSelected?' checked="checked"':'').' />';
+
+		return $multiAction;
+	}
+
+
 	/**
 	 * Renders the action
 	 *
 	 * @param	array		$item item array
 	 * @return	string
+	 * @todo abstraction
 	 */
 	function getItemAction ($item) {
 		global $LANG;
 
 		$itemAction = '';
 
-		if ($this->table == 'tx_dam') {
-//			$params = 'SLCMD[DESELECT_ID][tx_dam]['.$item['uid'].']=1';
-//			$icon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('reselect').'" alt="" />';
-//			$itemAction = '<a href="index.php?'.$params.'">'.$icon.'</a>';
+		if ($this->table  === 'tx_dam') {
 
-#TODO
-			if($GLOBALS['SOBE']->selection->sl->sel['DESELECT_ID']['tx_dam'][$item['uid']]) {
-				$params = 'SLCMD[DESELECT_ID][tx_dam]['.$item['uid'].']=0';
+			if($GLOBALS['SOBE']->selection->sl->sel['NOT']['txdamRecords'][$item['uid']]) {
+				$params = 'SLCMD[NOT][txdamRecords]['.$item['uid'].']=0';
 				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_reselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('reselect').'" alt="" />';
 				$itemAction = '<a href="index.php?'.$params.'">'.$actionIcon.'</a>';
 			} else {
-				$params='SLCMD[DESELECT_ID][tx_dam]['.$item['uid'].']=1';
+				$params='SLCMD[NOT][txdamRecords]['.$item['uid'].']=1';
 				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('deselect').'" alt="" />';
 				$itemAction = '<a href="index.php?'.$params.'">'.$actionIcon.'</a>';
 			}
@@ -372,7 +374,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	}
 
 
-
 	/**
 	 * Renders the item icon
 	 *
@@ -380,23 +381,26 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 * @return	string
 	 */
 	function getItemIcon (&$item) {
-		static $titleNotIndexed;
-		static $iconNotIndexed;
+		static $iconNotExists;
 
-		if(!$iconNotIndexed) {
-			$titleNotIndexed = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists').'"';
-			$iconNotIndexed = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotIndexed.' alt="" />';
+		if(!$iconNotExists) {
+			$titleNotExists = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists', true).'"';
+			$iconNotExists = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotExists.' alt="" />';
 		}
 
 		$titletext = t3lib_BEfunc::getRecordIconAltText($item, $this->table);
-		$itemIcon = t3lib_iconWorks::getIconImage($this->table, $item, $GLOBALS['BACK_PATH'] ,'title="'.$titletext.'"');
+		$itemIcon = tx_dam::icon_getFileTypeImgTag($item, 'title="'.$titletext.'"');
+		if ($this->enableContextMenus) $itemIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($itemIcon, $this->table, $item['uid']);
+
 		if (!is_file(tx_dam::file_absolutePath($item))) {
 			$item['file_status'] = TXDAM_status_file_missing;
-			$itemIcon.= $iconNotIndexed;
+			$itemIcon.= $iconNotExists;
 		}
-#		$itemIcon = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($itemIcon, $this->table, $item['uid']);
+
 		return $itemIcon;
 	}
+
+
 
 
 	/***************************************
@@ -410,7 +414,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		global $TCA;
 
 		$editable = false;
-		$permsEdit = $this->calcPerms & ($this->table == 'pages' ? 2 : 16);
+		$permsEdit = $this->calcPerms & ($this->table  === 'pages' ? 2 : 16);
 		if (
 			$permsEdit AND
 			!$TCA[$this->table]['ctrl']['readOnly'] AND
@@ -436,8 +440,8 @@ class tx_dam_listrecords extends tx_dam_listbase {
 		$content = '';
 
 		if ($this->isEditableColumn($field) AND
-			is_array($this->currentTable['idList']) AND
-			in_array('editRec', $this->showControls)
+			is_array($this->currentTable['idList'])  AND
+			$this->showControls
 			) {
 
 			$editIdList = implode(',', $this->currentTable['idList']);
@@ -460,13 +464,13 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	function getHeaderControl() {
 		global $TCA;
 
-		$permsEdit = $this->calcPerms & ($this->table == 'pages' ? 2 : 16);
+		$permsEdit = $this->calcPerms & ($this->table  === 'pages' ? 2 : 16);
 
 		if (
 				$permsEdit AND
 				!$TCA[$this->table]['ctrl']['readOnly'] AND
 				is_array($this->currentTable['idList']) AND
-				in_array('editRec', $this->showControls)
+				$this->showControls
 			) {
 
 			$editIdList = implode(',', $this->currentTable['idList']);
@@ -481,7 +485,6 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	}
 
 
-
 	/**
 	 * Creates the control panel for a single record in the listing.
 	 *
@@ -489,17 +492,18 @@ class tx_dam_listrecords extends tx_dam_listbase {
 	 * @return	string		HTML table with the control panel (unless disabled)
 	 */
 	function getItemControl($item)	{
-		static $actionCall, $localCalcPerms, $permsEdit;
+		global $TYPO3_CONF_VARS;
+		
+		static $actionCall;
 
 		$content = '';
 
 		if($this->showControls) {
 			if(!is_object($actionCall)) {
-				$table = 'tx_dam';
 
-				t3lib_div::loadTCA($table);
+				t3lib_div::loadTCA($this->table);
 
-				if ($table == 'pages') {
+				if ($this->table  === 'pages') {
 						// If the listed table is 'pages' we have to request the permission settings for each page:
 					$localCalcPerms = $GLOBALS['BE_USER']->calcPerms($item);
 					$permsEdit = ($localCalcPerms & 2);
@@ -510,43 +514,63 @@ class tx_dam_listrecords extends tx_dam_listbase {
 					$permsDelete = ($this->calcPerms & 16);
 				}
 
-
 				$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
-				$actionCall->setRequest('control', array('__type' => 'record', '__table' => $table), '', $GLOBALS['MCONF']['name']);
+				$actionCall->setRequest('control', array('__type' => 'record', '__table' => $this->table));
 				$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+				$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+				$actionCall->setEnv('defaultEditScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_edit/index.php');
 				$actionCall->setEnv('calcPerms', $this->calcPerms);
 				$actionCall->setEnv('permsEdit', $permsEdit);
 				$actionCall->setEnv('permsDelete', $permsDelete);
+				$actionCall->setEnv($this->actionsEnv);
 				$actionCall->initActions(true);
 			}
-// TODO set allow deny: $this->showControls
 
-			$actionCall->setRequest('control', $item, '', $GLOBALS['MCONF']['name']);
+			$item['__type'] = 'record';
+			$item['__table'] = $this->table;
+
+			$actionCall->setRequest('control', $item);
 			$actions = $actionCall->renderActionsHorizontal(true);
-
 			$content = implode('&nbsp;', $actions);
 		}
 
 		return $content;
+	}
 
-// TODO how to add spacer with actions?
-		$actions[] = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clear.gif', 'width="12" height="12"').' alt="" />';
 
+	/**
+	 * Returns an array of multi actions to be rendered by renderMultiActionBar()
+	 *
+	 * @return array
+	 * @see tx_dam_actionCall::renderMultiActions()
+	 * @see renderMultiActionBar()
+	 */
+	function getMultiActions() {
+		global $TYPO3_CONF_VARS;
+		
+
+		$permsEdit = ($this->calcPerms & 16);
+		$permsDelete = ($this->calcPerms & 16);
+
+		$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+		$actionCall->setRequest('multi', array('__type' => 'record', '__table' => $this->table));
+		$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+		$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+		$actionCall->setEnv('calcPerms', $this->calcPerms);
+		$actionCall->setEnv('permsEdit', $permsEdit);
+		$actionCall->setEnv('permsDelete', $permsDelete);
+		$actionCall->setEnv($this->actionsEnv);
+		$actionCall->initActions(true);
+
+		$actions = $actionCall->renderMultiActions();
+		return $actions;
 	}
 
 
 
 
-########// TODO######################
 
-
-
-
-	/***************************************
-	 *
-	 *	 Clipboard
-	 *
-	 ***************************************/
+// todo Clipboard
 
 
 

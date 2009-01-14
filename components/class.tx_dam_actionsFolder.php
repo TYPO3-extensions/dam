@@ -33,30 +33,33 @@
  *
  *
  *
- *   75: class tx_dam_action_newFolder extends tx_dam_actionbase
- *   93:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  109:     function getIcon ($addAttribute='')
- *  126:     function getLabel ()
- *  135:     function getDescription ()
- *  146:     function _getCommand()
+ *   78: class tx_dam_action_newFolder extends tx_dam_actionbase
+ *   96:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  112:     function getIcon ($addAttribute='')
+ *  130:     function getLabel ()
+ *  144:     function getDescription ()
+ *  155:     function getWantedDivider ($type)
+ *  170:     function _getCommand()
  *
  *
- *  172: class tx_dam_action_renameFolder extends tx_dam_actionbase
- *  194:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
- *  210:     function isValid ($type, $itemInfo=NULL, $env=NULL)
- *  226:     function getIcon ($addAttribute='')
- *  244:     function getDescription ()
- *  255:     function _getCommand()
+ *  201: class tx_dam_action_renameFolder extends tx_dam_actionbase
+ *  223:     function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL)
+ *  239:     function isValid ($type, $itemInfo=NULL, $env=NULL)
+ *  255:     function getIcon ($addAttribute='')
+ *  273:     function getLabel ()
+ *  283:     function getDescription ()
+ *  294:     function _getCommand()
  *
  *
- *  277: class tx_dam_action_deleteFolder extends tx_dam_action_renameFolder
- *  295:     function getIcon ($addAttribute='')
- *  313:     function getDescription ()
+ *  322: class tx_dam_action_deleteFolder extends tx_dam_action_renameFolder
+ *  340:     function getIcon ($addAttribute='')
+ *  358:     function getLabel ()
+ *  368:     function getDescription ()
  *
  *
- *  319: class tx_dam_actionsFolder
+ *  374: class tx_dam_actionsFolder
  *
- * TOTAL FUNCTIONS: 12
+ * TOTAL FUNCTIONS: 15
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -80,7 +83,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'button');
+	var $typesAvailable = array('icon', 'button', 'globalcontrol', 'context');
 
 	/**
 	 * Returns true if the action is of the wanted type
@@ -91,9 +94,10 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 * @return	boolean
 	 */
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
+		
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid) {
-			$valid = ($this->itemInfo['__type'] == 'dir');
+			$valid = ($this->itemInfo['__type'] === 'dir');
 		}
 		return $valid;
 	}
@@ -113,10 +117,11 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/new_webfolder.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="17" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="17" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
+
 
 	/**
 	 * Returns the short label like: Delete
@@ -124,8 +129,13 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 * @return	string
 	 */
 	function getLabel () {
-		return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:folder');
+		if ($this->type === 'button') {
+			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:folder');
+		} else {
+			return $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:newFolder');
+		}
 	}
+
 
 	/**
 	 * Returns a short description for tooltips for example like: Delete folder recursivley
@@ -138,6 +148,21 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 
 
 	/**
+	 * Tells if a spacer/margin is wanted before/after the action
+	 *
+	 * @param	string		$type Says what type of action is wanted
+	 * @return	string		Example: "divider:spacer". Divider before and spacer after
+	 */
+	function getWantedDivider ($type) {
+		$divider = '';
+		if ($type === 'context') {
+			$divider = 'divider:';
+		}
+		return $divider;
+	}
+
+
+	/**
 	 * Returns a command array for the current type
 	 *
 	 * @return	array		Command array
@@ -145,14 +170,19 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 	 */
 	function _getCommand() {
 
-		$path = $this->itemInfo['dir_path_relative'];
+		$path = $this->itemInfo['dir_path_absolute'];
 
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($path);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
+		$script .= '&folder='.rawurlencode($path);
 
-		$commands['href'] = $script;
+		if ($this->type === 'context') {
+			$commands['url'] = $script;
+		} else {
+			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
+			$commands['href'] = $script;
+		}
 
 		return $commands;
 	}
@@ -177,7 +207,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -193,7 +223,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	 */
 	function isPossiblyValid ($type, $itemInfo=NULL, $env=NULL) {
 		if ($valid = $this->isTypeValid ($type, $itemInfo, $env)) {
-			$valid = ($this->itemInfo['__type'] == 'dir');
+			$valid = ($this->itemInfo['__type'] === 'dir');
 		}
 		return $valid;
 	}
@@ -210,7 +240,7 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	function isValid ($type, $itemInfo=NULL, $env=NULL) {
 		$valid = $this->isTypeValid ($type, $itemInfo, $env);
 		if ($valid)	{
-			$valid = ($this->itemInfo['__type'] == 'dir'  && !t3lib_div::inList('fileadmin,user_upload,_temp_',$this->itemInfo['dir_name']));
+			$valid = ($this->itemInfo['__type'] === 'dir' && !t3lib_div::inList('fileadmin,user_upload,_temp_', $this->itemInfo['dir_name']));
 		}
 		return $valid;
 	}
@@ -230,9 +260,19 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/rename_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="13" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
+	}
+
+
+	/**
+	 * Returns the short label like: Delete
+	 *
+	 * @return	string
+	 */
+	function getLabel () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.rename');
 	}
 
 
@@ -253,13 +293,19 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	 * @access private
 	 */
 	function _getCommand() {
-		$filepath = $this->itemInfo['dir_path_absolute'];
-		$script = $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php?';
-		$script .= '&CMD='.$this->cmd;
-		$script .= '&target='.rawurlencode($filepath);
-		$script .= '&returnUrl='.$this->env['returnUrl'];
+		$path = $this->itemInfo['dir_path_absolute'];
 
-		$commands['href'] = $script;
+		$script = $this->env['defaultCmdScript'];
+		$script .= '?CMD='.$this->cmd;
+		$script .= '&vC='.$GLOBALS['BE_USER']->veriCode();
+		$script .= '&folder='.rawurlencode($path);
+
+		if ($this->type === 'context') {
+			$commands['url'] = $script;
+		} else {
+			$script .= '&returnUrl='.rawurlencode($this->env['returnUrl']);
+			$commands['href'] = $script;
+		}
 
 		return $commands;
 	}
@@ -282,7 +328,7 @@ class tx_dam_action_deleteFolder extends tx_dam_action_renameFolder {
 	 * Defines the types that the object can render
 	 * @var array
 	 */
-	var $typesAvailable = array('icon', 'control');
+	var $typesAvailable = array('icon', 'control', 'context');
 
 
 	/**
@@ -299,9 +345,19 @@ class tx_dam_action_deleteFolder extends tx_dam_action_renameFolder {
 		} else {
 			$iconFile = 'gfx/delete_record.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
+	}
+
+
+	/**
+	 * Returns the short label like: Delete
+	 *
+	 * @return	string
+	 */
+	function getLabel () {
+		return $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:cm.delete');
 	}
 
 

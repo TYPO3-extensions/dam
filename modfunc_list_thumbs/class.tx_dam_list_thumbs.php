@@ -34,17 +34,20 @@
  *
  *
  *
- *   59: class tx_dam_list_thumbs extends t3lib_extobjbase
- *   69:     function modMenu()
- *   85:     function head()
- *  117:     function main()
+ *   60: class tx_dam_list_thumbs extends t3lib_extobjbase
+ *   72:     function modMenu()
+ *   88:     function head()
+ *  126:     function main()
+ *  221:     function getItemControl($item, $table='tx_dam')
  *
- * TOTAL FUNCTIONS: 3
+ * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
 require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
+require_once(PATH_txdam.'lib/class.tx_dam_iterator_db.php');
+require_once(PATH_txdam.'lib/class.tx_dam_iterator_db_lang_ovl.php');
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 
@@ -61,6 +64,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 	var $diaSize = 115;
 	var $diaMargin = 10;
 
+	var $calcPerms = 0;
+
 	/**
 	 * Function menu initialization
 	 *
@@ -74,6 +79,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			'tx_dam_list_thumbs_showTitle' => '',
 			'tx_dam_list_thumbs_showInfo' => '',
 			'tx_dam_list_thumbs_showIcons' => '',
+			'tx_dam_list_thumbs_sortField' => '',
+			'tx_dam_list_thumbs_sortRev' => '',
 		);
 	}
 
@@ -107,6 +114,12 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$this->diaSize = 200;
 		}
 
+		if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showIcons']) {
+			$this->showControls = true;
+			require_once (PATH_txdam.'lib/class.tx_dam_actioncall.php');
+		}
+		$this->calcPerms = $GLOBALS['SOBE']->calcPerms;
+
 	}
 
 	/**
@@ -115,9 +128,74 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()    {
-		global $BE_USER,$LANG,$BACK_PATH;
+		global $BE_USER,$LANG,$BACK_PATH,$TCA;
 
 		$content = '';
+
+
+		$table = 'tx_dam';
+		t3lib_div::loadTCA($table);
+
+
+		//
+		// set language query
+		//
+
+
+		$this->langRows = $this->pObj->getLanguages($this->pObj->defaultPid);
+		$this->langCurrent = intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']);
+		if (!isset($this->langRows[$this->langCurrent])) {
+			$this->langCurrent = $this->pObj->MOD_SETTINGS['tx_dam_list_langSelector'] = key($this->langRows);
+		}
+
+
+		$langQuery = '';
+		$languageField = $TCA[$table]['ctrl']['languageField'];
+		if ($this->langCurrent AND $this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay']==='exclusive') {
+		// if ($this->langCurrent) { This works but create NULL columns for non-translated records so we need to use language overlay anyway
+
+			$lgOvlFields = tx_dam_db::getLanguageOverlayFields ($table, 'tx_dam_lgovl');
+
+			$languageField = $TCA[$table]['ctrl']['languageField'];
+			$transOrigPointerField = $TCA[$table]['ctrl']['transOrigPointerField'];
+
+			$this->pObj->selection->setSelectionLanguage($this->langCurrent);
+			
+			$this->pObj->selection->qg->query['SELECT']['tx_dam as tx_dam_lgovl'] = implode(', ', $lgOvlFields).', tx_dam.uid as _dlg_uid, tx_dam.title as _dlg_title';
+			$this->pObj->selection->qg->query['LEFT_JOIN']['tx_dam as tx_dam_lgovl'] = 'tx_dam.uid=tx_dam_lgovl.'.$transOrigPointerField;
+			
+			if ($this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay']==='exclusive') {
+				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND tx_dam_lgovl.'.$languageField.'='.$this->langCurrent;
+			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND tx_dam_lgovl.deleted=0';
+			} else {
+				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND (tx_dam_lgovl.'.$languageField.'='.$this->langCurrent.' OR tx_dam.'.$languageField.'=0 )';
+			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND (tx_dam_lgovl.sys_language_uid=1 OR tx_dam.sys_language_uid=0 )';
+			}
+
+		} else {
+			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam.'.$languageField] = 'AND tx_dam.'.$languageField.'=0';
+		}
+
+
+		//
+		// set query and sorting
+		//
+
+		$allFields = tx_dam_db::getFieldListForUser($table);
+
+		
+		if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'])	{
+			if (in_array($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'], $allFields))	{
+				$orderBy = 'tx_dam.'.$this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'];
+			}
+		} else {
+			$orderBy = $TCA[$table]['ctrl']['sortby'] ? $TCA[$table]['ctrl']['sortby'] : $TCA[$table]['ctrl']['default_sortby'];
+			$orderBy = $GLOBALS['TYPO3_DB']->stripOrderBy($orderBy);
+			$this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'] = $orderBy;
+		}
+		if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortRev'])	$orderBy.=' DESC';
+		$this->pObj->selection->qg->addOrderBy($orderBy);
+
 
 		//
 		// Use the current selection to create a query and count selected records
@@ -135,6 +213,37 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		$content.= $this->pObj->doc->spacer(10);
 
 
+		// TODO move to scbase (see tx_dam_browser too)
+
+		if (is_array($allFields) && count($allFields)) {
+			$fieldsSelItems=array();
+			foreach ($allFields as $field => $title) {
+				$fL = is_array($TCA[$table]['columns'][$field]) ? preg_replace('#:$#', '', $GLOBALS['LANG']->sL($TCA[$table]['columns'][$field]['label'])) : '['.$field.']';
+				$fieldsSelItems[$field] = t3lib_div::fixed_lgd_cs($fL, 15);
+			}
+			$sortingSelector = $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:labelSorting',1).' ';
+			$sortingSelector .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_thumbs_sortField]', $this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'], $fieldsSelItems);
+			
+			if($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortRev'])	{
+				$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '0'));		
+				$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
+						'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2up.gif','width="12" height="7"').' alt="" />'.
+						'</button>';
+			} else {
+				$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '1'));
+				$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
+						'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2down.gif','width="12" height="7"').' alt="" />'.
+						'</button>';
+			}
+			$sortingSelector = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$sortingSelector.'</form>';
+		}
+
+		$this->pObj->markers['LANGUAGE_SELECT'] = $this->pObj->languageSwitch($this->langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']));
+		
+		$content.= $this->pObj->contentLeftRight($sortingSelector, '');
+		$content.= $this->pObj->doc->spacer(10);
+		
+		
 		//
 		// creates thumbnail list
 		//
@@ -144,7 +253,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 				// limit query for browsing
 			$this->pObj->selection->addLimitToQuery();
-			$this->pObj->selection->execSelectionQuery();
+			$res = $this->pObj->selection->execSelectionQuery();
 
 			$showElements = array();
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showTitle']) {
@@ -154,24 +263,116 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				$showElements[] = 'info';
 			}
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_showIcons']) {
-				$showElements[] = 'icons';
+				$showElements[] = 'actions';
 			}
 
 				// extra CSS code for HTML header
 			$this->pObj->doc->inDocStylesArray['tx_dam_SCbase_dia'] = tx_dam_guiFunc::getDiaStyles($this->diaSize, $this->diaMargin, 5);
 
 			$code = '';
-			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->pObj->selection->res)) {
-				$onClick = $this->pObj->doc->wrapClickMenuOnIcon('', 'tx_dam', $row['uid'], $listFr=1,$addParams='',$enDisItems='', $returnOnClick=TRUE);
-				$code.= tx_dam_guiFunc::getDia($row, $this->diaSize, $this->diaMargin, $showElements, $onClick);
+			
+			
+			//
+			// init iterator for query
+			//
+
+			$conf = array(	'table' => 'tx_dam',
+							'countTotal' => $this->pObj->selection->pointer->countTotal	);
+			if ($this->langCurrent>0 AND $this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay']!=='exclusive') {
+				$dbIterator =& new tx_dam_iterator_db_lang_ovl($res, $conf);
+				$dbIterator->initLanguageOverlay($table, $this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']);
+			} else {
+				$dbIterator =& new tx_dam_iterator_db($res, $conf);
+			}			
+			
+
+
+			if ($dbIterator->count())	{
+
+				while ($dbIterator->valid() AND $dbIterator->currentPointer < $this->pObj->selection->pointer->itemsPerPage) {
+
+					$row = $dbIterator->current();
+
+					$onClick = $this->pObj->doc->wrapClickMenuOnIcon('', $table, $row['uid'], $listFr=1,$addParams='',$enDisItems='', $returnOnClick=TRUE);
+					$actions = $this->getItemControl($row);
+					$code.= tx_dam_guiFunc::getDia($row, $this->diaSize, $this->diaMargin, $showElements, $onClick, true, $actions);
+
+					$dbIterator->next();
+				}
 			}
+
 
 			$content.= $this->pObj->doc->spacer(5);
 			$content.= $this->pObj->doc->section('','<div style="line-height:'.($this->diaSize +7+8).'px;">'.$code.'</div><br style="clear:left" />',0,1);
+			
 
+		
 		} else {
 				// no search result: showing selection box
 			$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
+		}
+
+
+		return $content;
+	}
+
+
+	/**
+	 * Creates the control panel for a single record in the listing.
+	 *
+	 * @param	array		The record for which to make the control panel.
+	 * @return	string		HTML table with the control panel (unless disabled)
+	 */
+	function getItemControl($item, $table='tx_dam')	{
+		global $TYPO3_CONF_VARS;
+		
+		static $actionCall;
+
+		$content = '';
+
+		if($this->showControls) {
+			if(!is_object($actionCall)) {
+				$table = 'tx_dam';
+
+				t3lib_div::loadTCA($table);
+
+				if ($table === 'pages') {
+						// If the listed table is 'pages' we have to request the permission settings for each page:
+					$localCalcPerms = $GLOBALS['BE_USER']->calcPerms($item);
+					$permsEdit = ($localCalcPerms & 2);
+					$permsDelete = ($localCalcPerms & 4);
+				} else {
+						// This expresses the edit permissions for this particular element:
+					$permsEdit = ($this->calcPerms & 16);
+					$permsDelete = ($this->calcPerms & 16);
+				}
+
+
+				$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
+				$actionCall->setRequest('control', array('__type' => 'record', '__table' => $table));
+				$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+				$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+				$actionCall->setEnv('defaultEditScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_edit/index.php');
+				$actionCall->setEnv('calcPerms', $this->calcPerms);
+				$actionCall->setEnv('permsEdit', $permsEdit);
+				$actionCall->setEnv('permsDelete', $permsDelete);
+				$actionCall->setEnv(array(
+						'currentLanguage' => $this->langCurrent,
+						'allowedLanguages' => $this->langRows,
+					));
+				$actionCall->initActions(true);
+			}
+
+			$item['__type'] = 'record';
+			$item['__table'] = $table;
+
+			$actionCall->setRequest('control', $item);
+			$actions = $actionCall->renderActionsHorizontal(true);
+
+				// Compile items into a DIV-element:
+			$content = '
+											<!-- CONTROL PANEL: tx_dam:'.$item['uid'].' -->
+											<div class="typo3-DBctrl">'.implode('', $actions).'</div>';
 		}
 
 		return $content;

@@ -36,10 +36,13 @@
  *
  *
  *
- *   62: class  tx_dam_filebrowser extends tx_dam_listfiles
- *   75:     function getBrowseableFolderList($pathInfo, $renderNavHeader=true)
+ *   65: class tx_dam_filebrowser extends tx_dam_listfiles
+ *   78:     function getBrowseableFolderList($pathInfo, $renderNavHeader=true)
+ *  106:     function getStaticFolderList($pathInfo, $renderFolderInfoBar=true)
+ *  129:     function _filebrowser_makeDataList($pathInfo)
+ *  174:     function _filebrowser_makePreset()
  *
- * TOTAL FUNCTIONS: 1
+ * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -59,10 +62,34 @@ require_once(PATH_txdam.'lib/class.tx_dam_listpointer.php');
  * @package DAM-BeLib
  * @subpackage Lib
  */
-class  tx_dam_filebrowser extends tx_dam_listfiles {
+class tx_dam_filebrowser extends tx_dam_listfiles {
+
+	/**
+	 * Initialize the object
+	 * PHP4 constructor
+	 *
+	 * @return	void
+	 * @see __construct()
+	 */
+	function tx_dam_filebrowser() {
+		$this->__construct();
+	}
 
 
-
+	/**
+	 * Initialize the object
+	 * PHP5 constructor
+	 *
+	 * @return	void
+	 * @see __construct()
+	 */
+	function __construct() {
+		
+		parent::__construct();
+		
+		$this->SOBE = & $GLOBALS['SOBE'];
+	}
+	
 
 	/**
 	 * Creates a file/folder browser.
@@ -77,13 +104,58 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 
 		$pathInfo = is_array($pathInfo) ? $pathInfo : tx_dam::path_compileInfo($pathInfo);
 
+		$this->_filebrowser_makeDataList($pathInfo);
+		$this->_filebrowser_makePreset();
 
+			// enable browsing links
+		$this->enableBrowsing = true;
+
+		$content.= $this->getListTable();
+
+		return $content;
+	}
+
+
+	/**
+	 * Creates a file/folder listing.
+	 * The list does not include any actions (delete,rename,...) but can be used to show the files of a folder. Browsing through folders is deactivated
+	 *
+	 * @param	array		$pathInfo Path info array from tx_dam::path_compileInfo()
+	 * @param	boolean		$renderFolderInfoBar If set a header with the path will be rendered
+	 * @return	string		HTML output
+	 */
+	function getStaticFolderList($pathInfo, $renderFolderInfoBar=true)	{
+		$content = '';
+
+		$pathInfo = is_array($pathInfo) ? $pathInfo : tx_dam::path_compileInfo($pathInfo);
+
+		$this->_filebrowser_makeDataList($pathInfo);
+		$this->_filebrowser_makePreset();
+
+		if ($renderFolderInfoBar) {
+			$content.= '<div class="typo3-foldernavbar">'.tx_dam_guiFunc::getFolderInfoBar($pathInfo).'</div>';
+		}
+		$content.= $this->getListTable();
+
+		return $content;
+	}
+
+
+	/**
+	 * Collect data for display and make setup
+	 *
+	 * @param	array		$pathInfo Path info array from tx_dam::path_compileInfo()
+	 * @return void
+	 */
+	function _filebrowser_makeDataList($pathInfo) {
+		global $TYPO3_CONF_VARS;
+		
 		//
 		// fetches files and folder
 		//
 
 		$dirListFolder = t3lib_div::makeInstance('tx_dam_iterator_dir');
-		$dirListFolder->read($pathInfo['dir_path_absolute'], 'dir,link');
+		$dirListFolder->read($pathInfo, 'dir,link');
 
 
 		//
@@ -91,7 +163,7 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 		//
 
 		$dirListFiles = t3lib_div::makeInstance('tx_dam_iterator_dir');
-		$dirListFiles->read($pathInfo['dir_path_absolute'], 'file');
+		$dirListFiles->read($pathInfo, 'file');
 
 
 		//
@@ -103,15 +175,34 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 		$this->pointer->setTotalCount($dirListFolder->count()+$dirListFiles->count());
 
 		//
-		// Create filelisting
+		// setup filelisting
 		//
 
+		$this->addData($dirListFolder, 'dir');
+		$this->addData($dirListFiles, 'files');
+		$this->setCurrentSorting($this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortRev']);
+		$this->setParameterName('sortField', 'SET[tx_dam_file_list_sortField]');
+		$this->setParameterName('sortRev', 'SET[tx_dam_file_list_sortRev]');
+
+		$this->setPointer($this->pointer);
+	}
+
+
+	/**
+	 * Initialize setup
+	 *
+	 * @return void
+	 */
+	function _filebrowser_makePreset() {
+		
 		$this->removeColumn('_CONTROL_');
 		$this->clickMenus = false;
 		$this->clipBoard = false;
 
 			// disable sorting links
 		$this->enableSorting = false;
+			// disable browsing links
+		$this->enableBrowsing = false;
 
 			// Enable/disable display of thumbnails
 		$this->showThumbs = false;
@@ -120,29 +211,12 @@ class  tx_dam_filebrowser extends tx_dam_listfiles {
 			// Enable/disable display of long titles
 		$this->showfullTitle = false;
 			// Enable/disable display of AlternateBgColors
-		#$this->showAlternateBgColors = true;
-// TODO do not exist: $this->pObj->modTSconfig
-		$this->showAlternateBgColors = $this->pObj->modTSconfig['properties']['alternateBgColors']?1:0;
+		$this->showAlternateBgColors = is_object($this->SOBE) ? $this->SOBE->config_checkValueEnabled('alternateBgColors', true) : true;
+			
 			// Enable/disable display of unix like permission string
 		$this->showUnixPerms = false;
 			// Display file sizes in bytes or formatted
 		$this->showDetailedSize = false;
-
-
-		$this->setPathInfo($pathInfo);
-		$this->addData($dirListFolder, 'dir');
-		$this->addData($dirListFiles, 'files');
-		$this->setCurrentSorting($this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->SOBE->MOD_SETTINGS['tx_dam_file_list_sortRev']);
-		$this->setParameterNames('SET[tx_dam_file_list_sortField]', 'SET[tx_dam_file_list_sortRev]');
-		$this->setPointer($this->pointer);
-
-
-		if ($renderNavHeader AND is_object($this->SOBE)) {
-			$content.= '<div class="typo3-foldernavbar">'.$this->SOBE->getFolderNavBar($pathInfo).'</div>';
-		}
-		$content.= $this->getListTable();
-
-		return $content;
 	}
 }
 

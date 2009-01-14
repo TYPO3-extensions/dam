@@ -37,12 +37,12 @@
  *
  *
  *   67: class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db
- *   98:     function tx_dam_iterator_db_lang_ovl($res, $counter=NULL)
- *  110:     function initLanguageOverlay($table, $langUid)
+ *   93:     function tx_dam_iterator_db_lang_ovl($res, $conf)
+ *  105:     function initLanguageOverlay($table, $langUid)
  *
  *              SECTION: language overlay functions
- *  134:     function _fetchCurrent()
- *  146:     function _makeLanguageOverlay()
+ *  129:     function _fetchCurrent()
+ *  148:     function _makeLanguageOverlay()
  *
  * TOTAL FUNCTIONS: 4
  * (This index is automatically created/updated by the script "update-class-index")
@@ -82,11 +82,6 @@ class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db {
 	 */
 	var $transOrigPointerField = 'sys_language_uid';
 
-	/**
-	 * the table name
-	 */
-	var $table = '';
-
 
 	/**
 	 * Initialize the object
@@ -95,8 +90,8 @@ class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db {
 	 * @return	void
 	 * @see __construct()
 	 */
-	function tx_dam_iterator_db_lang_ovl($res, $counter=NULL) {
-		$this->__construct($res, $counter);
+	function tx_dam_iterator_db_lang_ovl($res, $conf) {
+		$this->__construct($res, $conf);
 	}
 
 
@@ -132,11 +127,21 @@ class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db {
 	 * @return	void
 	 */
 	function _fetchCurrent() {
-		$this->current = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res);
-		if ($this->table AND $this->current) {
-			$this->_makeLanguageOverlay();
+		
+		if ($this->currentData = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res)) {
+			
+			if ($this->langUid AND $this->table AND $this->currentData) {
+				$this->_makeLanguageOverlay();
+			}
+
+			if ($this->conf['callbackFunc_currentData'] AND is_callable($this->conf['callbackFunc_currentData'])) {
+				call_user_func ($this->conf['callbackFunc_currentData'], $this);
+			}
+		} else {
+			$this->currentData = NULL;
 		}
 	}
+
 
 	/**
 	 * Fetches the current element
@@ -144,13 +149,16 @@ class tx_dam_iterator_db_lang_ovl extends tx_dam_iterator_db {
 	 * @return	void
 	 */
 	function _makeLanguageOverlay() {
-		if ($this->current[$this->languageField]!=$this->langUid) {
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(implode(',', array_keys($this->current)), $this->table, $this->transOrigPointerField.'='.$this->current['uid']);
-			if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-				$this->current = $row;
+		
+		if ($this->langUid AND $this->table AND $this->currentData AND $this->currentData[$this->languageField]!=$this->langUid) {
+			
+			$conf['sys_language_uid'] = $this->langUid;
+			if ($row = tx_dam_db::getRecordOverlay($this->table, $this->currentData, $conf, $this->mode)) {
+				$this->currentData = $row;
 			}
 		}
 	}
+	
 }
 
 

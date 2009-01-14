@@ -36,69 +36,78 @@
  *
  *
  *
- *  113: class tx_dam_listbase
+ *  122: class tx_dam_listbase
  *
  *              SECTION: Setup
- *  264:     function tx_dam_listbase()
- *  275:     function __construct()
- *  296:     function clearColumns()
- *  308:     function addColumn($name, $label)
- *  324:     function removeColumn($name)
- *  338:     function setCurrentSorting ($sortField, $sortRev)
- *  351:     function setParameterNames ($sortField, $sortRev)
- *  363:     function setPointer($pointer)
+ *  301:     function tx_dam_listbase()
+ *  312:     function __construct()
+ *  328:     function clearColumns()
+ *  340:     function addColumn($name, $label)
+ *  356:     function removeColumn($name)
+ *  370:     function setCurrentSorting ($sortField, $sortRev)
+ *  383:     function setParameterName ($name, $value)
+ *  396:     function setParameterNames ($sortField, $sortRev)
+ *  408:     function setPointer($pointer)
  *
  *              SECTION: Set data
- *  384:     function addData($dataObject, $idName='')
+ *  429:     function addData($dataObject, $idName='')
  *
  *              SECTION: Table rendering
- *  403:     function getListTable()
- *  443:     function renderTable()
- *  462:     function renderHeader ()
- *  490:     function renderList()
- *  553:     function renderFooter ()
+ *  451:     function getListTable()
+ *  496:     function renderTable()
+ *  515:     function renderHeader ()
+ *  549:     function renderList()
+ *  614:     function renderMultiActionBar ()
+ *  695:     function renderFooter ()
  *
  *              SECTION: Column rendering
- *  571:     function getItemColumns ($item)
- *  608:     function getItemAction ($item)
- *  619:     function getItemIcon ($item)
+ *  713:     function getItemColumns ($item)
+ *  750:     function getItemMultiAction ($item)
+ *  761:     function getItemAction ($item)
+ *  772:     function getItemIcon ($item)
  *
  *              SECTION: Row rendering
- *  659:     function addRow($setup, $position='')
- *  736:     function addRowRaw ($content)
+ *  812:     function addRow($setup, $position='')
+ *  865:     function addRowRenderTR($setup, $td, $position='')
+ *  897:     function addRowSpecialColumns($setup, &$td)
+ *  942:     function addRowRaw ($content)
  *
  *              SECTION: Controls
- *  756:     function getHeaderControl()
- *  767:     function getHeaderColumnControl($field)
- *  778:     function getItemControl($item)
+ *  962:     function getHeaderControl()
+ *  973:     function getHeaderColumnControl($field)
+ *  984:     function getItemControl($item)
+ *  996:     function getMultiActions()
  *
  *              SECTION: Browsing
- *  799:     function addRowBrowse($type)
- *  819:     function fwd_rwd_HTML($type)
+ * 1014:     function addRowBrowse($type)
+ * 1034:     function fwd_rwd_HTML($type)
  *
  *              SECTION: Link and title rendering
- *  858:     function cropTitle ($title, $field)
- *  874:     function linkWrapDir($title, $path)
- *  892:     function linkWrapFile($title, $pathInfo)
- *  925:     function linkWrapSort($title, $column)
+ * 1073:     function cropTitle ($title, $field)
+ * 1089:     function linkWrapDir($title, $path)
+ * 1114:     function linkWrapFile($title, $pathInfo)
+ * 1147:     function linkWrapSort($title, $column)
  *
  *              SECTION: Misc
- *  972:     function thumbnailPossible ($item)
- *  989:     function getThumbnail($filepath, $addAtrr='', $size='')
- * 1000:     function getFilePermString ($perms)
+ * 1194:     function thumbnailPossible ($item)
+ * 1207:     function getThumbnail($filepath, $addAtrr='', $size='')
+ * 1217:     function getJsCode()
+ * 1219:     function tx_dam_listbase_setCheckboxes(the_form)
+ * 1246:     function getFilePermString ($perms)
  *
  *              SECTION: Clipboard
- * 1074:     function clipboard_linkHeaderIcon($string, $table, $cmd, $warning='')
- * 1086:     function clipboard_getItemControl($columns)
- * 1131:     function clipboard_getHeaderControl ()
+ * 1320:     function clipboard_linkHeaderIcon($string, $table, $cmd, $warning='')
+ * 1332:     function clipboard_getItemControl($columns)
+ * 1377:     function clipboard_getHeaderControl ()
  *
- * TOTAL FUNCTIONS: 34
+ * TOTAL FUNCTIONS: 42
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
 
 
+require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 
 
 
@@ -114,10 +123,6 @@ class tx_dam_listbase {
 
 
 
-	/**
-	 * enable display of thumbnails for images
-	 */
-	var $showThumbs = true;
 
 	/**
 	 * if set field wrap is enabled
@@ -135,14 +140,29 @@ class tx_dam_listbase {
 	var $enableFilePopup = true;
 
 	/**
+	 * if set browsing by clicking on (eg) folder titles is possible
+	 */
+	var $enableBrowsing = true;
+
+	/**
+	 * if set context menus will be added to items like icons
+	 */
+	var $enableContextMenus = false;
+
+	/**
 	 * If enabled titles will not be shortend to $titleLength but 200 and field wrap for title will be eneabled
 	 */
-	 var $showfullTitle = false;
+	var $showfullTitle = false;
 
 	/**
 	 * max title length if field wrap is disabled
 	 */
 	var $titleLength = 30;
+	
+	/**
+	 * enable display of thumbnails for images
+	 */
+	var $showThumbs = true;
 
 	/**
 	 * enable alternating background colors in table rows
@@ -150,19 +170,36 @@ class tx_dam_listbase {
 	var $showAlternateBgColors = false;
 
 	/**
-	 * enable display of action column which is the first
-	 */
-	var $showActions = false;
-
-	/**
 	 * enable display of icon column which is the second
 	 */
 	var $showIcons = true;
 
 	/**
-	 * name of the thumbnail script
+	 * enable display of actions generally
 	 */
-	var $thumbScript = '';
+	var $showControls = true;
+
+	/**
+	 * enable display of action column which is the first
+	 */
+	var $showActions = false;
+
+	/**
+	 * enable display of multi-actions which is a checkbox for each item and a bar below the list with options process for the selected items
+	 */
+	var $showMultiActions = false;
+
+	/**
+	 * environment array for actions
+	 * @see setActionsEnv()
+	 */
+	var $actionsEnv = array();
+
+	/**
+	 * array of selected items for multi-actions
+	 */
+	var $recs = array();
+
 
 
 	/**
@@ -198,14 +235,17 @@ class tx_dam_listbase {
 	var $tableRows = array();
 
 	/**
-	 * array of control names that are enabled for display
+	 * array of parameter names used in links and names of form elements
 	 */
-	var $showControls = array();
-
-	/**
-	 * array of parameter names used in links
-	 */
-	var $paramName = array();
+	var $paramName = array(
+		'form' => 'listform',
+		'sortField' => 'sortField',
+		'sortRev' => 'sortRev',
+		'recs' => 'recs',
+		'multi_action' => 'multi_action',
+		'multi_action_target' => 'multi_action_target',
+		'multi_action_submit' => 'multi_action_submit',
+	);
 
 	/**
 	 * additional attributes for some elements
@@ -214,6 +254,8 @@ class tx_dam_listbase {
 	 	'table' => ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist"',
 		'headerTD' => ' nowrap="nowrap" class="c-headLine"',
 		'itemTD' => ' class="typo3-dblist-item"',
+		'multiActionTD' => ' width="1%" valign="top" align="left" nowrap="nowrap"',
+		'multiActionBarTD' => ' nowrap="nowrap" class="c-actionBar"',
 		'actionTD' => ' width="1%" valign="top" align="left" nowrap="nowrap"',
 		'iconTD' => ' width="1%" valign="top" align="left" nowrap="nowrap"',
 		'dataTD' => ' valign="top"',
@@ -227,6 +269,8 @@ class tx_dam_listbase {
 	 	'table' => '',
 		'headerTD' => 'border-bottom:1px solid #888;',
 		'itemTD' => '',
+		'multiActionTD' => 'padding: 3px 0px 0px 5px;',
+		'multiActionBarTD' => '',
 		'actionTD' => 'padding: 3px 0px 0px 5px;',
 		'iconTD' => 'padding-left:5px;',
 		'dataTD' => 'padding-left:5px;',
@@ -234,7 +278,7 @@ class tx_dam_listbase {
 	 );
 
 
-###### Clipboard - todo
+// todo Clipboard
 
 	/**
 	 * If true click menus are generated on files and folders
@@ -275,11 +319,6 @@ class tx_dam_listbase {
 	function __construct() {
 		global $BE_USER;
 
-		if (!$GLOBALS['TYPO3_CONF_VARS']['GFX']['thumbnails'])	{
-			$this->thumbScript = 'gfx/notfound_thumb.gif';
-		} else {
-			$this->thumbScript = $GLOBALS['BACK_PATH'].'thumbs.php';
-		}
 		$this->showThumbs = $BE_USER->uc['thumbnailsByDefault'];
 
 		$this->colorTRHover = $GLOBALS['SOBE']->doc->hoverColorTR ? $GLOBALS['SOBE']->doc->hoverColorTR : t3lib_div::modifyHTMLcolor($GLOBALS['SOBE']->doc->bgColor,-20,-20,-20);
@@ -342,11 +381,24 @@ class tx_dam_listbase {
 
 
 	/**
+	 * Defines the a parameter name used for links
+	 *
+	 * @param	string		$sortField
+	 * @param	string		$sortField
+	 * @return	void
+	 */
+	function setParameterName ($name, $value) {
+		$this->paramName[$name] = $value;
+	}
+
+
+	/**
 	 * Defines the sorting parameter names used for links
 	 *
 	 * @param	string		$sortField
 	 * @param	boolean		$sortRev
 	 * @return	void
+	 * @deprecated
 	 */
 	function setParameterNames ($sortField, $sortRev) {
 		$this->paramName['sortField'] = $sortField;
@@ -365,7 +417,66 @@ class tx_dam_listbase {
 	}
 
 
+	/**
+	 * Set action environment
+	 *
+	 * @param	array		$actionsEnv
+	 * @return	void
+	 */
+	function setActionsEnv($actionsEnv) {
+		$this->actionsEnv = $actionsEnv;
+	}
+	
+	
 
+
+	/***************************************
+	 *
+	 *	 Process params and commands
+	 *
+	 ***************************************/
+
+
+	/**
+	 * Returns a table with directories and files listed.
+	 *
+	 * @return	void
+	 */
+	function processParams()	{
+		if ($this->paramName['recs'] AND !count($this->recs)) {
+			$recs = t3lib_div::_GP($this->paramName['recs']);
+			if ($this->table AND is_array($recs[$this->table])) {
+				$this->recs = $recs[$this->table];
+			} elseif (!$this->table AND is_array($recs)) {
+				$this->recs = $recs;
+			}
+		}
+	}
+
+
+	/**
+	 * Test submitted data if a command should be processed and return an array with command values
+	 *
+	 * @return mixed FALSE if nor action should be performed or an array with information about the action
+	 */
+	function getMultiActionCommand() {
+		if (t3lib_div::_GP($this->paramName['multi_action_submit']) AND $action=t3lib_div::_GP($this->paramName['multi_action'])) {
+			$processAction = array();
+
+			list ($processAction['actionType'], $processAction['action']) = explode(':', $action, 2);
+
+			if (t3lib_div::_GP($this->paramName['multi_action_target']) === 'all') {
+				 $processAction['onItems'] = '_all';
+			} else {
+				 $processAction['onItems'] = implode(',', $this->recs);
+			}
+			return $processAction;
+		}
+		return false;
+	}
+	
+	
+	
 
 	/***************************************
 	 *
@@ -385,6 +496,9 @@ class tx_dam_listbase {
 		$idName = $idName ? $idName : uniqid('tx_dam_listbase');
 		$this->dataObjects[$idName] = $dataObject;
 	}
+
+
+
 
 
 
@@ -409,6 +523,11 @@ class tx_dam_listbase {
 			// add item list or empty row
 		if($this->pointer->countTotal) {
 			$this->renderList();
+
+			if ($this->showMultiActions)	{
+				$this->renderMultiActionBar();
+			}
+
 		} else {
 			$this->addRow(array(
 							'data' => array($this->titleColumnKey => '&nbsp;',
@@ -460,11 +579,13 @@ class tx_dam_listbase {
 	 * @return	void
 	 */
 	function renderHeader () {
+		global $LANG, $BACK_PATH;
+
 		$columns = array();
 		foreach($this->columnList as $field => $descr)	{
-			if ($field == '_CLIPBOARD_' AND is_object($this->clipboard))	{
+			if ($field === '_CLIPBOARD_' AND is_object($this->clipboard))	{
 				$columns[$field] = $this->clipboard->getHeaderControl();
-			} elseif ($field == '_CONTROL_')	{
+			} elseif ($field === '_CONTROL_')	{
 				$columns[$field] = $this->getHeaderControl();
 			} else {
 				$columns[$field] = $this->getHeaderColumnControl($field);
@@ -474,8 +595,12 @@ class tx_dam_listbase {
 				$columns[$field] = '&nbsp;';
 			}
 		}
+		if ($this->showMultiActions) {
+			$multiAction = '<a href="#" onclick="tx_dam_listbase_setCheckboxes(\''.$this->paramName['form'].'\'); return false;"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/clip_select.gif','width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:clip_markRecords',1).'" alt="" /></a>';
+		}
 		$this->addRow(array(
 				'data' => $columns,
+				'multiAction' => $multiAction,
 				'tdAttribute' => $this->elementAttr['headerTD'],
 				'tdStyle' => $this->elementStyle['headerTD'],
 			), 'top');
@@ -508,8 +633,9 @@ class tx_dam_listbase {
 						$pageItemCounter++;
 
 							// 	Columns rendering
-						$itemAction = $this->getItemAction ($item);
-						$itemIcon = $this->getItemIcon ($item);
+						if ($this->showMultiActions)	$itemMultiAction = $this->getItemMultiAction ($item);
+						if ($this->showAction)	$itemAction = $this->getItemAction ($item);
+						if ($this->showIcon)	$itemIcon = $this->getItemIcon ($item);
 						$itemColumns = $this->getItemColumns ($item);
 
 						# $trStyle = '';
@@ -529,6 +655,7 @@ class tx_dam_listbase {
 						}
 
 						$this->addRow(	array(
+								'multiAction' => $itemMultiAction,
 								'action' => $itemAction,
 								'icon' => $itemIcon,
 								'data' => $itemColumns,
@@ -542,6 +669,87 @@ class tx_dam_listbase {
 				}
 			}
 		}
+	}
+
+
+	/**
+	 * Adds a footer row with options for multi-actions
+	 *
+	 * @return	boolean Return true if an action bar was successfully rendered
+	 */
+	function renderMultiActionBar () {
+		global $LANG, $BACK_PATH;
+
+		if ($this->showMultiActions) {
+
+
+			//
+			// collect the valid actions
+			//
+
+			$actions = $this->getMultiActions();
+			if (!$actions) return false;
+
+
+			//
+			// Create select boxes
+			//
+
+			$options = array();
+			foreach ($actions as $action) {
+				$options[] = '<option value="'.htmlspecialchars($action['action']).'">'.htmlspecialchars($action['label']).'</option>';
+			}
+			$actionSelect = '
+							<select name="'.$this->paramName['multi_action'].'">
+								<option value="">-- '.$GLOBALS['LANG']->getLL('actionSelect',true).' --</option>
+								'.implode("\n", $options).'
+							</select>';
+
+			$options = array();
+			$options[] = '<option value="selected">'.$GLOBALS['LANG']->getLL('doForSelected',true).'</option>';
+			$options[] = '<option value="all">'.$GLOBALS['LANG']->getLL('doForFullList',true).'</option>';
+			$actionSelectTarget = '
+							<select name="'.$this->paramName['multi_action_target'].'">
+								'.implode("\n", $options).'
+							</select>';
+
+
+			//
+			// build table row
+			//
+
+			$td = array();
+
+			$setup = array(
+				'multiAction' => '',
+				'tdAttribute' => $this->elementAttr['multiActionBarTD'],
+				'tdStyle' => $this->elementStyle['multiActionBarTD'],
+			);
+
+				// add checkbox toggle icon
+			$setup['multiAction'] = '<a href="#" onclick="tx_dam_listbase_setCheckboxes(\''.$this->paramName['form'].'\'); return false;"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/clip_select.gif','width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:clip_markRecords',1).'" alt="" /></a>';
+			$this->addRowSpecialColumns($setup, $td);
+
+				// compile row content
+			$onclick = 'if(document.forms[\''.$this->paramName['form'].'\'][\''.$this->paramName['multi_action'].'\'].options[0].selected!=true) {document.forms[\''.$this->paramName['form'].'\'][\''.$this->paramName['multi_action_submit'].'\'].value=1; document.forms[\''.$this->paramName['form'].'\'].submit()}; return false;';
+			$submitButton = '<input type="button" class="button" onclick="'.htmlspecialchars($onclick).'" value="'.$GLOBALS['LANG']->getLL('submitMultiAction',true).'">';
+			$submitButton .= '<input type="hidden" name="'.$this->paramName['multi_action_submit'].'" value="">';
+			$content = sprintf ('%s &nbsp;&nbsp;'.$GLOBALS['LANG']->getLL('for',true).'&nbsp;&nbsp; %s %s', $actionSelect, $actionSelectTarget, $submitButton);
+
+				// compile table row
+			$tdAttribute = ' colspan="'.count($this->columnList).'"';
+			$td[] = '
+				<td '.$this->elementAttr['multiActionBarTD'].' style="'.$this->elementStyle['multiActionBarTD'].'"'.
+				$tdAttribute.
+				'><div>'.$content.'</div></td>';
+
+				// finally add the row to table
+			$this->addRowRenderTR($setup, $td);
+
+			return true;
+
+		}
+		return false;
 	}
 
 
@@ -596,6 +804,17 @@ class tx_dam_listbase {
 			$columns['title'] .= '<div style="margin:2px 0 2px 0;">'.$this->getThumbNail($item['file_path_absolute'].$item['file_name']).'</div>';
 		}
 		return $columns;
+	}
+
+
+	/**
+	 * Renders the multi-action
+	 *
+	 * @param	array		$item item array
+	 * @return	string
+	 */
+	function getItemMultiAction ($item) {
+		return '';
 	}
 
 
@@ -658,8 +877,6 @@ class tx_dam_listbase {
 	 */
 	function addRow($setup, $position='')	{
 
-		$action = '';
-		$icon = '';
 		$data = array();
 		$tdAttribute = '';
 		$tdStyle = '';
@@ -667,25 +884,14 @@ class tx_dam_listbase {
 		$trHover = false;
 		extract ($setup, EXTR_IF_EXISTS);
 
+
 		$td = array();
+
+		$this->addRowSpecialColumns($setup, $td);
+
 
 		$tdAttribute = $tdAttribute ? ' '.$tdAttribute : '';
 
-			// Show action
-		if ($this->showActions)	{
-			$td[] = '
-			<td'.$this->elementAttr['actionTD'].$tdAttribute.' style="'.$this->elementStyle['actionTD'].$tdStyle.'">'.
-			($action ? $action : '<span><br /></span>').
-			'</td>';
-		}
-
-			// Show icon
-		if ($this->showIcons)	{
-			$td[] = '
-			<td'.$this->elementAttr['iconTD'].$tdAttribute.' style="'.$this->elementStyle['iconTD'].$tdStyle.'">'.
-			($icon ? $icon : '<span><br /></span>').
-			'</td>';
-		}
 
 			// Traverse field array which contains the data to present:
 		foreach($this->columnList as $field => $descr)	{
@@ -706,8 +912,27 @@ class tx_dam_listbase {
 				$noWrap.
 				$tdAttribute.
 				$this->columnTDAttr[$field].
-				'>'.($data[$field] ? $data[$field] : '<span><br /></span>').'</td>';
+				'>'.($data[$field]==='' ? '<span><br /></span>' : (string)$data[$field]).'</td>';
 		}
+
+		$this->addRowRenderTR($setup, $td, $position);
+	}
+
+
+	/**
+	 * Renders the td array as TR
+	 *
+	 *
+	 * @param	array		$setupSetup array
+	 * @param	string		$td The td array
+	 * @param	string		$position If position is 'top' the line will be inserted on top of the table
+	 * @return	string		HTML content for the table row
+	 */
+	function addRowRenderTR($setup, $td, $position='')	{
+
+		$trStyle = '';
+		$trHover = false;
+		extract ($setup, EXTR_IF_EXISTS);
 
 			// make hover for TR
 		$match = array();
@@ -719,10 +944,57 @@ class tx_dam_listbase {
 		<!-- Element, begin: -->
 		<tr'.$trStyle.$trHover.'>'.implode('', $td).'</tr>';
 
-		if ($position == 'top') {
+		if ($position === 'top') {
 			array_unshift($this->tableRows, $out);
 		} else {
 			$this->tableRows[] = $out;
+		}
+	}
+
+
+	/**
+	 * Adds multi-actions, actions and icons to the td array
+	 *
+	 *
+	 * @param	array		$setupSetup array
+	 * @param	string		$td The td array as reference
+	 * @return	string		HTML content for the table row
+	 */
+	function addRowSpecialColumns($setup, &$td)	{
+
+		$multiAction = '';
+		$action = '';
+		$icon = '';
+		$tdAttribute = '';
+		$tdStyle = '';
+		extract ($setup, EXTR_IF_EXISTS);
+
+		$td = array();
+
+		$tdAttribute = $tdAttribute ? ' '.$tdAttribute : '';
+
+			// Show action checkbox
+		if ($this->showMultiActions)	{
+			$td[] = '
+			<td'.$this->elementAttr['multiActionTD'].$tdAttribute.' style="'.$this->elementStyle['multiActionTD'].$tdStyle.'">'.
+			($multiAction ? $multiAction : '<span><br /></span>').
+			'</td>';
+		}
+
+			// Show action
+		if ($this->showActions)	{
+			$td[] = '
+			<td'.$this->elementAttr['actionTD'].$tdAttribute.' style="'.$this->elementStyle['actionTD'].$tdStyle.'">'.
+			($action ? $action : '<span><br /></span>').
+			'</td>';
+		}
+
+			// Show icon
+		if ($this->showIcons)	{
+			$td[] = '
+			<td'.$this->elementAttr['iconTD'].$tdAttribute.' style="'.$this->elementStyle['iconTD'].$tdStyle.'">'.
+			($icon ? $icon : '<span><br /></span>').
+			'</td>';
 		}
 	}
 
@@ -780,7 +1052,16 @@ class tx_dam_listbase {
 	}
 
 
-
+	/**
+	 * Returns an array of multi actions to be rendered by renderMultiActionBar()
+	 *
+	 * @return array
+	 * @see tx_dam_actionCall::renderMultiActions()
+	 * @see renderMultiActionBar()
+	 */
+	function getMultiActions() {
+		return false;
+	}
 
 
 	/***************************************
@@ -872,12 +1153,19 @@ class tx_dam_listbase {
 	 * @return	string		HTML
 	 */
 	function linkWrapDir($title, $path)	{
-		$href = t3lib_div::linkThisScript(array($this->paramName['setFolder'] => $path));
-			// Sometimes $title contains plain HTML tags. In such a case the string should not be modified!
+
+			// Sometimes $title contains HTML tags. In such a case the string should not be modified!
+		$titleAttribute = '';
 		if(!strcmp($title,strip_tags($title)))	{
-			return '<a href="'.htmlspecialchars($href).'" title="'.htmlspecialchars($title).'">'.htmlspecialchars($title).'</a>';
-		} else	{
-			return '<a href="'.htmlspecialchars($href).'">'.$title.'</a>';
+			$title = htmlspecialchars($title);
+			$titleAttribute = ' title="'.htmlspecialchars($title).'"';
+		}
+
+		if ($this->enableBrowsing) {
+			$href = t3lib_div::linkThisScript(array($this->paramName['setFolder'] => $path));
+			return '<a href="'.htmlspecialchars($href).'"'.$titleAttribute.'>'.$title.'</a>';
+		} else {
+			return $title;
 		}
 	}
 
@@ -970,11 +1258,7 @@ class tx_dam_listbase {
 	 * @return	boolean
 	 */
 	function thumbnailPossible ($item) {
-		$thumbnailPossible = false;
-		if( ($item['media_type']==TXDAM_mtype_image) AND t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $item['file_type'])) {
-			$thumbnailPossible = true;
-		}
-		return $thumbnailPossible;
+		return tx_dam_image::isPreviewPossible($item);
 	}
 
 
@@ -987,68 +1271,41 @@ class tx_dam_listbase {
 	 * @return	string		Image tag
 	 */
 	function getThumbnail($filepath, $addAtrr='', $size='')	{
-		return t3lib_BEfunc::getThumbNail($this->thumbScript, $filepath, $addAtrr, $size);
+		return tx_dam_image::previewImgTag($filepath, $size, $addAtrr);
 	}
 
 
 	/**
-	 * Returns unix like string of file permission
+	 * Returns JavaScript code (a function) to set/unset all checkboxes with the elements name "recs[]" (means: $this->paramName['recs'])
 	 *
-	 * @param	integer		$perms Permissions eg from fileperms()
-	 * @return	string		Eg. rwxr-x---
+	 * @return string JavaScript code
 	 */
-	function getFilePermString ($perms) {
-		if (($perms & 0xC000) == 0xC000) {
-			// Socket
-			$info = 's';
-		 } elseif (($perms & 0xA000) == 0xA000) {
-			// Symbolic Link
-			$info = 'l';
-		 } elseif (($perms & 0x8000) == 0x8000) {
-			// Regular
-			$info = '-';
-		 } elseif (($perms & 0x6000) == 0x6000) {
-			// Block special
-			$info = 'b';
-		 } elseif (($perms & 0x4000) == 0x4000) {
-			// Directory
-			$info = 'd';
-		 } elseif (($perms & 0x2000) == 0x2000) {
-			// Character special
-			$info = 'c';
-		 } elseif (($perms & 0x1000) == 0x1000) {
-			// FIFO pipe
-			$info = 'p';
-		 } else {
-			// Unknown
-			$info = 'u';
-		 }
+	function getJsCode()	{
+		return '
+		function tx_dam_listbase_setCheckboxes(the_form)
+		{
+			var elts      = document.forms[the_form].elements["'.$this->paramName['recs'].'['.$this->table.'][]"];
+			var elts_cnt  = (typeof(elts.length) != "undefined")
+						? elts.length
+						: 0;
 
-		 // Owner
-		 $info .= (($perms & 0x0100) ? 'r' : '-');
-		 $info .= (($perms & 0x0080) ? 'w' : '-');
-		 $info .= (($perms & 0x0040) ?
-					(($perms & 0x0800) ? 's' : 'x' ) :
-					(($perms & 0x0800) ? 'S' : '-'));
-
-		 // Group
-		 $info .= (($perms & 0x0020) ? 'r' : '-');
-		 $info .= (($perms & 0x0010) ? 'w' : '-');
-		 $info .= (($perms & 0x0008) ?
-					(($perms & 0x0400) ? 's' : 'x' ) :
-					(($perms & 0x0400) ? 'S' : '-'));
-
-		 // World
-		 $info .= (($perms & 0x0004) ? 'r' : '-');
-		 $info .= (($perms & 0x0002) ? 'w' : '-');
-		 $info .= (($perms & 0x0001) ?
-					(($perms & 0x0200) ? 't' : 'x' ) :
-					(($perms & 0x0200) ? 'T' : '-'));
-		return $info;
+			if (elts_cnt) {
+				do_check = !elts[0].checked;
+				for (var i = 0; i < elts_cnt; i++) {
+					elts[i].checked = do_check;
+				}
+			} else {
+				elts.checked = !elts.checked;
+			}
+			return true;
+		}';
 	}
 
 
-// TODO Clipboard ######################
+
+
+
+// todo Clipboard
 
 
 

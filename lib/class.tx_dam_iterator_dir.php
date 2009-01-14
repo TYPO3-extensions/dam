@@ -36,29 +36,29 @@
  *
  *
  *
- *   81: class tx_dam_iterator_dir
- *  136:     function tx_dam_iterator_dir()
- *  146:     function __construct()
+ *   83: class tx_dam_iterator_dir extends tx_dam_iterator_base
+ *  138:     function tx_dam_iterator_dir()
+ *  148:     function __construct()
  *
  *              SECTION: Iterator functions
- *  164:     function rewind()
- *  174:     function valid()
- *  185:     function next()
- *  196:     function seek($offset)
- *  209:     function key()
- *  219:     function current()
- *  229:     function count ()
+ *  166:     function rewind()
+ *  176:     function valid()
+ *  187:     function next()
+ *  198:     function seek($offset)
+ *  211:     function key()
+ *  221:     function current()
+ *  235:     function count ()
  *
  *              SECTION: allow/Exclude functions
- *  248:     function resetAllowExclude ()
- *  270:     function allowByRegex ($allow, $ignoreCase=true)
- *  290:     function excludeByRegex ($exclude, $ignoreCase=true)
- *  306:     function allowByFileTypes ($allow)
- *  321:     function excludeByFileTypes ($exclude)
+ *  254:     function resetAllowExclude ()
+ *  276:     function allowByRegex ($allow, $ignoreCase=true)
+ *  296:     function excludeByRegex ($exclude, $ignoreCase=true)
+ *  312:     function allowByFileTypes ($allow)
+ *  327:     function excludeByFileTypes ($exclude)
  *
  *              SECTION: Reading/sorting directory
- *  346:     function read($path, $allowTypes='file')
- *  418:     function sort($sortBy='', $sortReverse=false)
+ *  352:     function read($path, $allowTypes='file')
+ *  424:     function sort($sortBy='', $sortReverse=false)
  *
  * TOTAL FUNCTIONS: 16
  * (This index is automatically created/updated by the script "update-class-index")
@@ -66,6 +66,8 @@
  */
 
 
+
+require_once(PATH_txdam.'lib/class.tx_dam_iterator_base.php');
 
 
 
@@ -78,7 +80,7 @@
  * @package DAM-BeLib
  * @subpackage Iterator
  */
-class tx_dam_iterator_dir {
+class tx_dam_iterator_dir extends tx_dam_iterator_base {
 
 
 	/**
@@ -102,7 +104,16 @@ class tx_dam_iterator_dir {
 	 */
 	var $countBytes = 0;
 
+	/**
+	 * if set files will be checked if index anf if not it will be done in place
+	 */
+	var $enableAutoIndexing = false;
 
+	/**
+	 * if set >0 autindexing will stop after the amount of files
+	 */
+	var $maxAutoIndexingItems = 0;
+	
 	/**
 	 * List of allow regex
 	 *
@@ -217,7 +228,11 @@ class tx_dam_iterator_dir {
 	 * @return	array
 	 */
 	function current() {
-		return $this->entries[$this->key()];
+		$this->currentData = $this->entries[$this->key()];
+		if (is_callable($this->conf['callbackCurrentData'])) {
+			call_user_func ($this->conf['callbackCurrentData'], $this);
+		}
+		return $this->currentData;
 	}
 
 
@@ -350,6 +365,9 @@ class tx_dam_iterator_dir {
 		if($path)	{
 			$tempArray = array();
 
+
+			$path = tx_dam::path_makeAbsolute($path);
+
 			if (is_object($d = @dir($path))) {
 				while($entry = $d->read()) {
 					$filepath = $path.$entry;
@@ -371,7 +389,7 @@ class tx_dam_iterator_dir {
 							}
 						}
 
-						if($type=='file') {
+						if($type === 'file') {
 							$fileInfo = tx_dam::file_compileInfo($filepath);
 
 							if (is_array($meta = tx_dam::meta_getDataForFile($fileInfo))) {
@@ -390,8 +408,12 @@ class tx_dam_iterator_dir {
 							if (count($this->allowFileTypes) AND !in_array($fileInfo['file_type'], $this->allowFileTypes)) {
 								continue;
 							}
+							
+							if ($this->enableAutoIndexing) {
+								$this->autoIndex($fileInfo);
+							}
 						}
-						elseif($type=='dir' OR $type=='link') {
+						elseif($type === 'dir' OR $type === 'link') {
 							$fileInfo = tx_dam::path_compileInfo($filepath);
 						}
 							// the file is valid so we add it to the list
@@ -405,6 +427,7 @@ class tx_dam_iterator_dir {
 			}
 		}
 	}
+
 
 
 	/**
@@ -435,6 +458,29 @@ class tx_dam_iterator_dir {
 			}
 		}
 		$this->rewind();
+	}
+
+
+	/**
+	 * Processes auto indexing if the file is not yet indexed
+	 * 
+	 * @param array $item
+	 */
+	function autoIndex(&$item) {
+		static $indexed = 0;
+
+		if ($this->maxAutoIndexingItems AND ($indexed >= $this->maxAutoIndexingItems)) return;
+
+			// we don't index indexing setup files
+		if ($item['file_name'] === '.indexing.setup.xml') {
+
+		} elseif(!($uid = tx_dam::file_isIndexed($item))) {
+			if ($metaRow = tx_dam::index_autoProcess($item)) {
+				$item = $metaRow['fields'];
+				$item['__isIndexed'] = true;
+				$indexed ++;
+			}
+		}
 	}
 
 }

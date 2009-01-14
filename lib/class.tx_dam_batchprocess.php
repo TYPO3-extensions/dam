@@ -35,18 +35,18 @@
  *
  *   73: class tx_dam_batchProcess
  *  105:     function processGP()
- *  139:     function runBatch($res)
- *  155:     function getProcessFieldList()
+ *  135:     function runBatch($res)
+ *  152:     function getProcessFieldList()
  *
  *              SECTION: GUI misc
  *  174:     function showPresetForm()
  *  208:     function showResult()
- *  227:     function getPresetForm ($rec, $fixedFields, $description)
- *  287:     function getResultTable()
+ *  228:     function getPresetForm ($rec, $fixedFields, $description)
+ *  289:     function getResultTable()
  *
  *              SECTION: this and that
- *  354:     function getFormSetup()
- *  380:     function extractFormData($data, $appendFieldsArr)
+ *  356:     function getFormSetup()
+ *  382:     function extractFormData($data, $appendFieldsArr)
  *  417:     function saveFormSetup()
  *
  * TOTAL FUNCTIONS: 10
@@ -126,9 +126,6 @@ class tx_dam_batchProcess {
 	}
 
 
-
-
-
 	/**
 	 * Run the batch
 	 *
@@ -146,16 +143,20 @@ class tx_dam_batchProcess {
 		}
 	}
 
+
 	/**
 	 * Return field names to be processed as array
 	 *
 	 * @return array Field names
 	 */
 	function getProcessFieldList() {
-		$fields = array_keys(array_merge($this->replaceData,$this->appendData));
+		$fields = array_keys(array_merge($this->replaceData, $this->appendData));
 		$fields = tx_dam_db::getMetaInfoFieldList(TRUE, $fields);
 		return $fields;
 	}
+
+
+
 
 
 	/********************************
@@ -179,7 +180,7 @@ class tx_dam_batchProcess {
 
 
 		$this->getFormSetup();
-		$rec = array_merge($this->replaceData,$this->appendData);
+		$rec = array_merge($this->replaceData, $this->appendData);
 		$fixedFields = array_keys($this->appendData);
 
 		$code = $this->getPresetForm($rec, $fixedFields, $LANG->getLL('tx_dam_batchProcess.appendDesc',0)); // don't hsc because of <b> tags
@@ -189,7 +190,7 @@ class tx_dam_batchProcess {
 						$code.
 						'</td></tr></table>',0,1);
 
-		$content.= '<br /><div style="margin-left:35px;">
+		$content.= '<br /><div class="batchProcess">
 				<input type="submit" name="tx_dam_batchProcess_clearForm" value="'.$LANG->getLL('submitClearForm',1).'" />
 				<input type="submit" name="'.$this->startParam.'" value="'.$LANG->getLL('submitProcess',1).'" />
 				</div><br />';
@@ -215,6 +216,7 @@ class tx_dam_batchProcess {
 		return $content;
 	}
 
+
 	/**
 	 * Render a form with TCEForms to edit/enter the preset data
 	 *
@@ -233,20 +235,20 @@ class tx_dam_batchProcess {
 		$rec['uid'] = 1;
 		$rec['pid'] = 1;
 		$rec['media_type'] = 0;
+		$rec = tx_dam_db::evalData('tx_dam', $rec);
 
 
 		require_once (PATH_txdam.'lib/class.tx_dam_simpleforms.php');
 		$form = t3lib_div::makeInstance('tx_dam_simpleForms');
 		$form->initDefaultBEmode();
 		$form->setVirtualTable('tx_dam_simpleforms', 'tx_dam');
-		$form->removeRequired($TCA['tx_dam_simpleforms']);
-		$form->removeTreeViewBrowseable($TCA['tx_dam_simpleforms']);
+		$form->removeRequired();
 		$form->tx_dam_fixedFields = $fixedFields;
 
 			// add message for checkboxes
 		$content.= '<tr bgcolor="'.$GLOBALS['SOBE']->doc->bgColor4.'">
 				<td nowrap="nowrap" valign="middle">'.
-				'<span style="padding: 0 10px 0 10px">'.
+				'<span class="presetForm">'.
 				'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/pil2down.gif', 'width="12" height="7"').' vspace="2" alt="" />'.
 				'</span></td>
 				<td valign="top">'.$description.'</td>
@@ -259,12 +261,12 @@ class tx_dam_batchProcess {
 		$columnsOnly = $TCA['tx_dam']['txdamInterface']['index_fieldList'];
 
 		if ($columnsOnly)	{
-			$content.= $form->getListedFields('tx_dam_simpleforms', $rec, $columnsOnly);
+			$content.= $form->getFormFromList($rec, $columnsOnly);
 		} else {
-			$content.= $form->getMainFields('tx_dam_simpleforms', $rec);
+			$content.= $form->getForm($rec);
 		}
 
-		$content = $form->wrapTotal($content, $rec, 'tx_dam_simpleforms');
+		$content = $form->wrapTotal($content, $rec);
 
 		$GLOBALS['SOBE']->doc->JScode .='
 		'.$form->printNeededJSFunctions_top();
@@ -378,8 +380,6 @@ class tx_dam_batchProcess {
 	 */
 	function extractFormData($data, $appendFieldsArr) {
 		if (is_array($data['tx_dam_simpleforms'][1])) {
-
-			t3lib_div::loadTCA('tx_dam');
 
 				// get which fields are append
 			$appendFields=array();

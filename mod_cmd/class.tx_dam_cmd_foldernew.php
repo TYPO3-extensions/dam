@@ -34,12 +34,14 @@
  *
  *
  *
- *   64: class tx_dam_cmd_foldernew extends t3lib_extobjbase
- *   75:     function head()
- *  118:     function main()
- *  172:     function folderForm()
+ *   66: class tx_dam_cmd_foldernew extends t3lib_extobjbase
+ *   77:     function accessCheck()
+ *   87:     function head()
+ *   97:     function getContextHelp()
+ *  109:     function main()
+ *  134:     function renderForm()
  *
- * TOTAL FUNCTIONS: 3
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -68,47 +70,36 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 
 
 	/**
+	 * Additional access check
+	 *
+	 * @return	boolean Return true if access is granted
+	 */
+	function accessCheck() {
+		return tx_dam::access_checkFileOperation('newFolder');
+	}
+
+
+	/**
 	 * Do some init things and set some things in HTML header
 	 *
 	 * @return	void
 	 */
 	function head() {
-		global  $LANG, $BACK_PATH;
-
-
-			// Initialize GPvars:
-		$this->number = t3lib_div::_GP('number');
-		$this->target = t3lib_div::_GP('target');
-
-			// Init basic-file-functions object:
-		$this->basicff = t3lib_div::makeInstance('t3lib_basicFileFunctions');
-		$this->basicff->init($GLOBALS['FILEMOUNTS'],$GLOBALS['TYPO3_CONF_VARS']['BE']['fileExtensions']);
-
-			// Cleaning and checking target
-		$this->target = tx_dam::path_makeAbsolute($this->target);
-		$this->target = $this->basicff->is_directory($this->target);
-		$key = $this->basicff->checkPathAgainstMounts($this->target.'/');
-		if (!$this->target || !$key)	{
-			$this->target = false;
-		}
-
-			// Finding the icon
-		switch($GLOBALS['FILEMOUNTS'][$key]['type'])	{
-			case 'user':	$this->icon = 'gfx/i/_icon_ftp_user.gif';	break;
-			case 'group':	$this->icon = 'gfx/i/_icon_ftp_group.gif';	break;
-			default:		$this->icon = 'gfx/i/_icon_ftp.gif';	break;
-		}
-
-			// Relative path to filemount, $key:
-		$this->shortPath = substr($this->target,strlen($GLOBALS['FILEMOUNTS'][$key]['path']));
-
-			// Setting title:
-		$this->title = $GLOBALS['FILEMOUNTS'][$key]['name'].': '.$this->shortPath;
-
-#		$GLOBALS['SOBE']->pageTitle = 'Create new folder';
-		$GLOBALS['SOBE']->pageTitle = $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.pagetitle');
-
+		$GLOBALS['SOBE']->pageTitle = $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.pagetitle');
 	}
+
+
+	/**
+	 * Returns a help icon for context help
+	 *
+	 * @return	string HTML
+	 */
+	function getContextHelp() {
+// todo csh
+#		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'');
+	}
+
+
 
 	/**
 	 * Main function, rendering the content of the rename form
@@ -116,72 +107,43 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function main()	{
-		global  $LANG;
+		global  $LANG, $BACK_PATH;
 
-			// Make page header:
-		$content='';
+		$content = '';
 
-		if ($this->target) {
+			// Cleaning and checking target
+		$this->folder = tx_dam::path_compileInfo($this->pObj->folder[0]);
 
-			$pathInfo = tx_dam::path_compileInfo($this->target);
-//			$error = '';
-//
-//				// make the new folder:
-//			$error = $this->makeFolder();
-//
-//			if(!$error) {
-//				$this->pObj->redirect();
-//			}
-//
-//				// output error message
-//			if($error) {
-//				$content.= $GLOBALS['SOBE']->doc->section('Error',htmlspecialchars($error),0,1,2);
-//				$content.= $GLOBALS['SOBE']->doc->spacer(15);
-//			}
-
-
-			$content.= tx_dam_guiFunc::getFolderInfoBar($pathInfo);
-
-			$content.= $GLOBALS['SOBE']->doc->spacer(10);
-
-
-				// Making the formfields for renaming:
-			$code = $this->folderForm();
-				// Add the HTML as a section:
-			$content.= $GLOBALS['SOBE']->doc->section('',$code);
+		if ($this->folder['dir_accessable']) {
+			$content.= $this->renderForm();
 
 		} else {
-
-			$content.= $this->pObj->wrongCommandMessage();
+				// this should have happen in index.php already
+			$content.= $this->pObj->accessDeniedMessageBox(tx_dam_guiFunc::getFolderInfoBar($this->folder));
 		}
-
-
-		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
-
-			// CSH:
-#		$code.= t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'<br/>');
 
 		return $content;
 	}
 
+
 	/**
-	 * Making the formfields for renaming
+	 * Making the formfields for folder creation
 	 *
 	 * @return	string		HTML content
 	 */
-	function folderForm()	{
-		global  $TCA, $BACK_PATH, $LANG, $FILEMOUNTS;
+	function renderForm()	{
+		global  $BACK_PATH, $LANG;
 
+		$content = '';
+		$msg='<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->redirect).'" />';
 
-		$content='';
+		$number = t3lib_div::intInRange(t3lib_div::_GP('number'),1,10);
 
 		$GLOBALS['SOBE']->doc->JScode=$GLOBALS['SOBE']->doc->wrapScriptTags('
-			var path = "'.$this->target.'";
-
 			function reload(a)	{	//
 				if (!changed || (changed && confirm('.$LANG->JScharCode($LANG->sL('LLL:EXT:lang/locallang_core.xml:mess.redraw')).')))	{
-					var params = "&target="+escape(path)+"&number="+a;
-					document.location = "index.php?CMD=tx_dam_cmd_foldernew&redirect='.htmlspecialchars($this->pObj->redirect).'&"+params;
+					var params = "&number="+a;
+					document.location.href = "'.t3lib_div::linkThisScript().'"+params;
 				}
 			}
 
@@ -189,66 +151,45 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 		');
 
 
-		$code.='</form><form action="'.$BACK_PATH.'tce_file.php" method="post" name="editform">';
+		//$content .='</form><form action="'.$BACK_PATH.'tce_file.php" method="post" name="editform">';
 
+		$this->pObj->markers['FOLDER_INFO'] = tx_dam_guiFunc::getFolderInfoBar($this->folder);
 
 			// Making the selector box for the number of concurrent folder-creations
-		$this->number = t3lib_div::intInRange($this->number,1,10);
-		$code.='
+		$msg.='
 			<div id="c-select">
 				<select name="number" onchange="reload(this.options[this.selectedIndex].value);">';
 		for ($a=1;$a<=$this->folderNumber;$a++)	{
-			$code.='
-					<option value="'.$a.'"'.($this->number==$a?' selected="selected"':'').'>'.$a.' '.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.folders',1).'</option>';
+			$msg.='
+					<option value="'.$a.'"'.($number==$a?' selected="selected"':'').'>'.$a.' '.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.folders',1).'</option>';
 		}
-		$code.='
+		$msg.='
 				</select>
 			</div>
 			';
 
 			// Making the number of new-folder boxes needed:
-		$code.='
+		$msg.='
 			<div id="c-createFolders">
+			'.$LANG->getLL('foldername', 1).'
 		';
-		for ($a=0;$a<$this->number;$a++)	{
-			$code.='
-					<input'.$GLOBALS['SOBE']->doc->formWidth(20).' type="text" name="file[newfolder]['.$a.'][data]" onchange="changed=true;" />
-					<input type="hidden" name="file[newfolder]['.$a.'][target]" value="'.htmlspecialchars($this->target).'" /><br />
+		for ($a=0;$a<$number;$a++)	{
+			$msg.='
+					<div>'.($number>1 ? ($a+1).'. ' : '').'<input'.$GLOBALS['SOBE']->doc->formWidth(20).' type="text" name="file[newfolder]['.$a.'][data]" onchange="changed=true;" />
+					<input type="hidden" name="file[newfolder]['.$a.'][target]" value="'.htmlspecialchars($this->folder['dir_path_absolute']).'" /></div>
 				';
 		}
-		$code.='
+		$msg.='
 			</div>
 		';
 
-		$code.= '<br />';
+		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.submit',1) . '" height="16" type="image" width="16">';
+		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
-			// Making submit button for folder creation:
-		$code.='
-			<div id="c-submitFolders">
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_newfolder.php.submit',1).'" />
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />
-				<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->redirect).'" />
-			</div>
-			';
-
-			// CSH:
-#		$code.= t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_newfolder', $GLOBALS['BACK_PATH'],'<br/>');
-
-		$content.= $GLOBALS['SOBE']->doc->section('',$code);
-
-
-
-			// Add spacer:
-		$content.= $GLOBALS['SOBE']->doc->spacer(10);
-
-			// Switching form tags:
-		$content.= $GLOBALS['SOBE']->doc->sectionEnd();
-
+		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
 
 		return $content;
-
 	}
-
 }
 
 

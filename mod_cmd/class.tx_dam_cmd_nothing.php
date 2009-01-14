@@ -79,7 +79,7 @@ class tx_dam_cmd_nothing extends t3lib_extobjbase {
 		$content ='';
 
 
-		$content.= $this->pObj->wrongCommandMessage();
+		$content.= $this->pObj->wrongCommandMessageBox();
 
 		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
 

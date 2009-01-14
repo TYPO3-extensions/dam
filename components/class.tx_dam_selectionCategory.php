@@ -38,13 +38,13 @@
  *   87:     function tx_dam_selectionCategory()
  *
  *              SECTION: DAM specific functions
- *  137:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
- *  166:     function getControl($title,$row)
+ *  143:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damSel)
+ *  176:     function getControl($title,$row)
  *
  *              SECTION: categories
- *  213:     function uniqueList()
- *  245:     function getSubRecords ($uidList, $level=1, $fields='*', $table='tx_dam_cat', $where='')
- *  277:     function getSubRecordsIdList($uidList, $level=1, $table='tx_dam_cat', $where='')
+ *  222:     function uniqueList()
+ *  254:     function getSubRecords ($uidList, $level=1, $fields='*', $table='tx_dam_cat', $where='')
+ *  286:     function getSubRecordsIdList($uidList, $level=1, $table='tx_dam_cat', $where='')
  *
  * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the script "update-class-index")
@@ -93,33 +93,137 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 
 		$this->table = 'tx_dam_cat';
 		$this->parentField = $GLOBALS['TCA'][$this->table]['ctrl']['treeParentField'];
-		$this->parentField = 'parent_id';
 		$this->typeField = $GLOBALS['TCA'][$this->table]['ctrl']['type'];
 
 		$this->iconName = 'cat.gif';
 		$this->iconPath = PATH_txdam_rel.'i/';
 		$this->rootIcon = PATH_txdam_rel.'i/catfolder.gif';
 
-		$this->fieldArray = array('uid','title');
+		$this->fieldArray = array('uid','pid','title','sys_language_uid');
 		if($this->parentField) $this->fieldArray[] = $this->parentField;
 		if($this->typeField) $this->fieldArray[] = $this->typeField;
 		$this->defaultList = 'uid,pid,tstamp,sorting';
 
-		$this->clause = ' AND deleted=0';
+		$this->clause = tx_dam_db::enableFields($this->table, 'AND');
+		$this->clause .= ' AND sys_language_uid=0';
+
 		$this->orderByFields = 'sorting,title';
 
-		$conf = tx_dam::config_getValue('setup.selections.'.$this->treeName);
-		$this->TSconfig = $conf['properties'];
+
+
+			// get the right sys_language_uid for the BE users language
+		if (is_object($GLOBALS['BE_USER']) AND t3lib_extMgm::isLoaded('static_info_tables')) {
+			
+			// Hooray - it's so simple to develop with TYPO3
+			
+			$lang = $GLOBALS['BE_USER']->user['lang'];
+			$lang = $lang ? $lang : 'en';
+		
+				// TYPO3 specific: Array with the iso names used for each system language in TYPO3:
+				// Missing keys means: same as Typo3
+			$isoArray = array(
+				'ba' => 'bs',
+				'br' => 'pt_BR',
+				'ch' => 'zh_CN',
+				'cz' => 'cs',
+				'dk' => 'da',
+				'si' => 'sl',
+				'se' => 'sv',
+				'gl' => 'kl',
+				'gr' => 'el',
+				'hk' => 'zh_HK',
+				'kr' => 'ko',
+				'ua' => 'uk',
+				'jp' => 'ja',
+				'vn' => 'vi',
+			);
+			$iso = $isoArray[$lang] ? $isoArray[$lang] : $lang;
+
+				// Finding the ISO code:
+			if ($rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+						'sys_language.uid',
+						'sys_language LEFT JOIN static_languages ON static_languages.uid=sys_language.static_lang_isocode',
+						'static_languages.lg_iso_2='.$GLOBALS['TYPO3_DB']->fullQuoteStr(strtoupper($iso), 'static_languages').tx_dam_db::enableFields('static_languages', 'AND').tx_dam_db::enableFields('sys_language', 'AND')
+					)) {
+				$row = current($rows);
+				$this->langOvlUid = intval($row['uid']);
+			}
+		}
+
+
+		$this->TSconfig = tx_dam::config_getValue('setup.selections.'.$this->treeName, true);
+
 	}
 
 
-
+	/**
+	 * Returns the title for the input record. If blank, a "no title" labele (localized) will be returned.
+	 * Do NOT htmlspecialchar the string from this function - has already been done.
+	 *
+	 * @param	array		The input row array (where the key "title" is used for the title)
+	 * @param	integer		Title length (30)
+	 * @return	string		The title.
+	 */
+	function getTitleStr($row,$titleLen=30)	{
+		$conf['sys_language_uid'] = $this->langOvlUid;
+		$row = tx_dam_db::getRecordOverlay($this->table, $row, $conf);
+		$title = (!strcmp(trim($row['title']),'')) ? '<em>['.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.php:labels.no_title',1).']</em>' : htmlspecialchars(t3lib_div::fixed_lgd_cs($row['title'],$titleLen));
+		return $title;
+	}
 
 	/********************************
 	 *
 	 * DAM specific functions
 	 *
 	 ********************************/
+
+
+	/**
+	 * Return a control (eg. selection icons) for the element
+	 *
+	 * @param	string		Title string
+	 * @param	string		Item record
+	 * @param	integer		Bank pointer (which mount point number)
+	 * @return	string
+	 * @todo minus do not work - maybe with subqueries
+	 */
+	function getControl($title,$row)	{
+		global $BACK_PATH;
+
+		$control = '';
+
+		if ($this->modeSelIcons
+			AND !($this->mode === 'tceformsSelect')
+			AND ($row['uid'] OR ($row['uid'] == '0' AND $this->linkRootCat))) {
+
+			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/plus.gif', 'width="8" height="11"').' alt="" />';
+			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
+
+			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'AND').'\',this,\''.$this->treeName.'\');';
+			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/equals.gif" width="8" height="11" border="0" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/equals.gif', 'width="8" height="11"').' alt="" />';
+			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
+
+//  minus do not work - maybe with subqueries
+//			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
+//			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' alt="" />';
+//			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
+//			$control .= '<img src="'.$BACK_PATH.'clear.gif" width="12" height="11" border="0" alt="" />';
+		}
+		return $control;
+	}
+
+
+
+
+
+	/********************************
+	 *
+	 * DAM specific SQL functions
+	 *
+	 ********************************/
+
 
 	/**
 	 * Function, processing the query part for selecting/filtering records in DAM
@@ -134,63 +238,68 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @return	string
 	 * @see tx_dam_SCbase::getWhereClausePart()
 	 */
-	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
+	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damSel)      {
+		static $alias='a';
 
-
+		$this->damSel = & $damSel;
 
 		$depth = isset($this->TSconfig['sublevelDepth']) ? intval($this->TSconfig['sublevelDepth']) : 99;
 
 		$catUidList = $this->uniqueList(intval($id), $this->getSubRecordsIdList(intval($id), $depth, 'tx_dam_cat'));
 
-		if ($operator=='!=')	{
-			$query= 'tx_dam_mm_cat.uid_foreign NOT IN ('.$catUidList.')';
+		if ($queryType === 'NOT')	{
+			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign NOT IN ('.$catUidList.')';
 		} else {
-			$query= 'tx_dam_mm_cat.uid_foreign IN ('.$catUidList.')';
+			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign IN ('.$catUidList.')';
 		}
 
-		$damObj->qg->addMMJoin('tx_dam_mm_cat');
+		$this->aliases[] = 'tx_dam_mm_cat_'.$alias;
+
+		$this->damSel->qg->addEnableFields('tx_dam_cat');
+		$this->damSel->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam', 'tx_dam_mm_cat_'.$alias);
+
+		$alias = chr(ord($alias)+1);
 
 		return array($queryType,$query);
 	}
 
 
-
 	/**
-	 * Return a control (eg. selection icons) for the element
+	 * Function, processing the query part for selecting/filtering records in DAM
+	 * Called from DAM
 	 *
-	 * @param	string		Title string
-	 * @param	string		Item record
-	 * @param	integer		Bank pointer (which mount point number)
+	 * @param	string		Category - corresponds to the "treename" used for the category tree in the nav. frame
+	 * @param	array		Mount itmes
+	 * @param	object		Reference to the parent DAM object.
 	 * @return	string
+	 * @see tx_dam_selection::getSelectionWhereClauseArray()
 	 */
-	function getControl($title,$row)	{
-		global $BACK_PATH;
-
-		$control = '';
-#		if ($this->modeSelIcons AND $row['uid'] || (($row['uid'] == '0') && ($this->linkRootCat))) {
-
-		if ($this->modeSelIcons
-			AND !($this->mode=='tceformsSelect')
-			AND ($row['uid'] OR ($row['uid'] == '0' AND $this->linkRootCat))) {
-
-			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'OR').'\',this,\''.$this->treeName.'\');';
-			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/plus.gif', 'width="8" height="11"').' alt="" />';
-			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
-
-			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'AND').'\',this,\''.$this->treeName.'\');';
-			$icon = '<img src="'.$BACK_PATH.PATH_txdam_rel.'i/equals.gif" width="8" height="11" border="0" alt="" />';
-			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/equals.gif', 'width="8" height="11"').' alt="" />';
-			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
-
-//TODO minus do not work - maybe with subqueries
-#			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
-#			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' alt="" />';
-#			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
-			$control .= '<img src="'.$BACK_PATH.'clear.gif" width="12" height="11" border="0" alt="" />';
-		}
-		return $control;
-	}
-
+//	function selection_getQueryPartRestrictAccess($cat, $mounts, &$damSel)      {
+//
+//		if ($mounts AND current($mounts)) {
+//
+//			$this->damSel = & $damSel;
+//		
+//			$depth = isset($this->TSconfig['sublevelDepth']) ? intval($this->TSconfig['sublevelDepth']) : 99;
+//
+//			$uidArray = array();
+//			foreach ($mounts as $mount) {
+//				$uidArray[] = $mount;
+//				$rows = $this->getSubRecords (intval($mount), $depth, 'uid', 'tx_dam_cat');
+//				$uidArray = array_merge($uidArray, $rows);
+//			}
+//			$catUidList = implode(',',array_keys($uidArray));
+//
+//			foreach ($this->aliases as $alias) {
+//				$query = 'AND '.$alias.'.uid_foreign IN ('.$catUidList.')';
+//				$damSel->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam', $alias, $query);
+//			}
+//
+//		}
+//		$queryType = 'AND';
+//		$query = 'tx_dam_mm_cat_a.uid_local IS NOT NULL';
+//		return array($queryType,$query);
+//	}
 
 
 
@@ -251,7 +360,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			$newIdList = array();
 			t3lib_div::loadTCA($table);
 			$ctrl = $GLOBALS['TCA'][$table]['ctrl'];
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, $ctrl['treeParentField'].' IN ('.$uidList.') '.$where.' AND NOT '.$table.'.'.$ctrl['delete']);
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery($fields, $table, $ctrl['treeParentField'].' IN ('.$uidList.') '.$where.$this->damSel->qg->enableFields($table));
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
 				$rows[$row['uid']] = $row;
 				$newIdList[] = $row['uid'];
@@ -275,6 +384,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @return	string		Comma-list of record ids
 	 */
 	function getSubRecordsIdList($uidList, $level=1, $table='tx_dam_cat', $where='')	{
+		$uidList = $GLOBALS['TYPO3_DB']->cleanIntList($uidList);
 		$rows = $this->getSubRecords ($uidList, $level, 'uid', $table, $where);
 		return implode(',',array_keys($rows));
 	}

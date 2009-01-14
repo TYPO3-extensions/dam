@@ -35,12 +35,13 @@
  *
  *
  *   64: class tx_dam_cmd_filereplace extends t3lib_extobjbase
- *   75:     function head()
- *  101:     function main()
- *  158:     function uploadForm()
- *  193:     function replaceFile()
+ *   72:     function accessCheck()
+ *   82:     function head()
+ *   92:     function getContextHelp()
+ *  103:     function main()
+ *  154:     function renderForm()
  *
- * TOTAL FUNCTIONS: 4
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -48,7 +49,6 @@
 
 
 require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
-
 
 require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 
@@ -64,7 +64,14 @@ require_once(PATH_t3lib.'class.t3lib_extobjbase.php');
 class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 
 
-	var $rec = array();
+	/**
+	 * Additional access check
+	 *
+	 * @return	boolean Return true if access is granted
+	 */
+	function accessCheck() {
+		return tx_dam::access_checkFileOperation('deleteFile');
+	}
 
 
 	/**
@@ -73,25 +80,20 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function head() {
-		global  $LANG, $BACK_PATH, $TYPO3_CONF_VARS;
-
-
-		$GLOBALS['SOBE']->pageTitle = $LANG->getLL('tx_dam_cmd_filereplace.title');
-
-		$id = FALSE;
-		if(is_array($this->pObj->data['upload'])) {
-			$id = intval(key($this->pObj->data['upload']));
-		}
-		$id = $id ? $id : t3lib_div::_GP('id');
-		if (t3lib_div::testInt($id)) {
-			$row = t3lib_BEfunc::getRecord('tx_dam', $id);
-			$this->rec = $row;
-		} else {
-			$this->rec = tx_dam::meta_getDataForFile($id);
-		}
-
-
+		$GLOBALS['SOBE']->pageTitle = $GLOBALS['LANG']->getLL('tx_dam_cmd_filereplace.title');
 	}
+
+
+	/**
+	 * Returns a help icon for context help
+	 *
+	 * @return	string HTML
+	 */
+	function getContextHelp() {
+// todo csh
+#		return t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_delete', $GLOBALS['BACK_PATH'],'');
+	}
+
 
 	/**
 	 * Main function, rendering the content of the rename form
@@ -101,53 +103,47 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 	function main()	{
 		global  $LANG;
 
-			// Make page header:
-		$content='';
+		$content = '';
 
-		if (is_array($this->rec)) {
+			// Cleaning and checking target
+		if ($this->pObj->file[0]) {
+			$this->file = tx_dam::file_compileInfo($this->pObj->file[0]);
+			$this->meta = tx_dam::meta_getDataForFile($this->file);
+		} elseif ($id = intval($this->pObj->record['tx_dam'][0])) {
+			$this->meta = tx_dam::meta_getDataByUid($id);
+			$this->file = tx_dam::file_compileInfo($this->meta);
+		}
+		if (!is_array($this->meta)) {
+			$fileType = tx_dam::file_getType ($this->file);
+			$this->meta = array_merge($this->file, $fileType);
+			$this->meta['uid'] = 0;
+		}
 
-			$error = '';
+		if ($this->file['file_accessable']) {
 
-			if (is_array($this->pObj->data['upload'])) {
-					// do the renaming:
-				$error = $this->replaceFile();
+			if (is_array($this->pObj->data) AND $this->pObj->data['upload']) {
 
-				if(!$error) {
+				$error = tx_dam::process_replaceFile($this->meta, $this->pObj->data);
+
+				if ($error) {
+					$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), $this->pObj->buttonBack(0), 2);
+
+				} else {
 					$this->pObj->redirect();
 				}
 
+
+			} else {
+				$content.=  $this->renderForm();
 			}
-
-			$content.= tx_dam_guiFunc::getRecordInfoHeader($this->rec);
-			$content.= '<br />';
-
-
-				// output error message
-			if($error) {
-				$content.= $GLOBALS['SOBE']->doc->section('Error',htmlspecialchars($error),0,1,2);
-				$content.= $GLOBALS['SOBE']->doc->spacer(15);
-			}
-
-
-				// Making the formfields for renaming:
-			$code = $this->uploadForm();
-				// Add the HTML as a section:
-			$content.= $GLOBALS['SOBE']->doc->section('',$code);
 
 		} else {
-
-			$content.= $this->pObj->wrongCommandMessage();
+				// this should have happen in index.php already
+			$content.= $this->pObj->accessDeniedMessageBox($this->file['file_name']);
 		}
-
-
-		$content.= '<br /><br />'.$this->pObj->btn_back('',$this->pObj->returnUrl);
-
-			// CSH:
-#		$code.= t3lib_BEfunc::cshItem('xMOD_csh_corebe', 'file_rename', $GLOBALS['BACK_PATH'],'<br/>');
 
 		return $content;
 	}
-
 
 
 	/**
@@ -155,121 +151,31 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 	 *
 	 * @return	string		HTML content
 	 */
-	function uploadForm()	{
-		global $BACK_PATH, $LANG, $FILEMOUNTS;
+	function renderForm()	{
+		global $BACK_PATH, $LANG;
 
-		$id = $this->rec['uid'];
-		$path = tx_dam::path_makeAbsolute($this->rec['file_path']);
+		$id = $this->meta['uid'];
+		$path = tx_dam::path_makeAbsolute($this->meta['file_path']);
 
 		$content = '';
+		$msg = array();
 
-				// Adding 'size="50" ' for the sake of Mozilla!
-		$content.='
-			<div id="c-upload">
-				<input type="file" name="upload_'.$id.'"'.$this->pObj->doc->formWidth(35).' size="50" onclick="changed=1;" />
+		$this->pObj->markers['FOLDER_INFO'] = '[' . $this->file['file_path'] . ']:' . $this->file['file_name'];
+		$msg[] = tx_dam_guiFunc::getRecordInfoHeaderExtra($this->meta);
+		$msg[] = '&nbsp;';
+
+		$msg[] = '
+				<input type="file" name="upload_'.$id.'"'.$this->pObj->doc->formWidth(35).' size="45" />
 				<input type="hidden" name="data[upload]['.$id.'][target]" value="'.htmlspecialchars($path).'" />
-				<input type="hidden" name="data[upload]['.$id.'][data]" value="'.$id.'" /><br />
-			</div>
-			';
+				<input type="hidden" name="data[upload]['.$id.'][data]" value="'.$id.'" />';
 
-			// Making submit button:
-		$content.= '
-			<div id="c-submit">
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.submit',1).'" />
-				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />
-				<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->returnUrl).'" />
-			</div>
-		';
+		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_upload.php.submit',1) . '" height="16" type="image" width="16">';
+		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
+
+		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
 
 		return $content;
 	}
-
-
-	/**
-	 * Rename the file and process DB update
-	 *
-	 * @return	void
-	 */
-	function replaceFile() {
-		$error = FALSE;
-
-		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
-		$file = t3lib_div::makeInstance('tx_dam_tce_file');
-		$file->init();
-
-#
-// TODO overwrite only orig file not others
-#
-
-			// allow overwrite
-		$file->fileProcessor->dontCheckForUnique = TRUE;
-
-		$row = $this->rec;
-
-		if($id = $row['uid']) {
-			$data = $this->pObj->data['upload'][$row['uid']];
-			if (is_array($data)) {
-
-
-
-				//
-				// Processing uploads
-				//
-
-
-				$file->setCmdmap($this->pObj->data);
-				$log = $file->process();
-
-				if ($file->errors()) {
-
-					$error = $file->getLastError();
-
-				} else {
-
-					$org_filename = $row['file_name'];
-					$oldFile = tx_dam::file_absolutePath($row);
-
-					$newFile = $log['cmd']['upload'][$id]['target_file'];
-					$new_filename = basename($newFile);
-
-					if ($new_filename) {
-							// rename meta data fields
-						$fields_values = array();
-						$fields_values['file_name'] = $new_filename;
-						if ($org_filename != $new_filename) {
-							$fields_values['file_dl_name'] = $new_filename;
-							if(@is_file($oldFile)) {
-								unlink($oldFile);
-							}
-						}
-
-
-// TODO tx_dam_db
-						$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'uid='.$row['uid'], $fields_values);
-
-// TODO make indexing simpler - just one function
-						require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
-						$index = t3lib_div::makeInstance('tx_dam_indexing');
-						$index->init();
-						$index->setRunType('auto');
-						$index->setDefaultSetup(tx_dam::path_makeAbsolute($row['file_path']));
-						$index->initEnabledRules();
-						$index->enableReindexing();
-
-						$filepath = tx_dam::file_absolutePath($row);
-						$fileList = array($row['uid'] => $filepath);
-
-						$indexedFiles = $index->indexFiles($fileList, $this->pObj->defaultPid);
-
-						$this->rec = t3lib_BEfunc::getRecord('tx_dam', $row['uid']);
-
-					}
-				}
-			}
-		}
-		return $error;
-	}
-
 
 }
 

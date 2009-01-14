@@ -39,7 +39,7 @@
  *   94:     function selection_getItemTitle($id, $value)
  *  112:     function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)
  *  138:     function makeSearchQueryPart($table, $fields, $searchString)
- *  163:     function getSearchFields($table, $searchString)
+ *  164:     function getSearchFields($table, $searchString)
  *
  * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
@@ -177,7 +177,7 @@ class tx_dam_selectionStringSearch extends tx_dam_selProcBase {
 
 				// Traverse the configured columns and add all columns that can be searched:
 			foreach($TCA[$table]['columns'] as $fieldName => $info)	{
-				if ($info['config']['type']=='text' || ($info['config']['type']=='input' && !ereg('date|time|int',$info['config']['eval'])))	{
+				if ($info['config']['type'] === 'text' || ($info['config']['type'] === 'input' && !ereg('date|time|int',$info['config']['eval'])))	{
 					$sfields[]=$fieldName;
 				}
 			}

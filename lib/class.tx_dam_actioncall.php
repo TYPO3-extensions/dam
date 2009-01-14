@@ -36,38 +36,41 @@
  *
  *
  *
- *   91: class tx_dam_actionCall
+ *   94: class tx_dam_actionCall
  *
  *              SECTION: Constructor / Initialization
- *  141:     function tx_dam_actionCall($classes=NULL)
- *  152:     function __construct($classes=NULL)
- *  164:     function initClasses($classes=NULL)
- *  177:     function registerAction ($idName, $class)
- *  190:     function setEnv ($param1, $param2=NULL)
- *  214:     function setRequest ($type, $itemInfo, $mode, $moduleName)
+ *  170:     function tx_dam_actionCall($classes=NULL)
+ *  181:     function __construct($classes=NULL)
+ *  194:     function initClasses($classes=NULL)
+ *  207:     function registerAction ($idName, $class)
+ *  220:     function setEnv ($param1, $param2=NULL)
+ *  241:     function setRequest ($type, $itemInfo, $mode='', $moduleName='')
  *
  *              SECTION: Iterator functions
- *  234:     function rewind()
- *  244:     function valid()
- *  255:     function next()
- *  265:     function key()
- *  275:     function &current()
- *  290:     function count ()
+ *  264:     function rewind()
+ *  274:     function valid()
+ *  285:     function next()
+ *  295:     function key()
+ *  305:     function &current()
+ *  320:     function count ()
  *
  *              SECTION: Rendering
- *  311:     function renderActionsHorizontal($checkValidStrict=false, $showDisabled=true)
+ *  341:     function renderActionsHorizontal($checkValidStrict=false, $showDisabled=true)
+ *  376:     function renderActionsContextMenu($checkValidStrict=false, $showDisabled=false)
+ *  413:     function renderMultiActions($checkValidStrict=false, $showDisabled=false)
+ *  452:     function checkItemValid (&$item)
  *
  *              SECTION: Init item list
- *  356:     function initActions ($checkForPossiblyValid=false, $keepInvalid=false)
- *  368:     function initItems()
- *  406:     function addItem($idName, $position='', $divider='')
+ *  497:     function initActions ($checkForPossiblyValid=false, $keepInvalid=false)
+ *  509:     function initItems()
+ *  547:     function addItem($idName, $position='', $divider='')
  *
  *              SECTION: Objects
- *  475:     function initObjects ($checkForPossiblyValid=false, $keepInvalid=false)
- *  500:     function &getByIDName ($idName)
- *  511:     function makeObject ($idName)
+ *  616:     function initObjects ($checkForPossiblyValid=false, $keepInvalid=false)
+ *  656:     function &getByIDName ($idName)
+ *  667:     function makeObject ($idName)
  *
- * TOTAL FUNCTIONS: 19
+ * TOTAL FUNCTIONS: 22
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -91,6 +94,30 @@
 class tx_dam_actionCall {
 
 	/**
+	 * defines the output/render type
+	 *
+	 * Possible values:
+	 * icon, button, control, context
+	 */
+	 var $type;
+
+	/**
+	 * holds the data of the item a action should be called for. for example just record data.
+	 *
+	 * two special fields are defined:
+	 * __type: record, dir, file
+	 * __table: table name for records
+	 *
+	 * These fields have to be defined if no real data is available yet.
+	 * dir and file data has the format of tx_dam::file_compileInfo();
+	 */
+	 var $itemInfo = array(
+	 		'__type' => '',
+	 		'__table' => '',
+	 	);
+
+
+	/**
 	 * stores action class references by idName keys
 	 */
 	var $classes = array();
@@ -111,6 +138,8 @@ class tx_dam_actionCall {
 	 var $env = array(
 	 	'returnUrl' => '',
 	 	'defaultCmdScript' => '',
+	 	'defaultEditScript' => '',
+	 	'backPath' => '',
 	 	);
 
 	/**
@@ -140,7 +169,7 @@ class tx_dam_actionCall {
 	 * @see __construct()
 	 */
 	function tx_dam_actionCall($classes=NULL) {
-		$this->__construct($classes=NULL);
+		$this->__construct($classes);
 	}
 
 
@@ -153,6 +182,8 @@ class tx_dam_actionCall {
 	function __construct($classes=NULL) {
 		$this->classes = is_array($classes) ? $classes : $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['actionClasses'];
 		$this->classes = is_array($this->classes) ? $this->classes : array();
+		$this->env['backPath'] = $GLOBALS['BACK_PATH'];
+		tx_dam::config_init();
 	}
 
 
@@ -181,6 +212,18 @@ class tx_dam_actionCall {
 
 
 	/**
+	 * Remove a "action" class locally.
+	 * This means the action is removed from the instance of this class and not from the system.
+	 *
+	 * @param	string		$idName This is the ID of the action. Chars allowed only: [a-zA-z]
+	 * @return	void
+	 */
+	function removeAction ($idName) {
+		unset($this->classes[$idName]);
+	}
+
+
+	/**
 	 * Set values for the local environment.
 	 * The environment are special keys/values that gives the action information what to do.
 	 *
@@ -191,17 +234,22 @@ class tx_dam_actionCall {
 	 function setEnv ($param1, $param2=NULL) {
 	 	$env = array();
 
- 		$this->env['mode'] = $this->mode;
- 		$this->env['moduleName'] = $this->moduleName;
-
 	 	if (is_array($param1)) {
-	 		$env = $param1;
+	 		foreach ($param1 as $key => $value) {
+		 		if (is_string($value) AND preg_match('#^http://#', $value)) {
+		 				// this append ? to any url so easily &params can be appended
+		 			$value = strpos($value, '?') ? $value : $value.'?';
+		 		}
+		 		$env[$key] = $value;
+	 		}
+	 		
 	 	}
 	 	elseif (!is_array($param1) AND !is_null($param2)) {
 	 		$env[$param1] = $param2;
 	 	}
 	 	$this->env = t3lib_div::array_merge_recursive_overrule($this->env, $env);
 	 }
+
 
 	/**
 	 * Define what type of action are requested
@@ -212,11 +260,14 @@ class tx_dam_actionCall {
 	 * @param	string		$moduleName Module name, eg. $GLOBALS['MCONF']['name']
 	 * @return	void
 	 */
-	function setRequest ($type, $itemInfo, $mode, $moduleName) {
+	function setRequest ($type, $itemInfo, $mode='', $moduleName='') {
 		$this->type = $type;
 		$this->itemInfo = $itemInfo;
  		$this->mode = $mode;
- 		$this->moduleName = $moduleName;
+ 		$this->moduleName = $moduleName ? $moduleName : $GLOBALS['MCONF']['name'].'.'.$GLOBALS['SOBE']->extClassConf['name'];
+
+ 		$this->env['mode'] = $this->mode;
+ 		$this->env['moduleName'] = $this->moduleName;
 	}
 
 
@@ -275,7 +326,7 @@ class tx_dam_actionCall {
 	 */
 	function &current() {
 		$item = current($this->items);
-		if (substr($item,0,2) == '__') {
+		if (substr($item,0,2) === '__') {
 				// returning a reference is not nice but there's no way
 			return $item;
 		}
@@ -306,27 +357,27 @@ class tx_dam_actionCall {
 	 * Dividers and spacer are rendered for horizontal use.
 	 *
 	 * @param	boolean		$checkValidStrict Perform a strict valid test with isValid() for each action.
-	 * @param	boolean		$showDisabled Will render diabled items for non-valid actions. Eg. a greyed icon without link.
+	 * @param	boolean		$showDisabled Will render disabled items for non-valid actions. Eg. a greyed icon without link.
 	 * @return	array		Array of rendered items. Can be imploded for example.
 	 */
 	function renderActionsHorizontal($checkValidStrict=false, $showDisabled=true) {
 		$actions = array();
-		$valid = true;
 		$this->rewind();
-		while ($this->valid()) {
+		while ($valid = $this->valid()) {
 			$item = $this->current();
-			if ($checkValidStrict) {
-				$valid = $item->isValid($this->type, $this->itemInfo, $this->env);
-			}
 
-			if ($valid OR $showDisabled) {
-				if ($this->enableSpacer AND $item == '__spacer') {
-					$actions[] = '&nbsp; &nbsp;';
+			if ($this->enableSpacer AND $item === '__spacer') {
+				$actions[] = '&nbsp; &nbsp;';
+			}
+			elseif ($this->enableDivider AND $item === '__divider') {
+				$actions[] = '&nbsp;<span class="actionHorizontal">&nbsp;</span>';
+			}
+			elseif (is_object($item)) {
+				if ($checkValidStrict) {
+					$valid = $this->checkItemValid($item);
 				}
-				elseif ($this->enableDivider AND $item == '__divider') {
-					$actions[] = '&nbsp;<span style="border-left:1px dotted #666">&nbsp;</span>';
-				}
-				elseif (is_object($item)) {
+
+				if ($valid OR $showDisabled) {
 					$actions[] = $item->render($this->type, !$valid);
 				}
 			}
@@ -336,6 +387,117 @@ class tx_dam_actionCall {
 	}
 
 
+	/**
+	 * Walk through the list of actions and render them.
+	 * Dividers and spacer are rendered for horizontal use.
+	 *
+	 * @param	boolean		$checkValidStrict Perform a strict valid test with isValid() for each action.
+	 * @param	boolean		$showDisabled Will render disabled items for non-valid actions. Eg. a greyed icon without link.
+	 * @return	array		Array of rendered items. Can be imploded for example.
+	 */
+	function renderActionsContextMenu($checkValidStrict=false, $showDisabled=false) {
+		$actions = array();
+		$divider = 0;
+		$this->rewind();
+		while ($valid = $this->valid()) {
+			$item = $this->current();
+
+			if ($this->enableSpacer AND $item === '__spacer') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif ($this->enableDivider AND $item === '__divider') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif (is_object($item)) {
+				if ($checkValidStrict) {
+					$valid = $this->checkItemValid($item);
+				}
+
+				if ($valid OR $showDisabled) {
+					$actions[$item->idName] = $item->render($this->type, !$valid);
+					$actions[$item->idName]['valid'] = $valid;
+				}
+			}
+			$this->next();
+		}
+		return $actions;
+	}
+
+
+	/**
+	 * Walk through the list of actions and render them.
+	 * Dividers are rendered for list use.
+	 *
+	 * @param	boolean		$checkValidStrict Perform a strict valid test with isValid() for each action.
+	 * @param	boolean		$showDisabled Will render disabled items for non-valid actions. Eg. a greyed icon without link.
+	 * @return	array		Array of rendered items. Can be imploded for example.
+	 */
+	function renderMultiActions($checkValidStrict=false, $showDisabled=false) {
+		$actions = array();
+		$divider = 0;
+		$this->rewind();
+		while ($valid = $this->valid()) {
+			$item = $this->current();
+
+			if ($this->enableSpacer AND $item === '__spacer') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif ($this->enableDivider AND $item === '__divider') {
+				$actions['adivider'.(++$divider)]['isDivider'] = true;
+			}
+			elseif (is_object($item)) {
+				if ($checkValidStrict) {
+					$valid = $this->checkItemValid($item);
+				}
+
+				if ($valid OR $showDisabled) {
+					$actions[$item->idName] = $item->render($this->type, !$valid);
+					$actions[$item->idName]['valid'] = $valid;
+
+				}
+			}
+			$this->next();
+		}
+
+		return $actions;
+	}
+
+
+	/**
+	 * Function calls the actions own ->isValid function.
+	 * If that returns true - meaning that the action is accessible a hook taking effect which allows external validation of the
+	 * action.
+	 *
+	 * @param	object		$item Reference to the action object currently in process
+	 * @return	boolean		returns true or false
+	 */
+	function checkItemValid (&$item) {
+		global $TYPO3_CONF_VARS;
+
+		$valid = $item->isValid($this->type, $this->itemInfo, $this->env);
+
+		if ($valid) {
+			$item->getIdName();
+
+				// hook
+			if (is_array($TYPO3_CONF_VARS['EXTCONF']['dam']['actionValidation']) AND count($TYPO3_CONF_VARS['EXTCONF']['dam']['actionValidation']))	{
+				foreach($TYPO3_CONF_VARS['EXTCONF']['dam']['actionValidation'] as $classKey => $classRef)	{
+					if (strtolower($classKey) == strtolower($item->idName)) {
+						if (is_object($obj = &t3lib_div::getUserObj($classRef)))	{
+							if (method_exists($obj, 'isTypeValid')) {
+								$valid = $obj->isTypeValid($item->idName, $this->itemInfo);
+								if ($valid === false) {
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $valid;
+	}
 
 
 
@@ -373,10 +535,10 @@ class tx_dam_actionCall {
 			$this->addItem ($idName, $action->getWantedPosition($this->type), $action->getWantedDivider($this->type));
 		}
 			// remove first and last spacer etc
-		while (substr($this->items[0],0,2) == '__') {
+		while (substr($this->items[0],0,2) === '__') {
 			unset($this->items[0]);
 		}	// remove first and last spacer etc
-		while (substr(end($this->items),0,2) == '__') {
+		while (substr(end($this->items),0,2) === '__') {
 			unset($this->items[key($this->items)]);
 		}
 			// remove double spacer etc
@@ -385,9 +547,9 @@ class tx_dam_actionCall {
 			if ($last) {
 				if ($this->items[$last] == $item)
 					unset ($this->items[$last]);
-				if ($this->items[$last] == '__spacer' AND $item == '__divider')
+				if ($this->items[$last] === '__spacer' AND $item === '__divider')
 					unset ($this->items[$last]);
-				if ($this->items[$last] == '__divider' AND $item == '__spacer')
+				if ($this->items[$last] === '__divider' AND $item === '__spacer')
 					unset ($this->items[$key]);
 			}
 			$last = $key;
@@ -426,7 +588,7 @@ class tx_dam_actionCall {
 					$pointer = 0;
 					foreach($this->items as $k => $m)	{
 						if (!strcmp($m, $itemRef))	{
-							$pointer = $place=='after' ? $k+1 : $k;
+							$pointer = $place === 'after' ? $k+1 : $k;
 							$found = true;
 						}
 					}
@@ -466,6 +628,7 @@ class tx_dam_actionCall {
 	 ***************************************/
 
 
+	
 	/**
 	 * Initializes the action objects.
 	 *
@@ -474,10 +637,30 @@ class tx_dam_actionCall {
 	 * @return	void
 	 */
 	function initObjects ($checkForPossiblyValid=false, $keepInvalid=false) {
+		
+		$setupAllowDeny = tx_dam::config_getValue('mod.txdamM1_SHARED.actions', true);
+		$setupAllowDeny = isset($setupAllowDeny[$this->type.'.']) ? $setupAllowDeny[$this->type.'.'] : $setupAllowDeny['shared.'];
+		$setupAllowDenyShared = tx_dam_allowdeny_list::transformSimpleSetup ($setupAllowDeny);
+	
+		
+		list($modName, $modFuncName) = explode('.', $this->moduleName);
+		
+		$setupAllowDeny = tx_dam::config_getValue('mod.'.$modName.'.actions', true);
+		$setupAllowDeny = isset($setupAllowDeny[$this->type.'.']) ? $setupAllowDeny[$this->type.'.'] : $setupAllowDeny['shared.'];
+		$setupAllowDenyMod = tx_dam_allowdeny_list::transformSimpleSetup ($setupAllowDeny);
+		
+		if ($modFuncName) {
+			$setupAllowDeny = tx_dam::config_getValue('mod.'.$modName.'.modfunc.'.$modFuncName.'.actions', true);
+			$setupAllowDeny = isset($setupAllowDeny[$this->type.'.']) ? $setupAllowDeny[$this->type.'.'] : $setupAllowDeny['shared.'];
+			$setupAllowDenyModfunc = tx_dam_allowdeny_list::transformSimpleSetup ($setupAllowDeny);
+		}
+		$allowDeny = new tx_dam_allowdeny_list(array_keys($this->classes), $setupAllowDenyModfunc, $setupAllowDenyMod, $setupAllowDenyShared);
+
 		foreach ($this->classes as $idName => $classRef) {
-			if ($this->makeObject($idName)) {
+			if ($allowDeny->isAllowed($idName) AND $this->makeObject($idName)) {
 				$this->objects[$idName]->setItemInfo($this->itemInfo);
 				$this->objects[$idName]->setEnv($this->env);
+				$this->objects[$idName]->getIdName();
 				if ($checkForPossiblyValid) {
 					$valid = $this->objects[$idName]->isPossiblyValid($this->type);
 				}
@@ -490,6 +673,10 @@ class tx_dam_actionCall {
 			}
 		}
 	}
+
+
+
+
 
 
 	/**

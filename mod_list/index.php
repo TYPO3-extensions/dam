@@ -34,14 +34,12 @@
  *
  *
  *
- *   74: class tx_dam_mod_list extends tx_dam_SCbase
- *   83:     function init()
- *  103:     function main()
- *  155:     function jumpToUrl(URL)
- *  213:     function printContent()
+ *   81: class tx_dam_mod_list extends tx_dam_SCbase
+ *   91:     function main()
+ *  203:     function printContent()
  *
- * TOTAL FUNCTIONS: 4
- * (This index is automatically created/updated by the extension "extdeveval")
+ * TOTAL FUNCTIONS: 2
+ * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
@@ -57,16 +55,16 @@ require ('conf.php');
 require ($BACK_PATH.'init.php');
 require ($BACK_PATH.'template.php');
 
+$BE_USER->modAccess($MCONF,1);
+
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
+require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
 
 require_once(PATH_txdam.'lib/class.tx_dam_selstorage.php');
-require_once(PATH_txdam.'lib/class.tx_dam_guirenderlist.php');
 
 
 $LANG->includeLLFile('EXT:dam/mod_list/locallang.xml');
 
-
-$BE_USER->modAccess($MCONF,1);
 
 
 
@@ -83,6 +81,7 @@ $BE_USER->modAccess($MCONF,1);
 class tx_dam_mod_list extends tx_dam_SCbase {
 
 
+	var $formName = 'editform';
 
 	/**
 	 * Main function of the module. Write the content to $this->content
@@ -97,18 +96,15 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		$this->guiItems = t3lib_div::makeInstance('tx_dam_guiRenderList');
 
 
-			// Initialize the template object
+		//
+		// Initialize the template object
+		//
 
-		$this->doc = t3lib_div::makeInstance('mediumDoc');
+		$this->doc = t3lib_div::makeInstance('template'); 
 		$this->doc->backPath = $BACK_PATH;
+		$this->doc->setModuleTemplate(t3lib_extMgm::extRelPath('dam') . 'res/templates/mod_list.html');
+		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
 		$this->doc->docType = 'xhtml_trans';
-
-
-			// This will return content necessary for the context sensitive clickmenus to work: bodytag events, JavaScript functions and DIV-layers.
-		$CMparts = $this->doc->getContextMenuCode();
-		$this->doc->bodyTagAdditions = $CMparts[1];
-		$this->doc->JScode.= $CMparts[0];
-		$this->doc->postCode.= $CMparts[2];
 
 
 		// Access check can not be checked in beforehand
@@ -121,7 +117,11 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 		// **************************
 		if ($access)	{
 
-			$this->selection->sl->initSelection_getStored_mergeSubmitted();
+
+
+
+			$this->selection->processSubmittedSelection();
+			$this->selection->addDefaultFilter();
 
 
 				// Store settings gui element
@@ -145,30 +145,22 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 			// Output page header
 			//
 
-			$this->doc->form='<form action="'.htmlspecialchars(t3lib_div::linkThisScript($this->addParams)).'" method="post" name="editform" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
-
 			$this->addDocStyles();
 			$this->addDocJavaScript();
 
-
-			$this->doc->postCode.= $this->doc->wrapScriptTags('
-				script_ended = 1;');
-
-
 			$this->extObjHeader();
 
-				// Draw the header.
-			$this->content.= $this->doc->startPage($LANG->getLL('title'));
-			$this->content.= $this->doc->header($LANG->getLL('title'));
-			$this->content.= $this->doc->spacer(5);
-
+			$this->doc->form = $this->getFormTag();
 
 			//
 			// Output tabmenu if not a single function was forced
 			//
 
 			if (!$this->forcedFunction AND count($this->MOD_MENU['function'])>1) {
-				$this->content.= $this->doc->section('',     $this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']),0,1);
+				$this->markers['FUNC_MENU'] = $this->getTabMenu($this->addParams,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function']);  
+			}
+			else {
+				$this->markers['FUNC_MENU'] = '';
 			}
 
 			//
@@ -182,17 +174,30 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 			// output footer: search box, options, store control, ....
 			//
 
-			#$this->content.= $this->doc->spacer(10);
+			$this->content.= $this->doc->spacer(10);
 			$this->content.= $this->guiItems->getOutput('footer');
 
 
 			// ShortCut
 			if ($BE_USER->mayMakeShortcut())	{
-				$this->content.= $this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
+				//$this->content.= $this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
+				$this->markers['SHORTCUT'] = $this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']);
 			}
 
 			$this->content.= $this->doc->spacer(10);
 
+			$this->markers['CONTENT'] = $this->content;
+			$this->markers['LANGUAGE_SELECT'] = isset($this->markers['LANGUAGE_SELECT']) ? $this->markers['LANGUAGE_SELECT'] : '';
+			$docHeaderButtons = array(
+				'VIEW' => $this->markers['VIEW'],
+				'RECORD_LIST' => $this->markers['RECORD_LIST'],
+				'SHORTCUT' => $this->markers['SHORTCUT'],
+			);
+			$this->markers['CSH'] = ''; // TODO
+				// Build the <body> for the module
+			$this->content = $this->doc->startPage($LANG->getLL('title'));
+			$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $this->markers);
+			$this->content.= $this->doc->endPage();
 
 		} else {
 				// If no access
@@ -210,9 +215,7 @@ class tx_dam_mod_list extends tx_dam_SCbase {
 	 * @return	string		HTML
 	 */
 	function printContent()	{
-		$this->content.= $this->doc->middle();
-		$this->content.= $this->doc->endPage();
-		$this->content = $this->doc->insertStylesAndJS($this->content);
+		$this->content = $this->doc->insertStylesAndJS($this->content);  
 		echo $this->content;
 	}
 

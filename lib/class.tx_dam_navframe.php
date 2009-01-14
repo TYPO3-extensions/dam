@@ -82,6 +82,9 @@ class tx_dam_navframe {
 
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->backPath = $BACK_PATH;
+		$this->doc->setModuleTemplate(t3lib_extMgm::extRelPath('dam') . 'res/templates/mod_navframe.html');
+		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
+		$this->doc->docType  = 'xhtml_trans';
 
 
 		$this->currentSubScript = t3lib_div::_GP('currentSubScript');
@@ -101,9 +104,9 @@ class tx_dam_navframe {
 				var theUrl = top.TS.PATH_typo3+top.currentSubScript+"?"+params;
 
 				if (top.condensedMode)	{
-					top.content.document.location=theUrl;
+					top.content.document.location.href=theUrl;
 				} else {
-					parent.list_frame.document.location=theUrl;
+					parent.list_frame.document.location.href=theUrl;
 				}
 				'.($this->doHighlight?'hilight_row("row"+top.fsMod.recentIds["txdamM1"],highLightID);':'').'
 				'.(!$GLOBALS['CLIENT']['FORMSTYLE'] ? '' : 'if (linkObj) {linkObj.blur();}').'
@@ -119,7 +122,7 @@ class tx_dam_navframe {
 
 
 			function _refresh_nav()	{
-				document.location="'.htmlspecialchars(t3lib_div::getIndpEnv('SCRIPT_NAME').'?unique='.time()).'";
+				document.location.href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => time()))).'";
 			}
 
 				// Highlighting rows in the page tree:
@@ -146,30 +149,6 @@ class tx_dam_navframe {
 		#$this->doc->postCode.= $CMparts[2];
 
 
-			// from tx_dam_SCbase
-		$this->doc->buttonColor = '#e3dfdb';
-		$this->doc->buttonColorHover = t3lib_div::modifyHTMLcolor($this->doc->buttonColor,-20,-20,-20);
-
-			// in typo3/stylesheets.css css is defined with id instead of a class: TABLE#typo3-tree
-			// that's why we need TABLE.typo3-browsetree
-		$this->doc->inDocStylesArray['typo3-browsetree'] = '
-					/* Trees */
-			TABLE.typo3-browsetree A { text-decoration: none;  }
-			TABLE.typo3-browsetree TR TD { white-space: nowrap; vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG { vertical-align: middle; }
-			TABLE.typo3-browsetree TR TD IMG.c-recIcon { margin-right: 1px;}
-			TABLE.typo3-browsetree { margin-bottom: 10px; width: 90%; }
-
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control {
-				padding: 0px;
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control a {
-				padding: 0px 3px 0px 3px;
-				background-color: '.$this->doc->buttonColor.';
-			}
-			TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover {
-				background-color:'.$this->doc->buttonColorHover.';
-			}';
 	}
 
 
@@ -181,10 +160,11 @@ class tx_dam_navframe {
 	 * @return	void
 	 */
 	function main()	{
-		global $LANG;
+		global $LANG, $TYPO3_CONF_VARS;
+		
 
 		$this->content = '';
-		$this->content.= $this->doc->startPage('Navigation');
+		//$this->content.= $this->doc->startPage('Navigation');
 
 
 			// the trees
@@ -193,13 +173,8 @@ class tx_dam_navframe {
 
 		$this->content.= $this->browseTrees->getTrees();
 
-		$this->content.= '
-			<p class="c-refresh">
-				<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('tx_dam_navframe')))).'">'.
-				'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'" alt="" />'.
-				$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'</a>
-			</p>
-			<br />';
+		$this->markers['REFRESH'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('unique' => uniqid('tx_dam_navframe')))).'">'.
+				'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/refresh_n.gif','width="14" height="14"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.refresh',1).'" alt="" /></a>';
 
 			// Adding highlight - JavaScript
 		if ($this->doHighlight)	$this->content .=$this->doc->wrapScriptTags('
@@ -214,7 +189,24 @@ class tx_dam_navframe {
 	 * @return	void
 	 */
 	function printContent()	{
+		global $LANG;
+		// Null out markers:
+		$docHeaderButtons = array(
+			'new_page' => '',
+			'csh' => '',
+			'refresh' => '',
+		);
+		$this->markers['WORKSPACEINFO'] = '';
+
+		$this->markers['CONTENT'] = $this->content;
+		$subparts['###SECOND_ROW###'] = ''; 
+		$docHeaderButtons['refresh'] = $this->markers['REFRESH'];
+
+		$this->content = $this->doc->startPage($LANG->sL('LLL:EXT:dam/mod_main/locallang_mod.xml:mlang_labels_tablabel',1));
+		$this->content.= $this->doc->moduleBody($this->pageinfo, $docHeaderButtons, $this->markers, $subparts);
 		$this->content.= $this->doc->endPage();
+
+		$this->content = $this->doc->insertStylesAndJS($this->content);
 		echo $this->content;
 	}
 

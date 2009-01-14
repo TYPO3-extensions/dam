@@ -120,6 +120,11 @@ class tx_dam_guiRenderList {
 	 * @return	void
 	 */
 	function registerFunc($funcDef, $type, $argArr=array(), $position='')	{
+		
+		
+		
+		
+		
 		if (is_array($funcDef)) {
 			$obj = $funcDef[0];
 			$func = $funcDef[1];
@@ -131,6 +136,14 @@ class tx_dam_guiRenderList {
 			$func = $funcDef;
 		}
 
+		
+		$GLOBALS['SOBE']->develAvailableGuiItems[$func] = $func;
+	
+		if (is_callable(array($GLOBALS['SOBE'], 'config_checkValueEnabled'))) {
+// TODO this doesn't work with EB
+			if (!$GLOBALS['SOBE']->config_checkValueEnabled('guiElements.'.$func, true)) return;
+		}
+		
 		$prefix = is_object($obj) ? get_class($obj).'>' : '';
 
 
@@ -174,9 +187,9 @@ class tx_dam_guiRenderList {
 								}
 								if (!$found) break;
 
-								if ($place == 'before') {
+								if ($place === 'before') {
 									$pointer--;
-								} elseif ($place == 'after') {
+								} elseif ($place === 'after') {
 								}
 							}
 						break;
@@ -263,8 +276,15 @@ class tx_dam_guiRenderList {
 				<!-- GUI element section end -->';
 		}
 
-		if ($type == 'items_footer' AND is_array($GLOBALS['SOBE']->debugContent) AND tx_dam::config_getValue('setup.debug')) {
-			$content = '<div style="background-color:#eee; border:1px solid #888; padding:5px;">'.implode('', $GLOBALS['SOBE']->debugContent).'</div>';
+		if ($type === 'items_footer' AND is_array($GLOBALS['SOBE']->debugContent) AND tx_dam::config_getValue('setup.devel')) {
+						
+			$content = '<div class="itemsFooter">'.'<h4>GUI Elements</h4>'.t3lib_div::view_array($GLOBALS['SOBE']->develAvailableGuiItems).'</div>';
+			$content .= '<div class="itemsFooter">'.'<h4>Options</h4>'.t3lib_div::view_array($GLOBALS['SOBE']->develAvailableOptions).'</div>';
+			$content .= '<div class="itemsFooter">'.'<h4>Registered actions (all)</h4>'.t3lib_div::view_array(array_keys($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['actionClasses'])).'</div>';
+			
+			$out.= $GLOBALS['SOBE']->buttonToggleDisplay('devel', 'Module Info', $content);
+			
+			$content = '<div class="itemsFooter">'.implode('', $GLOBALS['SOBE']->debugContent).'</div>';
 			$out.= $GLOBALS['SOBE']->buttonToggleDisplay('debug', 'Debug output', $content);
 		}
 

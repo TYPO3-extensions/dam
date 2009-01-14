@@ -36,28 +36,26 @@
  *
  *
  *
- *   71: class tx_dam_iterator_db
- *  101:     function tx_dam_iterator_db($res, $counter=NULL)
- *  115:     function __construct($res, $counter=NULL)
- *  126:     function __destruct()
+ *   69: class tx_dam_iterator_db extends tx_dam_iterator_base
+ *   83:     function tx_dam_iterator_db($res, $conf)
+ *   95:     function __destruct()
  *
  *              SECTION: Iterator functions
- *  145:     function rewind()
- *  155:     function valid()
- *  165:     function next()
- *  177:     function seek($offset)
- *  189:     function key()
- *  199:     function current()
- *  209:     function count ()
- *  220:     function _fetchCurrent()
+ *  115:     function next()
+ *  127:     function seek($offset)
+ *  141:     function count ()
  *
- * TOTAL FUNCTIONS: 11
+ *              SECTION: Internal
+ *  161:     function _fetchCurrent()
+ *  183:     function _fetchCurrentOverlayData()
+ *
+ * TOTAL FUNCTIONS: 7
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
 
 
-
+require_once(PATH_txdam.'lib/class.tx_dam_iterator_base.php');
 
 
 
@@ -68,24 +66,8 @@
  * @package DAM-BeLib
  * @subpackage Iterator
  */
-class tx_dam_iterator_db {
+class tx_dam_iterator_db extends tx_dam_iterator_base {
 
-
-	/**
-	 * result pointer
-	 */
-	var $res;
-
-	/**
-	 * Used to define the current entry.
-	 */
-	var $currentPointer = 0;
-
-	/**
-	 * total count of rows
-	 * Can be set to avoud using sql_num_rows() when amount of rows is already known.
-	 */
-	 var $countTotal = 0;
 
 
 
@@ -94,29 +76,16 @@ class tx_dam_iterator_db {
 	 * PHP4 constructor
 	 *
 	 * @param	mixed		$res DB result pointer
-	 * @param	integer		$counter Total item count
+	 * @param	array		$conf Extra setup data
 	 * @return	void
 	 * @see __construct()
 	 */
-	function tx_dam_iterator_db($res, $counter=NULL) {
-		$this->__construct($res, $counter);
+	function tx_dam_iterator_db($res, $conf) {
+		$this->__construct($res, $conf);
 	}
 
 
-	/**
-	 * Initialize the object
-	 * PHP5 constructor
-	 *
-	 * @param	mixed		$res DB result pointer
-	 * @param	integer		$counter Total item count
-	 * @return	void
-	 * @see __construct()
-	 */
-	function __construct($res, $counter=NULL) {
-		$this->res = $res;
-		$this->countTotal = $counter;
-		$this->_fetchCurrent();
-	}
+
 
 	/**
 	 * Destructor
@@ -137,25 +106,6 @@ class tx_dam_iterator_db {
 	 ***************************************/
 
 
-	/**
-	 * Set the internal pointer to its first element.
-	 *
-	 * @return	void
-	 */
-	function rewind() {
-		$this->seek(0);
-	}
-
-
-	/**
-	 * Return true is the current element is valid.
-	 *
-	 * @return	boolean
-	 */
-	function valid() {
-		return is_array($this->current);
-	}
-
 
 	/**
 	 * Advance the internal pointer
@@ -163,8 +113,8 @@ class tx_dam_iterator_db {
 	 * @return	void
 	 */
 	function next() {
-		$this->_fetchCurrent();
 		$this->currentPointer ++;
+		$this->_fetchCurrent();
 	}
 
 
@@ -181,24 +131,6 @@ class tx_dam_iterator_db {
 	}
 
 
-	/**
-	 * Return the pointer to the current element
-	 *
-	 * @return	mixed
-	 */
-	function key() {
-		return $this->currentPointer;
-	}
-
-
-	/**
-	 * Return the current element
-	 *
-	 * @return	array
-	 */
-	function current() {
-		return $this->current;
-	}
 
 
 	/**
@@ -212,14 +144,35 @@ class tx_dam_iterator_db {
 
 
 
+
+
+	/***************************
+	 *
+	 * Internal
+	 *
+	 ***************************/
+
+
 	/**
 	 * Fetches the current element
 	 *
 	 * @return	void
 	 */
 	function _fetchCurrent() {
-		$this->current = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res);
+		if ($this->currentData = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($this->res)) {
+			
+			if (!is_null($this->currentData) AND $this->table AND $this->mode === 'FE') {
+				$this->currentData = tx_dam_db::getRecordOverlay($this->table, $this->currentData, array(), $this->mode);
+			}
+
+			if ($this->conf['callbackFunc_currentData'] AND is_callable($this->conf['callbackFunc_currentData'])) {
+				call_user_func ($this->conf['callbackFunc_currentData'], $this);
+			}
+		} else {
+			$this->currentData = NULL;
+		}
 	}
+
 }
 
 

@@ -70,12 +70,12 @@ class tx_dam_previewerImage extends tx_dam_previewerProcBase {
 	function isValid($row, $size, $type, $conf=array()) {
 		$valid = false;
 
-		if ($size == '200' AND $type == 'topright') {
+		if ($size === '200' AND $type === 'topright') {
 			if (($row['media_type'] == TXDAM_mtype_image AND $row['hpixels'] AND $row['vpixels'])
 				OR $row['media_type'] == TXDAM_mtype_font
-				OR $row['file_type'] == 'pdf'
-				OR $row['file_type'] == 'ps'
-				OR $row['file_type'] == 'eps'
+				OR $row['file_type'] === 'pdf'
+				OR $row['file_type'] === 'ps'
+				OR $row['file_type'] === 'eps'
 				 ) {
 				$valid = true;
 			}
@@ -163,7 +163,7 @@ class tx_dam_previewerImage extends tx_dam_previewerProcBase {
 
 
 		} else {
-			$outArr['htmlCode'] = '<div style="margin:4px;margin-right:10px;padding:8px;background-color:#fff;border:solid #888 1px;">'.
+			$outArr['htmlCode'] = '<div class="previewThumb">'.
 				t3lib_BEfunc::getThumbNail('thumbs.php', $absFile,' align="middle" style="border:solid 1px #ccc;"',160).
 				'</div>';
 		}

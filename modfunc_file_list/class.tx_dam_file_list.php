@@ -33,17 +33,16 @@
  *
  *
  *
- *   66: class tx_dam_file_list extends t3lib_extobjbase
- *   74:     function modMenu()
- *   93:     function head()
- *  129:     function main()
- *  245:     function jumpExt(URL,anchor)
+ *   65: class tx_dam_file_list extends t3lib_extobjbase
+ *   73:     function modMenu()
+ *   92:     function head()
+ *  128:     function main()
  *
  *              SECTION: Rendering
- *  303:     function renderInfo ($bytes)
- *  318:     function getActions()
+ *  289:     function renderInfo ($bytes)
+ *  304:     function getActions()
  *
- * TOTAL FUNCTIONS: 6
+ * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -57,7 +56,7 @@ require_once (PATH_txdam.'lib/class.tx_dam_iterator_dir.php');
 require_once (PATH_txdam.'lib/class.tx_dam_listfiles.php');
 
 /**
- * Module extension (addition to function menu) 'List' for the 'dam_file' extension.
+ * Module extension 'Media>File>List'
  *
  * @author	Rene Fritz <r.fritz@colorcube.de>
  * @package DAM-Mod
@@ -76,8 +75,8 @@ class tx_dam_file_list extends t3lib_extobjbase {
 
 		return array(
 			'tx_dam_file_list_showThumb' => '',
+			'tx_dam_file_list_showMultiActions' => '',
 			'tx_dam_file_list_showfullTitle' => '',
-			'tx_dam_file_list_showAlternateBgColors' => '',
 			'tx_dam_file_list_showUnixPerms' => '',
 			'tx_dam_file_list_showDetailedSize' => '',
 			'tx_dam_file_list_sortField' => '',
@@ -104,7 +103,6 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
 
 		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showThumb', $LANG->getLL('showThumbnails'));
-		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showAlternateBgColors', $LANG->getLL('showAlternateBgColors'));
 		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showfullTitle', $LANG->getLL('showfullTitle'));
 		if ($GLOBALS['BE_USER']->isAdmin()) {
 			$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showUnixPerms', $LANG->getLL('showUnixPerms'));
@@ -112,6 +110,7 @@ class tx_dam_file_list extends t3lib_extobjbase {
 			$this->pObj->MOD_SETTINGS['tx_dam_file_list_showUnixPerms'] = false;
 		}
 		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showDetailedSize', $LANG->getLL('showDetailedSize'));
+		$this->pObj->addOption('funcCheck', 'tx_dam_file_list_showMultiActions', $LANG->getLL('showMultiAction'));
 
 			// This will return content necessary for the context sensitive clickmenus to work: bodytag events, JavaScript functions and DIV-layers.
 //		$CMparts = $this->pObj->doc->getContextMenuCode();
@@ -127,11 +126,24 @@ class tx_dam_file_list extends t3lib_extobjbase {
 	 * @return	string		HTML output
 	 */
 	function main()	{
-		global $FILEMOUNTS,$BE_USER,$LANG,$BACK_PATH;
+		global $FILEMOUNTS,$BE_USER,$LANG,$BACK_PATH, $TYPO3_CONF_VARS;
+		
 
 		$content = '';
 
+		//
+		// Create filelisting object
+		//
 
+		$filelist = t3lib_div::makeInstance('tx_dam_listfiles');
+		$filelist->init();
+		
+		$filelist->setActionsEnv(array(
+				'pathInfo' => $this->pObj->pathInfo,
+			));
+
+
+			
 		//
 		// fetches folder
 		//
@@ -147,42 +159,111 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		//
 
 		$dirListFiles = t3lib_div::makeInstance('tx_dam_iterator_dir');
-// TODO TSconfig / option
-		if (!$BE_USER->isAdmin()) {
+
+		$dirListFiles->enableAutoIndexing = tx_dam::config_checkValueEnabled('setup.indexing.auto', true);
+		$dirListFiles->maxAutoIndexingItems = tx_dam::config_checkValueEnabled('setup.indexing.autoMaxInteractive', 5);
+
+		$displayDotFiles = $this->pObj->config_checkValueEnabled('filesDisplayDotFiles', $BE_USER->isAdmin());
+		if (!$displayDotFiles) {
 			$dirListFiles->excludeByRegex ('^\.');
 		}
+		
+		if ($displayExcludeByRegex = $this->pObj->config_checkValueEnabled('filesDisplayExcludeByRegex')) {
+			$dirListFiles->excludeByRegex ($displayExcludeByRegex);
+		}
+		
 		$dirListFiles->read($this->pObj->pathInfo['dir_path_absolute'], 'file');
 		$sortField = str_replace('file_file_', 'file_', 'file_'.$this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField']);
 		$dirListFiles->sort($sortField, $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
 
 		$this->pObj->selection->pointer->setTotalCount($dirListFolder->count()+$dirListFiles->count());
+		
 
-			// Create filelisting object
-		$filelist = t3lib_div::makeInstance('tx_dam_listfiles');
-		$filelist->enableAutoIndexing = true;
+		//
+		// process multi action if needed
+		//
+
+		if ($processAction = $filelist->getMultiActionCommand()) {
+
+			if ($processAction['onItems'] === '_all') {
+
+				$uidList = array();
+				if ($dirListFiles->count())	{
+	
+					while ($dirListFiles->valid()) {
+	
+						$item = $dirListFiles->current();
+						$uidList[] = tx_dam::file_absolutePath($item);
+	
+						$dirListFiles->next();
+					}
+				}
+			} else {
+				
+				$uidList = t3lib_div::trimExplode(',', $processAction['onItems'], true);
+			}
+
+			if ($uidList) {
+				$itemList = '';
+				foreach ($uidList as $file) {
+					$itemList .= '&file[]='.rawurlencode($file);
+				}
+				switch ($processAction['actionType']) {
+					case 'url':
+						$url = str_replace('###PARAMLIST###', $itemList, $processAction['action']);
+						header('Location: '.$url);
+						exit;
+					break;
+// TODO
+//					case 'tce-data':
+//						$params = '';
+//						foreach ($uidList as $uid) {
+//							$params .= str_replace('###UID###', $uid, $processAction['action']);
+//						}
+//						$url = $GLOBALS['SOBE']->doc->issueCommand($params, -1);
+//
+//
+//						$url = $BACK_PATH.'tce_file.php?&redirect='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).'&vC='.$BE_USER->veriCode().'&prErr=1&uPT=1'.$params;
+//
+//						header('Location: '.$url);
+//						exit;
+//					break;
+				}
+			}
+		}
+			
+
+				
+		$filelist->setParameterName('form', $this->pObj->formName);
+
+			// enable display of multi actions
+		$filelist->showMultiActions = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showMultiActions'];
 			// Enable/disable display of thumbnails
 		$filelist->showThumbs = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showThumb'];
 			// Enable/disable display of long titles
 		$filelist->showfullTitle = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showfullTitle'];
 			// Enable/disable display of AlternateBgColors
-		$filelist->showAlternateBgColors = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showAlternateBgColors'];
+		$filelist->showAlternateBgColors = $this->pObj->config_checkValueEnabled('alternateBgColors', true);
 			// Enable/disable display of unix like permission string
 		$filelist->showUnixPerms = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showUnixPerms'];
 			// Display file sizes in bytes or formatted
 		$filelist->showDetailedSize = $this->pObj->MOD_SETTINGS['tx_dam_file_list_showDetailedSize'];
+			// enable context menus
+		$filelist->enableContextMenus = $this->pObj->config_checkValueEnabled('contextMenuOnListItems', true);
 
 
-
-$filelist->clickMenus = false;
+// todo Clipboard
 $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
-		$filelist->setPathInfo($this->pObj->pathInfo);
 		$filelist->addData($dirListFolder, 'dir');
 		$filelist->addData($dirListFiles, 'files');
 		$filelist->setCurrentSorting($this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField'], $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
-		$filelist->setParameterNames('SET[tx_dam_file_list_sortField]', 'SET[tx_dam_file_list_sortRev]');
+		$filelist->setParameterName('sortField', 'SET[tx_dam_file_list_sortField]');
+		$filelist->setParameterName('sortRev', 'SET[tx_dam_file_list_sortRev]');
 		$filelist->setPointer($this->pObj->selection->pointer);
+		
+		$this->pObj->doc->JScodeArray['filelist-JsCode'] = $filelist->getJsCode();
 
 
 		$fileListTable = $filelist->getListTable();
@@ -199,14 +280,14 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 //		$filelist->clipObj->initializeClipboard();
 //
 //		$CB = $HTTP_GET_VARS['CB'];
-//		if (t3lib_div::_GP('cmd')=='setCB') $CB['el'] = $filelist->clipObj->cleanUpCBC(array_merge(t3lib_div::_POST('CBH'), t3lib_div::_POST('CBC')), '_FILE');
+//		if (t3lib_div::_GP('cmd') === 'setCB') $CB['el'] = $filelist->clipObj->cleanUpCBC(array_merge(t3lib_div::_POST('CBH'), t3lib_div::_POST('CBC')), '_FILE');
 //		if (!$this->pObj->MOD_SETTINGS['clipBoard'])	$CB['setP'] = 'normal';
 //		$filelist->clipObj->setCmd($CB);
 //		$filelist->clipObj->cleanCurrent();
 //		$filelist->clipObj->endClipboard();	// Saves
 
 			// If the "cmd" was to delete files from the list (clipboard thing), do that:
-//		if (t3lib_div::_GP('cmd')=='delete')	{
+//		if (t3lib_div::_GP('cmd') === 'delete')	{
 //			$items = $filelist->clipObj->cleanUpCBC($HTTP_POST_VARS['CBC'], '_FILE', 1);
 //			if (count($items))	{
 //					// Make command array:
@@ -233,24 +314,6 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 
 
-
-
-
-
-
-
-			// JavaScript
-		$this->pObj->doc->JScodeArray['redirectUrls'] = $this->pObj->doc->redirectUrls(t3lib_div::getIndpEnv('REQUEST_URI'));
-		$this->pObj->doc->JScodeArray['jumpExt'] = '
-			function jumpExt(URL,anchor)	{
-				var anc = anchor?anchor:"";
-				document.location = URL+(T3_THIS_LOCATION?"&returnUrl="+T3_THIS_LOCATION:"")+anc;
-			}
-			';
-
-
-
-
 			// Set top JavaScript:
 #		$this->pObj->doc->JScode.= $this->pObj->doc->wrapScriptTags('
 #			if (top.fsMod) top.fsMod.recentIds["file"] = unescape("'.rawurlencode($this->pObj->id).'");
@@ -271,7 +334,7 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 
 		$content.= $this->pObj->guiItems->getOutput('header');
 
-// TODO move to scbase
+
 		$infoPath = $this->pObj->getFolderNavBar($this->pObj->pathInfo);
 		$infoBytes = $this->renderInfo($dirListFiles->countBytes);
 		$content.= '<div class="typo3-foldernavbar">'.$this->pObj->contentLeftRight($infoPath, $infoBytes).'</div>';
@@ -316,17 +379,22 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 	 * @return HTML
 	 */
 	function getActions() {
+		global $TYPO3_CONF_VARS;
+		
 		$content = '';
 
 		if($this->pObj->pathInfo['dir_writable']) {
 			$actionCall = t3lib_div::makeInstance('tx_dam_actionCall');
-			$actionCall->setRequest('button', $this->pObj->pathInfo, '', $GLOBALS['MCONF']['name']);
+			$actionCall->setRequest('button', $this->pObj->pathInfo);
 			$actionCall->setEnv('returnUrl', t3lib_div::getIndpEnv('TYPO3_REQUEST_URL'));
+			$actionCall->setEnv('defaultCmdScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_cmd/index.php');
+			$actionCall->setEnv('defaultEditScript', $GLOBALS['BACK_PATH'].PATH_txdam_rel.'mod_edit/index.php');
 			$actionCall->setEnv('pathInfo', $this->pObj->pathInfo);
 			$actionCall->initActions();
 			$actions = $actionCall->renderActionsHorizontal();
-
-			$content = count($actions) ? '<div class="typo3-topactions">'.implode('', $actions).'</div>' : '';
+			$this->pObj->markers['FOLDER'] = $actions[0];
+			$this->pObj->markers['UPLOAD'] = '<a href="#" onclick="jumpToUrl(\'index.php?&amp;id=1&amp;SET[function]=tx_dam_file_upload\',this); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/upload.gif') . ' title="'.$GLOBALS['LANG']->sL('LLL:EXT:dam/modfunc_file_upload/locallang.xml:tx_dam_file_upload.title',1).'" alt="" height="16" width="16"></a>';
+			$this->pObj->markers['NEW'] = $actions[1];
 		}
 		return $content;
 	}

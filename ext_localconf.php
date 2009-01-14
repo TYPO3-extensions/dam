@@ -10,6 +10,10 @@ if (!defined ('PATH_txdam_rel')) {
 	define('PATH_txdam_rel', t3lib_extMgm::extRelPath('dam'));
 }
 
+if (!defined ('PATH_txdam_siteRel')) {
+	define('PATH_txdam_siteRel', t3lib_extMgm::siteRelPath('dam'));
+}
+
 
 	// PHP5 compatiblity
 if (!function_exists('stripos')) {
@@ -18,103 +22,89 @@ if (!function_exists('stripos')) {
 if (!function_exists('str_ireplace')) {
 	require_once(PATH_txdam.'compat/str_ireplace.php');
 }
+if (!function_exists('array_diff_key')) {
+	require_once(PATH_txdam.'compat/array_diff_key.php');
+}
+if (!function_exists('htmlspecialchars_decode')) {
+	require_once(PATH_txdam.'compat/htmlspecialchars_decode.php');
+}
 
 
 	// that's the base API
 require_once(PATH_txdam.'lib/class.tx_dam.php');
+	// include basic image stuff because it's used so often
+require_once(PATH_txdam.'lib/class.tx_dam_image.php');
 
 
 	// get extension setup
 $TYPO3_CONF_VARS['EXTCONF']['dam']['setup'] = unserialize($_EXTCONF);
 
-$TYPO3_CONF_VARS['EXTCONF']['dam']['indexing']['defaultSetup'] = '<phparray>
-	<pid>0</pid>
-	<pathlist type="array">
-		<numIndex index="0">fileadmin/</numIndex>
-	</pathlist>
-	<recursive>0</recursive>
-	<ruleConf type="array">
-		<tx_damdemo_indexRule type="array">
-			<enabled>0</enabled>
-			<option1>0</option1>
-		</tx_damdemo_indexRule>
-		<tx_damindex_rule_recursive type="array">
-			<enabled>0</enabled>
-		</tx_damindex_rule_recursive>
-		<tx_damindex_rule_folderAsCat type="array">
-			<enabled>0</enabled>
-			<fuzzy>0</fuzzy>
-		</tx_damindex_rule_folderAsCat>
-		<tx_damindex_rule_doReindexing type="array">
-			<enabled>0</enabled>
-			<mode>0</mode>
-		</tx_damindex_rule_doReindexing>
-		<tx_damindex_rule_dryRun type="array">
-			<enabled>0</enabled>
-		</tx_damindex_rule_dryRun>
-		<tx_damindex_rule_devel type="array">
-			<enabled>0</enabled>
-		</tx_damindex_rule_devel>
-	</ruleConf>
-	<dataPreset type="array">
-		<title></title>
-		<keywords></keywords>
-		<description></description>
-		<caption></caption>
-		<alt_text></alt_text>
-		<file_orig_location></file_orig_location>
-		<file_orig_loc_desc></file_orig_loc_desc>
-		<ident></ident>
-		<creator></creator>
-		<publisher></publisher>
-		<copyright></copyright>
-		<instructions></instructions>
-		<date_cr></date_cr>
-		<date_mod></date_mod>
-		<loc_desc></loc_desc>
-		<loc_country></loc_country>
-		<loc_city></loc_city>
-		<language></language>
-		<category></category>
-		<tx_damdemo_info></tx_damdemo_info>
-	</dataPreset>
-	<dataPostset type="array">
-	</dataPostset>
-	<dryRun>0</dryRun>
-	<doReindexing>0</doReindexing>
-	<collectMeta type="boolean">1</collectMeta>
-	<extraSetup></extraSetup>
-</phparray>';
 
+
+if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['tsconfig']==='default')	{
+	t3lib_extMgm::addPageTSConfig('<INCLUDE_TYPOSCRIPT: source="FILE:EXT:dam/tsconfig/default.txt">');
+} elseif ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['tsconfig']==='minimal')	{
+	t3lib_extMgm::addPageTSConfig('<INCLUDE_TYPOSCRIPT: source="FILE:EXT:dam/tsconfig/minimal.txt">');
+} elseif ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['tsconfig']==='example')	{
+	t3lib_extMgm::addPageTSConfig('<INCLUDE_TYPOSCRIPT: source="FILE:EXT:dam/tsconfig/example.txt">');
+}
 
 
 	// set some config values from extension setup
 tx_dam::config_setValue('setup.devel', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']);
-tx_dam::config_setValue('setup.debug', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['debug']);
 
 	// register default icons
-tx_dam::register_fileIconPath(PATH_txdam.'i/18/');
+tx_dam::register_fileIconPath(PATH_txdam.'i/18/', 'FE');
+tx_dam::register_fileIconPath(PATH_txdam.'i/18/', 'BE');
+
+
+	// would register TYPO3's default file icons
+# tx_dam::register_fileIconPath(PATH_typo3.'gfx/fileicons/', 'BE');
 
 
 	// field templates for usage in other tables to link media records
 require_once(PATH_txdam.'tca_media_field.php');
 
 
-if(t3lib_div::int_from_ver(TYPO3_version) < t3lib_div::int_from_ver('4.0')) {
-	if (!defined('TYPO3_OS')) define('TYPO3_OS', stristr(PHP_OS,'win')&&!stristr(PHP_OS,'darwin')?'WIN':'');
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/class.alt_menu_functions.inc'] = PATH_txdam.'compat/class.ux_alt_menu_functions.php';
+
+	// register XCLASS of t3lib_extfilefunc to pipe all TCE stuff through DAM version
+$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_extfilefunc.php'] = PATH_txdam.'lib/class.tx_dam_tce_file.php';
+
+
+if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['htmlAreaBrowser']) {
+	if (t3lib_div::int_from_ver( TYPO3_version ) < 4003000) {
+		$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/rtehtmlarea/mod4/class.tx_rtehtmlarea_select_image.php'] = PATH_txdam.'compat/class.ux_tx_rtehtmlarea_select_image.php';
+		$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = PATH_txdam.'compat/class.tx_dam_rtehtmlarea_select_image.php:&tx_dam_rtehtmlarea_select_image';
+		$TYPO3_CONF_VARS['SC_OPTIONS']['ext/rtehtmlarea/mod3/class.tx_rtehtmlarea_browse_links.php']['browseLinksHook'][] =  PATH_txdam.'compat/class.tx_dam_rtehtmlarea_browse_links.php:&tx_dam_rtehtmlarea_browse_links';
+	} else {
+		$TYPO3_CONF_VARS['SC_OPTIONS']['ext/rtehtmlarea/mod4/class.tx_rtehtmlarea_select_image.php']['browseLinksHook'][] =  PATH_txdam.'compat/class.tx_dam_rtehtmlarea_browse_media.php:&tx_dam_rtehtmlarea_browse_media';
+		$TYPO3_CONF_VARS['SC_OPTIONS']['ext/rtehtmlarea/mod3/class.tx_rtehtmlarea_browse_links.php']['browseLinksHook'][] =  PATH_txdam.'compat/class.tx_dam_rtehtmlarea_browse_links.php:&tx_dam_rtehtmlarea_browse_links';
+	}
+}
+
+	// Register XCLASS which fixes bug #9511 and is needed on most systems prior to TYPO3 4.2.4
+if (t3lib_div::int_from_ver( TYPO3_version ) < 4002004) {
 	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/template.php'] = PATH_txdam.'compat/class.ux_template.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/show_item.php'] = PATH_txdam.'compat/class.ux_SC_show_item.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/browse_links.php'] = PATH_txdam.'compat/class.ux_SC_browse_links.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/alt_doc.php'] = PATH_txdam.'compat/class.ux_SC_alt_doc.php';
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_tceforms.php'] = PATH_txdam.'compat/class.ux_t3lib_tceforms.php';
 }
 
 
 	// register show item rendering
-$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/show_item.php']['typeRendering'][] = 'EXT:dam/class.tx_dam_show_item.php:&tx_dam_show_item';
+$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/show_item.php']['typeRendering'][] = 'EXT:dam/binding/be/class.tx_dam_show_item.php:&tx_dam_show_item';
 	// register element browser rendering
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_media.php:&tx_dam_browse_media';
+$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_category.php:&tx_dam_browse_category';
+$TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_folder.php:&tx_dam_browse_folder';
+
+
+tx_dam::register_indexingRule ('tx_damindex_rule_recursive', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_recursive');
+tx_dam::register_indexingRule ('tx_damindex_rule_folderAsCat', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_folderAsCat');
+tx_dam::register_indexingRule ('tx_damindex_rule_doReindexing', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_doReindexing');
+tx_dam::register_indexingRule ('tx_damindex_rule_titleFromFilename', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_titleFromFilename');
+tx_dam::register_indexingRule ('tx_damindex_rule_dryRun', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_dryRun');
+
+if($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']) {
+	tx_dam::register_indexingRule ('tx_damindex_rule_devel', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_devel');
+}
 
 	// register navigation tree and select rule for nav tree.
 tx_dam::register_selection ('txdamFolder',    'EXT:dam/components/class.tx_dam_selectionFolder.php:&tx_dam_selectionFolder');
@@ -123,13 +113,36 @@ tx_dam::register_selection ('txdamMedia',     'EXT:dam/components/class.tx_dam_s
 tx_dam::register_selection ('txdamStatus',    'EXT:dam/components/class.tx_dam_selectionStatus.php:&tx_dam_selectionStatus');
 tx_dam::register_selection ('txdamIndexRun',  'EXT:dam/components/class.tx_dam_selectionIndexRun.php:&tx_dam_selectionIndexRun');
 tx_dam::register_selection ('txdamStrSearch', 'EXT:dam/components/class.tx_dam_selectionStringSearch.php:&tx_dam_selectionStringSearch');
+tx_dam::register_selection ('txdamRecords',   'EXT:dam/components/class.tx_dam_selectionRecords.php:&tx_dam_selectionRecords');
 
 	// register DAM internal db change trigger
 tx_dam::register_dbTrigger ('tx_dam_dbTriggerMediaTypes', 'EXT:dam/components/class.tx_dam_dbTriggerMediaTypes.php:&tx_dam_dbTriggerMediaTypes');
 
 	// register special TCE tx_dam processing
-$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = 'EXT:dam/class.tx_dam_tce_process.php:&tx_dam_tce_process';
-$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_process.php:&tx_dam_tce_process';
-$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/class.tx_dam_tce_filetracking.php:&tx_dam_tce_filetracking';
+$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = 'EXT:dam/binding/tce/class.tx_dam_tce_process.php:&tx_dam_tce_process';
+$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/binding/tce/class.tx_dam_tce_process.php:&tx_dam_tce_process';
+$TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/binding/tce/class.tx_dam_tce_filetracking.php:&tx_dam_tce_filetracking';
+
+
+	// <media> tag for BE and FE
+if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['mediatag']) {
+	require_once(PATH_txdam.'binding/mediatag/ext_localconf.php');
+}
+
+	// user-defined soft reference parsers
+require_once(PATH_txdam.'binding/softref/ext_localconf.php');
+
+	// txdam attribute on img tag for FE
+require_once(PATH_txdam.'binding/imgtag/ext_localconf.php');
+
+	// FE stuff
+
+$pluginContent = t3lib_div::getUrl(PATH_txdam.'pi/setup.txt');
+t3lib_extMgm::addTypoScript('dam', 'setup','
+# Setting dam plugin TypoScript
+'.$pluginContent);
+unset($pluginContent);
+
+
 
 ?>

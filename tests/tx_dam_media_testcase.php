@@ -23,12 +23,12 @@
 ***************************************************************/
 
 /**
- * @author	2005 Rene Fritz <r.fritz@colorcube.de>
+ * @author	Rene Fritz <r.fritz@colorcube.de>
  */
 
-require_once (PATH_txdam.'lib/class.tx_dam_db.php');
+require_once (PATH_txdam.'tests/class.tx_dam_testlib.php');
 
-class tx_dam_media_testcase extends tx_t3unit_testcase {
+class tx_dam_media_testcase extends tx_dam_testlib {
 
 
 
@@ -110,20 +110,20 @@ class tx_dam_media_testcase extends tx_t3unit_testcase {
 	}
 
 	/**
-	 * media->getDescription()
+	 * media->getContent()
 	 */
-	public function test_getDescription () {
+	public function test_getContent () {
 
 		$fixture = $this->getFixtureMedia();
 		$filename = $fixture['filename'];
 		$meta = $fixture['meta'];
 		$media = $fixture['media'];
 
-		$title = $media->getDescription ('title');
+		$title = $media->getContent ('title');
 		self::assertEquals ($title, $meta['title'], 'Wrong data: '.$title.' ('.$meta['title'].')');
 
 		$media->setMeta ('title', 'XXX');
-		$title = $media->getDescription ('title');
+		$title = $media->getContent ('title');
 		self::assertEquals ($title, 'XXX', 'Wrong data: '.$title.' (XXX)');
 	}
 
@@ -146,7 +146,7 @@ class tx_dam_media_testcase extends tx_t3unit_testcase {
 	}
 
 	/**
-	 * media->getPathAbsolute()
+	 * media->filepath
 	 */
 	public function test_getPathAbsolute () {
 
@@ -156,7 +156,7 @@ class tx_dam_media_testcase extends tx_t3unit_testcase {
 		$media = $fixture['media'];
 
 		$filepath = tx_dam::file_absolutePath ($filename);
-		$path = $media->getPathAbsolute ();
+		$path = $media->filepath;
 		self::assertEquals ($path, $filepath, 'File path differs: '.$path.' ('.$filepath.')');
 	}
 
@@ -183,57 +183,6 @@ class tx_dam_media_testcase extends tx_t3unit_testcase {
 		$media->setMeta ('title', 'XXX');
 		$title = $media->getMeta ('title');
 		self::assertEquals ($title, 'XXX', 'Wrong data: '.$title.' (XXX)');
-	}
-
-
-	/***************************************
-	 *
-	 *	 Fixtures
-	 *
-	 ***************************************/
-
-
-
-	/**
-	 *
-	 * @return mixed Is false when no indexed file available or: array('meta' => $row, 'filename' => $filename)
-	 */
-	public function getFixtureMedia () {
-		if ($fixture = $this->getFixtureIndexedFilename()) {
-			$fixture['media'] = tx_dam::media_getByUid($fixture['meta']['uid']);
-		}
-		return $fixture;
-	}
-
-
-	/**
-	 * Returns an fixture which is a random already indexed file.
-	 * @return mixed Is false when no indexed file available or: array('meta' => $row, 'filename' => $filename)
-	 */
-	protected function getFixtureIndexedFilename() {
-		$select_fields = '*'; #uid,file_name,file_path,file_hash';
-
-		$where = array();
-		$where['deleted'] = 'deleted=0';
-		$where['pidList'] = 'pid IN ('.tx_dam_db::getPidList().')';
-		$where['file_hash'] = 'file_hash';
-
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-												$select_fields,
-												'tx_dam',
-												implode(' AND ', $where),
-												'',
-												'RAND()',
-												50
-											);
-
-		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-			if(is_file($filename = tx_dam::file_absolutePath ($row['file_path'].$row['file_name']))) {
-				return array('meta' => $row, 'filename' => $filename);
-			}
-		}
-
-		return false;
 	}
 
 

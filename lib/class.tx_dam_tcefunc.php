@@ -33,27 +33,29 @@
  *
  *
  *
- *   76: class tx_dam_tceFunc
+ *   78: class tx_dam_tceFunc
  *
  *              SECTION: Rendering of TCEform fields for common usage
- *  103:     function getSingleField_selectTree($PA, &$fObj)
- *  278:     function getSingleField_selectMounts($PA, &$fObj)
- *  423:     function getSingleField_typeMedia($PA, &$fObj)
+ *  105:     function getSingleField_selectTree($PA, &$fObj)
+ *  279:     function getSingleField_selectMounts($PA, &$fObj)
+ *  424:     function getSingleField_typeMedia($PA, &$fObj)
+ *  573:     function renderFileList($filesArray, $displayThumbs=true, $disabled=false)
+ *  695:     function getSingleField_typeFolder($PA, &$fObj)
  *
  *              SECTION: Rendering of TCEform fields for private usage for tx_dam table
- *  587:     function tx_dam_mediaType ($PA, &$fobj)
- *  713:     function tx_dam_file_mime_type ($PA, &$fobj)
- *  740:     function tx_dam_meta($PA, &$fobj)
- *  834:     function tx_dam_fileUsage ($PA, &$fobj)
+ *  779:     function tx_dam_mediaType ($PA, &$fobj)
+ *  905:     function tx_dam_file_mime_type ($PA, &$fobj)
+ *  932:     function tx_dam_meta($PA, &$fobj)
+ * 1028:     function tx_dam_fileUsage ($PA, &$fobj)
  *
  *              SECTION: Form element helper functions
- *  922:     function array2table($array_in)
- *  956:     function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')
+ * 1116:     function array2table($array_in)
+ * 1150:     function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')
  *
  *              SECTION: Misc helper functions
- * 1137:     function isMMForeignActive()
+ * 1335:     function isMMForeignActive()
  *
- * TOTAL FUNCTIONS: 10
+ * TOTAL FUNCTIONS: 12
  * (This index is automatically created/updated by the script "update-class-index")
  *
  */
@@ -168,13 +170,12 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$renderBrowseTrees->init ($PA, $fObj);
 		$renderBrowseTrees->setIFrameTreeBrowserScript($this->tceforms->backPath.PATH_txdam_rel.'mod_treebrowser/index.php');
 
-		$renderBrowseTrees->renderBrowsableTrees($browseTree);
-
 
 		if (!$disabled) {
 			if ($renderBrowseTrees->isIFrameContentRendering()) {
 
 					// just the trees are needed - we're inside of an iframe!
+				$renderBrowseTrees->renderBrowsableTrees($browseTree);
 				return $renderBrowseTrees->getTreeContent();
 
 			} elseif ($renderBrowseTrees->isIFrameRendering()) {
@@ -188,18 +189,35 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				// In the configuration of the TCA treeViewBrowseable is set to TRUE. The value 'iframeContent' for treeViewBrowseable will
 				// be set in dam/mod_treebrowser/index.php as internal configuration logic
 
-				$thumbnails = $renderBrowseTrees->renderIFrame();
+				// Uschi: respect $TCA[table]['columns'][field]['config']['itemListStyle']
+				// This will enable us to have a higher category selection tree. 
+				if(isset($config['itemListStyle'])) {
+					$tempIframeStyle = t3lib_div::trimExplode(';', $config['itemListStyle']);
+					$iframestyle = array();
+					foreach($tempIframeStyle as $style) {
+						$kv = t3lib_div::trimExplode(':', $style);
+						$iframestyle[$kv[0]] = $kv[1];
+					}
+				}
+
+				$iframeWidth = ($iframestyle['width']) ? $iframestyle['width'] : NULL;
+				$iframeHeight = ($iframestyle['height']) ? $iframestyle['height'] : NULL;
+
+				$thumbnails = $renderBrowseTrees->renderIFrame($iframeWidth, $iframeHeight);
+				
 
 			} else {
 					// tree frame <div>
+				$renderBrowseTrees->renderBrowsableTrees($browseTree);
 				$thumbnails = $renderBrowseTrees->renderDivBox();
 			}
 		}
 
 
 			// get selected processed items
-		$itemArray = $renderBrowseTrees->getItemArrayProcessed();
-
+		# $itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue']);
+		# $itemArray = $renderBrowseTrees->getItemArrayProcessed();
+		$itemArray = $renderBrowseTrees->processItemArrayForBrowseableTrees($browseTree);
 
 		//
 		// process selected values
@@ -229,7 +247,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$minitems = t3lib_div::intInRange($config['minitems'], 0);
 		$maxitems = t3lib_div::intInRange($config['maxitems'], 0);
 		if (!$maxitems)	$maxitems = 100000;
-
+		$selectedListStyle = ($config['selectedListStyle']) ? ' style="' .$config['selectedListStyle'] .'"' : ' style="width:200px"';
+		
 		$this->tceforms->requiredElements[$PA['itemFormElName']] = array($minitems, $maxitems, 'imgName' => $table.'_'.$row['uid'].'_'.$field);
 
 
@@ -238,9 +257,9 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$item .= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'"'.$disabled.' />';
 
 		$params = array(
-			'size' => $config['size'],
+			'size' => ($disabled ? count($disabled) : $config['size']),
 			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'], 0),
-			'style' => ' style="width:200px;"',
+			'style' => $selectedListStyle,
 			'dontShowMoveIcons' => ($maxitems<=1),
 			'maxitems' => $maxitems,
 			'info' => '',
@@ -252,6 +271,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			'readOnly' => $disabled,
 			'thumbnails' => $thumbnails
 		);
+
 		$item .= $this->tceforms->dbFileIcons($PA['itemFormElName'], $config['internal_type'], $config['allowed'], $itemArray, '', $params, $PA['onFocus']);
 
 			// Wizards:
@@ -313,6 +333,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			if ($renderBrowseTrees->isIFrameContentRendering()) {
 
 					// just the trees are needed - we're inside of an iframe!
+				$renderBrowseTrees->renderBrowsableMountTrees($browseTrees->treeObjArr);
 				return $renderBrowseTrees->getTreeContent();
 
 			} elseif ($renderBrowseTrees->isIFrameRendering()) {
@@ -330,13 +351,16 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 			} else {
 					// tree frame <div>
+				$renderBrowseTrees->renderBrowsableMountTrees($browseTrees->treeObjArr);
 				$thumbnails = $renderBrowseTrees->renderDivBox();
 			}
 		}
 
-
 			// get selected processed items
-		$itemArray = $renderBrowseTrees->getItemArrayProcessed();
+		# $itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue']);
+		# $itemArray = $renderBrowseTrees->getItemArrayProcessed();
+		$itemArray = $renderBrowseTrees->processItemArrayForBrowseableTrees($browseTrees->treeObjArr);
+
 
 
 		//
@@ -486,13 +510,14 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$itemArray = array();
 				$filesArray = array();
 				if(intval($row['uid'])) {
-					$filesArray = tx_dam_db::getReferencedFiles($table, $row['uid'], $config['MM_match_fields'], $config['MM']);
+					$filesArray = tx_dam_db::getReferencedFiles($table, $row['uid'], $config['MM_match_fields'], $config['MM'], 'tx_dam.*');
 					foreach($filesArray['rows'] as $row)	{
 						$itemArray[] = array('table'=>'tx_dam', 'id' => $row['uid'], 'title' => ($row['title']?$row['title']:$row['file_name']));
 					}
 				}
 
-
+				$thumbsnails = $this->renderFileList($filesArray, $config['show_thumbs']);
+/*
 					// making thumbnails
 				$thumbsnails = '';
 				if ($config['show_thumbs'] AND count($filesArray))	{
@@ -500,8 +525,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					foreach($filesArray['rows'] as $row)	{
 
 							// Icon
-						$absFilePath = t3lib_div::getFileAbsFileName($row['file_path'].$row['file_name']);
-						$fileExists = file_exists($absFilePath);
+						$absFilePath = tx_dam::file_absolutePath($row);
+						$fileExists = @file_exists($absFilePath);
 
 						$addAttrib = 'class="absmiddle"';
 						$addAttrib .= tx_dam_guiFunc::icon_getTitleAttribute($row);
@@ -510,19 +535,21 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 							// add clickmenu
 						if ($fileExists AND !$disabled) {
-// TODO							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
+#							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
+							$fileIcon = $this->tceforms->getClickMenu($fileIcon, 'tx_dam', $row['uid']);
 						}
 
 						$title = t3lib_div::fixed_lgd_cs($this->tceforms->noTitle($row['title']), $this->tceforms->titleLen);
-// TODO use tx_dam_guifunc?
-						$thumb = t3lib_BEfunc::thumbCode(array($field => $row['file_name']), $table, $field, $this->tceforms->backPath, 'thumbs.php', $row['file_path'], 0, ' align="middle"');
+
+						$thumb = tx_dam_image::previewImgTag($row, '', 'align="middle"');
+
 						$thumbDescr = '<div class="nobr">'.$fileIcon.$title.'<br />'.$row['file_name'].'</div>';
 
 						$thumbsnails .= '<tr><td>'.$thumb.'</td><td>'.$thumbDescr.'</td></tr>';
 					}
 					$thumbsnails = '<table border="0">'.$thumbsnails.'</table>';
 				}
-
+*/
 
 					// Creating the element:
 				$params = array(
@@ -553,8 +580,195 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	}
 
 
+	/**
+	 * Render list of files.
+	 *
+	 * @param	array		$filesArray List of files. See tx_dam_db::getReferencedFiles
+	 * @param	boolean		$displayThumbs
+	 * @param	boolean		$disabled
+	 * @return	string		HTML output
+	 */
+	function renderFileList($filesArray, $displayThumbs=true, $disabled=false) {
+		global $LANG;
 
 
+		$out = '';
+
+			// Listing the files:
+		if (is_array($filesArray) && count($filesArray))	{
+
+			$lines=array();
+			foreach($filesArray['rows'] as $row)	{
+
+				$absFilePath = tx_dam::file_absolutePath($row);
+				$fileExists = @file_exists($absFilePath);
+
+
+				$addAttrib = 'class="absmiddle"';
+				$addAttrib .= tx_dam_guiFunc::icon_getTitleAttribute($row);
+				$iconTag = tx_dam::icon_getFileTypeImgTag($row, $addAttrib);
+
+
+					// add clickmenu
+				if ($fileExists && !$disabled) {
+#							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
+					$iconTag = $this->tceforms->getClickMenu($iconTag, 'tx_dam', $row['uid']);
+				}
+
+				$title = t3lib_div::fixed_lgd_cs($this->tceforms->noTitle($row['title']), $this->tceforms->titleLen);
+
+
+					// Create link to showing details about the file in a window:
+				if ($fileExists) {
+					#$Ahref = $GLOBALS['BACK_PATH'].'show_item.php?table='.rawurlencode($absFilePath).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
+					$onClick = 'top.launchView(\'tx_dam\', \''.$row['uid'].'\');';
+					$onClick = 'top.launchView(\''.$absFilePath.'\');';
+					$ATag_info = '<a href="#" onclick="'.htmlspecialchars($onClick).'">';
+					$info = $ATag_info.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->getLL('info',1).'" alt="" /> '.$LANG->getLL('info',1).'</a>';
+
+				} else {
+					$info = '&nbsp;';
+				}
+
+					// Thumbnail/size generation:
+				$clickThumb = '';
+				if ($displayThumbs && $fileExists && tx_dam_image::isPreviewPossible($row))	{
+					$clickThumb = tx_dam_image::previewImgTag($row);
+					$clickThumb = '<div class="clickThumb">'.$clickThumb.'</div>';
+				} elseif ($displayThumbs) {
+					$clickThumb = '<div style="width:68px"></div>';
+				}
+
+
+					// Show element:
+				$lines[] = '
+					<tr class="bgColor4">
+						<td valign="top" nowrap="nowrap" style="min-width:20em">'.$iconTag.htmlspecialchars($title).'&nbsp;</td>
+						<td valign="top" nowrap="nowrap" width="1%">'.$info.'</td>
+					</tr>';
+
+
+				$infoText = tx_dam_guiFunc::meta_compileInfoData ($row, 'file_name, file_size:filesize, _dimensions, caption:truncate:50', 'table');
+				$infoText = str_replace('<table>', '<table border="0" cellpadding="0" cellspacing="1">', $infoText);
+				$infoText = str_replace('<strong>', '<strong style="font-weight:normal;">', $infoText);
+				$infoText = str_replace('</td><td>', '</td><td class="bgColor-10">', $infoText);
+
+
+				if ($displayThumbs) {
+					$lines[] = '
+						<tr class="bgColor">
+							<td valign="top" colspan="2">
+							<table border="0" cellpadding="0" cellspacing="0"><tr>
+								<td valign="top">'.$clickThumb.'</td>
+								<td valign="top" style="padding-left:1em">'.$infoText.'</td></tr>
+							</table>
+							<div style="height:0.5em;"></div>
+							</td>
+						</tr>';
+				} else {
+					$lines[] = '
+						<tr class="bgColor">
+							<td valign="top" colspan="2" style="padding-left:22px">
+							'.$infoText.'
+							<div style="height:0.5em;"></div>
+							</td>
+						</tr>';
+				}
+
+				$lines[] = '
+						<tr>
+							<td colspan="2"><div style="height:0.5em;"></div></td>
+						</tr>';
+			}
+
+				// Wrap all the rows in table tags:
+			$out .= '
+
+		<!--
+			File listing
+		-->
+				<table border="0" cellpadding="1" cellspacing="1">
+					'.implode('',$lines).'
+				</table>';
+		}
+
+			// Return accumulated content for filelisting:
+		return $out;
+	}
+
+
+
+
+
+	/**
+	 * Generation of TCEform elements of the type "group"
+	 * This will render a selectorbox into which elements from either the file system or database can be inserted. Relations.
+	 *
+	 * @param	string		The table name of the record
+	 * @param	string		The field name which this element is supposed to edit
+	 * @param	array		The record data array where the value(s) for the field can be found
+	 * @param	array		An array with additional configuration options.
+	 * @return	string		The HTML code for the TCEform field
+	 */
+	function getSingleField_typeFolder($PA, &$fObj)	{
+		global $TYPO3_CONF_VARS, $TCA, $LANG;
+
+		$this->tceforms = &$PA['pObj'];
+
+		$table = $PA['table'];
+		$field = $PA['field'];
+		$row = $PA['row'];
+		$config = $PA['fieldConf']['config'];
+
+		$disabled = '';
+		if($this->tceforms->renderReadonly || $config['readOnly'])  {
+			$disabled = ' disabled="disabled"';
+		}
+
+			// Init:
+		$size = intval($config['size']);
+		$maxitems = t3lib_div::intInRange($config['maxitems'],0);
+		if (!$maxitems)	$maxitems=100000;
+		$minitems = t3lib_div::intInRange($config['minitems'],0);
+
+		$disabled = '';
+		if($this->tceforms->renderReadonly || $config['readOnly'])  {
+			$disabled = ' disabled="disabled"';
+		}
+
+		$item.= '<input type="hidden" name="'.$PA['itemFormElName'].'_mul" value="'.($config['multiple']?1:0).'"'.$disabled.' />';
+		$this->tceforms->requiredElements[$PA['itemFormElName']] = array($minitems,$maxitems,'imgName'=>$table.'_'.$row['uid'].'_'.$field);
+		$info='';
+
+			// "Extra" configuration; Returns configuration for the field based on settings found in the "types" fieldlist. See http://typo3.org/documentation/document-library/doc_core_api/Wizards_Configuratio/.
+		$specConf = $this->tceforms->getSpecConfFromString($PA['extra'], $PA['fieldConf']['defaultExtras']);
+
+
+
+			// Making the array of file items:
+		$itemArray = t3lib_div::trimExplode(',',$PA['itemFormElValue'],1);
+
+			// Creating the element:
+		$params = array(
+			'size' => $size,
+			'dontShowMoveIcons' => ($maxitems<=1),
+			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'],0),
+			'maxitems' => $maxitems,
+			'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->tceforms->defaultMultipleSelectorStyle.'"',
+			'info' => $info,
+			'thumbnails' => '',
+			'readOnly' => $disabled
+		);
+		$item.= $this->dbFileIcons($PA['itemFormElName'],'folder|tx_dam_folder','',$itemArray,'',$params,$PA['onFocus']);
+
+			// Wizards:
+		$altItem = '<input type="hidden" name="'.$PA['itemFormElName'].'" value="'.htmlspecialchars($PA['itemFormElValue']).'" />';
+		if (!$disabled) {
+			$item = $this->tceforms->renderWizards(array($item,$altItem),$config['wizards'],$table,$row,$field,$PA,$PA['itemFormElName'],$specConf);
+		}
+
+		return $item;
+	}
 
 
 
@@ -588,24 +802,28 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$row = $PA['row'];
 		$table = $PA['table'];
 
-		foreach (array('media_type', 'file_name', 'file_path', 'file_size') as $field) {
+// TODO overlay all fields to be safe
+		foreach (array('media_type', 'file_name', 'file_path', 'file_size', 'hpixels', 'vpixels') as $field) {
 			$row[$field] = $this->tceforms->getLanguageOverlayRawValue($table, $row, $field, $TCA[$table]['columns'][$field]);
 		}
 
 		$itemMediaInfo = '';
-		$itemMediaInfo .= '<div style="margin-bottom:7px;">'.$this->tceforms->sL('LLL:EXT:lang/locallang_general.xml:LGL.title', true).'<br />'.
+		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:lang/locallang_general.xml:LGL.title', true).'<br />'.
 					'<strong>'.htmlspecialchars($row['title']).'</strong></div>';
 
-		$itemMediaInfo .= '<div style="margin-bottom:7px;">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name', true).'<br />'.
+		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name', true).'<br />'.
 					'<strong>'.htmlspecialchars($row['file_name']).'</strong></div>';
 
+		$itemMediaInfo .= '<div class="tableRow">'.$this->tceforms->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path', true).'<br />'.
+					'<strong>'.htmlspecialchars($row['file_path']).'</strong></div>'; 
+									
 		if ($row['media_type'] == TXDAM_mtype_image) {
 			$out = '';
 			$out .= $row['hpixels'] ? $row['hpixels'].'x'.$row['vpixels'].' px, ' : '';
 			$out .= t3lib_div::formatSize($row['file_size']);
 			$out .= $row['color_space'] ? ', '.$this->tceforms->sL(t3lib_befunc::getLabelFromItemlist($PA['table'], 'color_space', $row['color_space']), true) : '';
 
-			$itemMediaInfo .= '<div style="margin-bottom:7px;"><nobr>'.htmlspecialchars($out).'</nobr></div>';
+			$itemMediaInfo .= '<div class="tableRow"><nobr>'.htmlspecialchars($out).'</nobr></div>';
 		}
 
 		$itemMediaTypeIcon = tx_dam_guiFunc::getMediaTypeIconBox($row);
@@ -669,7 +887,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			unset($previewer);
 			$previewer = NULL;
 		}
-// TODO header code should go into header - really
+// todo: header code should go into header - really - but how
 
 		//
 		// all together now
@@ -737,11 +955,11 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		global $TYPO3_CONF_VARS;
 
 			// description of exif data
-		$metaDesc['exif']['ExposureMode'] = array(
+		$metaDesc['EXIF']['ExposureMode'] = array(
 		   'Auto Exposure',
 		   'Manual Exposure',
 		   'Auto bracket');
-		$metaDesc['exif']['MeteringMode'] = array(
+		$metaDesc['EXIF']['MeteringMode'] = array(
 		   'unknown',
 		   'Average',
 		   'CenterWeightedAverage',
@@ -749,7 +967,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		   'MultiSpot',
 		   'Pattern',
 		   'Partial');
-		$metaDesc['exif']['SensingMethod'] = array(
+		$metaDesc['EXIF']['SensingMethod'] = array(
 		   '',
 		   'Not defined',
 		   'One-chip color area sensor',
@@ -758,12 +976,12 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		   'Color sequential area sensor',
 		   'Trilinear sensor',
 		   'Color sequential linear sensor');
-		$metaDesc['exif']['SubjectDistanceRange'] = array(
+		$metaDesc['EXIF']['SubjectDistanceRange'] = array(
 		   'unknown',
 		   'Macro',
 		   'Close view',
 		   'Distant view');
-		$metaDesc['exif']['ExposureProgram'] = array(
+		$metaDesc['EXIF']['ExposureProgram'] = array(
 		   'Not defined',
 		   'Manual',
 		   'Normal program',
@@ -784,7 +1002,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 
 		$wantedCharset = $TYPO3_CONF_VARS['BE']['forceCharset'] ? $TYPO3_CONF_VARS['BE']['forceCharset'] : 'iso-8859-1';
-		if(!$wantedCharset=='utf-8') {
+		if(!$wantedCharset === 'utf-8') {
 			$csConvObj = t3lib_div::makeInstance('t3lib_cs');
 		}
 
@@ -794,10 +1012,13 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		if(is_array($data)) {
 			foreach($data as $key => $value) {
 
-				if(is_array($value) AND count($value)) {
+				if(is_array($value) AND count($value) AND !isset($value['xml'])) { // skip raw xml
+
 						// convert pure data to human readable
 					if (is_array($metaDesc[$key])) {	// exif, iptc
+
 						foreach ($value as $dataKey => $dataVal) {
+							$key = strtoupper($key);
 							if (is_array($metaDesc[$key][$dataKey])) {	// description found?
 								$value[$dataKey] = $metaDesc[$key][$dataKey][$dataVal];	// apply
 							}
@@ -818,8 +1039,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		return $this->tceforms->getSingleField_typeNone_render($config, $content);
 	}
 
-
-
 	/**
 	 * Renders file usage field
 	 *
@@ -827,75 +1046,9 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 * @param	object		$fobj TCEForms object reference
 	 * @return	string		The HTML code for the TCEform field
 	 */
-	function tx_dam_fileUsage ($PA, &$fobj) {
-		global $TCA, $LANG;
-
-		$this->tceforms = &$PA['pObj'];
-
-		$config = $PA['fieldConf']['config'];
-
-		$itemOut = '';
-
-		$itemOut .= '<h4>'.$LANG->sl('LLL:EXT:dam/lib/locallang.xml:fileReference').'</h4>';
-		$rows = tx_dam_db::getMediaUsageReferences($PA['row']['uid'], '');
-
-		for ($index = 0; $index < 2; $index++) {
-
-			if ($rows) {
-				foreach($rows as $row) {
-					$table = $row['tablenames'];
-
-					$contentRec = t3lib_BEfunc::getRecord ($table, $row['uid_foreign'], 'uid,pid,'.$TCA[$table]['ctrl']['label']);
-					$iconAltText = t3lib_BEfunc::getRecordIconAltText($contentRec, $table);
-					$contentIcon = t3lib_iconWorks::getIconImage($table, $contentRec, $this->tceforms->backPath, 'title="'.$iconAltText.'" align="top"');
-
-					$pageRec = t3lib_BEfunc::getRecord ('pages', $contentRec['pid'], 'uid,pid,'.$TCA['pages']['ctrl']['label']);
-					$iconAltText = t3lib_BEfunc::getRecordIconAltText($pageRec, 'pages');
-					$pageIcon = t3lib_iconWorks::getIconImage('pages', $pageRec, $this->tceforms->backPath, 'title="'.$iconAltText.'" align="top"');
-
-
-					$aOnClick = "top.fsMod.recentIds['web']=".$pageRec['uid'].";top.goToModule('web_layout',1);";
-					$itemOut .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$pageIcon.t3lib_BEfunc::getRecordTitle('pages', $pageRec, true).'</a>';
-
-					$itemOut .= ' ';
-
-					$params='&edit['.$table.']['.$contentRec['uid'].']=edit';
-					$aOnClick = t3lib_beFunc::editOnClick($params, $this->tceforms->backPath='', $requestUri='');
-					$itemOut .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$contentIcon.t3lib_BEfunc::getRecordTitle($table, $contentRec, true).' - '.$LANG->sl($TCA[$table]['ctrl']['title']).', id='.$contentRec['uid'].'</a><br />';
-				}
-			} else {
-				$itemOut .= $LANG->sl('LLL:EXT:dam/lib/locallang.xml:fileNotUsed');
-			}
-
-			if(!$index) {
-				$itemOut .= '<h4>'.$LANG->sl('LLL:EXT:dam/lib/locallang.xml:fileCopy').'</h4>';
-				$rows = tx_dam_db::getMediaUsageUploads($PA['row']['uid']);
-			}
-		}
-
-
-		$out = $this->tceforms->intoTemplate( array(
-					'NAME' => $this->tceforms->sL($PA['label'], true),
-					'ID' => $row['uid'],
-					'FIELD' => $PA['field'],
-					'TABLE' => $PA['table'],
-					'ITEM' => $itemOut,
-					'HELP_ICON' => $this->tceforms->helpTextIcon($PA['table'], $PA['field'], true)
-				),
-				$fieldTemplate='');
-
-
-		return $out;
+	function tx_dam_fileUsage ($PA, $fobj) {
+		return tx_dam_guiFunc::getReferencesTable($PA['row']['uid']);
 	}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -940,7 +1093,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 * Prints the selector box form-field for the db/file/select elements (multiple)
 	 *
 	 * @param	string		Form element name
-	 * @param	string		Mode "db", "file" (internal_type for the "group" type) OR blank (then for the "select" type)
+	 * @param	string		Mode "db", "file" (internal_type for the "group" type) OR blank (then for the "select" type). Seperated with '|' a user defined mode can be set to be passed as param to the EB.
 	 * @param	string		Commalist of "allowed"
 	 * @param	array		The array of items. For "select" and "group"/"file" this is just a set of value. For "db" its an array of arrays with table/uid pairs.
 	 * @param	string		Alternative selector box.
@@ -951,6 +1104,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 */
 	function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')	{
 
+		list($mode, $modeEB) = explode('|', $mode);
+		$modeEB = $modeEB ? $modeEB : $mode;
 
 		$disabled = '';
 		if($this->tceforms->renderReadonly || $params['readOnly'])  {
@@ -990,6 +1145,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						}
 					}
 				break;
+				case 'folder':
 				case 'file':
 					while(list(,$pp)=each($itemArray))	{
 						$pParts = explode('|', $pp);
@@ -1001,7 +1157,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					while(list(,$pp)=each($itemArray))	{
 						$pParts = explode('|', $pp, 2);
 						$uidList[] = $pUid = $pParts[0];
-						$pTitle = $pParts[1];
+						$pTitle = $pParts[1] ? $pParts[1] : $pParts[0];
 						$opt[] = '<option value="'.htmlspecialchars(rawurldecode($pUid)).'">'.htmlspecialchars(rawurldecode($pTitle)).'</option>';
 					}
 				break;
@@ -1021,9 +1177,9 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		);
 		if (!$params['readOnly']) {
 			if (!$params['noBrowser'])	{
-				$aOnClick = 'setFormValueOpenBrowser(\''.$mode.'\',\''.($fName.'|||'.$allowed.'|'.$userEBParam.'|').'\'); return false;';
+				$aOnClick = 'setFormValueOpenBrowser(\''.$modeEB.'\',\''.($fName.'|||'.$allowed.'|'.$userEBParam.'|').'\'); return false;';
 				$icons['R'][] = '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.
-						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert3.gif', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->tceforms->getLL('l_browse_'.($mode=='file'?'file':'db'))).' />'.
+						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert3.gif', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib($this->tceforms->getLL('l_browse_'.($mode === 'file'?'file':'db'))).' />'.
 						'</a>';
 			}
 			if (!$params['dontShowMoveIcons'])	{
@@ -1045,13 +1201,14 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				}
 			}
 
+// todo Clipboard
 			$clipElements = $this->tceforms->getClipboardElements($allowed, $mode);
 			if (count($clipElements))	{
 				$aOnClick = '';
 	#			$counter = 0;
 				foreach($clipElements as $elValue)	{
-					if ($mode=='file')	{
-						$itemTitle = 'unescape(\''.rawurlencode(basename($elValue)).'\')';
+					if ($mode === 'file' OR $mode === 'folder')	{
+						$itemTitle = 'unescape(\''.rawurlencode(tx_dam::file_basename($elValue)).'\')';
 					} else {	// 'db' mode assumed
 						list($itemTable, $itemUid) = explode('|', $elValue);
 
@@ -1063,14 +1220,15 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 						$itemTitle = $GLOBALS['LANG']->JScharCode(t3lib_BEfunc::getRecordTitle($itemTable, $rec));
 						$elValue = $itemTable.'_'.$itemUid;
 					}
-					$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',unescape(\''.rawurlencode(str_replace('%20', ' ', $elValue)).'\'),'.$this->slashJS($itemTitle).');';
+					$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',\''.t3lib_div::slashJS(t3lib_div::rawUrlEncodeJS($elValue)).'\','.t3lib_div::slashJS($itemTitle).');';
+					#$aOnClick .= 'setFormValueFromBrowseWin(\''.$fName.'\',unescape(\''.rawurlencode(str_replace('%20', ' ', $elValue)).'\'),'.$itemTitle.');';
 
 	#				$counter++;
 	#				if ($params['maxitems'] && $counter >= $params['maxitems'])	{	break;	}	// Makes sure that no more than the max items are inserted... for convenience.
 				}
 				$aOnClick .= 'return false;';
 				$icons['R'][] = '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.
-						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert5.png', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib(sprintf($this->tceforms->getLL('l_clipInsert_'.($mode=='file'?'file':'db')), count($clipElements))).' />'.
+						'<img'.t3lib_iconWorks::skinImg($this->tceforms->backPath, 'gfx/insert5.png', 'width="14" height="14"').' border="0" '.t3lib_BEfunc::titleAltAttrib(sprintf($this->tceforms->getLL('l_clipInsert_'.($mode === 'file'?'file':'db')), count($clipElements))).' />'.
 						'</a>';
 			}
 
@@ -1121,19 +1279,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 	 *
 	 ************************************************************/
 
-	/**
-	 * This function is used to escape any ' -characters when transferring text to JavaScript!
-	 * Usage: 3
-	 *
-	 * @param	string		String to escape
-	 * @param	boolean		If set, also backslashes are escaped.
-	 * @param	string		The character to escape, default is ' (single-quote)
-	 * @return	string		Processed input string
-	 */
-	function slashJS($string,$extended=0,$char="'")	{
-		if ($extended)	{$string = str_replace ("\\", "\\\\", $string);}
-		return str_replace ($char, "\\".$char, $string);
-	}
+
 
 
 	/**
@@ -1168,11 +1314,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		}
 		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php']))) {
 			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php'];
-		}
-		if ($TYPO3_CONF_VARS['EXTCONF']['mmforeign']['setup']['patchStandardMM']) {
-				if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php']))) {
-					return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_loaddbgroup.php'];
-				}
 		}
 
 		return true;

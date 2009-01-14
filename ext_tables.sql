@@ -14,6 +14,18 @@ CREATE TABLE be_users (
 );
 
 
+
+#
+# Add fields to table 'tt_content'
+#
+CREATE TABLE tt_content (
+    tx_dam_images int(11) unsigned DEFAULT '0' NOT NULL,
+    tx_dam_files int(11) unsigned DEFAULT '0' NOT NULL,
+    ce_flexform mediumtext,
+);
+
+
+
 #
 # Table structure for table 'tx_dam'
 #
@@ -50,18 +62,22 @@ CREATE TABLE tx_dam (
   hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
   starttime int(11) unsigned DEFAULT '0' NOT NULL,
   endtime int(11) unsigned DEFAULT '0' NOT NULL,
-  fe_group int(11) DEFAULT '0' NOT NULL,
+  fe_group varchar(100) DEFAULT '0' NOT NULL,
 
   # languages
   sys_language_uid int(11) DEFAULT '0' NOT NULL,
   l18n_parent int(11) DEFAULT '0' NOT NULL,
   l18n_diffsource mediumblob,
 
-  # versioning
+  # workspaces
   t3ver_oid int(11) DEFAULT '0' NOT NULL,
   t3ver_id int(11) DEFAULT '0' NOT NULL,
+  t3ver_wsid int(11) DEFAULT '0' NOT NULL,
   t3ver_label varchar(30) DEFAULT '' NOT NULL,
-
+  t3ver_state tinyint(4) DEFAULT '0' NOT NULL,
+  t3ver_stage tinyint(4) DEFAULT '0' NOT NULL,
+  t3ver_count int(11) DEFAULT '0' NOT NULL,
+  t3ver_tstamp int(11) DEFAULT '0' NOT NULL,
 
   # Inspired by dublin core
   #
@@ -84,8 +100,8 @@ CREATE TABLE tx_dam (
   file_mime_type varchar(45) DEFAULT '' NOT NULL,
   file_mime_subtype varchar(45) DEFAULT '' NOT NULL,
 
-  # psd,doc,tif
-  file_type varchar(4) DEFAULT '' NOT NULL,
+  # psd,doc,tif,class
+  file_type varchar(5) DEFAULT '' NOT NULL,
 
   # pdf: 1.3
   file_type_version varchar(9) DEFAULT '' NOT NULL,
@@ -221,6 +237,21 @@ CREATE TABLE tx_dam_cat (
   pid int(11) DEFAULT '0' NOT NULL,
   parent_id int(11) DEFAULT '0' NOT NULL,
 
+  # languages
+  sys_language_uid int(11) DEFAULT '0' NOT NULL,
+  l18n_parent int(11) DEFAULT '0' NOT NULL,
+  l18n_diffsource mediumblob,
+
+  # workspaces
+  t3ver_oid int(11) DEFAULT '0' NOT NULL,
+  t3ver_id int(11) DEFAULT '0' NOT NULL,
+  t3ver_wsid int(11) DEFAULT '0' NOT NULL,
+  t3ver_label varchar(30) DEFAULT '' NOT NULL,
+  t3ver_state tinyint(4) DEFAULT '0' NOT NULL,
+  t3ver_stage tinyint(4) DEFAULT '0' NOT NULL,
+  t3ver_count int(11) DEFAULT '0' NOT NULL,
+  t3ver_tstamp int(11) DEFAULT '0' NOT NULL,
+
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
   sorting int(11) unsigned DEFAULT '0' NOT NULL,
   deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
@@ -228,7 +259,7 @@ CREATE TABLE tx_dam_cat (
   cruser_id int(11) unsigned DEFAULT '0' NOT NULL,
 
   hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
-  fe_group int(11) DEFAULT '0' NOT NULL,
+  fe_group varchar(100) DEFAULT '0' NOT NULL,
 
   title tinytext,
   nav_title tinytext,
