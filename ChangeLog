@@ -1,3 +1,7 @@
+2009-01-15  Michiel Roos <michiel@netcreators.com>
+
+	* #10149 dam should conflict with dam_info (Thanks to Michael Stucki)
+
 2009-01-12  Michiel Roos <michiel@netcreators.com>
 
 	* #10017 Add Icons to page:module TCEform

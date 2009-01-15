@@ -3,7 +3,7 @@
 ########################################################################
 # Extension Manager/Repository config file for ext: "dam"
 #
-# Auto generated 21-08-2006 01:09
+# Auto generated 15-01-2009 11:11
 #
 # Manual updates:
 # Only the data in the array - anything else is removed by next write.
@@ -17,7 +17,8 @@ $EM_CONF[$_EXTKEY] = array(
 	'shy' => 0,
 	'version' => '1.1.1',
 	'dependencies' => 'cms,static_info_tables',
-	'conflicts' => 'dam_file',
+	'conflicts' => 'dam_file,dam_info,mmforeign',
+	'suggests' => '',
 	'priority' => '',
 	'loadOrder' => '',
 	'module' => 'mod_main,mod_file,mod_list,mod_cmd,mod_edit,mod_info,mod_tools,mod_treebrowser',
@@ -36,19 +37,18 @@ $EM_CONF[$_EXTKEY] = array(
 		'depends' => array(
 			'cms' => '',
 			'static_info_tables' => '',
-			'php' => '4.0.0-',
-			'typo3' => '4.2.3-',
+			'php' => '4.0.0-0.0.0',
+			'typo3' => '4.2.3-0.0.0',
 		),
 		'conflicts' => array(
 			'dam_file' => '',
+			'dam_info' => '',
 			'mmforeign' => '',
 		),
 		'suggests' => array(
 		),
 	),
 	'_md5_values_when_last_written' => '',
-	'suggests' => array(
-	),
 );
 
 ?>
