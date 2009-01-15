@@ -1,3 +1,7 @@
+2009-01-15  Michiel Roos <michiel@netcreators.com>
+
+	* #10149 dam should conflict with dam_info (Thanks to Michael Stucki)
+
 2008-12-26  Michiel Roos <michiel@netcreators.com>
 
 	* #10016 added file compat/class.ux_template.php (excuse me)
