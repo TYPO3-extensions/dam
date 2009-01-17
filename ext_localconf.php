@@ -15,21 +15,6 @@ if (!defined ('PATH_txdam_siteRel')) {
 }
 
 
-	// PHP5 compatiblity
-if (!function_exists('stripos')) {
-	require_once(PATH_txdam.'compat/stripos.php');
-}
-if (!function_exists('str_ireplace')) {
-	require_once(PATH_txdam.'compat/str_ireplace.php');
-}
-if (!function_exists('array_diff_key')) {
-	require_once(PATH_txdam.'compat/array_diff_key.php');
-}
-if (!function_exists('htmlspecialchars_decode')) {
-	require_once(PATH_txdam.'compat/htmlspecialchars_decode.php');
-}
-
-
 	// that's the base API
 require_once(PATH_txdam.'lib/class.tx_dam.php');
 	// include basic image stuff because it's used so often
@@ -38,7 +23,6 @@ require_once(PATH_txdam.'lib/class.tx_dam_image.php');
 
 	// get extension setup
 $TYPO3_CONF_VARS['EXTCONF']['dam']['setup'] = unserialize($_EXTCONF);
-
 
 
 if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['tsconfig']==='default')	{
