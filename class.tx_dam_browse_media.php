@@ -233,6 +233,7 @@ class tx_dam_browse_media extends browse_links {
 		$this->renderInit();
 
 		$content = '';
+		$debug   = false;
 
 		switch((string)$type)	{
 			case 'rte':
@@ -248,9 +249,6 @@ class tx_dam_browse_media extends browse_links {
 				$debug = true;
 			break;
 		}
-
-		 $debug = true;
-		# tx_dam::config_setValue('setup.devel', true);
 
 			// debug output
 		if ($debug OR tx_dam::config_getValue('setup.devel')) {
