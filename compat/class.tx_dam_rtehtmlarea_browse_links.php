@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2008 Stanislas Rolland <typo3(arobas)sjbr.ca>
+*  (c) 2008-2009 Stanislas Rolland <typo3(arobas)sjbr.ca>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -86,6 +86,8 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 			if (!$this->browserRenderObj->isReadOnlyFolder($path)) {
 				$allowedItems[] = 'media_upload';
 			}
+				// Excluding items based on Page TSConfig
+			$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',',str_replace( array('file', 'upload'), array('media', 'media_upload'), $this->browserRenderObj->modPageConfig['properties']['removeTabs']),1));
 		}
 		return $allowedItems;
 	}
@@ -177,6 +179,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 		$this->browserRenderObj->mode =& $this->mode;
 		$this->browserRenderObj->act =& $this->act;
 		$this->browserRenderObj->bparams =& $this->bparams;
+		$this->browserRenderObj->thisConfig =& $this->invokingObject->thisConfig;
 			// init the DAM object
 		$this->browserRenderObj->initDAM();
 			// processes MOD_SETTINGS

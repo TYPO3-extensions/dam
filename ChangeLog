@@ -1,3 +1,7 @@
+2009-01-27  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Added feature #9951: Add Page TSConfig option to remove upload tab in media browser
+
 2009-01-18  Michiel Roos <michiel@netcreators.com>
 
 	* #8646: Click on icon before title does not react (Thanks to Uschi Renziehausen)

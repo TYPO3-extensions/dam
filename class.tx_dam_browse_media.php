@@ -93,6 +93,9 @@ class tx_dam_browse_media extends browse_links {
 
 
 	var $MCONF_name = 'txdam_elbrowser';
+	
+		// Page TSConfig for this module (for the current page not the Media sysfolder)
+	public $modPageConfig;
 
 	/**
 	 * Check if this object should be rendered.
@@ -330,10 +333,13 @@ class tx_dam_browse_media extends browse_links {
 
 			// Starting content:
 		$content = $this->doc->startPage('TBE file selector');
-
 			// Initializing the action value, possibly removing blinded values etc:
 		$allowedItems = array('file', 'upload');
+			// Excluding items based on Page TSConfig
+		$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',',$this->modPageConfig['properties']['removeTabs'],1));
+			// Excluding items based on RTE configuration
 		$allowedItems = array_diff($allowedItems, t3lib_div::trimExplode(',',$this->thisConfig['blindLinkOptions'],1));
+			// Excluding uploads into readOnly folders
 		$path = tx_dam::path_makeAbsolute($this->damSC->path);
 		if ($this->isReadOnlyFolder($path)) {
 			$allowedItems = array_diff($allowedItems, array('upload'));
@@ -360,24 +366,24 @@ class tx_dam_browse_media extends browse_links {
 		}
 		$content .= $this->doc->getTabMenuRaw($menuDef);
 
-
 			// Depending on the current action we will create the actual module content:
-		switch($this->act)	{
-			case 'file':
-				$this->addDisplayOptions();
-				$content.= $this->dam_select($this->allowedFileTypes, $this->disallowedFileTypes);
-				$content.= $this->damSC->getOptions();
-			break;
-			case 'upload':
-				$content.= $this->dam_upload($this->allowedFileTypes, $this->disallowedFileTypes);
-				$content.= $this->damSC->getOptions();
-				$content.='<br /><br />';
-				if ($BE_USER->isAdmin() || $BE_USER->getTSConfigVal('options.createFoldersInEB'))	{
-					$content.= $this->createFolder(tx_dam::path_makeAbsolute($this->damSC->path));
-				}
-			break;
+		if (in_array($this->act, $allowedItems)){
+			switch ($this->act) {
+				case 'file':
+					$this->addDisplayOptions();
+					$content.= $this->dam_select($this->allowedFileTypes, $this->disallowedFileTypes);
+					$content.= $this->damSC->getOptions();
+				break;
+				case 'upload':
+					$content.= $this->dam_upload($this->allowedFileTypes, $this->disallowedFileTypes);
+					$content.= $this->damSC->getOptions();
+					$content.='<br /><br />';
+					if ($BE_USER->isAdmin() || $BE_USER->getTSConfigVal('options.createFoldersInEB'))	{
+						$content.= $this->createFolder(tx_dam::path_makeAbsolute($this->damSC->path));
+					}
+				break;
+			}
 		}
-
 			// Add some space
 		$content.='<br />';
 
@@ -1126,8 +1132,17 @@ if (is_string($allowedFileTypes)) {
 
 		$this->reinitParams();
 
+			// Set Page TSConfig
 		$pArr = explode('|', $this->bparams);
-		$this->formFieldName = $pArr[0];
+		if ($this->mode == 'rte') {
+			$RTEtsConfigParts = explode(':', $pArr[2]);
+			$tscPID = $RTEtsConfigParts[5];
+		} else {
+			$this->formFieldName = $pArr[0];
+			$elementParts = explode('][', ereg_replace('\]$','',ereg_replace('^(TSFE_EDIT\[data\]\[|data\[)', '', $this->formFieldName)));
+			list($tscPID,$thePid) = t3lib_BEfunc::getTSCpid(trim($elementParts[0]), trim($elementParts[1]), $thePidValue);
+		}
+		$this->modPageConfig = $GLOBALS['BE_USER']->getTSConfig('tx_dam.elementBrowser', t3lib_BEfunc::getPagesTSconfig($tscPID));
 
 		$this->allowedFileTypes = array();
 		$this->disallowedFileTypes = array();
