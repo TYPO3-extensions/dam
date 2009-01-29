@@ -435,7 +435,7 @@ class tx_dam_guiFunc {
 	 	$newPathArr = array();
 	 	foreach ($pathArrRev as $key => $part) {
 
-			$part = t3lib_div::fixed_lgd($part, 20);
+			$part = t3lib_div::fixed_lgd_cs($part, 20);
 		 	if ($part) {
 		 		$len += strlen($part)+1;
 		 		if ($len > $maxLength) {
@@ -973,7 +973,7 @@ class tx_dam_guiFunc {
 					if (is_object($GLOBALS['LANG']))	{
 						$itemValue = $GLOBALS['LANG']->csConvObj->crop($GLOBALS['LANG']->charSet, $itemValue, $config-3, '');
 					} else {
-						$itemValue = t3lib_div::fixed_lgd($itemValue, $config-3, '');
+						$itemValue = substr(t3lib_div::fixed_lgd_cs($itemValue, $config-3), 0, -3);
 					}
 
 					$pos = strrpos($itemValue, ' ');

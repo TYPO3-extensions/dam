@@ -791,7 +791,7 @@ class tx_dam_listbase {
 					 $this->columnTDAttr[$field] = ' nowrap="nowrap"';
 				break;
 				default:
-					$columns[$field] = htmlspecialchars(t3lib_div::fixed_lgd($item[$field], $this->titleLength));
+					$columns[$field] = htmlspecialchars(t3lib_div::fixed_lgd_cs($item[$field], $this->titleLength));
 				break;
 			}
 			if ($columns[$field] === '') {

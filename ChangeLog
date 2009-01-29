@@ -1,3 +1,7 @@
+2009-01-29  Michiel Roos <michiel@netcreators.com>
+
+	* #10270: dam has multiple calls to deprecated function t3lib_div::fixed_lgd() (Thanks to Uschi Renziehausen)
+	
 2009-01-27  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Added feature #9951: Add Page TSConfig option to remove upload tab in media browser
