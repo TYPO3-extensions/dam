@@ -337,7 +337,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			}
 		}
 
-		return implode(',',t3lib_div::uniqueArray($listArray));
+		return implode(',', array_unique($listArray));
 	}
 
 
