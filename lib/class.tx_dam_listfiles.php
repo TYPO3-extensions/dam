@@ -237,7 +237,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 					else {
 						$content = $item[$field];
 					}
-					$columns[$field] = htmlspecialchars(t3lib_div::fixed_lgd($content, $this->titleLength));
+					$columns[$field] = htmlspecialchars(t3lib_div::fixed_lgd_cs($content, $this->titleLength));
 				break;
 			}
 			if ($columns[$field] === '') {

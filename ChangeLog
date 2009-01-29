@@ -1,3 +1,7 @@
+2009-01-29  Michiel Roos <michiel@netcreators.com>
+
+	* #10270: dam has multiple calls to deprecated function t3lib_div::fixed_lgd() (Thanks to Uschi Renziehausen)
+	
 2009-01-18  Michiel Roos <michiel@netcreators.com>
 
 	* #8646: Click on icon before title does not react (Thanks to Uschi Renziehausen)
