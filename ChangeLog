@@ -1,5 +1,6 @@
 2009-01-29  Michiel Roos <michiel@netcreators.com>
 
+	* #10271: dam calls deprecated function t3lib_div::uniqueArray() (Thanks to Uschi Renziehausen)
 	* #10270: dam has multiple calls to deprecated function t3lib_div::fixed_lgd() (Thanks to Uschi Renziehausen)
 	
 2009-01-27  Stanislas Rolland  <typo3@sjbr.ca>
