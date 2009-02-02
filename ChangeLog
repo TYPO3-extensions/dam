@@ -1,3 +1,10 @@
+2009-01-31  Dan Osipov <dosipov@phillyburbs.com>
+
+	* #9653: Field Selector disappears when switching from list to thumbs (Thanks to Michiel Roos)
+	* #10172: Remove check for TYPO3 compat version 4.2.0 from class.tx_dam_browse_media.php (Thanks to Michiel Roos)
+	* #10265: Cleanup compat/class.ux_template.php after release of TYPO3 4.2.5 (Thanks to Michiel Roos)
+	* #10193: Deleting a file shows faulty references warning (Thanks to Michiel Roos)
+
 2009-01-29  Michiel Roos <michiel@netcreators.com>
 
 	* #10271: dam calls deprecated function t3lib_div::uniqueArray() (Thanks to Uschi Renziehausen)

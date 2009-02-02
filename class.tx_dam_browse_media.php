@@ -128,15 +128,8 @@ class tx_dam_browse_media extends browse_links {
 	 */
 	function initDAM () {
 
-				// load the clickmenu (simpler inclusion since 4.2.0)
-		if (t3lib_div::compat_version('4.2.0')) {
-			$this->doc->getContextMenuCode();
-		} else {	// inclusion before TYPO3 4.2.0
-			$CMparts = $this->doc->getContextMenuCode();
-			$this->doc->bodyTagAdditions = $CMparts[1];
-			$this->doc->JScode.= $CMparts[0];
-			$this->doc->postCode.= $CMparts[2];
-		}
+			// load the clickmenu
+		$this->doc->getContextMenuCode();
 
 		if (!is_object($this->damSC)) {
 			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');

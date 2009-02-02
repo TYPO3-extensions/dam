@@ -66,11 +66,6 @@ if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['htmlAreaBrowser']) {
 	}
 }
 
-	// Register XCLASS which fixes bug #9511 and is needed on most systems prior to TYPO3 4.2.4
-if (t3lib_div::int_from_ver( TYPO3_version ) < 4002004) {
-	$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['typo3/template.php'] = PATH_txdam.'compat/class.ux_template.php';
-}
-
 
 	// register show item rendering
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/show_item.php']['typeRendering'][] = 'EXT:dam/binding/be/class.tx_dam_show_item.php:&tx_dam_show_item';
