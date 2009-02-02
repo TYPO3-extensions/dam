@@ -100,6 +100,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 #		$this->pObj->guiItems->registerFunc('getResultBrowser', 'header');
 
 #		$this->pObj->guiItems->registerFunc('getResultBrowser', 'footer');
+		$this->pObj->guiItems->registerFunc('getCurrentSelectionBox', 'footer');
 		$this->pObj->guiItems->registerFunc('getSearchBox', 'footer');
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems->registerFunc('getStoreControl', 'footer');

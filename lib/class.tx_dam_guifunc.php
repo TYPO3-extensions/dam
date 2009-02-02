@@ -324,7 +324,7 @@ class tx_dam_guiFunc {
 			// File references
 		$itemOut = '';
 		//$itemOut .= '<h4>' . $GLOBALS['LANG']->sl('LLL:EXT:dam/lib/locallang.xml:fileReference') . '</h4>';
-		$rows = tx_dam_db::getMediaUsageReferences($uidList, '', '', '', '');
+		$rows = tx_dam_db::getMediaUsageReferences($uidList);
 		if ($rows) {
 			$itemOut .= tx_dam_guiFunc::renderReferencesTable($rows, $displayColumns);
 		} else {

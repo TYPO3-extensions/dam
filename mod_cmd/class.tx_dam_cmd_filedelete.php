@@ -178,10 +178,13 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 		$this->pObj->markers['FOLDER_INFO'] = 'File: ' . $filepath;
 		if ($meta['uid']) {
-			$references = tx_dam_guiFunc::getReferencesTable($meta['uid']);
+			$references = tx_dam_db::getMediaUsageReferences($meta['uid']);
 			if ($references) {
 				$msg = $LANG->getLL('tx_dam_cmd_filedelete.messageReferences',1);
 				$msg .= $GLOBALS['SOBE']->doc->spacer(5);
+
+					// Render the references
+				$references = tx_dam_guiFunc::renderReferencesTable($references);
 				$references = $GLOBALS['SOBE']->doc->section($LANG->getLL('tx_dam_cmd_filedelete.references',1), $msg.$references,0,0,0);
 			}
 		}
