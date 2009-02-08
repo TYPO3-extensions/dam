@@ -1,3 +1,7 @@
+2009-02-08  Michael Stucki  <michael@typo3.org>
+
+	* #10347: Categories valid for "All" languages are not fetched by category tree selector (Thanks to Francois Suter)
+
 2009-01-31  Dan Osipov <dosipov@phillyburbs.com>
 
 	* #9653: Field Selector disappears when switching from list to thumbs (Thanks to Michiel Roos)
