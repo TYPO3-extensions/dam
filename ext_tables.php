@@ -303,7 +303,8 @@ if (TYPO3_MODE === 'BE')	{
 
 		// media folder type and icon
 	$ICON_TYPES['dam'] = array('icon' => PATH_txdam_rel.'modules_dam.gif');
-	$TCA['pages']['columns']['module']['config']['items'][] = array('Media', 'dam');
+	$TCA['pages']['columns']['module']['config']['items'][] = array('Media', 'dam', PATH_txdam_rel.'modules_dam.gif');
+	
 
 
 

@@ -1,3 +1,7 @@
+2009-02-09  Michiel Roos <michiel@netcreators.com>
+
+	* #10077 Add Icons to page:module TCEform
+
 2009-02-08  Michael Stucki  <michael@typo3.org>
 
 	* #10347: Categories valid for "All" languages are not fetched by category tree selector (Thanks to Francois Suter)
