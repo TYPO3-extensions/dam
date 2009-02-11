@@ -1,3 +1,7 @@
+2009-02-11  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Added feature #10293: Better link title handling in htmlArea RTE
+
 2009-02-09  Michiel Roos <michiel@netcreators.com>
 
 	* #10077 Add Icons to page:module TCEform
