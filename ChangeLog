@@ -1,3 +1,7 @@
+2009-04-01  Dan Osipov <dosipov@phillyburbs.com>
+
+	* #10350: Form problems using MSIE (Thanks to Michael Stucki)
+	
 2009-02-08  Michael Stucki  <michael@typo3.org>
 
 	* #10347: Categories valid for "All" languages are not fetched by category tree selector (Thanks to Francois Suter)

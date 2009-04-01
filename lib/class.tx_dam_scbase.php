@@ -902,7 +902,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	string		The action target for the form. Default is this script.
 	 * @return	string		HTML for the search box
 	 */
-	function getSearchBox($mode='simple', $useFormTag=TRUE, $formAction='')	{
+	function getSearchBox($mode='simple', $useFormTag=false, $formAction='')	{
 
 			// Setting form-elements, if applicable:
 		$formElements = array('', '');
@@ -1335,7 +1335,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	boolean		$formFields If true, form-fields will be wrapped around
 	 * @return	string		<select> HTML element (if there were items for the box anyways...)
 	 */
-	function languageSwitch($langRows, $currentLanguage, $formFields = true) {
+	function languageSwitch($langRows, $currentLanguage, $formFields = false) {
 		$content = '';
 
 			// page available in other languages than default language?
