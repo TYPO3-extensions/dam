@@ -1,3 +1,7 @@
+2009-04-01  Dan Osipov <dosipov@phillyburbs.com>
+
+	* #10350: Form problems using MSIE (Thanks to Michael Stucki)
+	
 2009-02-11  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Added feature #10293: Better link title handling in htmlArea RTE
