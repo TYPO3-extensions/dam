@@ -747,7 +747,7 @@ class tx_dam_db {
 		if (!isset($whereClauses['deleted']) && !isset($whereClauses['enableFields'])) {
 			$where['enableFields'] = tx_dam_db::enableFields($local_table);
 			if ($foreign_table) {
-				$where['enableFields'] .= ' AND '.tx_dam_db::enableFields($foreign_table);
+				$where['enableFieldsForeign'] = tx_dam_db::enableFields($foreign_table);
 			}
 		}
 		$where = array_merge($where, $whereClauses);

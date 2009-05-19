@@ -1,3 +1,7 @@
+2009-05-19  Michiel Roos <michiel@netcreators.com>
+
+	* #10555: SQL error in MM selection (Thanks to Dan Osipov)
+
 2009-05-14  Michiel Roos <michiel@netcreators.com>
 
 	* #10243: Media tag: ATagParams can't wrap dam fields (Thanks to Olivier Shopfer)
