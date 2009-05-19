@@ -1,3 +1,7 @@
+2009-05-14  Michiel Roos <michiel@netcreators.com>
+
+	* #10243: Media tag: ATagParams can't wrap dam fields (Thanks to Olivier Shopfer)
+
 2009-04-01  Dan Osipov <dosipov@phillyburbs.com>
 
 	* #10350: Form problems using MSIE (Thanks to Michael Stucki)

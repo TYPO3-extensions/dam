@@ -87,7 +87,7 @@ class tx_dam_tsfemediatag {
 	 */
 	function typoLink($linktxt, $conf)	{
 		$finalTagParts = array();
-		$finalTagParts['aTagParams'] = $this->cObj->getATagParams($conf);
+
 
 
 		$link_param = trim($this->cObj->stdWrap($conf['parameter'],$conf['parameter.']));
@@ -171,11 +171,9 @@ class tx_dam_tsfemediatag {
 				// Title tag
 			$title = $conf['title'];
 			if ($conf['title.'])	{$title=$this->cObj->stdWrap($title, $conf['title.']);}
-			
-			
+
 				// Setting title if blank value to link:
 			if ($linktxt=='') $linktxt = $media->getContent('title');
-			
 
 			if ($GLOBALS['TSFE']->config['config']['jumpurl_enable'])	{
 				$this->cObj->lastTypoLinkUrl = $GLOBALS['TSFE']->absRefPrefix.$GLOBALS['TSFE']->config['mainScript'].$initP.'&jumpurl='.rawurlencode($media->getPathForSite()).$GLOBALS['TSFE']->getMethodUrlIdToken;
@@ -187,9 +185,8 @@ class tx_dam_tsfemediatag {
 
 			$finalTagParts['url'] = $this->cObj->lastTypoLinkUrl;
 			$finalTagParts['targetParams'] = $target ? ' target="'.$target.'"' : '';
+			$finalTagParts['aTagParams'] = $this->cObj->getATagParams($conf);
 			$finalTagParts['TYPE'] = 'file';
-
-
 
 			if ($forceTitle)	{$title=$forceTitle;}
 
