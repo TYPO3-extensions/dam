@@ -169,12 +169,12 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND tx_dam_lgovl.'.$languageField.'='.$this->langCurrent;
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND tx_dam_lgovl.deleted=0';
 			} else {
-				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND (tx_dam_lgovl.'.$languageField.'='.$this->langCurrent.' OR tx_dam.'.$languageField.'=0 )';
+				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND (tx_dam_lgovl.'.$languageField.' IN ('.$this->langCurrent.',0,-1) )';
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND (tx_dam_lgovl.sys_language_uid=1 OR tx_dam.sys_language_uid=0 )';
 			}
 
 		} else {
-			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam.'.$languageField] = 'AND tx_dam.'.$languageField.'=0';
+			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam.'.$languageField] = 'AND tx_dam.'.$languageField.' IN (0,-1)';
 		}
 
 

@@ -173,7 +173,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 		$langQuery = '';
 		$languageField = $TCA[$table]['ctrl']['languageField'];
-		if ($langCurrent AND $this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay']==='exclusive') {
+		if ($langCurrent && $this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay'] === 'exclusive') {
 		// if ($langCurrent) { This works but create NULL columns for non-translated records so we need to use language overlay anyway
 
 			$lgOvlFields = tx_dam_db::getLanguageOverlayFields ($table, 'tx_dam_lgovl');
@@ -190,12 +190,12 @@ class tx_dam_list_list extends t3lib_extobjbase {
 				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND tx_dam_lgovl.'.$languageField.'='.$langCurrent;
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND tx_dam_lgovl.deleted=0';
 			} else {
-				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND (tx_dam_lgovl.'.$languageField.'='.$langCurrent.' OR tx_dam.'.$languageField.'=0 )';
+				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND (tx_dam_lgovl.'.$languageField.' IN ('.$langCurrent.', 0, -1) )';
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND (tx_dam_lgovl.sys_language_uid=1 OR tx_dam.sys_language_uid=0 )';
 			}
 
 		} else {
-			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam.'.$languageField] = 'AND tx_dam.'.$languageField.'=0';
+			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam.'.$languageField] = 'AND tx_dam.'.$languageField.' IN (0,-1)';
 		}
 
 

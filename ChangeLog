@@ -1,3 +1,7 @@
+2009-05-20  Michiel Roos <michiel@netcreators.com>
+
+	* #10399: Media > List does not display records with language "All" (Thanks to Francois Suter)
+
 2009-05-19  Michiel Roos <michiel@netcreators.com>
 
 	* #10555: SQL error in MM selection (Thanks to Dan Osipov)
