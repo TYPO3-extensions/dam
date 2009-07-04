@@ -80,7 +80,7 @@ class tx_dam_tce_process {
 								// Initializing:
 							$tce->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 							$tce->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-							$tce->fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+							$tce->fileProcessor->init_actionPerms(tx_dam::getFileoperationPermissions());
 							$tce->fileProcessor->dontCheckForUnique = $tce->overwriteExistingFiles ? 1 : 0;
 	
 								// Checking referer / executing:

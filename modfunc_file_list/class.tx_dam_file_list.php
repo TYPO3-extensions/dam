@@ -300,7 +300,7 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 //					// Init file processing object for deleting and pass the cmd array.
 //				$fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 //				$fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-//				$fileProcessor->init_actionPerms($BE_USER->user['fileoper_perms']);
+//				$fileProcessor->init_actionPerms(tx_dam::getFileoperationPermissions());
 //				$fileProcessor->dontCheckForUnique = t3lib_div::_GP('overwriteExistingFiles') ? 1 : 0;
 //				$fileProcessor->start($FILE);
 //				$fileProcessor->processData();

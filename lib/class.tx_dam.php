@@ -801,6 +801,22 @@ class tx_dam {
 		return false;
 	}
 
+	/**
+	 * Fetches the permissions on file operations of the current user.
+	 * The behaviour in TYPO3 4.2 and 4.3 are different, thus this method is used as wrapper.
+	 *
+	 * @param	t3lib_extFileFunctions	$fileProcessor: The file processor object
+	 * @return	integer					File permission integer from BE_USER
+	 */
+	static public function getFileoperationPermissions() {
+		if (method_exists($GLOBALS['BE_USER'], 'getFileoperationPermissions')) {
+			$result = $GLOBALS['BE_USER']->getFileoperationPermissions();
+		} else {
+			$result = $GLOBALS['BE_USER']->user['fileoper_perms'];
+		}
+
+		return $result;
+	}
 
 
 
