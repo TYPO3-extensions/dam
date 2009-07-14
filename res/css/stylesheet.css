@@ -144,3 +144,6 @@ div#itemsFooter { background-color:#eee; border:1px solid #888; padding:5px; }
 span#titleWrap { color:grey;vertical-align:top; }
 div#languageSwitch { margin:0 0.5em 0.4em auto; text-align:right; }
 div#typo3-inner-docbody { padding:10px 10pt 10px 10px; }
+
+	/* From class.tx_dam_tools_mimetypes */
+th { font-size: 10px; color: #ffffff; font-weight: bold; background-color: #a2aab8; text-align: left; }

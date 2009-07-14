@@ -301,7 +301,7 @@ class tx_dam_selection {
 	function getSelectionWhereClauseArray() {
 		$queryArr = array();
 		$sel = $this->sel;
-
+$sel['SEARCH'] = $sel['SELECT']; unset($sel['SELECT']);
 		foreach (array('SELECT','OR','AND','NOT','SEARCH') as $queryType) {
 			if(is_array($sel[$queryType])) {
 				foreach ($sel[$queryType] as $selectionRuleName => $items) {

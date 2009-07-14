@@ -1277,6 +1277,38 @@ class tx_dam_db {
 		return $infoFields;
 	}
 
+	
+	/**
+	 * Get the extension record from the DB. 
+	 *
+	 * @param	string		$ext: Extension, for which to fetch the record. Optional
+	 * @param	boolean		$mimeType: Mime Type, for which to fetch the record. Optional, but must be provided if the extension is blank.
+	 * @return	array		File type record.
+	 */	
+	function getMediaExtension($ext='', $mimeType='') {
+		// Check we have enough information to proceed
+		if ($ext == '' && $mimeType == '') {
+			return array();
+		}
+		if ($ext != '') {
+			$where[] = "ext=" . $GLOBALS['TYPO3_DB']->fullQuoteStr($ext, 'tx_dam_media_types');
+		}
+		if ($mimeType != '') {
+			$where[] = "mime=" . $GLOBALS['TYPO3_DB']->fullQuoteStr($mimeType, 'tx_dam_media_types');
+		}
+		
+		// Query the DB 
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+												'*',
+												'tx_dam_media_types',
+												implode(' AND ', $where)
+											);
+		if ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+			$GLOBALS['TYPO3_DB']->sql_free_result($res);
+			return $row;
+		}
+	}	
+
 
 
 

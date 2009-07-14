@@ -402,3 +402,18 @@ CREATE TABLE tx_dam_selection (
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
+
+#
+# Table structure for table 'tx_dam_media_types'
+#
+CREATE TABLE tx_dam_media_types (
+	uid int(11) NOT NULL auto_increment,
+	pid int(11) DEFAULT '0' NOT NULL,
+	ext varchar(5) DEFAULT '' NOT NULL,
+	mime varchar(64) DEFAULT '' NOT NULL,
+	type int(11) DEFAULT '0' NOT NULL,
+	icon varchar(64) DEFAULT '' NOT NULL,
+	
+	PRIMARY KEY (uid),
+	KEY parent (pid)
+);

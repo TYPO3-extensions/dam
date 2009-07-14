@@ -219,6 +219,13 @@ if (TYPO3_MODE === 'BE')	{
 		PATH_txdam.'modfunc_tools_serviceinfo/class.tx_dam_tools_serviceinfo.php',
 		'LLL:EXT:dam/lib/locallang.xml:serviceinfo'
 	);	
+	
+	t3lib_extMgm::insertModuleFunction(
+		'txdamM1_tools',
+		'tx_dam_tools_mimetypes',
+		PATH_txdam.'modfunc_tools_mimetypes/class.tx_dam_tools_mimetypes.php',
+		'LLL:EXT:dam/lib/locallang.xml:mimetypes'
+	);		
 
 
 		// command modules (invisible)
@@ -508,6 +515,20 @@ $TCA['tx_dam_selection'] = array(
 	),
 	'feInterface' => array(
 		'fe_admin_fieldList' => 'hidden, starttime, endtime, fe_group, type, title, definition',
+	)
+);
+
+$TCA['tx_dam_media_types'] = array(
+	'ctrl' => array(
+		'title' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_media_types',
+		'label' => 'ext',
+		'versioning' => '0',
+		'rootLevel'	=> '1',
+		'dynamicConfigFile' => PATH_txdam.'tca.php',
+		'iconfile' => PATH_txdam_rel.'i/mimetype.gif',
+	),
+	'feInterface' => array(
+		'fe_admin_fieldList' => 'ext, mime, type, icon',
 	)
 );
 
