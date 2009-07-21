@@ -153,7 +153,8 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 	 */
 	function renderForm()	{
 		global $BE_USER, $LANG, $TYPO3_CONF_VARS;
-
+		
+		$content = '';
 		$msg = array();
 
 		$this->pObj->markers['FOLDER_INFO'] = tx_dam_guiFunc::getFolderInfoBar($this->folder);
@@ -167,10 +168,18 @@ class tx_dam_cmd_filenew extends t3lib_extobjbase {
 					t3lib_div::formatForTextarea($this->pObj->data['file_content']).
 					'</textarea>';
 
+		if (tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.displayExtraButtons', 1)) {
+			$buttons = '
+				<input type="submit" value="'.$GLOBALS['LANG']->getLL('submitCreate',1).'" />
+				<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+		}
+
 		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $GLOBALS['LANG']->getLL('submitCreate',1) . '" height="16" type="image" width="16">';
 		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
-		return implode('<br />', $msg);
+		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
+
+		return $content;
 	}
 }
 
