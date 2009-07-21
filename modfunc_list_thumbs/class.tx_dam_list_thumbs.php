@@ -213,44 +213,44 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		$content.= $this->pObj->guiItems->getOutput('header');
 		$content.= $this->pObj->doc->spacer(10);
 
-
-		// TODO move to scbase (see tx_dam_browser too)
-
-		if (is_array($allFields) && count($allFields)) {
-			$fieldsSelItems=array();
-			foreach ($allFields as $field => $title) {
-				$fL = is_array($TCA[$table]['columns'][$field]) ? preg_replace('#:$#', '', $GLOBALS['LANG']->sL($TCA[$table]['columns'][$field]['label'])) : '['.$field.']';
-				$fieldsSelItems[$field] = t3lib_div::fixed_lgd_cs($fL, 15);
-			}
-			$sortingSelector = $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:labelSorting',1).' ';
-			$sortingSelector .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_thumbs_sortField]', $this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'], $fieldsSelItems);
-			
-			if($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortRev'])	{
-				$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '0'));		
-				$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
-						'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2up.gif','width="12" height="7"').' alt="" />'.
-						'</button>';
-			} else {
-				$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '1'));
-				$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
-						'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2down.gif','width="12" height="7"').' alt="" />'.
-						'</button>';
-			}
-			$sortingSelector = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$sortingSelector.'</form>';
-		}
-
-		$this->pObj->markers['LANGUAGE_SELECT'] = $this->pObj->languageSwitch($this->langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']));
-		
-		$content.= $this->pObj->contentLeftRight($sortingSelector, '');
-		$content.= $this->pObj->doc->spacer(10);
-		
-		
-		//
-		// creates thumbnail list
-		//
-
 			// any records found?
 		if($this->pObj->selection->pointer->countTotal) {
+
+			// TODO move to scbase (see tx_dam_browser too)
+	
+			if (is_array($allFields) && count($allFields)) {
+				$fieldsSelItems=array();
+				foreach ($allFields as $field => $title) {
+					$fL = is_array($TCA[$table]['columns'][$field]) ? preg_replace('#:$#', '', $GLOBALS['LANG']->sL($TCA[$table]['columns'][$field]['label'])) : '['.$field.']';
+					$fieldsSelItems[$field] = t3lib_div::fixed_lgd_cs($fL, 15);
+				}
+				$sortingSelector = $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:labelSorting',1).' ';
+				$sortingSelector .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_thumbs_sortField]', $this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'], $fieldsSelItems);
+				
+				if($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortRev'])	{
+					$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '0'));		
+					$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
+							'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2up.gif','width="12" height="7"').' alt="" />'.
+							'</button>';
+				} else {
+					$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '1'));
+					$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
+							'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2down.gif','width="12" height="7"').' alt="" />'.
+							'</button>';
+				}
+				$sortingSelector = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$sortingSelector.'</form>';
+			}
+	
+			$this->pObj->markers['LANGUAGE_SELECT'] = $this->pObj->languageSwitch($this->langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']));
+			
+			$content.= $this->pObj->contentLeftRight($sortingSelector, '');
+			$content.= $this->pObj->doc->spacer(10);
+			
+			
+			//
+			// creates thumbnail list
+			//
+
 
 				// limit query for browsing
 			$this->pObj->selection->addLimitToQuery();
@@ -308,9 +308,6 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			
 
 		
-		} else {
-				// no search result: showing selection box
-			$content.= $this->pObj->doc->section('',$this->pObj->getCurrentSelectionBox(),0,1);
 		}
 
 
