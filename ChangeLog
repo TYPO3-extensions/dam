@@ -1,6 +1,7 @@
 2009-07-21  Michiel Roos <michiel@netcreators.com>
 
 	* #10194: Cannot confirm "delete file" operation
+	* #11070: modfunc_list_thumbs: rendering on "no files found" 
 	 
 2009-07-14  Dan Osipov  <dosipov@phillyburbs.com>
 
