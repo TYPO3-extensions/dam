@@ -358,6 +358,20 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 		$buttons .= '
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][target]" value="'.htmlspecialchars($targetFolder).'" />';
+
+		if (tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.displayExtraButtons', 1)) {
+			if ($this->copyOrMove=='copy') {
+				$buttons = '
+					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filecopy.submit',1).'" />
+					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+			}
+			else {
+				$buttons = '
+					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filemove.submit',1).'" />
+					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+			}
+		}
+
 		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_copy.gif') . ' title="' . $LANG->getLL($this->langPrefix.'submit',1) . '" height="16" type="image" width="16">';
 		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';			
 
@@ -468,6 +482,20 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 		$buttons .= '
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][target]" value="'.htmlspecialchars($targetFolder).'" />';
+
+		if (tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.displayExtraButtons', 1)) {
+			if ($this->copyOrMove=='copy') {
+				$buttons = '
+					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filecopy.submit',1).'" />
+					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+			}
+			else {
+				$buttons = '
+					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filemove.submit',1).'" />
+					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
+			}
+		}
+		
 		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/clip_copy.gif') . ' title="' . $LANG->getLL($this->langPrefix.'submit',1) . '" height="16" type="image" width="16">';
 		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';			
 			
