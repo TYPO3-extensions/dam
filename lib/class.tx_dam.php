@@ -746,7 +746,7 @@ class tx_dam {
 		}
 
 
-		$setup = $setup ? $setup : $GLOBALS['BE_USER']->user['fileoper_perms'];
+		$setup = $setup ? $setup : self::getFileoperationPermissions();
 
 		if (($setup&1)==1)	{		// Files: Upload,Copy,Move,Delete,Rename
 			$actionPerms['uploadFile'] = true;

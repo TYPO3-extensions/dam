@@ -1,3 +1,7 @@
+2009-07-03  Oliver Hader  <oliver@typo3.org>
+
+	* Follow-up to bug #10817: Deleting files does not work for regular backend users
+
 2009-07-21  Michiel Roos <michiel@netcreators.com>
 
 	* #10194: Cannot confirm "delete file" operation
