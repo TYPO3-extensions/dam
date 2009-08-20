@@ -223,9 +223,9 @@ class tx_dam_svlist {
 			$cells[]='<td nowrap="nowrap" valign="top">'.$info['sv']['exec'].'</td>';
 
 			if (t3lib_extmgm::findService($svKey,'*')) {
-				$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_ok.gif" width="18" height="16" vspace="4">';
+				$icon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_ok.gif').' vspace="4" />';
 			} else {
-				$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_fatalerror.gif" width="18" height="16" vspace="4">';
+				$icon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_fatalerror.gif').' vspace="4" />';
 				$bgColor = t3lib_div::modifyHTMLcolor($this->pObj->doc->bgColor2,30,30,30);
 			}
 		}
@@ -249,9 +249,9 @@ class tx_dam_svlist {
 				$lines[] = '<tr class="bgColor5"><td><strong>Path:</strong></td><td><strong>valid:</strong></td></tr>';
 				foreach($paths as $path => $valid) {
 					if ($valid) {
-						$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_ok.gif" width="18" height="16" vspace="4">';
+						$icon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_ok.gif').' vspace="4" />';
 					} else {
-						$icon = '<img src="'.$GLOBALS['BACK_PATH'].'gfx/icon_fatalerror.gif" width="18" height="16" vspace="4">';
+						$icon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/icon_fatalerror.gif').' vspace="4" />';
 					}
 					$lines[] = '<tr class="bgColor'.($valid?'4':'2').'"><td>'.htmlspecialchars($path).'</td><td align="center">'.$icon.'</td></tr>';
 				}
