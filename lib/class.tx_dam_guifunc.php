@@ -810,7 +810,7 @@ class tx_dam_guiFunc {
 		if (!is_array($imgAttributes)) {
 			$imgAttributes = tx_dam_guifunc::tools_explodeAttributes($imgAttributes);
 		}
-		$titleContent = $titleContent ? $titleContent : ($imgAttributes['title'] ? $imgAttributes['title'] : tx_dam_guiFunc::meta_compileHoverText($fileInfo));
+		$titleContent = $titleContent ? $titleContent : ($imgAttributes['title'] ? $imgAttributes['title'] : tx_dam_guiFunc::meta_compileHoverText($fileInfo, '', ' - '));
 		$imgAttributes['title'] = $titleContent;
 
 		if (!($onClick===false)) {
