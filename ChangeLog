@@ -1,6 +1,7 @@
 2009-08-20  Michiel Roos <michiel@netcreators.com>
 
 	* #11743: DAM doesn't respekt skin images (Thanks to Georg Ringer)
+	* #11750: Title tag of elements in page module is unreadable (Thanks to Georg Ringer)
 
 2009-07-03  Oliver Hader  <oliver@typo3.org>
 
