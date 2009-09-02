@@ -197,7 +197,7 @@ class tx_dam_selection {
 			$this->hasChanged = true;
 		} else {
 			$this->setCurrentSelectionFromStored();
-			if ($sel = t3lib_div::_GPmerged($this->paramStr)) {
+			if ($sel = t3lib_div::GParrayMerged($this->paramStr)) {
 				$oldSel = serialize($this->sel);
 				$this->mergeSelection($sel);
 				$this->storeCurrentSelectionAsUndo();
