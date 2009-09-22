@@ -71,7 +71,7 @@
             <label index="tx_dam_cmd_filereplace.title">Datei ersetzen</label>
             <label index="tx_dam_cmd_filedelete.warning">Achtung</label>
             <label index="tx_dam_cmd_filedelete.title">Datei löschen</label>
-            <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher das Sie die Datei(en) und zugehörige Meta-Daten löschen wollen?</label>
+            <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher, dass Sie die Datei(en) und zugehörige Meta-Daten löschen wollen?</label>
             <label index="tx_dam_cmd_filedelete.messageReferencesUsed">Datei wird als Inhalt verwendet!</label>
             <label index="tx_dam_cmd_filedelete.messageReferencesDelete">Wird die Datei gelöscht, so wird sie auch aus den Inhaltselementen entfernt.</label>
             <label index="tx_dam_cmd_filedelete.messageReferences">Die Datei wird in folgenden Inhaltselementen verwendet.</label>
@@ -84,10 +84,10 @@
             <label index="tx_dam_cmd_filenew.title">Text-Datei anlegen</label>
             <label index="tx_dam_cmd_filenew.text_content">Text-Inhalt:</label>
             <label index="tx_dam_cmd_filecopy.title">Datei kopieren</label>
-            <label index="tx_dam_cmd_filecopy.message">Sind Sie sicher das Sie die Datei(en) nach '%s' kopieren wollen?</label>
+            <label index="tx_dam_cmd_filecopy.message">Sind Sie sicher, dass Sie die Datei(en) nach '%s' kopieren wollen?</label>
             <label index="tx_dam_cmd_filecopy.submit">Datei kopieren</label>
             <label index="tx_dam_cmd_filemove.title">Datei verschieben</label>
-            <label index="tx_dam_cmd_filemove.message">Sind Sie sicher das Sie die Datei(en) nach '%s' verschieben wollen?</label>
+            <label index="tx_dam_cmd_filemove.message">Sind Sie sicher, dass Sie die Datei(en) nach '%s' verschieben wollen?</label>
             <label index="tx_dam_cmd_filemove.submit">Datei verschieben</label>
         </languageKey>
     </data>

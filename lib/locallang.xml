@@ -207,10 +207,10 @@
             <label index="recordsPerPage">zeige: %s</label>
             <label index="selEquals">Auswählen:</label>
             <label index="selPlus">Enthält eines dieser:</label>
-            <label index="selMinus">Ausschliessen:</label>
+            <label index="selMinus">Ausschließen:</label>
             <label index="options">Einstellungen</label>
-            <label index="deselect">Von Auswahl ausschliessen</label>
-            <label index="reselect">In Auswahl einschliessen</label>
+            <label index="deselect">Von Auswahl ausschließen</label>
+            <label index="reselect">In Auswahl einschließen</label>
             <label index="remove">Entfernen</label>
             <label index="defaultSorting">Sortierung entfernen</label>
             <label index="labelSorting">Sortierung:</label>
