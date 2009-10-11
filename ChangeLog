@@ -6,6 +6,7 @@
 	* Fixed bug #7654: Category sorting by title, not by "sorting" (Thanks to Michael Ablass)
 	* Fixed bug #11854: wrong syntax in ext_tables.sql (Thanks to Guiso Kegel)
 	* Fixed bug #11623: Remove deprecated assignments by reference when using "new" statement (Thanks to Andreas Wolf) 
+	* Fixed bug #11330: docheader in batch_edit mode lacks replacement of FOLDER_INFO, CLOSE and SAVE markers (Thanks to Georg Kuehnberger)
 	
 2009-08-20  Michiel Roos <michiel@netcreators.com>
 

@@ -236,6 +236,11 @@ class tx_dam_cmd_filedelete extends t3lib_extobjbase {
 
 		$references = 0;
 
+// gk added for marker replacement fix
+// FOLDER_INFO is missing due to missing param in current function
+		$this->pObj->markers['FOLDER_INFO'] = '';
+		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/deletedok.gif') . ' title="' . $LANG->getLL('tx_dam_cmd_filedelete.submit',1) . '" height="16" type="image" width="16">';
+		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';			
 
 		$titleNotExists = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists', true).'"';
 		$iconNotExists = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotExists.' valign="top" alt="" />';
