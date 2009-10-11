@@ -280,10 +280,10 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$conf = array(	'table' => 'tx_dam',
 							'countTotal' => $this->pObj->selection->pointer->countTotal	);
 			if ($this->langCurrent>0 AND $this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay']!=='exclusive') {
-				$dbIterator =& new tx_dam_iterator_db_lang_ovl($res, $conf);
+				$dbIterator = new tx_dam_iterator_db_lang_ovl($res, $conf);
 				$dbIterator->initLanguageOverlay($table, $this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']);
 			} else {
-				$dbIterator =& new tx_dam_iterator_db($res, $conf);
+				$dbIterator = new tx_dam_iterator_db($res, $conf);
 			}			
 			
 

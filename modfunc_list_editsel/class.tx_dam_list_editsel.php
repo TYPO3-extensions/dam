@@ -237,7 +237,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 			$conf = array(	'table' => 'tx_dam',
 							'countTotal' => $this->pObj->selection->pointer->countTotal	);
-			$dbIterator =& new tx_dam_iterator_db($res, $conf);
+			$dbIterator = new tx_dam_iterator_db($res, $conf);
 
 
 			//
