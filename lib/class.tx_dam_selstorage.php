@@ -202,8 +202,7 @@ class tx_dam_selStorage {
 					$this->table,
 					$pidList.$uidList.' AND '.tx_dam_db::deleteClause($this->table),
 					'',
-					$this->table.'.title',
-					100
+					$this->table.'.title'
 				);
 
 		$this->storedSettings = array();
