@@ -107,7 +107,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 		$this->clause = tx_dam_db::enableFields($this->table, 'AND');
 		$this->clause .= ' AND sys_language_uid IN (0,-1)';
 
-		$this->orderByFields = 'sorting,title';
+		$this->orderByFields = $TCA['tx_dam_cat']['ctrl']['sortby'];
 
 
 

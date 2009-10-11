@@ -3,6 +3,7 @@
 	* Fixed bug #11388: MSIE 8.0 Elementbrowser layout broken (Thanks to Georg Kuehnberger)
 	* Fixed bug #11387: MSIE 8.0 module file upload tab problem (Thanks to Georg Kuehnberger)
 	* Fixed bug #6110: Description Field in cat_edit (Thanks to Tobi)
+	* Fixed bug #7654: Category sorting by title, not by "sorting" (Thanks to Michael Ablass)
 	
 2009-08-20  Michiel Roos <michiel@netcreators.com>
 
