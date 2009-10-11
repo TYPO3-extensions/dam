@@ -444,6 +444,8 @@ if (is_string($allowedFileTypes)) {
 
 
 		$content .= $this->getFormTag();
+		// fix for MSIE 80 breaking the table-layout due to nested forms
+		$content .= '<form action="#" method="post" id="nested-form-bug"></form>';
 		$content .= $this->getSelectionSelector();
 		$content .= $this->damSC->getResultInfoBar();
 
@@ -811,6 +813,8 @@ if (is_string($allowedFileTypes)) {
 			$browseTrees->init($this->thisScript, 'elbrowser', true, true);
 			$trees = $browseTrees->getTrees();
 
+			// fix for MSIE 80 breaking the table-layout due to nested forms
+			$content .= '<form action="#" method="post" id="nested-form-bug"></form>';
 
 				// Putting the parts together, side by side:
 			$content .= '

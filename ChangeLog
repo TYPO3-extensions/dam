@@ -1,5 +1,6 @@
 2009-10-11  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #10278: Usage of choices is limited to 100  (Thanks to Bernd Schuhmacher)
+	* Fixed bug #11388: MSIE 8.0 Elementbrowser layout broken (Thanks to Georg Kuehnberger)
 
 2009-08-20  Michiel Roos <michiel@netcreators.com>
 
