@@ -990,22 +990,6 @@ $TCA['tx_dam_cat'] = array(
 				'default' => '0'
 			)
 		),
-//		'fe_group' => array(
-//			'l10n_mode' => 'exclude',
-//			'l10n_display' => 'defaultAsReadonly',
-//			'exclude' => '1',
-//			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.fe_group',
-//			'config' => array(
-//				'type' => 'select',
-//				'items' => array(
-//					array('', 0),
-//					array('LLL:EXT:lang/locallang_general.xml:LGL.hide_at_login', -1),
-//					array('LLL:EXT:lang/locallang_general.xml:LGL.any_login', -2),
-//					array('LLL:EXT:lang/locallang_general.xml:LGL.usergroups', '--div--')
-//				),
-//				'foreign_table' => 'fe_groups'
-//			)
-//		),
 		'fe_group' => array (
 			'exclude' => 1,
 			'label' => 'LLL:EXT:lang/locallang_general.php:LGL.fe_group',
@@ -1065,32 +1049,17 @@ $TCA['tx_dam_cat'] = array(
 			'exclude' => '1',
 			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.description',
 			'config' => array(
-				'type' => 'input',
-				'size' => '40',
-				'eval' => 'trim'
+				'type' => 'text',
+				'cols' => '45',
+				'rows' => '3'
 			)
 		),
-/*
-		'parent_id' => array(
-			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_cat_item.parent_id',
-			'config' => array(
-				'type' => 'group',
-				'internal_type' => 'db',
-				'allowed' => 'tx_dam_cat',
-				'size' => '3',
-				'maxitems' => '1',
-				'minitems' => '0',
-				'show_thumbs' => '1'
-			)
-		),
-*/
 		'parent_id' => array(
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_cat_item.parent_id',
 			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['category_config'],
 		),
-
 
 		/*
 		 * LANGUAGE
@@ -1144,15 +1113,15 @@ $TCA['tx_dam_cat'] = array(
 	),
 	'types' => array(
 		'1' => array(
-			'showitem' => 'title,subtitle,nav_title,description,keywords,parent_id,--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.frontend_pheader;1;;1-1-1'
+			'showitem' => 'title;;2;;,description,keywords,parent_id,--div--;LLL:EXT:cms/locallang_tca.xml:pages.tabs.access;1;;1-1-1, fe_group'
 		)
 	),
 	'palettes' => array(
-		'1' => array('showitem' => 'hidden,fe_group'),
+		'1' => array('showitem' => ''),
+		'2' => array('showitem' => 'hidden,subtitle,nav_title', 'canNotCollapse' => '1'),
 	)
 
 );
-
 
 
 

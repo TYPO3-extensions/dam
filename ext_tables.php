@@ -462,6 +462,7 @@ $TCA['tx_dam_cat'] = array(
 			'disabled' => 'hidden',
 			'fe_group' => 'fe_group',
 		),
+		'dividers2tabs' => '1',		
 		'dynamicConfigFile' => PATH_txdam.'tca.php',
 		'iconfile' => PATH_txdam_rel.'icon_tx_dam_cat.gif',
 	),
