@@ -461,7 +461,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			// Making the selector box for the number of concurrent uploads
 		$select = t3lib_BEfunc::getFuncMenu($this->pObj->addParams,'SET[tx_dam_file_uploadFields]', $this->pObj->MOD_SETTINGS['tx_dam_file_uploadFields'], $this->pObj->MOD_MENU['tx_dam_file_uploadFields']);
 
-		$content .= $this->pObj->doc->spacer(5);
+		$content .= $this->pObj->doc->spacer(20);
 		#$content .= $this->pObj->doc->funcMenu('', '<div id="c-select">'.$select.'<div>');
 		$content .= $select;
 
@@ -469,11 +469,11 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 			// Make checkbox for "overwrite"
 		$code .='
-			<div id="c-override">
+			<span id="c-override">
 				<input type="hidden" name="SET[tx_dam_file_upload_overwrite]" value="0" />
 				<input type="checkbox" id="tx_dam_file_upload_overwrite" name="SET[tx_dam_file_upload_overwrite]" value="1"'.($this->pObj->MOD_SETTINGS['tx_dam_file_upload_overwrite']?' checked="checked"':'').' />
 				<label for="tx_dam_file_upload_overwrite">'.$LANG->getLL('overwriteExistingFiles',1).'</label>
-			</div>
+			</span>
 			';
 
 			// Produce the number of upload-fields needed:
