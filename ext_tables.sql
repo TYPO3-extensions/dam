@@ -21,7 +21,7 @@ CREATE TABLE be_users (
 CREATE TABLE tt_content (
     tx_dam_images int(11) unsigned DEFAULT '0' NOT NULL,
     tx_dam_files int(11) unsigned DEFAULT '0' NOT NULL,
-    ce_flexform mediumtext,
+    ce_flexform mediumtext
 );
 
 
@@ -223,7 +223,7 @@ CREATE TABLE tx_dam (
   KEY t3ver_oid (t3ver_oid),
   KEY file_type (file_type),
   KEY file_hash (file_hash),
-  KEY file_name (file_name),
+  KEY file_name (file_name)
 );
 
 
@@ -347,7 +347,7 @@ CREATE TABLE tx_dam_log_index (
   message tinytext,
 
   PRIMARY KEY (uid),
-  KEY parent (pid),
+  KEY parent (pid)
 );
 
 
@@ -371,7 +371,7 @@ CREATE TABLE tx_dam_file_tracking (
   file_hash varchar(32) DEFAULT '' NOT NULL,
 
   PRIMARY KEY (uid),
-  KEY parent (pid),
+  KEY parent (pid)
 );
 
 
