@@ -396,6 +396,8 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 
 		$references = 0;
 
+// FOLDER_INFO is missing due to missing param in current function - so we set it to nothing
+		$this->pObj->markers['FOLDER_INFO'] = '';
 
 		$titleNotExists = 'title="'.$GLOBALS['LANG']->getLL('fileNotExists', true).'"';
 		$iconNotExists = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], PATH_txdam_rel.'i/error_h.gif', 'width="10" height="10"').' '.$titleNotExists.' valign="top" alt="" />';
