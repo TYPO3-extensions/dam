@@ -434,7 +434,6 @@ class tx_dam_db {
 		$meta = tx_dam_db::setMetaDefaultFields ($meta);
 		$meta = tx_dam_db::cleanupRecordArray('tx_dam', $meta);
 		$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam', $meta);
-		echo $GLOBALS['TYPO3_DB']->sql_error();
 		$id = $GLOBALS['TYPO3_DB']->sql_insert_id($res);
 
 		return $id;
@@ -803,8 +802,6 @@ class tx_dam_db {
 			$limit
 		);
 
-		echo $GLOBALS['TYPO3_DB']->sql_error();
-
 		return $res;
 	}
 
@@ -1020,8 +1017,6 @@ class tx_dam_db {
 			$orderBy,
 			$limit
 		);
-
-		echo $GLOBALS['TYPO3_DB']->sql_error();
 
 		return $res;
 	}
