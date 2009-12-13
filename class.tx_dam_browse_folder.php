@@ -355,7 +355,7 @@ class tx_dam_browse_folder extends browse_links {
 			// Initialize variabels:
 		$filearray = array();
 		$sortarray = array();
-		$path = ereg_replace('\/$','',$path);
+		$path = preg_replace('/\/$/', '', $path);
 
 			// Find files+directories:
 		if (@is_dir($path))	{

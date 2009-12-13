@@ -1847,7 +1847,7 @@ class tx_dam_indexing {
 
 					// The tag name is cleaned up so only alphanumeric chars (plus -_) are in there and not longer than 100 chars either.
 				$tagName = str_replace(':','-',$tagName);
-				$tagName = substr(ereg_replace('[^[:alnum:]_-]','',$tagName),0,100);
+				$tagName = substr(preg_replace('/[^[:alnum:]_-]/', '', $tagName), 0, 100);
 
 					// If the value is an array then we will call this function recursively:
 				if (is_array($v))	{

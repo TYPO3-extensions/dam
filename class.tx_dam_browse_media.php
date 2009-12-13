@@ -1146,7 +1146,7 @@ if (is_string($allowedFileTypes)) {
 			$tscPID = $RTEtsConfigParts[5];
 		} else {
 			$this->formFieldName = $pArr[0];
-			$elementParts = explode('][', ereg_replace('\]$','',ereg_replace('^(TSFE_EDIT\[data\]\[|data\[)', '', $this->formFieldName)));
+			$elementParts = explode('][', preg_replace('/\]$/', '', preg_replace('/^(TSFE_EDIT\[data\]\[|data\[)/', '', $this->formFieldName)));
 			list($tscPID,$thePid) = t3lib_BEfunc::getTSCpid(trim($elementParts[0]), trim($elementParts[1]), $thePidValue);
 		}
 		$this->modPageConfig = $GLOBALS['BE_USER']->getTSConfig('tx_dam.elementBrowser', t3lib_BEfunc::getPagesTSconfig($tscPID));

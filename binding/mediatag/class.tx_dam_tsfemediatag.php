@@ -109,7 +109,7 @@ class tx_dam_tsfemediatag {
 			$JSwindowParts = array();
 			$JSwindowParams = '';
 			$onClick = '';
-			if ($forceTarget && ereg('^([0-9]+)x([0-9]+)(:(.*)|.*)$',$forceTarget,$JSwindowParts))	{
+			if ($forceTarget && preg_match('/^([0-9]+)x([0-9]+)(:(.*)|.*)$/', $forceTarget, $JSwindowParts)) {
 					// Take all pre-configured and inserted parameters and compile parameter list, including width+height:
 				$JSwindow_tempParamsArr = t3lib_div::trimExplode(',',strtolower($conf['JSwindow_params'].','.$JSwindowParts[4]),1);
 				$JSwindow_paramsArr=array();
