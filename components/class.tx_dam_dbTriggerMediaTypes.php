@@ -91,7 +91,6 @@ class tx_dam_dbTriggerMediaTypes  {
 				$fields_values['type'] = $mediaType;
 				$fields_values['sorting'] = $sorting;
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_metypes_avail', $fields_values);
-				echo $GLOBALS['TYPO3_DB']->sql_error();
 				$media_id = $GLOBALS['TYPO3_DB']->sql_insert_id();
 			}
 
@@ -112,7 +111,6 @@ class tx_dam_dbTriggerMediaTypes  {
 				$fields_values['title'] = $meta['file_type'] ? $meta['file_type'] : 'n/a';
 				$fields_values['type'] = $mediaType;
 				$res = $GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_dam_metypes_avail', $fields_values);
-				echo $GLOBALS['TYPO3_DB']->sql_error();
 			}
 		}
 	}

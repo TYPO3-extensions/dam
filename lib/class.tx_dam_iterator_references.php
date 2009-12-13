@@ -352,7 +352,6 @@ class tx_dam_iterator_references extends tx_dam_iterator_base {
 		$selection->prepareSelectionQuery(TRUE);
 		$queryArr = $selection->qg->getQueryParts();
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
-		echo $GLOBALS['TYPO3_DB']->sql_error();
 		if ($res) {
 			list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 		}
@@ -378,7 +377,6 @@ class tx_dam_iterator_references extends tx_dam_iterator_base {
 				'',
 				1000
 			);
-			echo $GLOBALS['TYPO3_DB']->sql_error();
 			if ($res) {
 				list($fileTrackingCountTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 				$countTotal += $fileTrackingCountTotal;
@@ -395,7 +393,6 @@ class tx_dam_iterator_references extends tx_dam_iterator_base {
 			$selection->prepareSelectionQuery(FALSE);
 			$queryArr = $selection->qg->getQueryParts();
 			$res = $GLOBALS['TYPO3_DB']->exec_SELECT_queryArray($queryArr);
-			echo $GLOBALS['TYPO3_DB']->sql_error();
 			if ($res) {
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 					$rows[] = $row;
@@ -425,7 +422,6 @@ class tx_dam_iterator_references extends tx_dam_iterator_base {
 				'',
 				1000
 			);
-			echo $GLOBALS['TYPO3_DB']->sql_error();
 			if ($res) {
 				while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 					$uids[] = $row['uid'];
