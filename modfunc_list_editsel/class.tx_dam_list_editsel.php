@@ -329,7 +329,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 		$opt[] = '<option value=""></option>';
 		foreach ($allFields as $fN) {
 				// Field label
-			$fL = is_array($TCA[$table]['columns'][$fN]) ? ereg_replace(':$', '', $LANG->sL($TCA[$table]['columns'][$fN]['label'])) : '['.$fN.']';
+			$fL = is_array($TCA[$table]['columns'][$fN]) ? preg_replace('/:$/', '', $LANG->sL($TCA[$table]['columns'][$fN]['label'])) : '['.$fN.']';
 			$opt[] = '
 														<option value="'.$fN.'"'. (in_array($fN, $selectedFields) ? ' selected="selected"' : '').'>'.htmlspecialchars($fL).'</option>';
 		}

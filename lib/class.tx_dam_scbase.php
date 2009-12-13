@@ -1156,7 +1156,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$parts = t3lib_div::getIndpEnv('SCRIPT_NAME');
 		$pString = t3lib_div::implodeArrayForUrl('',$params);
 
-		return $pString ? $parts.'?'.ereg_replace('^&','',$pString) : $parts;
+		return $pString ? $parts . '?' . preg_replace('/^&/', '', $pString) : $parts;
 	}
 
 	/**
