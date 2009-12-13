@@ -1033,7 +1033,7 @@ class tx_dam_indexing {
 						// this is set in the class itself
 					unset($this->ruleConf[$ruleId]['shy']);
 
-					$this->rules[$ruleId]['obj'] = &$obj;
+					$this->rules[$ruleId]['obj'] = $obj;
 
 
 					if (is_array($this->ruleConf[$ruleId])) {
