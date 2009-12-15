@@ -435,7 +435,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 				$treeKey = key($this->tree);	// Get the key for this space
 				$LN = ($a==$c)?'blank':'line';
 
-				$val = preg_replace('/^\.//', '', $val);
+				$val = preg_replace('/^\.\//', '', $val);
 				$title = $val;
 				$path = $files_path.$val.'/';
 
