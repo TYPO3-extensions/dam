@@ -4,6 +4,7 @@
 	* Fixed bug #13017: tablename field in tx_dam_mm_ref to short (extbase) (Thanks to Thomas Kieslich)
 	* Fixed #11978: echo $GLOBALS['TYPO3_DB']->sql_error(); (Thanks to Dan Osipov)
 	* Fixed #13033: Unknow modifier '/' in element browser  (Thanks to Chris Mueller)
+	* Fixed #12028: All trees stop working if using TYPO3 4.3. trunk (Thanks to Georg Ringer)
 
 2009-10-11  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #10278: Usage of choices is limited to 100  (Thanks to Bernd Schuhmacher)

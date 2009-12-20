@@ -114,7 +114,7 @@ class tx_dam_browseTrees {
 					if (!$obj->isPureSelectionClass)	{
 						if ($obj->isTreeViewClass)	{
 								// object is a treeview class itself
-							$this->treeObjArr[$classKey] = &$obj;
+							$this->treeObjArr[$classKey] = $obj;
 							$this->treeObjArr[$classKey]->init('', '', $excludeReadOnlyMounts);
 
 						} else {
