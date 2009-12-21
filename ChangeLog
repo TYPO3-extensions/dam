@@ -1,10 +1,15 @@
+2009-12-21  Michiel Roos <michiel@netcreators.com>
+	* Fixed bug #9830: Not responing queries using category selections (Thanks to Peter Kuehn)
+
+2009-12-20  Michiel Roos <michiel@netcreators.com>
+	* Fixed #12028: All trees stop working if using TYPO3 4.3. trunk (Thanks to Georg Ringer)
+
 2009-12-13  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #12495: ereg_* functions deprecated in PHP 5.3 (Thanks to Dan Osipov)
 	* Fixed bug #12856: Stage two of indexing process lists Dry Run (Thanks to Dan Osipov)
 	* Fixed bug #13017: tablename field in tx_dam_mm_ref to short (extbase) (Thanks to Thomas Kieslich)
 	* Fixed #11978: echo $GLOBALS['TYPO3_DB']->sql_error(); (Thanks to Dan Osipov)
 	* Fixed #13033: Unknow modifier '/' in element browser  (Thanks to Chris Mueller)
-	* Fixed #12028: All trees stop working if using TYPO3 4.3. trunk (Thanks to Georg Ringer)
 
 2009-10-11  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #10278: Usage of choices is limited to 100  (Thanks to Bernd Schuhmacher)
