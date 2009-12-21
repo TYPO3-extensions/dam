@@ -503,8 +503,16 @@ class tx_dam_querygen {
 			}
 			if(count($select['LIMIT']) AND !$count) {
 				$queryParts['LIMIT'] = $select['LIMIT'];
+			}	
+		
+			if (is_array($this->query['HAVING'])){
+				foreach($this->query['HAVING'] as $id => $item){
+					$havings[] = ' AND ' . $item;
+				}
+				$queryParts['GROUPBY'] .= ' HAVING 1'.implode ("\n",$havings);					
 			}
-		}
+		
+		}	
 
 		return $queryParts;
 	}

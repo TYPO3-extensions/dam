@@ -281,8 +281,13 @@ class tx_dam_selectionQuery {
 
 		if($count) {
 			if ($this->res) {
-				list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
-				$this->pointer->setTotalCount($countTotal);
+				$numRows = $GLOBALS['TYPO3_DB']->sql_num_rows($this->res);
+				if ($numRows > 1) {
+					$this->pointer->setTotalCount($numRows);
+				} else {
+					list($countTotal) = $GLOBALS['TYPO3_DB']->sql_fetch_row($this->res);
+					$this->pointer->setTotalCount($countTotal);
+				}
 			} else {
 				$this->pointer->setTotalCount(0);
 			}

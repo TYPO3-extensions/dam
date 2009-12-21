@@ -185,7 +185,6 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @param	string		Item record
 	 * @param	integer		Bank pointer (which mount point number)
 	 * @return	string
-	 * @todo minus do not work - maybe with subqueries
 	 */
 	function getControl($title,$row)	{
 		global $BACK_PATH;
@@ -205,11 +204,10 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/equals.gif', 'width="8" height="11"').' alt="" />';
 			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
 
-//  minus do not work - maybe with subqueries
-//			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
-//			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' alt="" />';
-//			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
-//			$control .= '<img src="'.$BACK_PATH.'clear.gif" width="12" height="11" border="0" alt="" />';
+			$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row,'NOT').'\',this,\''.$this->treeName.'\');';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/minus.gif', 'width="8" height="11"').' alt="" />';
+			$control .= '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$icon.'</a>';
+			$control .= '<img src="'.$BACK_PATH.'clear.gif" width="12" height="11" border="0" alt="" />';
 		}
 		return $control;
 	}
@@ -235,32 +233,33 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * @param	string		The select value/id
 	 * @param	string		The select value (true/false,...)
 	 * @param	object		Reference to the parent DAM object.
-	 * @return	string
+	 * @return	array
 	 * @see tx_dam_SCbase::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damSel)      {
-		static $alias='a';
-
 		$this->damSel = & $damSel;
 
 		$depth = isset($this->TSconfig['sublevelDepth']) ? intval($this->TSconfig['sublevelDepth']) : 99;
 
 		$catUidList = $this->uniqueList(intval($id), $this->getSubRecordsIdList(intval($id), $depth, 'tx_dam_cat'));
 
-		if ($queryType === 'NOT')	{
-			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign NOT IN ('.$catUidList.')';
+		if ($operator != '!=') {
+			if ($queryType == 'OR') {
+				$query = '(FIND_IN_SET('.implode(',GROUP_CONCAT(tx_dam_cat.uid)) OR FIND_IN_SET(',$catUidList).',GROUP_CONCAT(tx_dam_cat.uid)))';
+			}
+			if ($queryType == 'AND') {
+				$query = '(FIND_IN_SET(' . $id . ',GROUP_CONCAT(tx_dam_cat.uid)))';
+			}
 		} else {
-			$query= 'tx_dam_mm_cat_'.$alias.'.uid_foreign IN ('.$catUidList.')';
+			$query = '(NOT FIND_IN_SET('.implode(',GROUP_CONCAT(tx_dam_cat.uid)) OR NOT FIND_IN_SET(',$catUidList).',GROUP_CONCAT(tx_dam_cat.uid)))';
 		}
-
-		$this->aliases[] = 'tx_dam_mm_cat_'.$alias;
-
-		$this->damSel->qg->addEnableFields('tx_dam_cat');
-		$this->damSel->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam', 'tx_dam_mm_cat_'.$alias);
-
-		$alias = chr(ord($alias)+1);
-
-		return array($queryType,$query);
+		
+		//$this->damSel->qg->query['LEFT_JOIN']['tx_dam_mm_cat'] = 'tx_dam_mm_cat.uid_local = tx_dam.uid';
+		$this->damSel->qg->addMMJoin('tx_dam_mm_cat', 'tx_dam');
+		$this->damSel->qg->query['LEFT_JOIN']['tx_dam_cat'] = 'tx_dam_mm_cat.uid_foreign = tx_dam_cat.uid';
+		$this->damSel->qg->query['GROUPBY']['tx_dam.uid'] = 'tx_dam.uid';
+		$this->damSel->qg->query['HAVING']['txdamCat.'.$id] = $query;
+		return array();
 	}
 
 
@@ -317,7 +316,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 	 * Takes comma-separated lists and arrays and removes all duplicates.
 	 *
 	 * @param	string		Accept multiple parameters wich can be comma-separated lists of values and arrays.
-	 * @return	string		Returns the list without any duplicates of values, space around values are trimmed
+	 * @return	array		Returns the list without any duplicates of values, space around values are trimmed
 	 */
 	function uniqueList()	{
 		$listArray = array();
@@ -337,7 +336,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			}
 		}
 
-		return implode(',', array_unique($listArray));
+		return array_unique($listArray);
 	}
 
 
