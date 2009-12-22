@@ -642,6 +642,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['file2mediaCode'] = array(
 		'wk'=> 'dataset',
 
 		'ttf'=> 'font',
+		'otf'=> 'font',
 		'pfa'=> 'font',
 		'pfb'=> 'font',
 		'gsf'=> 'font',

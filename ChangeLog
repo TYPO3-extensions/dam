@@ -1,3 +1,6 @@
+2009-12-22  Michiel Roos <michiel@netcreators.com>
+	* Fixed bug #10008: OpenType font not recognized as font (Thanks to Michiel Roos) 
+
 2009-12-21  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #9830: Not responing queries using category selections (Thanks to Peter Kuehn)
 
