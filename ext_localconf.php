@@ -114,6 +114,6 @@ t3lib_extMgm::addTypoScript('dam', 'setup','
 '.$pluginContent);
 unset($pluginContent);
 
-
+$TYPO3_CONF_VARS['BE']['AJAX']['TYPO3_tcefile::process'] = PATH_txdam.'lib/class.tx_dam_tce_file.php:tx_dam_tce_file->processAjaxRequest';
 
 ?>
