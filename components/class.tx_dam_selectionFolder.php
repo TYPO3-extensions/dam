@@ -605,7 +605,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
 
 				// Creating blinking arrow, if applicable:
-			if ($cmpPath && $GLOBALS['SOBE']->act === 'file' && $cmpPath==$v['row']['path'])	{
+			if ($cmpPath && ($GLOBALS['SOBE']->act === 'file' || $GLOBALS['SOBE']->act === 'upload') && $cmpPath==$v['row']['path']) {
 				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
 				$bgColorClass='bgColor4';
 			} else {
