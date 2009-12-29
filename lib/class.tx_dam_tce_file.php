@@ -226,6 +226,55 @@ class tx_dam_tce_file {
 	function getLastError($getFullErrorLogEntry=FALSE) {
 		return $this->fileProcessor->getLastError($getFullErrorLogEntry);
 	}
+	
+	/**
+	 * Index uploaded files
+	 *
+	 * @param	array		$fileList: List of files
+	 * @return	void
+	 */
+	function indexUploadedFiles($fileList) {
+		global $BACK_PATH, $LANG, $TYPO3_CONF_VARS;
+
+		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
+		$index = t3lib_div::makeInstance('tx_dam_indexing');
+		$index->init();
+		//$index->setDefaultSetup(tx_dam::path_makeAbsolute($this->pObj->path));
+		$index->enableReindexing(2);
+		$index->initEnabledRules();
+
+		$index->setRunType('auto');
+
+		$index->indexFiles($fileList, tx_dam_db::getPid());
+	}	
+	
+	/**
+	 * Handles the actual process from within the ajaxExec function
+	 * therefore, it does exactly the same as the real typo3/tce_file.php
+	 * but without calling the "finish" method, thus makes it simpler to deal with the
+	 * actual return value
+	 *
+	 *
+	 * @param string $params 	always empty.
+	 * @param string $ajaxObj	The Ajax object used to return content and set content types
+	 * @return void
+	 */
+	public function processAjaxRequest(array $params, TYPO3AJAX $ajaxObj) {
+		$this->init();
+		$this->process();
+		$errors = $this->fileProcessor->getErrorMessages();
+		$this->indexUploadedFiles($this->fileProcessor->internalUploadMap);
+		
+		if (count($errors)) {
+			$ajaxObj->setError(implode(',', $errors));
+		} else {
+			$ajaxObj->addContent('result', $this->fileData);
+			if ($this->redirect) {
+				$ajaxObj->addContent('redirect', $this->redirect);
+			}
+			$ajaxObj->setContentFormat('json');
+		}
+	}	
 
 }
 

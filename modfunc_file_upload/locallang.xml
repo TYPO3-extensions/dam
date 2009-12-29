@@ -45,6 +45,7 @@
             <label index="tx_dam_file_upload.uploadTargetIncoming">Incoming folder</label>
             <label index="tx_dam_file_upload.uploadTarget">Location:</label>
             <label index="tx_dam_file_upload.editMeta">Edit meta data</label>
+            <label index="tx_dam_file_upload.flashUploader">Flash uploader is enabled - to make use of it, click on the upload button %s in the header of the File list module.</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>

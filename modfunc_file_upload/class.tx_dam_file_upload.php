@@ -145,7 +145,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 	 * @return	void
 	 */
 	function head()	{
-		global $BE_USER, $LANG, $BACK_PATH, $FILEMOUNTS, $TYPO3_CONF_VARS;
+		global $LANG;
 
 		$this->uploadsFolder = $this->pObj->pathInfo['dir_path_absolute'];
 
@@ -363,6 +363,20 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			// Upload Form
 			//
 
+				// Show message if the flash uploader is enabled
+			if ($GLOBALS['BE_USER']->uc['enableFlashUploader']) {
+				$flashMessage = t3lib_div::makeInstance(
+					't3lib_FlashMessage',
+					 sprintf($LANG->getLL('tx_dam_file_upload.flashUploader',1),
+					 '<img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/upload.gif')
+					 . ' title="'.$GLOBALS['LANG']->sL('LLL:EXT:dam/modfunc_file_upload/locallang.xml:tx_dam_file_upload.title',1)
+					 . '" alt="" height="16" width="16">'),
+					$LANG->getLL('tx_dam_file_upload.title'),
+					t3lib_FlashMessage::WARNING
+				);
+				$content .= $flashMessage->render();
+			}			
+			
 				// add some options
 			$this->pObj->addOption('funcCheck', 'tx_dam_file_upload_showBrowser', $LANG->getLL('tx_dam_file_upload.showBrowser'));
 
@@ -417,6 +431,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		return $header.$content;
 
 	}
+
 
 	/**
 	 * Create the Module header
