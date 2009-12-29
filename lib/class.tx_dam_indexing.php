@@ -212,6 +212,7 @@ class tx_dam_indexing {
 	 */
 	var $stat = array();
 	var $statmtime;
+	var $fileLock;
 
 
 
@@ -2002,71 +2003,56 @@ class tx_dam_indexing {
 
 
 	/**
-	 * obtain exclusive lock
+	 * Obtain exclusive lock
 	 *
-	 * @param string file path
-	 * @return mixed Semaphore id
+	 * @param		string		Filename which we want to lock
+	 * @return		bool		Success or failure of operation
 	 */
-	function lock ($filename) {
-
-		$this->lockfile = PATH_site.'typo3temp/lock_'.md5($filename);
-		if ($this->sem_handle = fopen($this->lockfile, 'w')) {
-			if(flock($this->sem_handle, LOCK_EX+LOCK_NB)) {
-				if ($this->writeDevLog) 	t3lib_div::devLog('lock(): id '.$this->sem_handle, 'tx_dam_indexing');
-				return true;
+	function lock($filename) {
+		try {
+			if (!is_object($this->fileLock)) {
+				if (t3lib_div::compat_version('4.3.0')) {
+					$this->fileLock = t3lib_div::makeInstance('t3lib_lock', 'tx_dam_indexing_' . md5($filename), 
+						$GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'], 60, 10);
+				} else {
+					$className = t3lib_div::makeInstanceClassName('t3lib_lock');
+					$this->fileLock = new $className('tx_dam_indexing_' . md5($filename), 
+						$GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'], 60, 10);
+				}
 			}
-		}
-		if ($this->writeDevLog) 	t3lib_div::devLog('lock(): cannot lock'.$filename, 'tx_dam_indexing');
-		return false;
-		
-		
-		// using sem_* seems to be more complicatied and fills the system semaphore memory so it might bring the serve to collapse
 
-			// just no locking if the needed functions are not available
-//		if( !function_exists('ftok') OR !function_exists('sem_get') ) {
-//			if ($this->writeDevLog) 	t3lib_div::devLog('lock(): failed (PHP function missing)', 'tx_dam_indexing', 1);
-//			return true;
-//		}
-//
-//
-//			// get semaphore key
-//		if ($sem_key = ftok($filename, 'I')) {
-//
-//				// get semaphore identifier
-//			if ($sem_handle = sem_get($sem_key, 1, 0666, 1)) {
-//				$this->sem_handle = $sem_handle;
-//				
-//				// acquire semaphore lock
-//				if (sem_acquire($sem_handle)) {
-//		            return true;
-//				}
-//				sem_release($this->sem_handle);
-//				unset($this->sem_handle);
-//			}
-//		}
-//
-//		if ($this->writeDevLog) 	t3lib_div::devLog('lock(): id '.$this->sem_handle, 'tx_dam_indexing');
-//
-//		return false;
+			$success = false;
+			if (is_object($this->fileLock)) {
+					// true = Page could get locked without blocking
+					// false = Page could get locked but process was blocked before
+				$success = $this->fileLock->acquire();
+				if ($this->fileLock->getLockStatus()) {
+					if ($this->writeDevLog) 	t3lib_div::devLog('lock(): lock aquired ' . $filename, 'tx_dam_indexing');
+				} else {
+					if ($this->writeDevLog) 	t3lib_div::devLog('lock(): lock failed ' . $filename, 'tx_dam_indexing');
+				}
+			}
+		} catch (Exception $e) {
+			if ($this->writeDevLog) 	t3lib_div::devLog('lock(): Exception caught ' . $e->getMessage(), 'tx_dam_indexing');
+		}
+		return $success;
 	}
 
 
 	/**
-	 * release lock
+	 * Release lock
 	 *
 	 * @return void
 	 */
-	function unlock () {
-			// release semaphore lock
-		if ($this->sem_handle) {
-			if ($this->writeDevLog) 	t3lib_div::devLog('unlock(): id '.$this->sem_handle, 'tx_dam_indexing');
-			fclose($this->sem_handle);
-			unlink($this->lockfile);
-			return;
-			
-//			sem_release($this->sem_handle);
-//			@sem_remove($this->sem_handle);
-//			unset($this->sem_handle);
+	function unlock() {
+		if (is_object($this->fileLock)) {
+			try {		
+				$this->fileLock->release();
+				if ($this->writeDevLog) 	t3lib_div::devLog('unlock()', 'tx_dam_indexing');
+				unset ($this->fileLock);
+			} catch (Exception $e) {
+				if ($this->writeDevLog) 	t3lib_div::devLog('unlock(): failed to unlock: ' . $e->getMessage(), 'tx_dam_indexing');
+			}
 		}
 	}
 
