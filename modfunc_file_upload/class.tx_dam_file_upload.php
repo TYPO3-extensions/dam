@@ -364,7 +364,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			//
 
 				// Show message if the flash uploader is enabled
-			if ($GLOBALS['BE_USER']->uc['enableFlashUploader']) {
+			if ($GLOBALS['BE_USER']->uc['enableFlashUploader'] && !isset($this->ebObj)) {
 				$flashMessage = t3lib_div::makeInstance(
 					't3lib_FlashMessage',
 					 sprintf($LANG->getLL('tx_dam_file_upload.flashUploader',1),
