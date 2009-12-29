@@ -1,6 +1,7 @@
 2009-12-29  Michiel Roos <michiel@netcreators.com>
 	* Feature: #12408: Integrate flash uploader into DAM (Thanks to Dan Osipov)
 	* Fixed bug #9177: Indexing files is not working in NFS Filesystems (Thanks to Ingo Schmitt, Dan Osipov)
+	* Fixed bug #13031: table definition in tx_dam_media_types (Thanks to Chris Mueller)
 
 2009-12-21  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #9830: Not responing queries using category selections (Thanks to Peter Kuehn)

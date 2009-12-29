@@ -10,7 +10,8 @@ CREATE TABLE tx_dam_media_types (
 	type int(11) DEFAULT '0' NOT NULL,
 	icon varchar(64) DEFAULT '' NOT NULL,
 	
-	PRIMARY KEY (uid)
+	PRIMARY KEY (uid),
+	KEY parent (pid)
 );
 
 
