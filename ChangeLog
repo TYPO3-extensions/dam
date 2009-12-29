@@ -1,5 +1,6 @@
 2009-12-29  Michiel Roos <michiel@netcreators.com>
 	* Feature: #12408: Integrate flash uploader into DAM (Thanks to Dan Osipov)
+	* Fixed bug #9177: Indexing files is not working in NFS Filesystems (Thanks to Ingo Schmitt, Dan Osipov)
 
 2009-12-22  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #10008: OpenType font not recognized as font (Thanks to Michiel Roos) 
