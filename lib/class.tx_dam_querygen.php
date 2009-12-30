@@ -463,7 +463,7 @@ class tx_dam_querygen {
 
 			$query = array();
 
-			$query[] = '1';
+			$query[] = '1=1';
 
 			if (is_array($select['WHERE']['WHERE']) AND count($select['WHERE']['WHERE'])) {
 				$query[] = implode (' ',$select['WHERE']['WHERE']);
