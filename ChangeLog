@@ -2,6 +2,7 @@
 	* Fixed bug #11700: use _GPmerged instead of GParrayMerged (Thanks to Ringer Georg)
 	* Change: dam 1.2 requires TYPO3 4.3 and PHP 5.2.6
 	* Fixed bug #12538: Generated contain an invalid relational operator [DBAL] (Thanks to Xavier Perseguers) 
+	* Fixed bug #11936: search in media->list does not work (Thanks to Andreas Kiessling)
 
 2009-12-29  Michiel Roos <michiel@netcreators.com>
 	* Feature: #12408: Integrate flash uploader into DAM (Thanks to Dan Osipov)
