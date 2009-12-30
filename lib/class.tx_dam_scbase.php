@@ -237,7 +237,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 			// check if tx_dam_folder was set by GP which takes precedence, if not use command sent by navframe
 			// order: GP (script), SLCMD (navframe), MOD_SETTINGS (stored)
-		$SLCMD = t3lib_div::GParrayMerged('SLCMD');
+		$SLCMD = t3lib_div::_GPmerged('SLCMD');
 		if (!$SET['tx_dam_folder'] AND is_array($SLCMD['SELECT']) AND is_array($SLCMD['SELECT']['txdamFolder'])) {
 			$this->path = tx_dam::path_makeRelative(key($SLCMD['SELECT']['txdamFolder']));
 		}

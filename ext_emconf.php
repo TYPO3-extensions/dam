@@ -37,8 +37,8 @@ $EM_CONF[$_EXTKEY] = array(
 		'depends' => array(
 			'cms' => '',
 			'static_info_tables' => '',
-			'php' => '4.0.0-0.0.0',
-			'typo3' => '4.2.5-0.0.0',
+			'php' => '5.2.6-0.0.0',
+			'typo3' => '4.3.0-0.0.0',
 		),
 		'conflicts' => array(
 			'dam_file' => '',

@@ -1,3 +1,7 @@
+2009-12-30  Michiel Roos <michiel@netcreators.com>
+	* Fixed bug #11700: use _GPmerged instead of GParrayMerged (Thanks to Ringer Georg)
+	* Change: dam 1.2 requires TYPO3 4.3 and PHP 5.2.6
+
 2009-12-29  Michiel Roos <michiel@netcreators.com>
 	* Feature: #12408: Integrate flash uploader into DAM (Thanks to Dan Osipov)
 	* Fixed bug #9177: Indexing files is not working in NFS Filesystems (Thanks to Ingo Schmitt, Dan Osipov)
