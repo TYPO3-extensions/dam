@@ -263,13 +263,13 @@ class tx_dam_browse_media extends browse_links {
 				'QueryArray' => $this->damSC->selection->qg->getQueryParts()
 			);
 			
-			if (version_compare(TYPO3_version, '4.3.0', '<')) {
-				$debugArr['SLCMD'] = t3lib_div::GParrayMerged('SLCMD');
-				$debugArr['PM'] = t3lib_div::GParrayMerged('PM');
-			}
-			else {
+			if (t3lib_div::compat_version('4.3')) {
 				$debugArr['SLCMD'] = t3lib_div::_GPmerged('SLCMD');
 				$debugArr['PM'] = t3lib_div::_GPmerged('PM');
+			}
+			else {
+				$debugArr['SLCMD'] = t3lib_div::GParrayMerged('SLCMD');
+				$debugArr['PM'] = t3lib_div::GParrayMerged('PM');
 			}
 
 			$this->damSC->debugContent['browse_links'] = '<h4>EB SETTINGS</h4>'.t3lib_div::view_array($debugArr);

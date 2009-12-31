@@ -1,4 +1,7 @@
 2009-12-30  Michiel Roos <michiel@netcreators.com>
+	* Change on #11700: use t3lib_div::compat_version instead of version_compare
+
+2009-12-30  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #11700: use _GPmerged instead of GParrayMerged (Thanks to Georg Ringer)
 	* Fixed bug #12538: Generated contain an invalid relational operator [DBAL] (Thanks to Xavier Perseguers) 
 	* Change for #9177: Indexing files is not working in NFS Filesystems (Thanks to Ingo Schmitt, Dan Osipov)

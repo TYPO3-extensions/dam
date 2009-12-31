@@ -197,11 +197,11 @@ class tx_dam_selection {
 			$this->hasChanged = true;
 		} else {
 			$this->setCurrentSelectionFromStored();
-			if (version_compare(TYPO3_version, '4.3.0', '<')) {
-				$sel = t3lib_div::GParrayMerged($this->paramStr);
+			if (t3lib_div::compat_version('4.3')) {
+				$sel = t3lib_div::_GPmerged($this->paramStr);
 			}
 			else {
-				$sel = t3lib_div::_GPmerged($this->paramStr);
+				$sel = t3lib_div::GParrayMerged($this->paramStr);
 			}
 			if ($sel) {
 				$oldSel = serialize($this->sel);
