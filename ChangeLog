@@ -1,3 +1,7 @@
+2010-01-01  Michiel Roos <michiel@netcreators.com>
+	* Change: Updated manual
+	* Change: DAM requires PHP 5.2 and TYPO3 4.2.10
+
 2009-12-30  Michiel Roos <michiel@netcreators.com>
 	* Change on #11700: use t3lib_div::compat_version instead of version_compare
 
