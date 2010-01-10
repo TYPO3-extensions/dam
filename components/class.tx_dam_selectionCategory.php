@@ -107,8 +107,12 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 		$this->clause = tx_dam_db::enableFields($this->table, 'AND');
 		$this->clause .= ' AND sys_language_uid IN (0,-1)';
 
-		$this->orderByFields = $TCA['tx_dam_cat']['ctrl']['sortby'];
-
+		// default_sortby might be not set
+		$defaultSortby = ($GLOBALS['TCA'][$this->table]['ctrl']['default_sortby']) ? $GLOBALS['TYPO3_DB']->stripOrderBy($GLOBALS['TCA'][$this->table]['ctrl']['default_sortby']) : '';
+		// sortby might be not set or unset
+		$sortby = ($GLOBALS['TCA'][$this->table]['ctrl']['sortby']) ? $GLOBALS['TCA'][$this->table]['ctrl']['sortby'] : '';
+		// if we have default_sortby it shall win
+		$this->orderByFields = ($defaultSortby) ? $defaultSortby : $sortby;
 
 
 			// get the right sys_language_uid for the BE users language

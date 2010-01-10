@@ -1,3 +1,6 @@
+2010-01-10  Michiel Roos <michiel@netcreators.com>
+	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen) 
+
 2010-01-01  Michiel Roos <michiel@netcreators.com>
 	* Change: Updated manual
 	* Change: DAM requires PHP 5.2 and TYPO3 4.2.10
