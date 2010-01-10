@@ -139,18 +139,26 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		//
 
 			// Selecting the treeViewObj
-		if($config['treeViewClass'] AND is_object($treeViewObj = &t3lib_div::getUserObj($config['treeViewClass'], 'user_', false)))      {
-			$treeViewObj->init();
+		$treeViewObj = &t3lib_div::getUserObj($config['treeViewClass'], 'user_', false);
+		if($config['treeViewClass'] AND is_object($treeViewObj))      {
+ 			$treeViewObj->init();
 
-		} else {
+ 		} else {
 			require_once(PATH_txdam.'lib/class.tx_dam_selprocbase.php');
 			$treeViewObj = t3lib_div::makeInstance('tx_dam_browseTree');
+
 			$treeViewObj->table = $config['foreign_table'];
 			$treeViewObj->init();
 			$treeViewObj->isTCEFormsSelectClass = true;
 			$treeViewObj->parentField = $TCA[$config['foreign_table']]['ctrl']['treeParentField'];
 			$treeViewObj->fieldArray = array('uid', $TCA[$config['foreign_table']]['ctrl']['label'], $treeViewObj->parentField);
-			$treeViewObj->orderByFields = $TCA[$config['foreign_table']]['ctrl']['sortby'];
+			
+				// default_sortby might be not set
+			$defaultSortby = ($TCA[$config['foreign_table']]['ctrl']['default_sortby']) ? $GLOBALS['TYPO3_DB']->stripOrderBy($TCA[$config['foreign_table']]['ctrl']['default_sortby']) : '';
+				// sortby might be not set or unset
+			$sortby = ($TCA[$config['foreign_table']]['ctrl']['sortby']) ? $TCA[$config['foreign_table']]['ctrl']['sortby'] : '';
+				// if we have default_sortby we use it
+			$treeViewObj->orderByFields = ($defaultSortby) ? $defaultSortby : $sortby;
 		}
 
 

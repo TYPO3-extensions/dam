@@ -1,3 +1,6 @@
+2010-01-10  Michiel Roos <michiel@netcreators.com>
+	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen) 
+
 2009-12-30  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #11700: use _GPmerged instead of GParrayMerged (Thanks to Ringer Georg)
 	* Change: dam 1.2 requires TYPO3 4.3 and PHP 5.2.6
