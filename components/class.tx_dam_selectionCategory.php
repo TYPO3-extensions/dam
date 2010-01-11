@@ -251,7 +251,7 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 			if ($queryType == 'OR') {
 				$query = '(FIND_IN_SET('.implode(',GROUP_CONCAT(tx_dam_cat.uid)) OR FIND_IN_SET(',$catUidList).',GROUP_CONCAT(tx_dam_cat.uid)))';
 			}
-			if ($queryType == 'AND') {
+			if ($queryType == 'AND' || $queryType == 'SELECT') {
 				$query = '(FIND_IN_SET(' . $id . ',GROUP_CONCAT(tx_dam_cat.uid)))';
 			}
 		} else {
