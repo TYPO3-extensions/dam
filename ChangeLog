@@ -1,3 +1,6 @@
+2010-01-11  Michiel Roos <michiel@netcreators.com>
+	* Fix #13198: Selecting dam items by click on category title causes an SQL-error (Thanks to Uschi Renziehausen)
+
 2010-01-10  Michiel Roos <michiel@netcreators.com>
 	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen) 
 
