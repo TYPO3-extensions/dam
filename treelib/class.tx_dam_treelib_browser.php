@@ -109,6 +109,7 @@ class tx_dam_treelib_browser extends t3lib_SCbase {
 			// Initialize template object
 		$this->doc = t3lib_div::makeInstance('template');
 		$this->doc->docType='xhtml_trans';
+		$this->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
 		$this->doc->backPath = $this->backPath;
 	}
 
