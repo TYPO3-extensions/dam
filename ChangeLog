@@ -1,3 +1,6 @@
+2010-01-25  Michiel Roos <michiel@netcreators.com>
+	* Fix #13295: Moving of files doesn't work (Thanks to Chris Mueller)
+
 2010-01-12  Michiel Roos <michiel@netcreators.com>
 	* Fix #13215: stylesheet.css not loaded in category treeviews (Thanks to Uschi Renziehausen)
 

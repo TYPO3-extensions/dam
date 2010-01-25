@@ -355,18 +355,18 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 		$msg[] = htmlspecialchars(sprintf($LANG->getLL($this->langPrefix.'message'), $targetFolderRel));
 		$msg[] = '&nbsp;';
 
-		$buttons .= '
+		$buttons = '
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][target]" value="'.htmlspecialchars($targetFolder).'" />';
 
 		if (tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.displayExtraButtons', 1)) {
 			if ($this->copyOrMove=='copy') {
-				$buttons = '
+				$buttons .= '
 					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filecopy.submit',1).'" />
 					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
 			}
 			else {
-				$buttons = '
+				$buttons .= '
 					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filemove.submit',1).'" />
 					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
 			}
@@ -481,18 +481,18 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 		$msg[] = '&nbsp;';
 		$msg[] = $itemTable;
 
-		$buttons .= '
+		$buttons = '
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][data]" value="'.htmlspecialchars($filepath).'" />
 			<input type="hidden" name="data['.$this->copyOrMove.']['.$id.'][target]" value="'.htmlspecialchars($targetFolder).'" />';
 
 		if (tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.displayExtraButtons', 1)) {
 			if ($this->copyOrMove=='copy') {
-				$buttons = '
+				$buttons .= '
 					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filecopy.submit',1).'" />
 					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
 			}
 			else {
-				$buttons = '
+				$buttons .= '
 					<input type="submit" value="'.$LANG->getLL('tx_dam_cmd_filemove.submit',1).'" />
 					<input type="submit" value="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" onclick="jumpBack(); return false;" />';
 			}
