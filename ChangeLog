@@ -1,6 +1,7 @@
 2010-02-05  Michiel Roos <michiel@netcreators.com>
 	* Fix #11350: Not able to preview image(s) in workspace inserted to a Text w/Image content element. (Thanks to Rajunew)
 	* Fix #13375: DAM floods the deprecation log because it uses t3lib_div::makeInstanceClassName (Thanks to Uschi Renziehausen)
+	* Fix #13409: Wrong assignation in tx_dam_db::getMetaInfoFieldList() (Thanks to Francois Suter)
 
 2010-01-25  Michiel Roos <michiel@netcreators.com>
 	* Fix #13295: Moving of files doesn't work (Thanks to Chris Mueller)
