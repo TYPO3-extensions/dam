@@ -1,3 +1,6 @@
+2010-02-05  Michiel Roos <michiel@netcreators.com>
+	* Fix #11350: Not able to preview image(s) in workspace inserted to a Text w/Image content element. (Thanks to Rajunew)
+
 2010-01-25  Michiel Roos <michiel@netcreators.com>
 	* Fix #13295: Moving of files doesn't work (Thanks to Chris Mueller)
 	* Cleanup: mod_cmd/locallang.xml text correction

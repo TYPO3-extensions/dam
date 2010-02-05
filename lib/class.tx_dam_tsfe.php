@@ -100,14 +100,14 @@ class tx_dam_tsfe {
 		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
 
 		if (isset($GLOBALS['BE_USER']->workspace) && $GLOBALS['BE_USER']->workspace !== 0) {
-			$workspaceRecord = t3lib_BEfunc::getWorkspaceVersionOfRecord(
+			$workspaceRecord = $GLOBALS['TSFE']->sys_page->getWorkspaceVersionOfRecord(
 				$GLOBALS['BE_USER']->workspace,
 				'tt_content',
 				$uid,
 				'uid'
 			);
 
-			if ($workspaceRecord) {
+			if (is_array($workspaceRecord)) {
 				$uid = $workspaceRecord['uid'];
 			}
 		}
