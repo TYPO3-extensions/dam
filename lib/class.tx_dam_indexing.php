@@ -2012,7 +2012,7 @@ class tx_dam_indexing {
 	function lock($filename) {
 		try {
 			if (!is_object($this->fileLock)) {
-				if (t3lib_div::compat_version('4.3.0')) {
+				if (t3lib_div::compat_version('4.3')) {
 					$this->fileLock = t3lib_div::makeInstance('t3lib_lock', 'tx_dam_indexing_' . md5($filename), 
 						$GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'], 60, 10);
 				} else {
