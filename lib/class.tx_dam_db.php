@@ -1266,7 +1266,7 @@ class tx_dam_db {
 		$infoFields['media_type'] = 'media_type';
 		$infoFields['file_status'] = 'file_status';
 		$infoFields['index_type'] = 'index_type';
-		$infoFields['index_type'] = 'parent_id';
+		$infoFields['parent_id'] = 'parent_id';
 		$infoFields = tx_dam_db::compileFieldList('tx_dam', $infoFields, FALSE, $prependTableName);
 
 		return $infoFields;
