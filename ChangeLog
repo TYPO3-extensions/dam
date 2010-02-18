@@ -1,3 +1,6 @@
+2010-02-18  Michiel Roos <michiel@netcreators.com>
+	* Fix #13298: Indexing problems when lockingMode is disabled (Thanks to ste)
+
 2010-02-05  Michiel Roos <michiel@netcreators.com>
 	* Fix #11350: Not able to preview image(s) in workspace inserted to a Text w/Image content element. (Thanks to Rajunew)
 	* Fix #13375: DAM floods the deprecation log because it uses t3lib_div::makeInstanceClassName (Thanks to Uschi Renziehausen)

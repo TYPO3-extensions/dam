@@ -2024,7 +2024,7 @@ class tx_dam_indexing {
 			if (is_object($this->fileLock)) {
 					// true = Page could get locked without blocking
 					// false = Page could get locked but process was blocked before
-				$success = $this->fileLock->acquire();
+				$success = $this->fileLock->acquire() || $GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'] == 'disable';
 				if ($this->fileLock->getLockStatus()) {
 					if ($this->writeDevLog) 	t3lib_div::devLog('lock(): lock aquired ' . $filename, 'tx_dam_indexing');
 				} else {
