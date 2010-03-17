@@ -1,3 +1,7 @@
+2010-03-17  Oliver Hader  <oliver@typo3.org>
+
+	* Cleanup: Updated extension version to 1.1.6-dev
+
 2010-02-18  Michiel Roos <michiel@netcreators.com>
 	* Fix #13298: Indexing problems when lockingMode is disabled (Thanks to ste)
 
