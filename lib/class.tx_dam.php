@@ -2934,6 +2934,10 @@ class tx_dam {
 	 */
 	function _addItem($idName, $value, &$items, $position='')	{
 
+		if (is_null($items)) {
+			$items = array();
+		}
+
 		$position .= ';bottom';
 		$posList = t3lib_div::trimExplode(';', $position, 1);
 
