@@ -1,6 +1,7 @@
 2010-03-17  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Updated extension version to 1.1.6-dev
+	* Cleanup: Updated ext_emconf.php file
 	* Fixed bug: Calling tx_dam::_addItem() with undefined items produces PHP warnings
 
 2010-02-18  Michiel Roos <michiel@netcreators.com>
