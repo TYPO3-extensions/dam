@@ -1,5 +1,6 @@
 2010-05-02  Dan Osipov <dosipov@phillyburbs.com>
-	* Fix #11083: DAM duplicates Medias in Workspace
+	* Fix #11083: DAM duplicates Medias in Workspace (Thanks to  Martin Kästner)
+	* Fix #14164: Bug / Feature: TSFE img tag binding class should not unset txdam attribute (Thanks to Francois Suter)
 
 2010-02-18  Michiel Roos <michiel@netcreators.com>
 	* Fix #13298: Indexing problems when lockingMode is disabled (Thanks to ste)

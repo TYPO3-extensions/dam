@@ -117,9 +117,10 @@ class tx_dam_tsfeimgtag extends tslib_pibase {
 				}
 			}
 		}
-		unset($this->cObj->parameters['txdam']);
-		unset($this->cObj->parameters['allParams']);
-		$content = '<img '. t3lib_div::implodeAttributes($this->cObj->parameters, TRUE, TRUE) . ' />';
+		$parametersForAttributes = $this->cObj->parameters;
+		unset($parametersForAttributes['txdam']);
+		unset($parametersForAttributes['allParams']);
+		$content = '<img ' . t3lib_div::implodeAttributes($parametersForAttributes, TRUE, TRUE) . ' />';
 		return $content;
 	}
 }
