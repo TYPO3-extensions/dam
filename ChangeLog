@@ -1,3 +1,6 @@
+2010-05-02  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #11083: DAM duplicates Medias in Workspace
+
 2010-03-17  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Updated extension version to 1.1.6-dev
@@ -24,12 +27,12 @@
 	* Fix #13203: Duplication of tool 'Media types' in trunk version (Thanks to Uschi Renziehausen)
 
 2010-01-10  Michiel Roos <michiel@netcreators.com>
-	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen) 
+	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen)
 
 2009-12-30  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #11700: use _GPmerged instead of GParrayMerged (Thanks to Ringer Georg)
 	* Change: dam 1.2 requires TYPO3 4.3 and PHP 5.2.6
-	* Fixed bug #12538: Generated contain an invalid relational operator [DBAL] (Thanks to Xavier Perseguers) 
+	* Fixed bug #12538: Generated contain an invalid relational operator [DBAL] (Thanks to Xavier Perseguers)
 	* Fixed bug #11936: search in media->list does not work (Thanks to Andreas Kiessling)
 	* Change for #9177: Indexing files is not working in NFS Filesystems (Thanks to Ingo Schmitt, Dan Osipov)
 
@@ -60,8 +63,8 @@
 	* Fixed bug #7654: Category sorting by title, not by "sorting" (Thanks to Michael Ablass)
 	* Fixed bug #11854: wrong syntax in ext_tables.sql (Thanks to Guiso Kegel)
 	* Fixed bug #11623: Remove deprecated assignments by reference when using "new" statement (Thanks to Andreas Wolf)
-	* Fixed bug #11330: docheader in batch_edit mode lacks replacement of FOLDER_INFO, CLOSE and SAVE markers (Thanks to Georg Kuehnberger) 
-	
+	* Fixed bug #11330: docheader in batch_edit mode lacks replacement of FOLDER_INFO, CLOSE and SAVE markers (Thanks to Georg Kuehnberger)
+
 2009-08-20  Michiel Roos <michiel@netcreators.com>
 
 	* #11743: DAM doesn't respekt skin images (Thanks to Georg Ringer)
@@ -74,8 +77,8 @@
 2009-07-21  Michiel Roos <michiel@netcreators.com>
 
 	* #10194: Cannot confirm "delete file" operation
-	* #11070: modfunc_list_thumbs: rendering on "no files found" 
-	 
+	* #11070: modfunc_list_thumbs: rendering on "no files found"
+
 2009-07-14  Dan Osipov  <dosipov@phillyburbs.com>
 
 	* #10556: Flexible media types
@@ -99,7 +102,7 @@
 2009-04-01  Dan Osipov <dosipov@phillyburbs.com>
 
 	* #10350: Form problems using MSIE (Thanks to Michael Stucki)
-	
+
 2009-02-11  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Added feature #10293: Better link title handling in htmlArea RTE
@@ -123,7 +126,7 @@
 
 	* #10271: dam calls deprecated function t3lib_div::uniqueArray() (Thanks to Uschi Renziehausen)
 	* #10270: dam has multiple calls to deprecated function t3lib_div::fixed_lgd() (Thanks to Uschi Renziehausen)
-	
+
 2009-01-27  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Added feature #9951: Add Page TSConfig option to remove upload tab in media browser
@@ -131,7 +134,7 @@
 2009-01-18  Michiel Roos <michiel@netcreators.com>
 
 	* #8646: Click on icon before title does not react (Thanks to Uschi Renziehausen)
-	
+
 2009-01-17  Michiel Roos <michiel@netcreators.com>
 
 	* #10171: compat directory needs cleanup

@@ -384,6 +384,7 @@ $TCA['tx_dam'] = array(
 		'delete' => 'deleted',
 
 		'versioningWS' => true,
+		'shadowColumnsForNewPlaceholders' => 'sys_language_uid,l18n_parent,media_type,file_type,file_name,file_path,file_mime_type,file_mime_subtype',
 
 		'transOrigPointerField' => 'l18n_parent',
 		'transOrigDiffSourceField' => 'l18n_diffsource',
@@ -455,7 +456,7 @@ $TCA['tx_dam_cat'] = array(
 			'disabled' => 'hidden',
 			'fe_group' => 'fe_group',
 		),
-		'dividers2tabs' => '1',		
+		'dividers2tabs' => '1',
 		'dynamicConfigFile' => PATH_txdam.'tca.php',
 		'iconfile' => PATH_txdam_rel.'icon_tx_dam_cat.gif',
 	),
