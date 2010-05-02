@@ -1,3 +1,6 @@
+2010-05-02  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #11083: DAM duplicates Medias in Workspace
+
 2010-02-18  Michiel Roos <michiel@netcreators.com>
 	* Fix #13298: Indexing problems when lockingMode is disabled (Thanks to ste)
 
@@ -17,7 +20,7 @@
 	* Fix #13198: Selecting dam items by click on category title causes an SQL-error (Thanks to Uschi Renziehausen)
 
 2010-01-10  Michiel Roos <michiel@netcreators.com>
-	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen) 
+	* Fix #12918: Respect $TCA['tx_dam_cat']['ctrl']['default_sortby'] = 'mychoice'; everywhere (Thanks to Uschi Renziehausen)
 
 2010-01-01  Michiel Roos <michiel@netcreators.com>
 	* Change: Updated manual
@@ -28,7 +31,7 @@
 
 2009-12-30  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #11700: use _GPmerged instead of GParrayMerged (Thanks to Georg Ringer)
-	* Fixed bug #12538: Generated contain an invalid relational operator [DBAL] (Thanks to Xavier Perseguers) 
+	* Fixed bug #12538: Generated contain an invalid relational operator [DBAL] (Thanks to Xavier Perseguers)
 	* Change for #9177: Indexing files is not working in NFS Filesystems (Thanks to Ingo Schmitt, Dan Osipov)
 
 2009-12-29  Michiel Roos <michiel@netcreators.com>
@@ -37,7 +40,7 @@
 	* Fixed bug #12967: Element browser upload page doesn't highlight the actual folder (Thanks to Oliver Krause)
 
 2009-12-22  Michiel Roos <michiel@netcreators.com>
-	* Fixed bug #10008: OpenType font not recognized as font (Thanks to Michiel Roos) 
+	* Fixed bug #10008: OpenType font not recognized as font (Thanks to Michiel Roos)
 
 2009-12-21  Michiel Roos <michiel@netcreators.com>
 	* Fixed bug #9830: Not responing queries using category selections (Thanks to Peter Kuehn)
@@ -59,9 +62,9 @@
 	* Fixed bug #6110: Description Field in cat_edit (Thanks to Tobi)
 	* Fixed bug #7654: Category sorting by title, not by "sorting" (Thanks to Michael Ablass)
 	* Fixed bug #11854: wrong syntax in ext_tables.sql (Thanks to Guiso Kegel)
-	* Fixed bug #11623: Remove deprecated assignments by reference when using "new" statement (Thanks to Andreas Wolf) 
+	* Fixed bug #11623: Remove deprecated assignments by reference when using "new" statement (Thanks to Andreas Wolf)
 	* Fixed bug #11330: docheader in batch_edit mode lacks replacement of FOLDER_INFO, CLOSE and SAVE markers (Thanks to Georg Kuehnberger)
-	
+
 2009-08-20  Michiel Roos <michiel@netcreators.com>
 
 	* #11743: DAM doesn't respekt skin images (Thanks to Georg Ringer)
@@ -74,8 +77,8 @@
 2009-07-21  Michiel Roos <michiel@netcreators.com>
 
 	* #10194: Cannot confirm "delete file" operation
-	* #11070: modfunc_list_thumbs: rendering on "no files found" 
-	
+	* #11070: modfunc_list_thumbs: rendering on "no files found"
+
 2009-07-04  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug #10817: Upload doesn't work for admins under 4.3
@@ -95,7 +98,7 @@
 2009-04-01  Dan Osipov <dosipov@phillyburbs.com>
 
 	* #10350: Form problems using MSIE (Thanks to Michael Stucki)
-	
+
 2009-02-08  Michael Stucki  <michael@typo3.org>
 
 	* #10347: Categories valid for "All" languages are not fetched by category tree selector (Thanks to Francois Suter)
@@ -106,16 +109,16 @@
 	* #10172: Remove check for TYPO3 compat version 4.2.0 from class.tx_dam_browse_media.php (Thanks to Michiel Roos)
 	* #10265: Cleanup compat/class.ux_template.php after release of TYPO3 4.2.5 (Thanks to Michiel Roos)
 	* #10193: Deleting a file shows faulty references warning (Thanks to Michiel Roos)
-	
+
 2009-01-29  Michiel Roos <michiel@netcreators.com>
 
 	* #10271: dam calls deprecated function t3lib_div::uniqueArray() (Thanks to Uschi Renziehausen)
 	* #10270: dam has multiple calls to deprecated function t3lib_div::fixed_lgd() (Thanks to Uschi Renziehausen)
-	
+
 2009-01-18  Michiel Roos <michiel@netcreators.com>
 
 	* #8646: Click on icon before title does not react (Thanks to Uschi Renziehausen)
-	
+
 2009-01-17  Michiel Roos <michiel@netcreators.com>
 
 	* #10171: compat directory needs cleanup
