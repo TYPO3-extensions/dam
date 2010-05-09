@@ -222,6 +222,7 @@ $TCA['tx_dam'] = array(
 				'size' => '15',
 				'max' => '255',
 				'eval' => 'required',
+				'softref' => 'dam_file',
 			)
 		),
 		'file_path' => array(
