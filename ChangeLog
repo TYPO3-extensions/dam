@@ -1,5 +1,6 @@
 2010-05-08  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #12778: Add softref parser for related DAM records (Thanks to Steffen Kamper & Thorsten Kahler)
+	* Fix #12050: tx_dam_file_upload = 0 does not hide upload-icon in file-modul (Thanks to Michiel Roos)
 
 2010-05-02  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #11083: DAM duplicates Medias in Workspace (Thanks to  Martin Kästner)
