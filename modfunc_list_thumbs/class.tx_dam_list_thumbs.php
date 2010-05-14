@@ -101,7 +101,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 #		$this->pObj->guiItems->registerFunc('getResultBrowser', 'footer');
 		$this->pObj->guiItems->registerFunc('getCurrentSelectionBox', 'footer');
-		$this->pObj->guiItems->registerFunc('getSearchBox', 'footer');
+		$this->pObj->guiItems->registerFunc('getSearchBox', 'footer', array('simple', true));
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems->registerFunc('getStoreControl', 'footer');
 
@@ -137,6 +137,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		$table = 'tx_dam';
 		t3lib_div::loadTCA($table);
 
+		// Get rid of wrapper form tag.
+		$this->pObj->doc->form = null;
 
 		//
 		// set language query
@@ -161,10 +163,10 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$transOrigPointerField = $TCA[$table]['ctrl']['transOrigPointerField'];
 
 			$this->pObj->selection->setSelectionLanguage($this->langCurrent);
-			
+
 			$this->pObj->selection->qg->query['SELECT']['tx_dam as tx_dam_lgovl'] = implode(', ', $lgOvlFields).', tx_dam.uid as _dlg_uid, tx_dam.title as _dlg_title';
 			$this->pObj->selection->qg->query['LEFT_JOIN']['tx_dam as tx_dam_lgovl'] = 'tx_dam.uid=tx_dam_lgovl.'.$transOrigPointerField;
-			
+
 			if ($this->pObj->MOD_SETTINGS['tx_dam_list_langOverlay']==='exclusive') {
 				$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.'.$languageField] = 'AND tx_dam_lgovl.'.$languageField.'='.$this->langCurrent;
 			$this->pObj->selection->qg->query['WHERE']['WHERE']['tx_dam_lgovl.deleted'] = 'AND tx_dam_lgovl.deleted=0';
@@ -184,7 +186,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 		$allFields = tx_dam_db::getFieldListForUser($table);
 
-		
+
 		if ($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'])	{
 			if (in_array($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'], $allFields))	{
 				$orderBy = 'tx_dam.'.$this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'];
@@ -217,7 +219,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 		if($this->pObj->selection->pointer->countTotal) {
 
 			// TODO move to scbase (see tx_dam_browser too)
-	
+
 			if (is_array($allFields) && count($allFields)) {
 				$fieldsSelItems=array();
 				foreach ($allFields as $field => $title) {
@@ -226,9 +228,9 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				}
 				$sortingSelector = $GLOBALS['LANG']->sL('LLL:EXT:dam/lib/locallang.xml:labelSorting',1).' ';
 				$sortingSelector .= t3lib_befunc::getFuncMenu('', 'SET[tx_dam_list_thumbs_sortField]', $this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortField'], $fieldsSelItems);
-				
+
 				if($this->pObj->MOD_SETTINGS['tx_dam_list_thumbs_sortRev'])	{
-					$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '0'));		
+					$href = t3lib_div::linkThisScript(array('SET[tx_dam_list_thumbs_sortRev]' => '0'));
 					$sortingSelector .=  '<button name="SET[tx_dam_list_thumbs_sortRev]" type="button" onclick="self.location.href=\''.htmlspecialchars($href).'\'">'.
 							'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/pil2up.gif','width="12" height="7"').' alt="" />'.
 							'</button>';
@@ -240,13 +242,13 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				}
 				$sortingSelector = '<form action="'.htmlspecialchars(t3lib_div::linkThisScript()).'" method="post">'.$sortingSelector.'</form>';
 			}
-	
+
 			$this->pObj->markers['LANGUAGE_SELECT'] = $this->pObj->languageSwitch($this->langRows, intval($this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']));
-			
+
 			$content.= $this->pObj->contentLeftRight($sortingSelector, '');
 			$content.= $this->pObj->doc->spacer(10);
-			
-			
+
+
 			//
 			// creates thumbnail list
 			//
@@ -271,8 +273,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 			$this->pObj->doc->inDocStylesArray['tx_dam_SCbase_dia'] = tx_dam_guiFunc::getDiaStyles($this->diaSize, $this->diaMargin, 5);
 
 			$code = '';
-			
-			
+
+
 			//
 			// init iterator for query
 			//
@@ -284,8 +286,8 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 				$dbIterator->initLanguageOverlay($table, $this->pObj->MOD_SETTINGS['tx_dam_list_langSelector']);
 			} else {
 				$dbIterator = new tx_dam_iterator_db($res, $conf);
-			}			
-			
+			}
+
 
 
 			if ($dbIterator->count())	{
@@ -305,9 +307,9 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 
 			$content.= $this->pObj->doc->spacer(5);
 			$content.= $this->pObj->doc->section('','<div style="line-height:'.($this->diaSize +7+8).'px;">'.$code.'</div><br style="clear:left" />',0,1);
-			
 
-		
+
+
 		}
 
 
@@ -323,7 +325,7 @@ class tx_dam_list_thumbs extends t3lib_extobjbase {
 	 */
 	function getItemControl($item, $table='tx_dam')	{
 		global $TYPO3_CONF_VARS;
-		
+
 		static $actionCall;
 
 		$content = '';

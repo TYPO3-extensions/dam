@@ -105,7 +105,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 
 #		$this->pObj->guiItems->registerFunc('getResultBrowser', 'footer');
 		$this->pObj->guiItems->registerFunc('getCurrentSelectionBox', 'footer');
-		$this->pObj->guiItems->registerFunc('getSearchBox', 'footer');
+		$this->pObj->guiItems->registerFunc('getSearchBox', 'footer', array('simple', true));
 		$this->pObj->guiItems->registerFunc('getOptions', 'footer');
 		$this->pObj->guiItems->registerFunc('getStoreControl', 'footer');
 
@@ -128,6 +128,9 @@ class tx_dam_list_list extends t3lib_extobjbase {
 		$content = '';
 
 		$table = 'tx_dam';
+		
+		// Get rid of wrapper form tag.
+		$this->pObj->doc->form = null;
 
 
 
