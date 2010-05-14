@@ -1,3 +1,6 @@
+2010-05-14  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #11394: Bug: Broken media list view in IE-8 (Thanks to Chetan Thapliyal)
+
 2010-05-08  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #12050: tx_dam_file_upload = 0 does not hide upload-icon in file-modul (Thanks to Michiel Roos)
 

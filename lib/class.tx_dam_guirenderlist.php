@@ -255,6 +255,7 @@ class tx_dam_guiRenderList {
 	 * @return	string		Items output
 	 */
 	function getOutput($type='footer', $itemList='')	{
+
 		if (is_null($itemList)) return;
 
 		if($itemList) {
@@ -349,7 +350,7 @@ class tx_dam_guiRenderList {
 		if (is_array($this->items_params_override[$prefix.$func])) {
 			$arg_list = $arg_list + $this->items_params_override[$prefix.$func];
 		} elseif (is_array($this->items_params[$prefix.$func])) {
-			$arg_list = $arg_list + $this->items_params[$prefix.$func];
+			$arg_list = array_merge($arg_list, $this->items_params[$prefix.$func]);
 		}
 
 		return call_user_func_array(array($this, 'callUserFunction'), $arg_list);
