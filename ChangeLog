@@ -1,3 +1,6 @@
+2010-06-16  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+	* Fix #14724 Bug: Indexing: Only the last chosen option will be shown in step 4 (Thanks to Andy Grunwald)
+
 2010-05-14  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #11394: Bug: Broken media list view in IE-8 (Thanks to Chetan Thapliyal)
 

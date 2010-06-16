@@ -993,7 +993,7 @@ class tx_dam_indexing {
 
 				if (($setup['enabled'] OR $setup['forceEnabled']) AND is_object($obj = &t3lib_div::getUserObj($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'][$ruleId],'user_',TRUE)))      {
 
-					$this->rules[$ruleId]['obj'] = &$obj;
+					$this->rules[$ruleId]['obj'] = $obj;
 					if (is_array($this->ruleConf[$ruleId])) {
 						$this->rules[$ruleId]['obj']->setup = array_merge($this->rules[$ruleId]['obj']->setup, $this->ruleConf[$ruleId]);
 					}
@@ -1550,13 +1550,19 @@ class tx_dam_indexing {
 	 * @return	string		Title string
 	 */
 	function makeTitleFromFilename ($title) {
-		$orgTitle = $title;
-		$extpos = strrpos($title,'.');
-		$title = $extpos ? substr($title, 0, $extpos) : $title; // remove extension
-		$title = str_replace('_',' ',$title);	// Substituting "_" for " " because many filenames may have this instead of a space char.
-		$title = str_replace('%20',' ',$title);
-			// studly caps: add spaces
-		$title = preg_replace('#([a-z])([A-Z])#', '\\1 \\2', $title);
+
+		if( tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.useOriginalFilenameAsTitle') && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['temporaryFilenamesStorage'][$title] ) {			
+				// The title will be an original filename. This info is stored in $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam'] while file uploading process.
+			$title = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['temporaryFilenamesStorage'][$title];
+		} else {
+			$orgTitle = $title;
+			$extpos = strrpos($title,'.');
+			$title = $extpos ? substr($title, 0, $extpos) : $title; // remove extension
+			$title = str_replace('_',' ',$title);	// Substituting "_" for " " because many filenames may have this instead of a space char.
+			$title = str_replace('%20',' ',$title);
+				// studly caps: add spaces
+			$title = preg_replace('#([a-z])([A-Z])#', '\\1 \\2', $title);
+		}
 
 		if ($this->writeDevLog) 	t3lib_div::devLog('makeTitleFromFilename(): '.$orgTitle.' > '.$title, 'tx_dam_indexing');
 
