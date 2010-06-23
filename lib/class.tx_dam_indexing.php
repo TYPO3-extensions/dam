@@ -993,7 +993,7 @@ class tx_dam_indexing {
 
 				if (($setup['enabled'] OR $setup['forceEnabled']) AND is_object($obj = &t3lib_div::getUserObj($TYPO3_CONF_VARS['EXTCONF']['dam']['indexRuleClasses'][$ruleId],'user_',TRUE)))      {
 
-					$this->rules[$ruleId]['obj'] = &$obj;
+					$this->rules[$ruleId]['obj'] = $obj;
 					if (is_array($this->ruleConf[$ruleId])) {
 						$this->rules[$ruleId]['obj']->setup = array_merge($this->rules[$ruleId]['obj']->setup, $this->ruleConf[$ruleId]);
 					}
