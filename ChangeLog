@@ -1,5 +1,6 @@
 2010-06-26  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #10936: TSconfig indexing.replaceFile.reindexingMode has no effect (Thanks to Francois Suter)
+	* Fix #13884: Cleanup: Duplicate title attribute in img tag in element browser (Thanks to Chris Mueller)
 
 2010-06-16  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #14724 Bug: Indexing: Only the last chosen option will be shown in step 4 (Thanks to Andy Grunwald)
