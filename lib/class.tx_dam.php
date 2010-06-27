@@ -1767,7 +1767,7 @@ class tx_dam {
 				// index the file
 			$setup = array(
 				'recursive' => false,
-				'doReindexing' => tx_dam::config_checkValueEnabled('indexing.editFile.reindexingMode', 1), // reindexPreserve - preserve old data if new is empty
+				'doReindexing' => tx_dam::config_checkValueEnabled('setup.indexing.editFile.reindexingMode', 1), // reindexPreserve - preserve old data if new is empty
 				);
 			tx_dam::index_process ($filepath, $setup);
 		}
@@ -1849,7 +1849,7 @@ class tx_dam {
 					// reindex the file
 				$setup = array(
 						'recursive' => false,
-						'doReindexing' => tx_dam::config_checkValueEnabled('indexing.replaceFile.reindexingMode', 2), // reindexPreserve - preserve old data if new is empty
+						'doReindexing' => tx_dam::config_checkValueEnabled('setup.indexing.replaceFile.reindexingMode', 2), // reindexPreserve - preserve old data if new is empty
 					);
 				tx_dam::index_process ($newFile, $setup);
 
