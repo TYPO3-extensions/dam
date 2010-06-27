@@ -1,5 +1,8 @@
+2010-06-26  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #10936: TSconfig indexing.replaceFile.reindexingMode has no effect (Thanks to Francois Suter) 
+
 2010-06-23  Lorenz Ulrich <lorenz.ulrich@visol.ch>
-	* Fix #14724: Bug: Indexing: Only the last chosen option will be shown in step 4 
+	* Fix #14724: Bug: Indexing: Only the last chosen option will be shown in step 4
 
 2010-05-14  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #11394: Bug: Broken media list view in IE-8 (Thanks to Chetan Thapliyal)
