@@ -1,3 +1,7 @@
+2010-07-07  Dmitry Dulepov  <dmitry@typo3.org>
+
+	* Fixed bug #14853: Remove all translations from DAM
+
 2010-06-26  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #10936: TSconfig indexing.replaceFile.reindexingMode has no effect (Thanks to Francois Suter)
 	* Fix #13884: Cleanup: Duplicate title attribute in img tag in element browser (Thanks to Chris Mueller)
