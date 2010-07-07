@@ -977,6 +977,7 @@ class tx_dam_db {
 		}
 		$where['ref'] = $local_table.'.uid='.$softRef_table.'.ref_uid';
 		$where['ref'] .= $foreign_table ? ' AND ' . $foreign_table . '.uid=' . $softRef_table . '.recuid' : '';
+		$where['refTable'] = $softRef_table . '.ref_table=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('tx_dam', $softRef_table);
 		$where = array_merge($where, $whereClauses);
 
 		if ($foreign_table) {
