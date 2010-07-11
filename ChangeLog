@@ -1,3 +1,6 @@
+2010-07-11  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #13555: Bug: tt_content table is hard-coded in tx_dam_tsfe::fetchFileList() (Thanks to Francois Suter)
+
 2010-07-07  Dmitry Dulepov  <dmitry@typo3.org>
 
 	* Fixed bug #11821: Deleting an unused file gives a "file used" warning
