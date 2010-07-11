@@ -82,19 +82,18 @@ class tx_dam_tsfe {
 	 * @return	string		comma list of files with path
 	 * @see dam_ttcontent extension
 	 */
-	function fetchFileList ($content, $conf) {
+	function fetchFileList($content, $conf) {
 		$files = array();
 
-		$filePath = $this->cObj->stdWrap($conf['additional.']['filePath'],$conf['additional.']['filePath.']);
-		$fileList = trim($this->cObj->stdWrap($conf['additional.']['fileList'],$conf['additional.']['fileList.']));
-		$refField = trim($this->cObj->stdWrap($conf['refField'],$conf['refField.']));
-		$fileList = t3lib_div::trimExplode(',',$fileList);
+		$filePath = $this->cObj->stdWrap($conf['additional.']['filePath'], $conf['additional.']['filePath.']);
+		$fileList = trim($this->cObj->stdWrap($conf['additional.']['fileList'], $conf['additional.']['fileList.']));
+		$refField = trim($this->cObj->stdWrap($conf['refField'], $conf['refField.']));
+		$fileList = t3lib_div::trimExplode(',', $fileList);
 		foreach ($fileList as $file) {
 			if($file) {
-				$files[] = $filePath.$file;
+				$files[] = $filePath . $file;
 			}
 		}
-
 
 		$uid      = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
 		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
@@ -102,7 +101,7 @@ class tx_dam_tsfe {
 		if (isset($GLOBALS['BE_USER']->workspace) && $GLOBALS['BE_USER']->workspace !== 0) {
 			$workspaceRecord = $GLOBALS['TSFE']->sys_page->getWorkspaceVersionOfRecord(
 				$GLOBALS['BE_USER']->workspace,
-				'tt_content',
+				$refTable,
 				$uid,
 				'uid'
 			);
