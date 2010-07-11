@@ -51,6 +51,8 @@ INSERT INTO tx_dam_media_types VALUES ('', '0', 'm4a', 'audio/x-m4a', '3', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'm4b', 'audio/mp4a-latm', '3', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'm4p', 'audio/mp4a-latm', '3', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'm4r', 'audio/aac', '3', '');
+INSERT INTO tx_dam_media_types VALUES ('', '0', 'oga', 'audio/ogg', '3', '');
+INSERT INTO tx_dam_media_types VALUES ('', '0', 'ogg', 'audio/ogg', '3', '');
 
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'z' , 'encoding/x-compress', '0', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'gz', 'encoding/x-gzip', '0', '');
@@ -170,6 +172,7 @@ INSERT INTO tx_dam_media_types VALUES ('', '0', 'vcr', 'video/x-sunvideo', '4', 
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'mp4', 'video/mp4v-es', '4', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'm4v', 'video/x-m4v', '4', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'mp4v', 'video/mp4v-es', '4', '');
+INSERT INTO tx_dam_media_types VALUES ('', '0', 'ogv', 'video/ogg', '4', '');
 
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'ez', 'application/andrew-inset', '12', '');
 INSERT INTO tx_dam_media_types VALUES ('', '0', 'cu', 'application/cu-seeme', '12', '');
