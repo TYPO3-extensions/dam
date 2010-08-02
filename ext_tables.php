@@ -170,7 +170,7 @@ if (TYPO3_MODE === 'BE')	{
 		'LLL:EXT:dam/modfunc_list_batch/locallang.xml:tx_dam_list_batch.title'
 	);
 
-	
+
 		// add the info module and the info->reference modfunc (previously dam_info)
 	t3lib_extMgm::addModule('txdamM1', 'info', '', PATH_txdam . 'mod_info/');
 
@@ -211,14 +211,14 @@ if (TYPO3_MODE === 'BE')	{
 		'tx_dam_tools_serviceinfo',
 		PATH_txdam.'modfunc_tools_serviceinfo/class.tx_dam_tools_serviceinfo.php',
 		'LLL:EXT:dam/lib/locallang.xml:serviceinfo'
-	);	
-	
+	);
+
 	t3lib_extMgm::insertModuleFunction(
 		'txdamM1_tools',
 		'tx_dam_tools_mimetypes',
 		PATH_txdam.'modfunc_tools_mimetypes/class.tx_dam_tools_mimetypes.php',
 		'LLL:EXT:dam/lib/locallang.xml:mimetypes'
-	);		
+	);
 
 
 		// command modules (invisible)
@@ -304,7 +304,7 @@ if (TYPO3_MODE === 'BE')	{
 		// media folder type and icon
 	$ICON_TYPES['dam'] = array('icon' => PATH_txdam_rel.'modules_dam.gif');
 	$TCA['pages']['columns']['module']['config']['items'][] = array('Media', 'dam', PATH_txdam_rel.'modules_dam.gif');
-	
+
 
 
 
@@ -320,8 +320,10 @@ if (TYPO3_MODE === 'BE')	{
 	tx_dam::register_action ('tx_dam_action_newTextfile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_newTextfile');
 	tx_dam::register_action ('tx_dam_action_editFileRecord',  'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFileRecord');
 	tx_dam::register_action ('tx_dam_action_viewFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_viewFile');
+	tx_dam::register_action ('tx_dam_action_copyFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_copyFile');
 	tx_dam::register_action ('tx_dam_action_editFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_editFile');
 	tx_dam::register_action ('tx_dam_action_infoFile',        'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_infoFile');
+	tx_dam::register_action ('tx_dam_action_moveFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_moveFile');
 	tx_dam::register_action ('tx_dam_action_renameFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_renameFile');
 	tx_dam::register_action ('tx_dam_action_replaceFile',     'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_replaceFile');
 	tx_dam::register_action ('tx_dam_action_deleteFile',      'EXT:dam/components/class.tx_dam_actionsFile.php:&tx_dam_action_deleteFile');
@@ -356,9 +358,9 @@ if (TYPO3_MODE === 'BE')	{
 
 	tx_dam::register_previewer ('tx_dam_previewerImage', 'EXT:dam/components/class.tx_dam_previewerImage.php:&tx_dam_previewerImage');
 	tx_dam::register_previewer ('tx_dam_previewerMP3',   'EXT:dam/components/class.tx_dam_previewerMP3.php:&tx_dam_previewerMP3');
-	
-	
-	
+
+
+
 	tx_dam::register_editor ('tx_dam_edit_text',   'EXT:dam/mod_edit/class.tx_dam_edit_text.php:&tx_dam_edit_text');
 
 }

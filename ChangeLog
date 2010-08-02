@@ -1,3 +1,7 @@
+2010-08-01  Dmitry Dulepov  <dmitry@typo3.org>
+
+	* Added feature #15283: Add copy and move operations for files in the context menu
+
 2010-07-11  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #13555: Bug: tt_content table is hard-coded in tx_dam_tsfe::fetchFileList() (Thanks to Francois Suter)
 	* Fix #13271: Bug: DAM does not recognise ogv as video (Thanks to Lorenz Ulrich)
@@ -23,7 +27,7 @@
 	* Fix #12050: tx_dam_file_upload = 0 does not hide upload-icon in file-modul (Thanks to Michiel Roos)
 
 2010-05-02  Dan Osipov <dosipov@phillyburbs.com>
-	* Fix #11083: DAM duplicates Medias in Workspace (Thanks to  Martin Kästner)
+	* Fix #11083: DAM duplicates Medias in Workspace (Thanks to  Martin Kï¿½stner)
 	* Fix #14164: Bug / Feature: TSFE img tag binding class should not unset txdam attribute (Thanks to Francois Suter)
 
 2010-03-17  Oliver Hader  <oliver@typo3.org>
