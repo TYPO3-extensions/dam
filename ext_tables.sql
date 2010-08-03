@@ -107,7 +107,7 @@ CREATE TABLE tx_dam (
   file_type_version varchar(9) DEFAULT '' NOT NULL,
 
   file_name varchar(255) DEFAULT '' NOT NULL,
-  file_path text,
+  file_path varchar(4000),
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
   file_mtime int(11) unsigned DEFAULT '0' NOT NULL,
   file_inode int(11) DEFAULT '0' NOT NULL,
@@ -360,7 +360,7 @@ CREATE TABLE tx_dam_file_tracking (
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 
   file_name varchar(255) DEFAULT '' NOT NULL,
-  file_path text,
+  file_path varchar(4000),
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
 
   # date of file creation

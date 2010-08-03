@@ -1,3 +1,7 @@
+2010-08-03  Dmitry Dulepov  <dmitry@typo3.org>
+
+	* Fixed bug #12525: database column is not DBAL-compatible
+
 2010-08-01  Dmitry Dulepov  <dmitry@typo3.org>
 
 	* Added feature #15283: Add copy and move operations for files in the context menu
