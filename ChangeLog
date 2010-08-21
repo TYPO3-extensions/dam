@@ -1,3 +1,6 @@
+2010-08-21  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #15099: Bugfix: "Reference to main window is not set properly" after selecting an uploaded file in RTE link dialogue (Thanks to Lorenz Ulrich)
+
 2010-08-03  Dmitry Dulepov  <dmitry@typo3.org>
 
 	* Fixed bug #12525: database column is not DBAL-compatible
@@ -31,7 +34,7 @@
 	* Fix #12050: tx_dam_file_upload = 0 does not hide upload-icon in file-modul (Thanks to Michiel Roos)
 
 2010-05-02  Dan Osipov <dosipov@phillyburbs.com>
-	* Fix #11083: DAM duplicates Medias in Workspace (Thanks to  Martin K�stner)
+	* Fix #11083: DAM duplicates Medias in Workspace (Thanks to  Martin K?stner)
 	* Fix #14164: Bug / Feature: TSFE img tag binding class should not unset txdam attribute (Thanks to Francois Suter)
 
 2010-03-17  Oliver Hader  <oliver@typo3.org>
