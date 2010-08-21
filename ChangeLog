@@ -1,3 +1,6 @@
+2010-08-21  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #15099: Bugfix: "Reference to main window is not set properly" after selecting an uploaded file in RTE link dialogue (Thanks to Lorenz Ulrich)
+
 2010-08-03  Dmitry Dulepov  <dmitry@typo3.org>
 
 	* Fixed bug #12525: database column is not DBAL-compatible
