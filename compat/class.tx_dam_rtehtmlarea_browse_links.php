@@ -171,6 +171,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	public function parseCurrentUrl($href, $siteUrl, $info) {
 		if ($this->isEnabled && $info['act'] == 'file') {
 			$info['act'] = 'media';
+			unset($this->invokingObject->curUrlArray['external']);
 		}
 		return $info;
 	}

@@ -1,3 +1,6 @@
+2010-11-06  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #15566: When trying to edit a media link in the RTE, the external url tab is activated (Thanks Stanislas Rolland)
+
 2010-08-21  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #15099: Bugfix: "Reference to main window is not set properly" after selecting an uploaded file in RTE link dialogue (Thanks to Lorenz Ulrich)
 
