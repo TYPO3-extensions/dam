@@ -35,7 +35,7 @@ require_once(t3lib_extMgm::extPath('dam').'class.tx_dam_browse_media.php');
  * @package 	DAM
  */
 class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
-	
+
 	protected $invokingObject;
 	protected $mode;
 	protected $act;
@@ -43,7 +43,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	protected $isHtmlAreaRTE;
 	protected $isEnabled;
 	protected $browserRenderObj; // DAM browser object
-	
+
 	/**
 	 * initializes the hook object
 	 *
@@ -63,7 +63,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 			$this->invokingObject->anchorTypes[] = 'media';
 		}
 	}
-	
+
 	/**
 	 * Adds new items to the currently allowed ones and returns them
 	 * Replaces the 'file' item with the 'media' item
@@ -89,7 +89,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 		}
 		return $allowedItems;
 	}
-	
+
 	/**
 	 * Modifies the menu definition and returns it
 	 * Adds definition of the 'media' menu item
@@ -114,7 +114,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 		}
 		return $menuDef;
 	}
-	
+
 	/**
 	 * Returns a new tab for the browse links wizard
 	 * Returns the 'media' tab to the RTE link browser
@@ -151,7 +151,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 		}
 		return $content;
 	}
-	
+
 	/**
 	 * Checks the current URL and determines what to do
 	 * If the link was determined to be a file link, then set the action to 'media'
@@ -164,6 +164,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 	public function parseCurrentUrl($href, $siteUrl, $info) {
 		if ($this->isEnabled && $info['act'] == 'file') {
 			$info['act'] = 'media';
+			unset($this->invokingObject->curUrlArray['external']);
 		}
 		return $info;
 	}
