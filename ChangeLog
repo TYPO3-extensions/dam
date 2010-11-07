@@ -1,5 +1,6 @@
 2010-11-07  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #15651: Table fields in extension manager (Thanks Chris Mueller)
+	* Upgrade version number in ext_emconf.php
 
 2010-11-06  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #15566: When trying to edit a media link in the RTE, the external url tab is activated (Thanks Stanislas Rolland)
