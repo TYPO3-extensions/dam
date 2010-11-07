@@ -107,7 +107,7 @@ CREATE TABLE tx_dam (
   file_type_version varchar(9) DEFAULT '' NOT NULL,
 
   file_name varchar(255) DEFAULT '' NOT NULL,
-  file_path varchar(4000),
+  file_path varchar(4000) DEFAULT '',
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
   file_mtime int(11) unsigned DEFAULT '0' NOT NULL,
   file_inode int(11) DEFAULT '0' NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE tx_dam (
   KEY media_type (media_type),
   KEY t3ver_oid (t3ver_oid),
   KEY file_type (file_type),
-  KEY file_hash (file_hash(32)),
+  KEY file_hash (file_hash),
   KEY file_name (file_name(32))
 );
 
@@ -360,7 +360,7 @@ CREATE TABLE tx_dam_file_tracking (
   tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 
   file_name varchar(255) DEFAULT '' NOT NULL,
-  file_path varchar(4000),
+  file_path varchar(4000) DEFAULT '',
   file_size int(11) unsigned DEFAULT '0' NOT NULL,
 
   # date of file creation
