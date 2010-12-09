@@ -1,3 +1,6 @@
+2010-12-09  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+	* Fix #16390: DAM floods deprecation log by using $ICON_TYPES  (Thanks to Uschi Renziehausen)
+
 2010-11-07  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #15651: Table fields in extension manager (Thanks Chris Mueller)
 	* Upgrade version number in ext_emconf.php
