@@ -1,4 +1,7 @@
 2011-01-16  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+	* Fix #16062: <label> for "Mark entries with missing files as deleted" in Media/Tool/Check index (Thanks to Christian Weiske)
+
+2011-01-16  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #16543: batch edit not working in Typo3 4.5
 
 2010-12-09  Lorenz Ulrich <lorenz.ulrich@visol.ch>
