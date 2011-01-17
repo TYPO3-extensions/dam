@@ -1,3 +1,6 @@
+2011-01-16  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #16543: batch edit not working in Typo3 4.5 (Thanks to Lorenz Ulrich)
+
 2010-12-09  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #16390: DAM floods deprecation log by using $ICON_TYPES  (Thanks to Uschi Renziehausen)
 

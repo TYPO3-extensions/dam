@@ -1809,7 +1809,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function getFormTag($name='editform') {
 		global $TYPO3_CONF_VARS;
 
-		$formAction = t3lib_div::linkThisScript($this->addParams);
+		$addParams = $this->addParams ? $this->addParams:array();
+		$formAction = t3lib_div::linkThisScript($addParams);
 		return '<form action="'.htmlspecialchars($formAction).'" method="post" name="'.$name.'" id="'.$name.'" autocomplete="off" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
 	}
 
