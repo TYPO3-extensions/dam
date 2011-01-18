@@ -142,6 +142,18 @@ class tx_dam_db {
 
 		if ($res) {
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+
+				// Is there a workspace overlay?
+				if (isset($GLOBALS['BE_USER']->workspace) && ($GLOBALS['BE_USER']->workspace !== 0)) {
+					if (isset($GLOBALS['TSFE'])) {
+						// we are in frontend
+						$GLOBALS['TSFE']->sys_page->versionOL('tx_dam', $row);
+					} else {
+						// it's the backend
+						t3lib_befunc::workspaceOL('tx_dam', $row);
+					}
+				}
+
 				if(isset($row['uid'])) {
 					$rows[$row['uid']] = $row;
 				} else {
