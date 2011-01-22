@@ -1104,6 +1104,8 @@ class tx_dam_db {
 		if ($uploadsPath) {
 			$where[] = 'tx_dam_file_tracking.file_path='.$GLOBALS['TYPO3_DB']->fullQuoteStr($uploadsPath,'tx_dam_file_tracking');
 		}
+			// use index to preselect records
+		$where[] = $softRef_table . '.ref_string = CONCAT(' . $tracking_table . '.file_path,' . $tracking_table . '.file_name)';
 		$where[] = $softRef_table . '.ref_string LIKE CONCAT(' . $tracking_table . '.file_path,' . $tracking_table . '.file_name)';
 		$selectFields = implode(',', $fields);
 		$whereClause = implode(' AND ', $where);
