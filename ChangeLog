@@ -1,3 +1,6 @@
+2011-01-22  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+	* Fix #16896: Term Web>File in extension configuration is outdated (Thanks to Chris Mueller)
+
 2011-01-22  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #13468: Title with quote gets trunked (Thanks Dmitry Dulepov)
 

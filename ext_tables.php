@@ -108,8 +108,8 @@ if (TYPO3_MODE === 'BE')	{
 			}
 		}
 
-			// remove Web>File module
-		if(!$TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['web_file']) {
+			// remove File>Filelist module
+		if(!$TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['file_filelist']) {
 			unset($temp_TBE_MODULES['file']);
 		}
 		$TBE_MODULES = $temp_TBE_MODULES;
