@@ -1,4 +1,7 @@
 2011-01-22  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+	* Fix #10318: DAM > Info crashes on larger installs (Thanks to Thorsten Kahler)
+
+2011-01-22  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Added feature #15005: browsetree -> folders: Use natcasesort for folder sorting (Thanks to Christian Kuhn)
 
 2011-01-22  Lorenz Ulrich <lorenz.ulrich@visol.ch>
