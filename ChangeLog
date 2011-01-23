@@ -1,3 +1,6 @@
+2011-01-23  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #17218: Media>List>Process doesn't work in 1.1 branch and trunk (Thanks Lorenz Ulrich)
+
 2011-01-22  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #10318: DAM > Info crashes on larger installs (Thanks to Thorsten Kahler)
 
