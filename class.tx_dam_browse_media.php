@@ -338,7 +338,7 @@ class tx_dam_browse_media extends browse_links {
 		if ($this->isReadOnlyFolder($path)) {
 			$allowedItems = array_diff($allowedItems, array('upload'));
 		}
-		if (!in_array($this->act, $allowedItems))	{
+		if (!in_array($this->act, $allowedItems)) {
 			$this->act = 'file';
 		}
 		$this->reinitParams();
@@ -578,7 +578,12 @@ if (is_string($allowedFileTypes)) {
 			$displayThumbs = $this->displayThumbs();
 			$dragdropImage = ($mode == 'rte' && ($act == 'dragdrop' ||$act == 'media_dragdrop'));
 			$addAllJS = '';
-
+			$displayItems = '';
+			if ($mode == 'rte' && $act == 'media') {
+				if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['plugins']['TYPO3Link']['additionalAttributes'], 'usedamcolumn') && $this->thisConfig['buttons.']['link.'][$act.'.']['properties.']['title.']['useDAMColumn']) {
+					$displayItems = $this->thisConfig['buttons.']['link.'][$act.'.']['properties.']['title.']['useDAMColumn.']['displayItems'] ? $this->thisConfig['buttons.']['link.'][$act.'.']['properties.']['title.']['useDAMColumn.']['displayItems'] : '';
+				}
+			}
 				// Traverse the file list:
 			$lines=array();
 			foreach($files as $fI)	{
@@ -614,12 +619,17 @@ if (is_string($allowedFileTypes)) {
 						);
 						
 					$titleAttrib = tx_dam_guiFunc::icon_getTitleAttribute($fI);
-
 					
 					if ($mode === 'rte' AND $act === 'media') {
 						$onClick = 'return link_folder(\''.t3lib_div::rawUrlEncodeFP(tx_dam::file_relativeSitePath($fI['_ref_file_path'])).'\');';
+						if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['plugins']['TYPO3Link']['additionalAttributes'], 'txdam')) {
+							$onClick = 'browse_links_setAdditionalValue(\'txdam\', \'' . $fI['uid'] . '\');' . $onClick;
+						}
+						if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['plugins']['TYPO3Link']['additionalAttributes'], 'usedamcolumn') && $this->thisConfig['buttons.']['link.'][$act.'.']['properties.']['title.']['useDAMColumn']) {
+							$damTitle = t3lib_div::quoteJSvalue(tx_dam_guiFunc::meta_compileHoverText($fI, $displayItems, ', '));
+							$onClick = 'if (document.getElementById(\'rtehtmlarea-dam-browse-links-useDAMColumn\') && document.getElementById(\'rtehtmlarea-dam-browse-links-useDAMColumn\').checked) { document.getElementById(\'rtehtmlarea-browse-links-anchor_title\').value = ' . $damTitle . '; }' . $onClick;
+						}
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
-						
 					} elseif (!$dragdropImage) {
 						$onClick = 'return insertElement('.$onClick_params.');';
 						$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
@@ -1116,7 +1126,7 @@ if (is_string($allowedFileTypes)) {
 	 * Values:
 	 * 0: form field name reference
 	 * 1: old/unused?
-	 * 2: old/unused?
+	 * 2: RTEConfigParams
 	 * 3: allowed types. Eg. "tt_content" or "gif,jpg,jpeg,tif,bmp,pcx,tga,png,pdf,ai"
 	 * 4: allowed file types when tx_dam table. Eg. "gif,jpg,jpeg,tif,bmp,pcx,tga,png,pdf,ai"
 	 *
