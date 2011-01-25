@@ -74,6 +74,7 @@ if (!defined ('PATH_txdam')) {
 require_once(PATH_txdam.'lib/class.tx_dam_browsetrees.php');
 require_once(PATH_txdam.'lib/class.tx_dam_scbase.php');
 require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
+require_once(PATH_site.'typo3/class.browse_links.php');
 
 
 
