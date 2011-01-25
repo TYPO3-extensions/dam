@@ -1,5 +1,6 @@
 2011-01-25  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #10408: No replacement of special characters after upload in non-UTF-8-installations (Thanks Lorenz Ulrich)
+	* Fix #15342: Call to deprecated function in class.tx_dam_tcefunc.php (Thanks Lorenz Ulrich)
 
 2011-01-23  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #17218: Media>List>Process doesn't work in 1.1 branch and trunk (Thanks Lorenz Ulrich)
