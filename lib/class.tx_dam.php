@@ -447,11 +447,9 @@ class tx_dam {
 			$filename .= '_';
 		}
 
-			// handle UTF-8 characters
-		if ($GLOBALS['TYPO3_CONF_VARS']['BE']['forceCharset'] == 'utf-8' && $GLOBALS['TYPO3_CONF_VARS']['SYS']['UTF8filesystem'])	{
-				// allow ".", "-", 0-9, a-z, A-Z and everything beyond U+C0 (latin capital letter a with grave)
-			$filename = preg_replace('/[\x00-\x2C\/\x3A-\x3F\x5B-\x60\x7B-\xBF]/u','_', $filename);
-		}
+			// use TYPO3 cleanFileName function
+		$basicFileFuncObj = t3lib_div::makeInstance('t3lib_basicFileFunctions');
+		$filename = $basicFileFuncObj->cleanFileName($filename);
 		
 		$maxFileNameLength = $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] ? $GLOBALS['TYPO3_CONF_VARS']['SYS']['maxFileNameLength'] : 60;
 		if ($crop AND strlen($filename) > $maxFileNameLength) {
