@@ -40,8 +40,9 @@ TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover {
 IMG.typo3-icon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; text-decoration: none; }
 IMG.c-recicon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 1px; text-decoration: none; }
 
-DIV.typo3-DBctrl { padding:2px; }
-DIV.typo3-DBctrl IMG { margin-left: 1px; margin-right: 1px; }
+div.typo3-DBctrl { padding:2px; }
+div.typo3-DBctrl img { margin-left: 1px; margin-right: 1px; float: left; }
+div.typo3-DBctrl a { float: left; }
 TABLE.typo3-dblist TR TD.c-headLine { background-color: #e0e0e0; }
 td.c-actionBar { background-color: #e0e0e0; }
 td.c-actionBar div { margin: 2px 0px 2px 0px;  vertical-align: middle; font-size:0.99em; line-height:2em;}
@@ -147,3 +148,6 @@ div#typo3-inner-docbody { padding:10px 10pt 10px 10px; }
 
 	/* From class.tx_dam_tools_mimetypes */
 th { font-size: 10px; color: #ffffff; font-weight: bold; background-color: #a2aab8; text-align: left; }
+
+
+
