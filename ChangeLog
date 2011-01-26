@@ -3,6 +3,7 @@
 	* Fix #15342: Call to deprecated function in class.tx_dam_tcefunc.php (Thanks Lorenz Ulrich)
 	* Fix #16809: Cannot modify media links in rtehtmlarea (Thanks Lorenz Ulrich)
 	* Fix #16297: htmlArea RTE: Unable to create links if DAM is installed.
+	* Update ext_emconf.php following release of 1.1.8
 
 2011-01-23  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #17218: Media>List>Process doesn't work in 1.1 branch and trunk (Thanks Lorenz Ulrich)
