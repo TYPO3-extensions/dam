@@ -1,6 +1,7 @@
 2011-01-26  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #9777: Usability issues with the DAM media browser (Thanks Lorenz Ulrich)
 	* Fix #16964: Adjust backend layout to TYPO3 4.5
+	* Fix #15078: Add TSConfig documentation
 
 2011-01-26  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #17322: DBctrl Icons are not floating
