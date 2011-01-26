@@ -98,7 +98,7 @@ span.spacer1em  { position:relative; margin-left:1em;}
 #c-upload input { margin: 0 0 0.3em 0; }
 
 #c-select { padding-bottom:0.8em; }
-#c-createFolders div { margin-bottom:0.8em; }			
+#c-createFolders div { margin-bottom:0.8em; }
 
 div.infobar { display:block; width:100%; min-height:2.5em; padding:0px 0 0px 0; /*background-color:#e6e9eb;*/ border-bottom: 1px solid #888; }
 
@@ -126,7 +126,7 @@ div.infobar div.infobar-content td { vertical-align:middle; }
 #c-select { margin: 1.5em 0 0.8em 0; }
 #c-createFolders div { margin-bottom:0.8em; }
 
-	
+
 
 	/* Custom, or from inline elements */
 div#debugContent { background-color:#eee; border:1px solid #888; padding:5px; }
@@ -145,6 +145,7 @@ div#itemsFooter { background-color:#eee; border:1px solid #888; padding:5px; }
 span#titleWrap { color:grey;vertical-align:top; }
 div#languageSwitch { margin:0 0.5em 0.4em auto; text-align:right; }
 div#typo3-inner-docbody { padding:10px 10pt 10px 10px; }
+div#typo3-docbody { background-color: #EBEBEB; }
 
 	/* From class.tx_dam_tools_mimetypes */
 th { font-size: 10px; color: #ffffff; font-weight: bold; background-color: #a2aab8; text-align: left; }
