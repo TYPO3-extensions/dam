@@ -902,7 +902,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @param	string		The action target for the form. Default is this script.
 	 * @return	string		HTML for the search box
 	 */
-	function getSearchBox($mode='simple', $useFormTag=false, $formAction='')	{
+	function getSearchBox($mode='simple', $useFormTag=false, $formAction='', $noToggle=false)	{
 
 			// Setting form-elements, if applicable:
 		$formElements = array('', '');
@@ -911,20 +911,40 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$formElements = array('<form action="'.htmlspecialchars($formAction).'" method="post">', '</form>');
 		}
 
-			// Table with the search box:
-		$content.= $formElements[0].'
-				<!--
-					Search box:
-				-->
-				<table border="0" cellpadding="2" cellspacing="0" class="bgColor4">
-					<tr>
-						<td> '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.enterSearchString',1).' <input type="text" name="SLCMD[SEARCH][txdamStrSearch][0]" value="'.htmlspecialchars($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth(10).' /></td>
-						<td><input type="submit" name="search" value="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.search',1).'" /></td>
-					</tr>
-				</table>
-			'.$formElements[1];
+		$content = '';
 
-		return $this->buttonToggleDisplay('searchbox', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.search',1), $content, $this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]);
+			// The search form has no display toggle button
+		if($noToggle) {
+
+			$searchTerm = isset($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]) ? htmlspecialchars($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]) : $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:tree.searchTermInfo',1);
+
+			$content .= '<div id="searchbox">';
+			$content .= $formElements[0];
+			$content .= '<input id="searchString" type="text" onfocus="if (this.value == \'' . $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:tree.searchTermInfo',1) . '\') {this.value=\'\'}" name="SLCMD[SEARCH][txdamStrSearch][0]" value="' . $searchTerm . '" /><input type="submit" id="search" name="search" value="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.search',1).'" />';
+			$content .= $formElements[1];
+			$content .= '</div>';
+
+			return $content;
+
+		}
+			// Standard behaviour, the search form is wrapped in a display toggle button
+		else {
+
+				// Table with the search box:
+			$content.= $formElements[0].'
+					<!--
+						Search box:
+					-->
+					<table border="0" cellpadding="2" cellspacing="0" class="bgColor4">
+						<tr>
+							<td> '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.enterSearchString',1).' <input type="text" name="SLCMD[SEARCH][txdamStrSearch][0]" value="'.htmlspecialchars($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth(10).' /></td>
+							<td><input type="submit" name="search" value="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.search',1).'" /></td>
+						</tr>
+					</table>
+				'.$formElements[1];
+
+			return $this->buttonToggleDisplay('searchbox', $GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.search',1), $content, $this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]);
+		}
 	}
 
 
