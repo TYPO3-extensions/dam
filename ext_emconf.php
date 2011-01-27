@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'description' => 'The Digital Asset Management (DAM) is simply a tool for organizing digital media assets for storage and retrieval. Metadata can be used to search and organize image, text, audio, video (...) files.',
 	'category' => 'module',
 	'shy' => 0,
-	'version' => '1.2.0-dev',
+	'version' => '1.2.1-dev',
 	'dependencies' => 'cms,static_info_tables',
 	'conflicts' => 'dam_file,dam_info,mmforeign',
 	'suggests' => '',
@@ -38,7 +38,7 @@ $EM_CONF[$_EXTKEY] = array(
 			'cms' => '',
 			'static_info_tables' => '',
 			'php' => '5.2.6-0.0.0',
-			'typo3' => '4.3.0-0.0.0',
+			'typo3' => '4.5.0-0.0.0',
 		),
 		'conflicts' => array(
 			'dam_file' => '',
