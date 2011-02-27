@@ -106,6 +106,11 @@ require_once(PATH_txdam.'binding/softref/ext_localconf.php');
 	// txdam attribute on img tag for FE
 require_once(PATH_txdam.'binding/imgtag/ext_localconf.php');
 
+	// txdam linkvalidator support
+if (t3lib_extMgm::isLoaded('linkvalidator')) {
+	require_once(PATH_txdam.'binding/linkvalidator/ext_localconf.php');
+}
+
 	// FE stuff
 
 $pluginContent = t3lib_div::getUrl(PATH_txdam.'pi/setup.txt');

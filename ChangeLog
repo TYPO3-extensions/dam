@@ -1,3 +1,6 @@
+2011-02-27  Dan Osipov <dosipov@phillyburbs.com>
+	* Added feature #17379: dam is not linkvalidator aware (Thanks Michael Miousse)
+
 2011-01-26  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #9777: Usability issues with the DAM media browser (Thanks Lorenz Ulrich)
 	* Fix #16964: Adjust backend layout to TYPO3 4.5
