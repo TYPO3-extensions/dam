@@ -1,3 +1,6 @@
+2011-03-05  Dan Osipov <dosipov@phillyburbs.com>
+	* Follow up to #17379: dam is not linkvalidator aware: Added manual section.
+
 2011-02-27  Dan Osipov <dosipov@phillyburbs.com>
 	* Added feature #17379: dam is not linkvalidator aware (Thanks Michael Miousse)
 
