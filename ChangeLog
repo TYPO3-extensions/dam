@@ -1,6 +1,7 @@
 2011-03-05  Dan Osipov <dosipov@phillyburbs.com>
 	* Follow up to #17379: dam is not linkvalidator aware: Added manual section.
 	* Added feature #14009: Feature: Enable secure downloads for DAM files (Thanks Francois Suter)
+	* Update ext_emconf.php following release of 1.2.1
 
 2011-02-27  Dan Osipov <dosipov@phillyburbs.com>
 	* Added feature #17379: dam is not linkvalidator aware (Thanks Michael Miousse)
