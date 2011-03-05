@@ -66,6 +66,8 @@ $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/show_item.php']['typeRendering'][] = 'EXT:
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_media.php:&tx_dam_browse_media';
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_category.php:&tx_dam_browse_category';
 $TYPO3_CONF_VARS['SC_OPTIONS']['typo3/browse_links.php']['browserRendering'][] = 'EXT:dam/class.tx_dam_browse_folder.php:&tx_dam_browse_folder';
+	// register secure downloads processor
+$TYPO3_CONF_VARS['SC_OPTIONS']['tslib/class.tslib_fe.php']['checkDataSubmission'][] = 'EXT:dam/lib/class.tx_dam_tsfe.php:&tx_dam_tsfe';
 
 tx_dam::register_indexingRule ('tx_damindex_rule_recursive', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_recursive');
 tx_dam::register_indexingRule ('tx_damindex_rule_folderAsCat', 'EXT:dam/components/class.tx_dam_index_rules.php:&tx_dam_index_rule_folderAsCat');

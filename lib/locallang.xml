@@ -175,6 +175,8 @@
 			<label index="softref_key_typolink">Link to file</label>
 			<label index="softref_key_typolink_tag">Link to file</label>
 			<label index="softref_key_file_copy">Inserted file copy</label>
+			<label index="downloadError">Download error</label>
+			<label index="downloadFailed">The requested file could not be downloaded. Perhaps it was not found on the server or you don't have the proper access rights. Maybe you need to authenticate yourself before attempting to download the file.</label>
 			<label index="media_types_new">New Media Type</label>
 			<label index="mimetypes">Media Types</label>
 			<label index="deleteWarning">Are you sure you want to delete this media type?</label>

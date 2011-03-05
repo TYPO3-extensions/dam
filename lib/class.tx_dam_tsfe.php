@@ -180,6 +180,60 @@ class tx_dam_tsfe {
 		return $label;
 	}
 
+	/**
+	 * This method hooks into the data submission process to try and assemble a jumpurl
+	 * based on a reference to a DAM record passed with the locationData query variable
+	 *
+	 * @param tslib_fe $parentObject Back-reference to the calling tslib_fe object
+	 * @return void
+	 */
+	public function checkDataSubmission(tslib_fe $parentObject) {
+		$locationData = (string)t3lib_div::_GP('locationData');
+		if (!empty($locationData)) {
+			$locationDataParts = explode(':', $locationData);
+				// Three parts are expected: a page id, a table name and a record id
+			if (count($locationDataParts) == 3) {
+					// Consider only references to the DAM
+				if ($locationDataParts[1] == 'tx_dam') {
+					$recordId = intval($locationDataParts[2]);
+					if (!empty($recordId)) {
+							/** @var $media txdam_media */
+						$media = tx_dam::media_getByUid($recordId);
+							// If the file is indeed available, set its path as the Jump URL
+						if ($media->isAvailable) {
+							$metaData = $media->getMetaArray();
+							$parentObject->jumpurl = $metaData['file_path'] . $metaData['file_name'];
+
+							// If the file is not available, issue error message
+						} else {
+								// If a hook is declared, call the hook for error handling
+							if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['secureDownloadErrorHandler'])) {
+								foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['secureDownloadErrorHandler'] as $classReference) {
+									$errorHandler = t3lib_div::getUserObj($classReference);
+									$errorHandler->handleDownloadError($locationDataParts, $parentObject);
+								}
+
+								// In the absence of hooks, just print a standard error message and exit the process
+							} else {
+									// Instantiate local language object
+									/** @var $languageObject language */
+								$languageObject = t3lib_div::makeInstance('language');
+									// Get language code, if defined
+								if (!empty($GLOBALS['TSFE']->config['config']['language'])) {
+									$languageObject->lang = $GLOBALS['TSFE']->config['config']['language'];
+									if (!empty($GLOBALS['TSFE']->config['config']['language_alt'])) {
+										$languageObject->lang = $GLOBALS['TSFE']->config['config']['language_alt'];
+									}
+								}
+								$parentObject->printError($languageObject->sL('LLL:EXT:dam/lib/locallang.xml:downloadFailed'), $languageObject->sL('LLL:EXT:dam/lib/locallang.xml:downloadError'));
+								exit;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/lib/class.tx_dam_tsfe.php'])	{
