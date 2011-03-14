@@ -223,7 +223,7 @@ CREATE TABLE tx_dam (
   KEY t3ver_oid (t3ver_oid),
   KEY file_type (file_type),
   KEY file_hash (file_hash),
-  KEY file_name (file_name(32))
+  KEY file_name (file_name)
 );
 
 
