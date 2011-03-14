@@ -1,5 +1,6 @@
 2011-03-14  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #17583: ALTER TABLE fails during update of tx_dam (Thanks Tobias Schaefer)
+	* Feature #17530: Enable full stdWrap in tx_dam_tsfe::fetchFileList() (Thanks Francois Suter)
 
 2011-03-05  Dan Osipov <dosipov@phillyburbs.com>
 	* Follow up to #17379: dam is not linkvalidator aware: Added manual section.

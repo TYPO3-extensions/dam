@@ -95,23 +95,39 @@ class tx_dam_tsfe {
 			}
 		}
 
-		$uid      = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
-		$refTable = ($conf['refTable'] && is_array($GLOBALS['TCA'][$conf['refTable']])) ? $conf['refTable'] : 'tt_content';
+			// Get the uid of the current object
+		$refUid = $this->cObj->data['_LOCALIZED_UID'] ? $this->cObj->data['_LOCALIZED_UID'] : $this->cObj->data['uid'];
+			// Override uid, if defined
+		if (isset($conf['refUid']) || isset($conf['refUid.'])) {
+			$uid = trim($this->cObj->stdWrap($conf['refUid'], $conf['refUid.']));
+			if (!empty($uid)) {
+				$refUid = $uid;
+			}
+		}
+			// Get the reference table
+			// Default is tt_content
+		$refTable = 'tt_content';
+		if (isset($conf['refTable']) || isset($conf['refTable.'])) {
+			$table = trim($this->cObj->stdWrap($conf['refTable'], $conf['refTable.']));
+			if (!empty($table) && is_array($GLOBALS['TCA'][$table])) {
+				$refTable = $table;
+			}
+		}
 
 		if (isset($GLOBALS['BE_USER']->workspace) && $GLOBALS['BE_USER']->workspace !== 0) {
 			$workspaceRecord = $GLOBALS['TSFE']->sys_page->getWorkspaceVersionOfRecord(
 				$GLOBALS['BE_USER']->workspace,
 				$refTable,
-				$uid,
+				$refUid,
 				'uid'
 			);
 
 			if (is_array($workspaceRecord)) {
-				$uid = $workspaceRecord['uid'];
+				$refUid = $workspaceRecord['uid'];
 			}
 		}
 
-		$damFiles = tx_dam_db::getReferencedFiles($refTable, $uid, $refField);
+		$damFiles = tx_dam_db::getReferencedFiles($refTable, $refUid, $refField);
 
 		$files = array_merge($files, $damFiles['files']);
 
