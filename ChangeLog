@@ -1,3 +1,6 @@
+2011-03-14  Lorenz Ulrich <lorenz.ulrich@visol.ch>
+	* Fix #17459: Removed all translations 
+
 2011-01-25  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #10408: No replacement of special characters after upload in non-UTF-8-installations (Thanks Lorenz Ulrich)
 	* Fix #15342: Call to deprecated function in class.tx_dam_tcefunc.php (Thanks Lorenz Ulrich)

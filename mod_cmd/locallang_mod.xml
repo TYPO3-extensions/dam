@@ -17,8 +17,6 @@
             <label index="mlang_labels_tablabel">Command</label>
             <label index="mlang_labels_tabdescr"></label>
         </languageKey>
-        <languageKey index="de" type="array">
-        </languageKey>
     </data>
     <orig_hash type="array">
         <languageKey index="default" type="array">
@@ -26,13 +24,9 @@
             <label index="mlang_labels_tablabel" type="integer">250182624</label>
             <label index="mlang_labels_tabdescr" type="integer">222419149</label>
         </languageKey>
-        <languageKey index="de" type="array">
-        </languageKey>
     </orig_hash>
     <orig_text type="array">
         <languageKey index="default" type="array">
-        </languageKey>
-        <languageKey index="de" type="array">
         </languageKey>
     </orig_text>
 </T3locallang>

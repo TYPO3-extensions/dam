@@ -13,22 +13,14 @@
         <languageKey index="default" type="array">
             <label index="title">List</label>
         </languageKey>
-        <languageKey index="de" type="array">
-            <label index="title">Liste</label>
-        </languageKey>
     </data>
     <orig_hash type="array">
         <languageKey index="default" type="array">
             <label index="title" type="integer">82717130</label>
         </languageKey>
-        <languageKey index="de" type="array">
-            <label index="title" type="integer">82717130</label>
-        </languageKey>
     </orig_hash>
     <orig_text type="array">
         <languageKey index="default" type="array">
-        </languageKey>
-        <languageKey index="de" type="array">
         </languageKey>
     </orig_text>
 </T3locallang>

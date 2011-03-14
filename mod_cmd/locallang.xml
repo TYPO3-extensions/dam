@@ -59,37 +59,6 @@
             <label index="tx_dam_cmd_filemove.message">Are you sure you want to move the file(s) to '%s'?</label>
             <label index="tx_dam_cmd_filemove.submit">Move file</label>
         </languageKey>
-        <languageKey index="de" type="array">
-            <label index="messageCmdDenied">Sie sind nicht berechtigt das Komando '%s' auszuführen.</label>
-            <label index="labelWarning">Warnung:</label>
-            <label index="labelCmdProcess">Anwenden</label>
-            <label index="labelCmdSave">Sichern</label>
-            <label index="labelCmdSaveClose">Sichern &amp; Schließen</label>
-            <label index="labelTargetFolder">Zielverzeichnis:</label>
-            <label index="tx_dam_cmd_filerename.title_file">Datei umbenennen</label>
-            <label index="tx_dam_cmd_filerename.title_folder">Verzeichnis umbenennen</label>
-            <label index="tx_dam_cmd_filereplace.title">Datei ersetzen</label>
-            <label index="tx_dam_cmd_filedelete.warning">Achtung</label>
-            <label index="tx_dam_cmd_filedelete.title">Datei löschen</label>
-            <label index="tx_dam_cmd_filedelete.message">Sind Sie sicher, dass Sie die Datei(en) und zugehörige Meta-Daten löschen wollen?</label>
-            <label index="tx_dam_cmd_filedelete.messageReferencesUsed">Datei wird als Inhalt verwendet!</label>
-            <label index="tx_dam_cmd_filedelete.messageReferencesDelete">Wird die Datei gelöscht, so wird sie auch aus den Inhaltselementen entfernt.</label>
-            <label index="tx_dam_cmd_filedelete.messageReferences">Die Datei wird in folgenden Inhaltselementen verwendet.</label>
-            <label index="tx_dam_cmd_filedelete.references">Verwendung</label>
-            <label index="tx_dam_cmd_filedelete.submit">Datei löschen</label>
-            <label index="tx_dam_cmd_foldernew.title">Verzeichnis anlegen</label>
-            <label index="tx_dam_cmd_folderdelete.title">Verzeichnis löschen</label>
-            <label index="tx_dam_cmd_folderdelete.messageRecursive">Das Verzeichnis ist nicht leer.</label>
-            <label index="tx_dam_cmd_folderdelete.messageRecursiveDenied">Das Verzeichnis ist nicht leer und kann nicht gelöscht werden.</label>
-            <label index="tx_dam_cmd_filenew.title">Text-Datei anlegen</label>
-            <label index="tx_dam_cmd_filenew.text_content">Text-Inhalt:</label>
-            <label index="tx_dam_cmd_filecopy.title">Datei kopieren</label>
-            <label index="tx_dam_cmd_filecopy.message">Sind Sie sicher, dass Sie die Datei(en) nach '%s' kopieren wollen?</label>
-            <label index="tx_dam_cmd_filecopy.submit">Datei kopieren</label>
-            <label index="tx_dam_cmd_filemove.title">Datei verschieben</label>
-            <label index="tx_dam_cmd_filemove.message">Sind Sie sicher, dass Sie die Datei(en) nach '%s' verschieben wollen?</label>
-            <label index="tx_dam_cmd_filemove.submit">Datei verschieben</label>
-        </languageKey>
     </data>
     <orig_hash type="array">
         <languageKey index="default" type="array">
@@ -108,20 +77,9 @@
             <label index="tx_dam_cmd_foldernew.title" type="integer">98311831</label>
             <label index="tx_dam_cmd_filenew.title" type="integer">163060686</label>
         </languageKey>
-        <languageKey index="de" type="array">
-            <label index="tx_dam_cmd_filereplace.title" type="integer">137137852</label>
-            <label index="tx_dam_cmd_filedelete.warning" type="integer">15379892</label>
-            <label index="tx_dam_cmd_filedelete.title" type="integer">163509798</label>
-            <label index="tx_dam_cmd_filedelete.message" type="integer">244786145</label>
-            <label index="tx_dam_cmd_filedelete.messageReferences" type="integer">198266306</label>
-            <label index="tx_dam_cmd_filedelete.references" type="integer">207901063</label>
-            <label index="tx_dam_cmd_filedelete.submit" type="integer">163509798</label>
-        </languageKey>
     </orig_hash>
     <orig_text type="array">
         <languageKey index="default" type="array">
-        </languageKey>
-        <languageKey index="de" type="array">
         </languageKey>
     </orig_text>
 </T3locallang>
