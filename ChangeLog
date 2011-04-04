@@ -1,3 +1,6 @@
+2011-03-05  Dan Osipov <dosipov@phillyburbs.com>
+	* Fix #15478: Remove exclude = 1 for required fields of tx_dam table (Thanks Lorenz Ulrich)
+
 2011-03-14  Lorenz Ulrich <lorenz.ulrich@visol.ch>
 	* Fix #17583: ALTER TABLE fails during update of tx_dam (Thanks Tobias Schaefer)
 	* Feature #17530: Enable full stdWrap in tx_dam_tsfe::fetchFileList() (Thanks Francois Suter)

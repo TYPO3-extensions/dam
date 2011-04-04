@@ -212,7 +212,7 @@ $TCA['tx_dam'] = array(
 		 */
 
 		'file_name' => array(
-			'exclude' => '1',
+			'exclude' => 0,
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_name',
@@ -226,7 +226,7 @@ $TCA['tx_dam'] = array(
 			)
 		),
 		'file_path' => array(
-			'exclude' => '1',
+			'exclude' => 0,
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path',
@@ -249,7 +249,7 @@ $TCA['tx_dam'] = array(
 			)
 		),
 		'file_type' => array(
-			'exclude' => '1',
+			'exclude' => 0,
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_type',
