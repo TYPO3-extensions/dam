@@ -358,11 +358,11 @@ class tx_dam_db {
 
 			// data change - always before a deletion
 		$tce->process_datamap();
-		if (count($this->errorLog)) return false;
+		if (count($tce->errorLog)) return false;
 
 			// delete record when requested
 		$tce->process_cmdmap();
-		if (count($this->errorLog)) return false;
+		if (count($tce->errorLog)) return false;
 
 
 		if ($id === 'NEW') {
