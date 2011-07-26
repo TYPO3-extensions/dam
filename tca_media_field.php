@@ -15,13 +15,11 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config'] = array (
 	'form_type' => 'user',
 	'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->getSingleField_typeMedia',
 
-	'userProcessClass' => 'EXT:mmforeign/class.tx_mmforeign_tce.php:tx_mmforeign_tce',
 	'type' => 'group',
 	'internal_type' => 'db',
 	'allowed' => 'tx_dam',
 	'prepend_tname' => 1,
 	'MM' => 'tx_dam_mm_ref',
-	'MM_foreign_select' => 1, // obsolete in 4.1
 	'MM_opposite_field' => 'file_usage',
 	'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
@@ -42,13 +40,11 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] = array (
 	'form_type' => 'user',
 	'userFunc' => 'EXT:dam/lib/class.tx_dam_tcefunc.php:&tx_dam_tceFunc->getSingleField_typeMedia',
 
-	'userProcessClass' => 'EXT:mmforeign/class.tx_mmforeign_tce.php:tx_mmforeign_tce',
 	'type' => 'group',
 	'internal_type' => 'db',
 	'allowed' => 'tx_dam',
 	'prepend_tname' => 1,
 	'MM' => 'tx_dam_mm_ref',
-	'MM_foreign_select' => 1, // obsolete in 4.1
 	'MM_opposite_field' => 'file_usage',
 	'MM_match_fields' => array('ident' => 'relation_field_or_other_ident'), #### has to be changed in table
 
@@ -62,13 +58,6 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config'] = array (
 	'autoSizeMax' => 30,
 	'softref' => 'dam_mm_ref',
 );
-
-
-if (t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
-	unset($GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_config']['userProcessClass']);
-	unset($GLOBALS['T3_VAR']['ext']['dam']['TCA']['image_config']['userProcessClass']);
-}
-
 
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['media_field'] = array (
 	'label' => 'LLL:EXT:cms/locallang_ttc.php:media',
