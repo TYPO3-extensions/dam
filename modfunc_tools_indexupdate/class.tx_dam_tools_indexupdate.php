@@ -274,9 +274,11 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			case 'index.process':
 				$this->pObj->addParams['process'] = 1;
 
+				$backendCharset = $this->pObj->doc->getPageRenderer()->getCharset();
+
 				echo '<head>
 					<title>indexing</title>
-					<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+					<meta http-equiv="Content-Type" content="text/html; charset=' . $backendCharset . '">
 					</head>
 					<body>';
 
