@@ -1,0 +1,44 @@
+plugin.tx_dam {
+	view {
+		templateRootPath = {$plugin.tx_dam.view.templateRootPath}
+		partialRootPath = {$plugin.tx_dam.view.partialRootPath}
+		layoutRootPath = {$plugin.tx_dam.view.layoutRootPath}
+	}
+	persistence {
+		storagePid = {$plugin.tx_dam.persistence.storagePid}
+	}
+}
+
+plugin.tx_dam._CSS_DEFAULT_STYLE (
+	input.f3-form-error {
+		background-color:#FF9F9F;
+		border: 1px #FF0000 solid;
+	}
+
+	.tx-dam table {
+		border-collapse:separate;
+		border-spacing:10px;
+	}
+
+	.tx-dam table th {
+		font-weight:bold;
+	}
+
+	.tx-dam table td {
+		vertical-align:top;
+	}
+)
+
+
+
+ # Module configuration
+module.tx_dam {
+	persistence {
+		storagePid = {$module.tx_dam.persistence.storagePid}
+	}
+	view {
+		templateRootPath = {$module.tx_dam.view.templateRootPath}
+		partialRootPath = {$module.tx_dam.view.partialRootPath}
+		layoutRootPath = {$module.tx_dam.view.layoutRootPath}
+	}
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>Context Sensitive Help (CSH) for table tx_dam_domain_model_collection</description>
+		<type>CSH</type>
+		<csh_table>tx_dam_domain_model_collection</csh_table>
+	</meta>
+	<data type="array">
+	<languageKey index="default" type="array">
+			<label index="collection_name.description">Collection name</label>
+			<label index="description.description">Description</label>
+			<label index="visibility.description">Visibility</label>
+			<label index="assets.description">Assets</label>
+		</languageKey>
+	</data>
+</T3locallang>
