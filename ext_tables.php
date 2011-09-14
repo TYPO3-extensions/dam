@@ -22,23 +22,33 @@ if (TYPO3_MODE === 'BE') {
 	/**
 	 * Registers a Backend Module
 	 */
-	Tx_Extbase_Utility_Extension::registerModule(
+	/*Tx_Extbase_Utility_Extension::registerModule(
 		$_EXTKEY,
 		'tools',	 // Make module a submodule of 'tools'
 		'dam',	// Submodule key
 		'',						// Position
 		array(
 			'Asset' => 'show, list, new, create, edit, update, delete',
-+			'Collection' => 'list, show, new, create, edit, update, delete',
-+			'Filter' => 'list, show, new, create, edit, update, delete',
-+			'File' => 'show, list, new, create, edit, update, delete',
+			'Collection' => 'list, show, new, create, edit, update, delete',
+			'Filter' => 'list, show, new, create, edit, update, delete',
+			'File' => 'show, list, new, create, edit, update, delete',
 		),
 		array(
 			'access' => 'user,group',
 			'icon'   => 'EXT:' . $_EXTKEY . '/ext_icon.gif',
 			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_dam.xml',
 		)
-	);
+	);*/
+
+	/** @var Tx_Vidi_Service_ModuleLoader $moduleLoader */
+	$moduleLoader = t3lib_div::makeInstance('Tx_Vidi_Service_ModuleLoader', $_EXTKEY);
+	$moduleLoader->addStandardTree(Tx_Vidi_Service_ModuleLoader::TREE_FILES);
+	$moduleLoader->setAllowedDataTypes(array('__FILES'));
+	$moduleLoader->setMainModule('file');
+	$moduleLoader->setModuleLanguageFile('LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_dam.xml');
+	$moduleLoader->setIcon('EXT:' . $_EXTKEY . '/ext_icon.gif');
+	$moduleLoader->register();
+
 
 }
 
