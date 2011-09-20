@@ -7,6 +7,10 @@
 	<data type="array">
 		<languageKey index="default" type="array">
 			<label index="tx_dam_domain_model_asset">Asset</label>
+			<label index="tx_dam_domain_model_asset.status">Status</label>
+			<label index="tx_dam_domain_model_asset.status.1">Ok</label>
+			<label index="tx_dam_domain_model_asset.status.2">Pending</label>
+			<label index="tx_dam_domain_model_asset.status.3">Under review</label>
 			<label index="tx_dam_domain_model_asset.title">Title</label>
 			<label index="tx_dam_domain_model_asset.description">Description</label>
 			<label index="tx_dam_domain_model_asset.keywords">Keywords</label>
@@ -23,23 +27,45 @@
 			<label index="tx_dam_domain_model_asset.caption">Caption</label>
 			<label index="tx_dam_domain_model_asset.fal">Fal</label>
 			<label index="tx_dam_domain_model_asset.asset_type">Asset Type</label>
+			<label index="tx_dam_domain_model_asset.asset_type.1">Text</label>
+			<label index="tx_dam_domain_model_asset.asset_type.2">Image</label>
+			<label index="tx_dam_domain_model_asset.asset_type.3">Video</label>
+			<label index="tx_dam_domain_model_asset.asset_type.4">Audio</label>
+			<label index="tx_dam_domain_model_asset.width">Width</label>
+			<label index="tx_dam_domain_model_asset.height">Height</label>
+			<label index="tx_dam_domain_model_asset.unit">Unit</label>
+			<label index="tx_dam_domain_model_asset.pages">Pages</label>
+			<label index="tx_dam_domain_model_asset.note">Note</label>
+			<label index="tx_dam_domain_model_asset.language">Asset language</label>
+			<label index="tx_dam_domain_model_asset.horizontal_resolution">Horizontal resolution</label>
+			<label index="tx_dam_domain_model_asset.vertical_resolution">Vertical resolution</label>
+			<label index="tx_dam_domain_model_asset.color_space">Color space</label>
+			<label index="tx_dam_domain_model_asset.publisher">Publisher</label>
+			
 			<label index="tx_dam_domain_model_collection">Collection</label>
 			<label index="tx_dam_domain_model_collection.collection_name">Collection Name</label>
 			<label index="tx_dam_domain_model_collection.description">Description</label>
 			<label index="tx_dam_domain_model_collection.visibility">Visibility</label>
 			<label index="tx_dam_domain_model_collection.assets">Assets</label>
+			
 			<label index="tx_dam_domain_model_filter">Filter</label>
 			<label index="tx_dam_domain_model_filter.filter_name">Filter Name</label>
 			<label index="tx_dam_domain_model_filter.description">Description</label>
 			<label index="tx_dam_domain_model_filter.criteria">Criteria</label>
 			<label index="tx_dam_domain_model_assettype">Asset Type</label>
 			<label index="tx_dam_domain_model_assettype.asset_type">Asset Type</label>
+			
 			<label index="tx_dam_domain_model_file">File</label>
 			<label index="tx_dam_domain_model_file.name">Name</label>
+			
 			<label index="tx_dam_domain_model_mimetype">Mime Type</label>
 			<label index="tx_dam_domain_model_mimetype.mime_type">Mime Type</label>
 			<label index="tx_dam_domain_model_mimetype.mime_type_name">Mime Type Name</label>
 			<label index="tx_dam_domain_model_mimetype.asset_type">Asset Type</label>
+			
+			<label index="tabs.metrics">Metrics</label>
+			<label index="tabs.copyright">Copyright</label>
+			<label index="tabs.file">File</label>
 		</languageKey>
 	</data>
 </T3locallang>

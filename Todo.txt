@@ -1,0 +1,14 @@
+Add field to Asset Domain Model
+
+* note
+* status
+* language
+* publisher
+
+Add location
+
+Create Specific Domain Model
+* Text
+* Image
+* Video
+* Audio
