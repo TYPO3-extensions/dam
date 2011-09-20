@@ -36,7 +36,7 @@ CREATE TABLE tx_dam_domain_model_asset (
 	horizontal_resolution int(11) unsigned DEFAULT '0' NOT NULL,
 	vertical_resolution int(11) unsigned DEFAULT '0' NOT NULL,
 	# RGB,sRGB,YUV, ...
-	color_space varchar(4) DEFAULT '' NOT NULL,	color_space
+	color_space varchar(4) DEFAULT '' NOT NULL,
 
 	# TEXT ASSET
 	# text document include x pages
@@ -99,9 +99,7 @@ CREATE TABLE tx_dam_domain_model_collection (
 	endtime int(11) unsigned DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
-	KEY parent (pid),
-	KEY t3ver_oid (t3ver_oid,t3ver_wsid),
-	KEY language (l10n_parent,sys_language_uid)
+	KEY parent (pid)
 );
 
 #
@@ -125,9 +123,7 @@ CREATE TABLE tx_dam_domain_model_filter (
 	endtime int(11) unsigned DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
-	KEY parent (pid),
-	KEY t3ver_oid (t3ver_oid,t3ver_wsid),
-	KEY language (l10n_parent,sys_language_uid)
+	KEY parent (pid)
 );
 
 #
@@ -137,21 +133,13 @@ CREATE TABLE tx_dam_domain_model_assettype (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
-
 	asset_type varchar(255) DEFAULT '' NOT NULL,
 
-	tstamp int(11) unsigned DEFAULT '0' NOT NULL,
-	crdate int(11) unsigned DEFAULT '0' NOT NULL,
-	cruser_id int(11) unsigned DEFAULT '0' NOT NULL,
 	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
 	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
-	starttime int(11) unsigned DEFAULT '0' NOT NULL,
-	endtime int(11) unsigned DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
-	KEY parent (pid),
-	KEY t3ver_oid (t3ver_oid,t3ver_wsid),
-	KEY language (l10n_parent,sys_language_uid)
+	KEY parent (pid)
 );
 
 #
@@ -200,23 +188,15 @@ CREATE TABLE tx_dam_domain_model_mimetype (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
-
 	mime_type varchar(255) DEFAULT '' NOT NULL,
 	mime_type_name varchar(255) DEFAULT '' NOT NULL,
 	asset_type int(11) unsigned DEFAULT '0',
 
-	tstamp int(11) unsigned DEFAULT '0' NOT NULL,
-	crdate int(11) unsigned DEFAULT '0' NOT NULL,
-	cruser_id int(11) unsigned DEFAULT '0' NOT NULL,
 	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
 	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
-	starttime int(11) unsigned DEFAULT '0' NOT NULL,
-	endtime int(11) unsigned DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
-	KEY parent (pid),
-	KEY t3ver_oid (t3ver_oid,t3ver_wsid),
-	KEY language (l10n_parent,sys_language_uid)
+	KEY parent (pid)
 );
 
 #

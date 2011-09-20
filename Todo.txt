@@ -5,7 +5,7 @@ Add field to Asset Domain Model
 * language
 * publisher
 
-Add location
+Add location fields
 
 Create Specific Domain Model
 * Text

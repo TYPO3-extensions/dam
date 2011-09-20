@@ -23,12 +23,12 @@ $TCA['tx_dam_domain_model_asset'] = array(
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
 		'3' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, keywords, identifier, source,
-									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, fal, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
 		'4' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, keywords, identifier, source,
+									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, fal, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
@@ -140,12 +140,12 @@ $TCA['tx_dam_domain_model_asset'] = array(
 					array(
 						'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.asset_type.3',
 						3,
-						t3lib_extMgm::extRelPath('dam') . 'Resources/Public/Icons/tx_dam_domain_model_video.png'
+						t3lib_extMgm::extRelPath('dam') . 'Resources/Public/Icons/tx_dam_domain_model_audio.png'
 					),
 					array(
 						'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.asset_type.4',
 						4,
-						t3lib_extMgm::extRelPath('dam') . 'Resources/Public/Icons/tx_dam_domain_model_audio.png'
+						t3lib_extMgm::extRelPath('dam') . 'Resources/Public/Icons/tx_dam_domain_model_video.png'
 					),
 				),
 			),

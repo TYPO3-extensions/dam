@@ -29,8 +29,8 @@
 			<label index="tx_dam_domain_model_asset.asset_type">Asset Type</label>
 			<label index="tx_dam_domain_model_asset.asset_type.1">Text</label>
 			<label index="tx_dam_domain_model_asset.asset_type.2">Image</label>
-			<label index="tx_dam_domain_model_asset.asset_type.3">Video</label>
-			<label index="tx_dam_domain_model_asset.asset_type.4">Audio</label>
+			<label index="tx_dam_domain_model_asset.asset_type.3">Audio</label>
+			<label index="tx_dam_domain_model_asset.asset_type.4">Video</label>
 			<label index="tx_dam_domain_model_asset.width">Width</label>
 			<label index="tx_dam_domain_model_asset.height">Height</label>
 			<label index="tx_dam_domain_model_asset.unit">Unit</label>
