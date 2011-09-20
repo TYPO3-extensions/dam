@@ -4,8 +4,10 @@ Add field to Asset Domain Model
 * status
 * language
 * publisher
+* location_country
+* location_region
+* location_city
 
-Add location fields
 
 Create Specific Domain Model
 * Text

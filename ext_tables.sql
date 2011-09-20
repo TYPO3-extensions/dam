@@ -22,8 +22,14 @@ CREATE TABLE tx_dam_domain_model_asset (
 	source varchar(255) DEFAULT '' NOT NULL,
 	alternative varchar(255) DEFAULT '' NOT NULL,
 	caption varchar(255) DEFAULT '' NOT NULL,
-	fal int(11) unsigned DEFAULT '0',
+	location_country varchar(45) DEFAULT '' NOT NULL,
+	location_region varchar(45) DEFAULT '' NOT NULL,
+	location_city varchar(45) DEFAULT '' NOT NULL,
+	latitude decimal(24,14) DEFAULT '0.00000000000000' NOT NULL,
+	longitude decimal(24,14) DEFAULT '0.00000000000000' NOT NULL,
+	ranking int(11) unsigned DEFAULT '0',
 	note text NOT NULL,
+	fal int(11) unsigned DEFAULT '0',
 
 	# TEXT + IMAGE + AUDIO + VIDEO
 	# 21 cm, 29.7 cm: A4

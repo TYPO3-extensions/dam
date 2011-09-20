@@ -10,24 +10,25 @@ $TCA['tx_dam_domain_model_asset'] = array(
 	),
 	'types' => array(
 		
-		'1' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, keywords, identifier, source,
+		'1' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, ranking, keywords, identifier, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, fal, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'2' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, alternative, caption, keywords, identifier, source,
+		'2' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, alternative, caption, ranking, keywords, identifier, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher,
+									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.geolocation, location_country, location_region, location_city, latitude, longitude,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, fal, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'3' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, keywords, identifier, source,
+		'3' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, ranking, keywords, identifier, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, fal, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'4' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, keywords, identifier, source,
+		'4' => array('showitem' => 'asset_type, sys_language_uid, l10n_parent, l10n_diffsource, hidden, status, title, description, language, alternative, caption, ranking, keywords, identifier, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, fal, creation_date, modification_date, download_name,
@@ -121,9 +122,7 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			'exclude' => 0,
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.asset_type',
 			'config' => array(
-				//'type' => 'inline',
 				'type' => 'select',
-				#'foreign_table' => 'tx_dam_domain_model_assettype',
 				'minitems' => 1,
 				'maxitems' => 1,
 				'items' => array(
@@ -334,6 +333,71 @@ $TCA['tx_dam_domain_model_asset'] = array(
 				'cols' => 40,
 				'rows' => 15,
 				'eval' => 'trim'
+			),
+		),
+		'location_country' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.location_country',
+			'config' => array(
+				'type' => 'input',
+				'size' => 30,
+				'eval' => 'trim'
+			),
+		),
+		'location_region' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.location_region',
+			'config' => array(
+				'type' => 'input',
+				'size' => 30,
+				'eval' => 'trim'
+			),
+		),
+		'location_city' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.location_city',
+			'config' => array(
+				'type' => 'input',
+				'size' => 30,
+				'eval' => 'trim'
+			),
+		),
+		'latitude' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.latitude',
+			'config' => array(
+				'type' => 'input',
+				'size' => '20',
+				'eval' => 'trim',
+				'max' => '30',
+				'default' => '0.00000000000000'
+			),
+		),
+		'longitude' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.longitude',
+			'config' => array(
+				'type' => 'input',
+				'size' => '20',
+				'eval' => 'trim',
+				'max' => '30',
+				'default' => '0.00000000000000'
+			),
+		),
+		'ranking' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.ranking',
+			'config' => array(
+				'type' => 'select',
+				'minitems' => 1,
+				'maxitems' => 1,
+				'items' => array(
+					array(1,1),
+					array(2,2),
+					array(3,3),
+					array(4,4),
+					array(5,5),
+				),
 			),
 		),
 		'language' => array(

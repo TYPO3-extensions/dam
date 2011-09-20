@@ -41,6 +41,12 @@
 			<label index="tx_dam_domain_model_asset.vertical_resolution">Vertical resolution</label>
 			<label index="tx_dam_domain_model_asset.color_space">Color space</label>
 			<label index="tx_dam_domain_model_asset.publisher">Publisher</label>
+			<label index="tx_dam_domain_model_asset.location_country">Pays</label>
+			<label index="tx_dam_domain_model_asset.location_region">Region</label>
+			<label index="tx_dam_domain_model_asset.location_city">City</label>
+			<label index="tx_dam_domain_model_asset.latitude">Latitude</label>
+			<label index="tx_dam_domain_model_asset.longitude">Longitude</label>
+			<label index="tx_dam_domain_model_asset.ranking">Ranking</label>
 			
 			<label index="tx_dam_domain_model_collection">Collection</label>
 			<label index="tx_dam_domain_model_collection.collection_name">Collection Name</label>
@@ -66,6 +72,7 @@
 			<label index="tabs.metrics">Metrics</label>
 			<label index="tabs.copyright">Copyright</label>
 			<label index="tabs.file">File</label>
+			<label index="tabs.geolocation">Geolocation</label>
 		</languageKey>
 	</data>
 </T3locallang>
