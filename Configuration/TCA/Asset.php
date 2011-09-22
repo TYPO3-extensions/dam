@@ -120,6 +120,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'asset_type' => array(
 			'exclude' => 0,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.asset_type',
 			'config' => array(
 				'type' => 'select',
@@ -150,7 +152,7 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'status' => array(
-			'exclude' => 0,
+			'exclude' => 1,
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.status',
 			'config' => array(
 				'type' => 'select',
@@ -203,7 +205,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'mime_type' => array(
-			'exclude' => 0,
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.mime_type',
 			'config' => array(
 				'type' => 'input',
@@ -212,7 +216,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'extension' => array(
-			'exclude' => 0,
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.extension',
 			'config' => array(
 				'type' => 'input',
@@ -221,7 +227,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'creation_date' => array(
-			'exclude' => 0,
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.creation_date',
 			'config' => array(
 				'type' => 'input',
@@ -233,7 +241,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'modification_date' => array(
-			'exclude' => 0,
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.modification_date',
 			'config' => array(
 				'type' => 'input',
@@ -245,7 +255,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'creator_tool' => array(
-			'exclude' => 0,
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.creator_tool',
 			'config' => array(
 				'type' => 'input',
@@ -255,6 +267,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'download_name' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.download_name',
 			'config' => array(
 				'type' => 'input',
@@ -264,6 +278,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'identifier' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.identifier',
 			'config' => array(
 				'type' => 'input',
@@ -273,6 +289,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'creator' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.creator',
 			'config' => array(
 				'type' => 'input',
@@ -282,6 +300,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'publisher' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.publisher',
 			'config' => array(
 				'type' => 'input',
@@ -318,6 +338,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'pages' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.pages',
 			'config' => array(
 				'type' => 'input',
@@ -337,6 +359,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'location_country' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.location_country',
 			'config' => array(
 				'type' => 'input',
@@ -346,6 +370,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'location_region' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.location_region',
 			'config' => array(
 				'type' => 'input',
@@ -355,6 +381,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'location_city' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.location_city',
 			'config' => array(
 				'type' => 'input',
@@ -364,6 +392,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'latitude' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.latitude',
 			'config' => array(
 				'type' => 'input',
@@ -375,6 +405,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'longitude' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.longitude',
 			'config' => array(
 				'type' => 'input',
@@ -401,7 +433,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		'language' => array(
-			'exclude' => '1',
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.language',
 			'config' => array(
 				'type' => 'input',
@@ -414,7 +448,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		 * METRICS ###########################################
 		 */
 		'horizontal_resolution' => array(
-			'exclude' => '1',
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.horizontal_resolution',
 			'config' => array(
 				'type' => 'input',
@@ -425,7 +461,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			)
 		),
 		'vertical_resolution' => array(
-			'exclude' => '1',
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.vertical_resolution',
 			'config' => array(
 				'type' => 'input',
@@ -436,7 +474,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			)
 		),
 		'color_space' => array(
-			'exclude' => '1',
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.color_space',
 			'l10n_mode' => 'exclude',
 			'config' => array(
@@ -456,6 +496,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'width' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.width',
 			'config' => array(
 				'type' => 'input',
@@ -467,6 +509,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'height' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.height',
 			'config' => array(
 				'type' => 'input',
@@ -478,6 +522,8 @@ $TCA['tx_dam_domain_model_asset'] = array(
 		),
 		'unit' => array(
 			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.unit',
 			'config' => array(
 				'type' => 'select',
