@@ -40,16 +40,17 @@ if (TYPO3_MODE === 'BE') {
 		)
 	);*/
 
-	/** @var Tx_Vidi_Service_ModuleLoader $moduleLoader */
-	$moduleLoader = t3lib_div::makeInstance('Tx_Vidi_Service_ModuleLoader', $_EXTKEY);
-	$moduleLoader->addStandardTree(Tx_Vidi_Service_ModuleLoader::TREE_FILES);
-	$moduleLoader->setAllowedDataTypes(array('__FILES'));
-	$moduleLoader->setMainModule('file');
-	$moduleLoader->setModuleLanguageFile('LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_dam.xml');
-	$moduleLoader->setIcon('EXT:' . $_EXTKEY . '/ext_icon.gif');
-	$moduleLoader->register();
-
-
+	// Make sure the class exists to avoid a Runtime Error
+	if (class_exists('Tx_Vidi_Service_ModuleLoader')) {
+		/** @var Tx_Vidi_Service_ModuleLoader $moduleLoader */
+		$moduleLoader = t3lib_div::makeInstance('Tx_Vidi_Service_ModuleLoader', $_EXTKEY);
+		$moduleLoader->addStandardTree(Tx_Vidi_Service_ModuleLoader::TREE_FILES);
+		$moduleLoader->setAllowedDataTypes(array('__FILES'));
+		$moduleLoader->setMainModule('file');
+		$moduleLoader->setModuleLanguageFile('LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_dam.xml');
+		$moduleLoader->setIcon('EXT:' . $_EXTKEY . '/ext_icon.gif');
+		$moduleLoader->register();
+	}
 }
 
 
