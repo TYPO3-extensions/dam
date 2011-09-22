@@ -31,12 +31,15 @@ CREATE TABLE tx_dam_domain_model_asset (
 	note text NOT NULL,
 	fal int(11) unsigned DEFAULT '0',
 
-	# TEXT + IMAGE + AUDIO + VIDEO
+	# TEXT + IMAGE + VIDEO
 	# 21 cm, 29.7 cm: A4
 	width float unsigned DEFAULT '0' NOT NULL,
 	height float unsigned DEFAULT '0' NOT NULL,
 	# px,mm,cm,m,p, ...
 	unit char(3) DEFAULT '' NOT NULL,
+
+	# AUDIO + VIDEO
+	duration float unsigned DEFAULT '0' NOT NULL,
 
 	# IMAGE
 	horizontal_resolution int(11) unsigned DEFAULT '0' NOT NULL,

@@ -31,12 +31,14 @@
 			<label index="tx_dam_domain_model_asset.asset_type.2">Image</label>
 			<label index="tx_dam_domain_model_asset.asset_type.3">Audio</label>
 			<label index="tx_dam_domain_model_asset.asset_type.4">Video</label>
+			<label index="tx_dam_domain_model_asset.asset_type.5">Software</label>
 			<label index="tx_dam_domain_model_asset.width">Width</label>
 			<label index="tx_dam_domain_model_asset.height">Height</label>
 			<label index="tx_dam_domain_model_asset.unit">Unit</label>
 			<label index="tx_dam_domain_model_asset.pages">Pages</label>
 			<label index="tx_dam_domain_model_asset.note">Note</label>
 			<label index="tx_dam_domain_model_asset.language">Asset language</label>
+			<label index="tx_dam_domain_model_asset.duration">Duration</label>
 			<label index="tx_dam_domain_model_asset.horizontal_resolution">Horizontal resolution</label>
 			<label index="tx_dam_domain_model_asset.vertical_resolution">Vertical resolution</label>
 			<label index="tx_dam_domain_model_asset.color_space">Color space</label>
@@ -47,6 +49,7 @@
 			<label index="tx_dam_domain_model_asset.latitude">Latitude</label>
 			<label index="tx_dam_domain_model_asset.longitude">Longitude</label>
 			<label index="tx_dam_domain_model_asset.ranking">Ranking</label>
+			<label index="tx_dam_domain_model_asset.thumbnail">Thumbnail</label>
 			
 			<label index="tx_dam_domain_model_collection">Collection</label>
 			<label index="tx_dam_domain_model_collection.collection_name">Collection Name</label>
