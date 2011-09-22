@@ -145,7 +145,77 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	 * @var Tx_Dam_Domain_Model_AssetType
 	 */
 	protected $assetType;
+	
+	/**
+	 * Status
+	 *
+	 * @var string
+	 */
+	protected $status;
+	
+	/**
+	 * Language
+	 *
+	 * @var string
+	 */
+	protected $language;
+	
+	/**
+	 * Publisher
+	 *
+	 * @var string
+	 */
+	protected $publisher;
+	
+	/**
+	 * LocationCountry
+	 *
+	 * @var string
+	 */
+	protected $locationCountry;
+	
+	/**
+	 * LocationRegion
+	 *
+	 * @var string
+	 */
+	protected $locationRegion;
+	
+	/**
+	 * LocationRegion
+	 *
+	 * @var string
+	 */
+	protected $locationRegion;
+	
+	/**
+	 * LocationCity
+	 *
+	 * @var string
+	 */
+	protected $locationCity;
+	
+	/**
+	 * Latitude
+	 *
+	 * @var float
+	 */
+	protected $latitude;
+	
+	/**
+	 * Rank
+	 *
+	 * @var int
+	 */
+	protected $rank;
 
+	/**
+	 * Note
+	 *
+	 * @var string
+	 */
+	protected $note;
+	
 	/**
 	 * __construct
 	 *
@@ -174,7 +244,7 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	public function setTitle($title) {
 		$this->title = $title;
 	}
-
+	
 	/**
 	 * Returns the identifier
 	 *
@@ -468,6 +538,195 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	public function setCaption($caption) {
 		$this->caption = $caption;
 	}
+	
+	/**
+	 * Returns the status
+	 *
+	 * @return string $status
+	 */
+	public function getStatus() {
+		return $this->status;
+	}
 
+	/**
+	 * Sets the status
+	 *
+	 * @param string $status
+	 * @return void
+	 */
+	public function setStatus($status) {
+		$this->status = $status;
+	}
+	
+	/**
+	 * Returns the language
+	 *
+	 * @return string $language
+	 */
+	public function getLanguage() {
+		return $this->language;
+	}
+
+	/**
+	 * Sets the language
+	 *
+	 * @param string $language
+	 * @return void
+	 */
+	public function setLanguage($language) {
+		$this->language = $language;
+	}
+	
+	/**
+	 * Returns the publisher
+	 *
+	 * @return string $publisher
+	 */
+	public function getPublisher() {
+		return $this->publisher;
+	}
+
+	/**
+	 * Sets the publisher
+	 *
+	 * @param string $publisher
+	 * @return void
+	 */
+	public function setPublisher($publisher) {
+		$this->publisher = $publisher;
+	}
+	
+	/**
+	 * Returns the locationCountry
+	 *
+	 * @return string $locationCountry
+	 */
+	public function getLocationCountry() {
+		return $this->locationCountry;
+	}
+
+	/**
+	 * Sets the locationCountry
+	 *
+	 * @param string $locationCountry
+	 * @return void
+	 */
+	public function setLocationCountry($locationCountry) {
+		$this->locationCountry = $locationCountry;
+	}
+	
+	/**
+	 * Returns the locationRegion
+	 *
+	 * @return string $locationRegion
+	 */
+	public function getLocationRegion() {
+		return $this->locationRegion;
+	}
+
+	/**
+	 * Sets the locationRegion
+	 *
+	 * @param string $locationRegion
+	 * @return void
+	 */
+	public function setLocationRegion($locationRegion) {
+		$this->locationRegion = $locationRegion;
+	}
+	
+	/**
+	 * Returns the locationRegion
+	 *
+	 * @return string $locationRegion
+	 */
+	public function getLocationRegion() {
+		return $this->locationRegion;
+	}
+
+	/**
+	 * Sets the locationRegion
+	 *
+	 * @param string $locationRegion
+	 * @return void
+	 */
+	public function setLocationRegion($locationRegion) {
+		$this->locationRegion = $locationRegion;
+	}
+	
+	/**
+	 * Returns the locationCity
+	 *
+	 * @return string $locationCity
+	 */
+	public function getLocationCity() {
+		return $this->locationCity;
+	}
+
+	/**
+	 * Sets the locationCity
+	 *
+	 * @param string $locationCity
+	 * @return void
+	 */
+	public function setLocationCity($locationCity) {
+		$this->locationCity = $locationCity;
+	}
+	
+	/**
+	 * Returns the latitude
+	 *
+	 * @return string $latitude
+	 */
+	public function getLatitude() {
+		return $this->latitude;
+	}
+
+	/**
+	 * Sets the latitude
+	 *
+	 * @param string $latitude
+	 * @return void
+	 */
+	public function setLatitude($latitude) {
+		$this->latitude = $latitude;
+	}
+	
+	/**
+	 * Returns the rank
+	 *
+	 * @return string $rank
+	 */
+	public function getRank() {
+		return $this->rank;
+	}
+
+	/**
+	 * Sets the rank
+	 *
+	 * @param string $rank
+	 * @return void
+	 */
+	public function setRank($rank) {
+		$this->rank = $rank;
+	}
+	
+	/**
+	 * Returns the note
+	 *
+	 * @return string $note
+	 */
+	public function getNote() {
+		return $this->note;
+	}
+
+	/**
+	 * Sets the note
+	 *
+	 * @param string $note
+	 * @return void
+	 */
+	public function setNote($note) {
+		$this->note = $note;
+	}
 }
 ?>

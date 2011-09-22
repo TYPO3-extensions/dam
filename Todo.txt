@@ -1,14 +1,3 @@
-Add field to Asset Domain Model
-
-* note
-* status
-* language
-* publisher
-* location_country
-* location_region
-* location_city
-
-
 Create Specific Domain Model
 * Text
 * Image
