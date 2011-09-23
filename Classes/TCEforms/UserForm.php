@@ -22,7 +22,6 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-
 /**
  * TCEform custom field for DAM 
  *
@@ -31,7 +30,23 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class tx_dam_tceforms {
+class Tx_Dam_TCEforms_UserForm {
+	
+	/**
+	 * The extension key
+	 * 
+	 * @var string
+	 */
+	protected $extKey = 'dam';
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+
+			// Load preferences
+		$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+	}
 	
 	/**
 	 * This method renders the user-defined thumbnails for DAM purpose
@@ -42,12 +57,14 @@ class tx_dam_tceforms {
 	 * @return	string	The HTML for the form field
 	 */
 	public function renderThumbnail($PA, t3lib_TCEforms $fobj) {
-
-		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/Thumbnail.html';
 		
 			// Instantiate a Fluid stand-alone view and load the template file
+		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/Thumbnail.html';
 		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
 		$view->setTemplatePathAndFilename($filePath);
+		
+		$view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
+		$view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
 		
 		return $view->render();
 	}
