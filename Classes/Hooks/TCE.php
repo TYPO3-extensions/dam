@@ -34,6 +34,40 @@
 class Tx_Dam_Hooks_TCE {
 
 	/**
+	 * The extension key
+	 * 
+	 * @var string
+	 */
+	protected $extKey = 'dam';
+	
+	/**
+	 * @var t3lib_vfs_Factory
+	 */
+	protected $factory;
+
+	/**
+	 * @var t3lib_vfs_Domain_Repository_MountRepository
+	 */
+	protected $mountRepository;
+
+	/**
+	 * Initializes the controller before invoking an action method.
+	 *
+	 * @return void
+	 */
+	protected function initializeAction() {
+		
+			// Load preferences
+		if ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]) {
+			$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+		}
+		
+		$this->factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
+
+		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+	}
+
+	/**
 	 * delete file when record is deleted
 	 */
 //	function processCmdmap_preProcess($command, $table, $id, $value, $tce) {
@@ -55,9 +89,32 @@ class Tx_Dam_Hooks_TCE {
 			if (!empty($pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'])) {
 				$file = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
 				
-//				t3lib_utility_Debug::debug($file, '$file');
-//				exit();
+				$this->initializeAction();
+				
 				// @todo create a FAL instance
+				#$mountUid = $this->request->getArgument('mount');
+				$mountUid = 1;
+				/** @var $mount t3lib_vfs_Domain_Model_Mount */
+				$mount = $this->mountRepository->findByUid($mountUid);
+
+				$path = Tx_Dam_Configuration_Static::$assetDirectory;
+				
+				/** @var $uploader t3lib_vfs_Service_UploaderService */
+				$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');
+				
+				if (isset($file['name'])) {
+					if ($file['error']['file']) {
+						// TODO handle error
+					}
+					
+					$tempfileName = $file['tmp_name'];
+					$origFilename = $file['name'];
+					$uploader->addUploadedFile($tempfileName, $mount, $path, $origFilename);
+				}
+					// TODO multiple files
+				//$uploader->addUploadedFile();
+
+//				$this->redirect('list', NULL, NULL, array('mount' => $mountUid, 'path' => $path));
 				
 				// @todo extract metadata service
 			}

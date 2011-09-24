@@ -130,7 +130,7 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.thumbnail',
 			'config' => array(
 				'form_type' => 'user',
-				'userFunc' => 'EXT:dam/Classes/TCEforms/UserForm.php:&Tx_Dam_TCEforms_UserForm->renderThumbnail',
+				'userFunc' => 'EXT:dam/Classes/TCEforms/UserField.php:&Tx_Dam_TCEforms_UserField->renderThumbnail',
 				'noTableWrapping' => TRUE,
 				'readOnly' => TRUE,
 			),

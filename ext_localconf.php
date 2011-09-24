@@ -25,4 +25,5 @@ Tx_Extbase_Utility_Extension::configurePlugin(
 
 	// register special TCE tx_dam processing
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:dam/Classes/Hooks/TCE.php:&Tx_Dam_Hooks_TCE';
+
 ?>

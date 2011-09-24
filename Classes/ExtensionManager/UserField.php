@@ -27,7 +27,7 @@
 /**
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  */
-class Tx_Dam_ExtensionManager_Configurator {
+class Tx_Dam_ExtensionManager_UserField {
 
 	/**
 	 * The extension key
@@ -42,16 +42,20 @@ class Tx_Dam_ExtensionManager_Configurator {
 	 * @var array
 	 */
 	protected $configuration = array();
+	
+	/**
+	 * @var t3lib_vfs_Domain_Repository_MountRepository
+	 */
+	protected $mountRepository;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
 
-			// Load preferences
+			// Load configuration
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]) {
 			$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-			
 		}
 		
 			// Merge with Data that comes from the User
@@ -59,16 +63,25 @@ class Tx_Dam_ExtensionManager_Configurator {
 		if (!empty($postData['data'])) {
 			$this->configuration = array_merge($this->configuration, $postData['data']);
 		}
+		
+		/** @var $mount t3lib_vfs_Domain_Model_Mount */
+		if ($this->configuration['storage'] > 0) {
+			$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+			$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
+		}
 	}
 	
 	/**
-	 * Display a message to the Extension Manager whether the database needs to be updated or not.
+	 * Display a message to the Extension Manager whether the configuration is OK or KO.
 	 *
+	 * @param array $params
+	 * @param object $tsObj t3lib_tsStyleConfig
 	 * @return string the HTML message
 	 */
-	public function displayMessage(&$params, &$tsObj) {
+	public function renderMessage(&$params, &$tsObj) {
 		$out = '';
-		
+
+
 		if ($this->needsUpdate()) {
 			$out .= '
 			<div style="">
@@ -88,10 +101,14 @@ class Tx_Dam_ExtensionManager_Configurator {
 			
 			$actionOut = '';
 			$actions = array();
-			if ($this->createDirectory()) {
-				$actions[] = 'Created new directory within "' . PATH_site . $this->configuration['dam_path'] . '"';
+			
+				// Create default directory for DAM
+			if ($this->createDefaultDirectory()) {
+				$absoluteBasePath = $this->mount->getDriver()->getAbsoluteBasePath();
+				$actions[] = 'Created new default directory within "' . $absoluteBasePath . '"';
 			}
 			
+				// Report to the BE User
 			if (!empty($actions)) {
 				$actionOut = '<span style="text-decoratoin: underline; font-weight: bold;">Action(s) executed:</span>';
 				$actionOut .= '<ul><li>' . implode('<li></li>', $actions) . ' </li></ul>';
@@ -131,22 +148,21 @@ class Tx_Dam_ExtensionManager_Configurator {
 	 *
 	 * @return boolean
 	 */
-	protected function createDirectory($statements) {
+	protected function createDefaultDirectory() {
 		
 		$result = FALSE;
 		
-		$directories[] = PATH_site . $this->configuration['dam_path'];
-		$directories[] = $directories[0] . '/Assets';
-		$directories[] = $directories[0] . '/Thumbnails';
-		$directories[] = $directories[0] . '/Deleted';
+		$directories[] = Tx_Dam_Configuration_Static::$assetDirectory;
+		$directories[] = Tx_Dam_Configuration_Static::$thumbnailDirectory;
+		$directories[] = Tx_Dam_Configuration_Static::$deletedDirectory;
 		
+		$absoluteBasePath = $this->mount->getDriver()->getAbsoluteBasePath();
 		foreach ($directories as $directory) {
-			if (! is_dir($directory)) {
-
+			if (! is_dir($absoluteBasePath . $directory)) {
 				try {
-					mkdir($directory);
+					$this->mount->getDriver()->createCollection($directory);
 					$result = TRUE;
-				}
+								}
 				catch(Exception $e) {
 					throw new Exception('Exception 1316752944: not able to create a directory at ' . $directory, 1316752944);
 				}
@@ -154,6 +170,42 @@ class Tx_Dam_ExtensionManager_Configurator {
 		}
 		
 		return $result;
+	}
+	
+	
+	/**
+	 * Render the storage list Field
+	 *
+	 * @return string
+	 */
+	public function renderStorage() {
+		
+		/* @var t3lib_DB */
+		$records = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_file_storage', 'deleted = 0');
+		
+		if (empty($records)) {
+			$output = $GLOBALS['LANG']->sL('LLL:EXT:dam/Resources/Private/Language/locallang_dam.xml:em_error_missing_storage');
+		}
+		else {
+			$options = '';
+			foreach ($records as $record) {
+				$selected = '';
+				
+				if ($this->configuration['storage'] == $record['uid']) {
+					$selected = 'selected="selected"';
+				}
+				$options .= '<option value="' . $record['uid'] . '" ' . $selected .'>' . $record['name'] . '</option>';
+			}
+
+			$output = <<<EOF
+				<div class="typo3-tstemplate-ceditor-row" id="userTS-storage">
+					<select id="data[storage]" type="text" name="data[storage]">
+						$options
+					</select>
+				</div>
+EOF;
+		}
+		return $output;
 	}
 }
 
