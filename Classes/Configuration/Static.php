@@ -33,9 +33,9 @@
  */
 class Tx_Dam_Configuration_Static {
 
-	public static $assetDirectory = 'DAM/Assets';
-	public static $thumbnailDirectory = 'DAM/Thumbnails';
-	public static $deletedDirectory = 'DAM/Deleted';
+	public static $assetDirectory = 'AssetStorage/Assets/';
+	public static $thumbnailDirectory = 'AssetStorage/Thumbnails/';
+	public static $deletedDirectory = 'AssetStorage/Deleted/';
 }
 
 ?>
