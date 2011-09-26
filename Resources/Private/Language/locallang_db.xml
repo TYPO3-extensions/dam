@@ -16,8 +16,8 @@
 			<label index="tx_dam_domain_model_asset.keywords">Keywords</label>
 			<label index="tx_dam_domain_model_asset.mime_type">Mime Type</label>
 			<label index="tx_dam_domain_model_asset.extension">Extension</label>
-			<label index="tx_dam_domain_model_asset.creation_date">Creation Date</label>
-			<label index="tx_dam_domain_model_asset.modification_date">Modification Date</label>
+			<label index="tx_dam_domain_model_asset.creation_date">Content Creation Date</label>
+			<label index="tx_dam_domain_model_asset.modification_date">Content Modification Date</label>
 			<label index="tx_dam_domain_model_asset.creator_tool">Creator Tool</label>
 			<label index="tx_dam_domain_model_asset.download_name">Download Name</label>
 			<label index="tx_dam_domain_model_asset.identifier">Identifier</label>
@@ -73,9 +73,11 @@
 			<label index="tx_dam_domain_model_mimetype.asset_type">Asset Type</label>
 			
 			<label index="tabs.metrics">Metrics</label>
+			<label index="tabs.language">Language</label>
 			<label index="tabs.visibility">Visibility</label>
 			<label index="tabs.copyright">Copyright</label>
 			<label index="tabs.file">File</label>
+			<label index="tabs.temporalInfo">Temporal Info</label>
 			<label index="tabs.geolocation">Geolocation</label>
 		</languageKey>
 	</data>
