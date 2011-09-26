@@ -38,6 +38,23 @@ class Tx_Dam_TCEforms_UserField {
 	 * @var string
 	 */
 	protected $extKey = 'dam';
+	
+	/**
+	 * The Template Engine
+	 * 
+	 * @var Tx_Fluid_View_StandaloneView
+	 */
+	protected $view = 'view';
+	
+	/**
+	 * @var t3lib_vfs_Domain_Repository_MountRepository
+	 */
+	protected $mountRepository;
+
+	/**
+	 * @var t3lib_vfs_Domain_Model_Mount
+	 */
+	protected $mount;
 
 	/**
 	 * Constructor
@@ -46,6 +63,13 @@ class Tx_Dam_TCEforms_UserField {
 
 			// Load preferences
 		$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+		
+			// Instantiate Template Engine
+		$this->view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
+		
+		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+
+		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
 	}
 	
 	/**
@@ -60,13 +84,14 @@ class Tx_Dam_TCEforms_UserField {
 		
 			// Instantiate a Fluid stand-alone view and load the template file
 		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/File.html';
-		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
-		$view->setTemplatePathAndFilename($filePath);
+		$this->view->setTemplatePathAndFilename($filePath);
 		
-		$view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
-		$view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
+		$record = $PA['row'];
 		
-		return $view->render();
+		$this->view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
+		$this->view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
+		
+		return $this->view->render();
 	}
 	
 	/**
