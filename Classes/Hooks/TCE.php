@@ -94,7 +94,7 @@ class Tx_Dam_Hooks_TCE {
 	public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $pObj) {
 		if ($table === 'tx_dam_domain_model_asset') {
 			$uploadedFile = array();
-			if (!empty($pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'])) {
+			if (!empty($pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'])) {
 				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
 
 				$this->initializeAction();

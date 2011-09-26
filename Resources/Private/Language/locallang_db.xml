@@ -73,6 +73,7 @@
 			<label index="tx_dam_domain_model_mimetype.asset_type">Asset Type</label>
 			
 			<label index="tabs.metrics">Metrics</label>
+			<label index="tabs.visibility">Visibility</label>
 			<label index="tabs.copyright">Copyright</label>
 			<label index="tabs.file">File</label>
 			<label index="tabs.geolocation">Geolocation</label>
