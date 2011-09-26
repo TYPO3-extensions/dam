@@ -8,16 +8,17 @@
 			<input type="file" accept="{mimeTypeAllowed}" class="formField tceforms-textfield" name="data[tx_dam_domain_model_asset][_userfuncFile][file]" id="tceforms-textfield-xyz">
 		</div>
 		<div>
-			<a id="" href="/fileadmin/user_upload/resources/1982-camps-pav-simulateur.jpg" target="_blank" class="thumbnailLink">
-				<img src="/typo3temp/ecomedias-180/1982-camps-pav-simulateur.jpg" alt="thumb" class="thumbnail">
+
+			<a id="" href="/{publicUrl}" target="_blank">
+				<f:format.html>{thumbnail}</f:format.html>
 			</a>
 			<div class="file-metainfo">
-				1500 x 1012 K
+<!--				1500 x 1012 K-->
 			</div>
 
 
 			<div style="font-size: 8pt;">
-				<a href="/fileadmin/user_upload/resources/1982-camps-pav-simulateur.jpg" target="_blank">1982-camps-pav-simulateur.jpg</a>
+				<a href="/{publicUrl}" target="_blank">{fileName}</a>
 			</div>
 		</div>
 	</td>

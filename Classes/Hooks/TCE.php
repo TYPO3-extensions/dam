@@ -63,15 +63,14 @@ class Tx_Dam_Hooks_TCE {
 	 */
 	protected function initializeAction() {
 
-		// Load preferences
+			// Load preferences
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]) {
 			$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		}
 
+			// Instantiate necessary stuff for FAL
 		$this->factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
-
 		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
-
 		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
 	}
 
@@ -135,7 +134,7 @@ class Tx_Dam_Hooks_TCE {
 
 			$tempfileName = $uploadedFile['tmp_name'];
 			$origFilename = $uploadedFile['name'];
-			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename);
+			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename, TRUE);
 		}
 		
 		return $file;

@@ -55,6 +55,13 @@ class Tx_Dam_TCEforms_UserField {
 	 * @var t3lib_vfs_Domain_Model_Mount
 	 */
 	protected $mount;
+	
+	/**
+	 * Is a child of t3lib_vfs_Service_Storage_AbstractDriver
+	 * 
+	 * @var object
+	 */
+	protected $driver;
 
 	/**
 	 * Constructor
@@ -67,9 +74,15 @@ class Tx_Dam_TCEforms_UserField {
 			// Instantiate Template Engine
 		$this->view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
 		
+			// Instantiate necessary stuff for FAL
 		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
-
 		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
+		$this->driver = $this->mount->getDriver();
+		
+			// Load StyleSheet in the Page Renderer
+		$this->pageRenderer = $GLOBALS['SOBE']->doc->getPageRenderer();
+		$cssFile = t3lib_extMgm::extRelPath('dam') . 'Resources/Public/StyleSheets/Dam.css';
+		$this->pageRenderer->addCssFile($cssFile);
 	}
 	
 	/**
@@ -88,14 +101,30 @@ class Tx_Dam_TCEforms_UserField {
 		
 		$record = $PA['row'];
 		
+			// @todo: check why it does not work
 		$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
 		$file = $fileRepository->findByUid($record['file']);
 		
-			// Generates Thumbnail
-		// TODO...
+			// @temporary code fileRepository
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('identifier', 'sys_file', 'uid = ' . $record['file']);
+		$file = $this->driver->getFile($rows[0]['identifier']);
+		$factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
+		$file = $factory->createFileObject($file);
 		
+			// Fetches the absolute file path
+		$fileAbsolutePath = $this->driver->getAbsolutePath($file);
+		
+			// Generates HTML for Thumbnail generation
+		$thumbnail = t3lib_BEfunc::getThumbNail('thumbs.php', $fileAbsolutePath,' align="middle" style="border:solid 1px #ccc;" class="tx-dam-thumbnail" ',160);
+			
+			// Fetches the Public URL of file
+		$publicUrl = $this->driver->getPublicUrl($file);
+		
+		$this->view->assign('fileName', $file->getName());
+		$this->view->assign('publicUrl', $publicUrl);
 		$this->view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
 		$this->view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
+		$this->view->assign('thumbnail', $thumbnail);
 		
 		return $this->view->render();
 	}
