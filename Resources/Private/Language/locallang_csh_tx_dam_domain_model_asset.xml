@@ -21,7 +21,7 @@
 			<label index="source.description">Source</label>
 			<label index="alternative.description">Alternative title</label>
 			<label index="caption.description">Caption</label>
-			<label index="fal.description">FAL</label>
+			<label index="file.description">File</label>
 			<label index="asset_type.description">Asset type</label>
 		</languageKey>
 	</data>

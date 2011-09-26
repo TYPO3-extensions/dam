@@ -133,11 +133,11 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	protected $caption;
 
 	/**
-	 * FAL
+	 * File
 	 *
 	 * @var Tx_Dam_Domain_Model_File
 	 */
-	protected $fal;
+	protected $file;
 
 	/**
 	 * Asset type
@@ -464,22 +464,22 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	}
 
 	/**
-	 * Returns the fal
+	 * Returns the file
 	 *
-	 * @return Tx_Dam_Domain_Model_File $fal
+	 * @return Tx_Dam_Domain_Model_File $file
 	 */
 	public function getFal() {
-		return $this->fal;
+		return $this->file;
 	}
 
 	/**
-	 * Sets the fal
+	 * Sets the file
 	 *
-	 * @param Tx_Dam_Domain_Model_File $fal
+	 * @param Tx_Dam_Domain_Model_File $file
 	 * @return void
 	 */
-	public function setFal(Tx_Dam_Domain_Model_File $fal) {
-		$this->fal = $fal;
+	public function setFal(Tx_Dam_Domain_Model_File $file) {
+		$this->file = $file;
 	}
 
 	/**

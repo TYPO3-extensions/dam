@@ -10,14 +10,14 @@ $TCA['tx_dam_domain_model_asset'] = array(
 	),
 	'types' => array(
 		
-		'1' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, fal, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'1' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, language, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'2' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, fal, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'2' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, file, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher, source,
@@ -25,21 +25,21 @@ $TCA['tx_dam_domain_model_asset'] = array(
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'3' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, fal, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'3' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, duration, unit,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, language, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'4' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, fal, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'4' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher, source,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.file, language, creation_date, modification_date, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'5' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, fal, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'5' => array('showitem' => 'asset_type, sys_language_uid, l10n_diffsource, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
 									--div--;LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tabs.copyright, creator, publisher, source,
@@ -579,9 +579,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			),
 		),
 		
-		'fal' => array(
+		'file' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.fal',
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.file',
 			'config' => array(
 				'type' => 'select',
 				'foreign_table' => 'sys_file',

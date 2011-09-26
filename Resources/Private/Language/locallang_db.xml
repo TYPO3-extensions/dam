@@ -25,7 +25,7 @@
 			<label index="tx_dam_domain_model_asset.source">Source</label>
 			<label index="tx_dam_domain_model_asset.alternative">Alternative</label>
 			<label index="tx_dam_domain_model_asset.caption">Caption</label>
-			<label index="tx_dam_domain_model_asset.fal">Fal</label>
+			<label index="tx_dam_domain_model_asset.file">Fal</label>
 			<label index="tx_dam_domain_model_asset.asset_type">Asset Type</label>
 			<label index="tx_dam_domain_model_asset.asset_type.1">Text</label>
 			<label index="tx_dam_domain_model_asset.asset_type.2">Image</label>

@@ -6,10 +6,10 @@ if (!defined ('TYPO3_MODE')) {
 $TCA['tx_dam_domain_model_asset'] = array(
 	'ctrl' => $TCA['tx_dam_domain_model_asset']['ctrl'],
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, description, keywords, mime_type, extension, creation_date, modification_date, creator_tool, download_name, identifier, creator, source, alternative, caption, fal, asset_type',
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, description, keywords, mime_type, extension, creation_date, modification_date, creator_tool, download_name, identifier, creator, source, alternative, caption, file, asset_type',
 	),
 	'types' => array(
-		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, title, description, keywords, mime_type, extension, creation_date, modification_date, creator_tool, download_name, identifier, creator, source, alternative, caption, fal, asset_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
+		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, title, description, keywords, mime_type, extension, creation_date, modification_date, creator_tool, download_name, identifier, creator, source, alternative, caption, file, asset_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 	),
 	'palettes' => array(
 		'1' => array('showitem' => ''),
@@ -227,9 +227,9 @@ $TCA['tx_dam_domain_model_asset'] = array(
 				'eval' => 'trim'
 			),
 		),
-		'fal' => array(
+		'file' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.fal',
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.file',
 			'config' => array(
 				'type' => 'inline',
 				'foreign_table' => 'tx_dam_domain_model_file',

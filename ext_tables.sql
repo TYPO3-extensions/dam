@@ -29,7 +29,7 @@ CREATE TABLE tx_dam_domain_model_asset (
 	longitude decimal(24,14) DEFAULT '0.00000000000000' NOT NULL,
 	ranking int(11) unsigned DEFAULT '0',
 	note text NOT NULL,
-	fal int(11) unsigned DEFAULT '0',
+	file int(11) unsigned DEFAULT '0',
 
 	# TEXT + IMAGE + VIDEO
 	# 21 cm, 29.7 cm: A4
