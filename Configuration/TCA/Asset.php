@@ -130,6 +130,16 @@ $TCA['tx_dam_domain_model_asset'] = array(
 				),
 			),
 		),
+		'file' => array(
+			'exclude' => 0,
+			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.file',
+			'config' => array(
+				'form_type' => 'user',
+				'userFunc' => 'EXT:dam/Classes/TCEforms/UserField.php:&Tx_Dam_TCEforms_UserField->renderFile',
+				'noTableWrapping' => TRUE,
+				'readOnly' => TRUE,
+			),
+		),
 		'thumbnail' => array(
 			'exclude' => 0,
 			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.thumbnail',
@@ -576,24 +586,6 @@ $TCA['tx_dam_domain_model_asset'] = array(
 					array('p', 'p'),
 				),
 				'default' => ''
-			),
-		),
-		
-		'file' => array(
-			'exclude' => 0,
-			'label' => 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset.file',
-			'config' => array(
-				'type' => 'select',
-				'foreign_table' => 'sys_file',
-				'minitems' => 1,
-				'maxitems' => 1,
-				/*'appearance' => array(
-					'collapse' => 0,
-					'levelLinksPosition' => 'top',
-					'showSynchronizationLink' => 1,
-					'showPossibleLocalizationRecords' => 1,
-					'showAllLocalizationLink' => 1
-				),*/
 			),
 		),
 	),

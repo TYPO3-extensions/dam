@@ -56,8 +56,30 @@ class Tx_Dam_TCEforms_UserField {
 	 *
 	 * @return	string	The HTML for the form field
 	 */
+	public function renderFile ($PA, t3lib_TCEforms $fobj) {
+		
+			// Instantiate a Fluid stand-alone view and load the template file
+		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/File.html';
+		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
+		$view->setTemplatePathAndFilename($filePath);
+		
+		$view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
+		$view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
+		
+		return $view->render();
+	}
+	
+	/**
+	 * This method renders the user-defined thumbnails for DAM purpose
+	 *
+	 * @param	array			$PA: information related to the field
+	 * @param	t3lib_tceforms	$fobj: reference to calling TCEforms object
+	 *
+	 * @return	string	The HTML for the form field
+	 */
 	public function renderThumbnail($PA, t3lib_TCEforms $fobj) {
 		
+		return 'todo';
 			// Instantiate a Fluid stand-alone view and load the template file
 		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/Thumbnail.html';
 		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
