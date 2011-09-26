@@ -1,5 +1,6 @@
 <?php
-/***************************************************************
+
+/* * *************************************************************
  *  Copyright notice
  *
  *  (c) 2011 
@@ -20,7 +21,7 @@
  *  GNU General Public License for more details.
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * ************************************************************* */
 
 /**
  * TCE hook handling
@@ -39,7 +40,7 @@ class Tx_Dam_Hooks_TCE {
 	 * @var string
 	 */
 	protected $extKey = 'dam';
-	
+
 	/**
 	 * @var t3lib_vfs_Factory
 	 */
@@ -51,20 +52,27 @@ class Tx_Dam_Hooks_TCE {
 	protected $mountRepository;
 
 	/**
+	 * @var t3lib_vfs_Domain_Model_Mount
+	 */
+	protected $mount;
+
+	/**
 	 * Initializes the controller before invoking an action method.
 	 *
 	 * @return void
 	 */
 	protected function initializeAction() {
-		
-			// Load preferences
+
+		// Load preferences
 		if ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]) {
 			$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		}
-		
+
 		$this->factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
 
 		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+
+		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
 	}
 
 	/**
@@ -72,7 +80,7 @@ class Tx_Dam_Hooks_TCE {
 	 */
 //	function processCmdmap_preProcess($command, $table, $id, $value, $tce) {
 //	}
-	
+
 	/**
 	 * status TXDAM_status_file_changed will be reset when record was edited
 	 *
@@ -84,51 +92,55 @@ class Tx_Dam_Hooks_TCE {
 	 * @return	void
 	 */
 	public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $pObj) {
-		if($table === 'tx_dam_domain_model_asset') {
-			$file = array();
+		if ($table === 'tx_dam_domain_model_asset') {
+			$uploadedFile = array();
 			if (!empty($pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'])) {
-				$file = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
-				
+				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
+
 				$this->initializeAction();
-				
-				// @todo create a FAL instance
-				#$mountUid = $this->request->getArgument('mount');
-				$mountUid = 1;
-				/** @var $mount t3lib_vfs_Domain_Model_Mount */
-				$mount = $this->mountRepository->findByUid($mountUid);
-
-				$path = Tx_Dam_Configuration_Static::$assetDirectory;
-				
-				/** @var $uploader t3lib_vfs_Service_UploaderService */
-				$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');
-				
-				if (isset($file['name'])) {
-					if ($file['error']['file']) {
-						// TODO handle error
-					}
-					
-					$tempfileName = $file['tmp_name'];
-					$origFilename = $file['name'];
-					$uploader->addUploadedFile($tempfileName, $mount, $path, $origFilename);
-				}
-					// TODO multiple files
-				//$uploader->addUploadedFile();
-
-//				$this->redirect('list', NULL, NULL, array('mount' => $mountUid, 'path' => $path));
+				$file = $this->upload($uploadedFile);
+				$this->index($file);
 				
 				// @todo extract metadata service
 			}
-			
-			#if ($rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'tx_dam', 'uid='.intval($id), '', '', 1, 'uid')) {
-			#	$row = $rows[$id];
-			#	if ($row['file_status']==TXDAM_status_file_changed) {
-			#		$fieldArray['file_status'] = TXDAM_status_file_ok;
-			#	}
-			#}
 		}
 	}
-	
-	
+
+	/**
+	 * Index the file into the database
+	 * 
+	 * @param string $file the file which has been uploaded
+	 */
+	protected function index($file) {
+		/** @var t3lib_vfs_Domain_Repository_FileRepository $fileRepository */
+		$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+		$fileRepository->addToIndex($file);
+	}
+
+	/**
+	 * Upload the file to the right directory
+	 * 
+	 * @param array $uploadedFile uploaded data of the file
+	 */
+	protected function upload($uploadedFile) {
+		$path = Tx_Dam_Configuration_Static::$assetDirectory;
+
+		/** @var $uploader t3lib_vfs_Service_UploaderService */
+		$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');
+
+		if (isset($uploadedFile['name'])) {
+			if ($uploadedFile['error']['file']) {
+				// TODO handle error
+			}
+
+			$tempfileName = $uploadedFile['tmp_name'];
+			$origFilename = $uploadedFile['name'];
+			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename);
+		}
+		
+		return $file;
+	}
+
 	/**
 	 * Track uploads/* files
 	 */
