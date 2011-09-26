@@ -88,6 +88,12 @@ class Tx_Dam_TCEforms_UserField {
 		
 		$record = $PA['row'];
 		
+		$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+		$file = $fileRepository->findByUid($record['file']);
+		
+			// Generates Thumbnail
+		// TODO...
+		
 		$this->view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
 		$this->view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
 		
