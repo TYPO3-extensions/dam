@@ -20,6 +20,10 @@ require_once(PATH_txdam.'lib/class.tx_dam.php');
 	// include basic image stuff because it's used so often
 require_once(PATH_txdam.'lib/class.tx_dam_image.php');
 
+	// no savedocnew for tx_dam
+t3lib_extMgm::addUserTSConfig('
+    options.saveDocNew.tx_dam = 0
+');
 
 	// get extension setup
 $TYPO3_CONF_VARS['EXTCONF']['dam']['setup'] = unserialize($_EXTCONF);
