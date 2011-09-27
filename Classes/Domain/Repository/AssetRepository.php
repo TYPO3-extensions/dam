@@ -33,5 +33,26 @@
  */
 class Tx_Dam_Domain_Repository_AssetRepository extends Tx_Extbase_Persistence_Repository {
 
+	/**
+	 * Update a DAM asset with new information
+	 *
+	 * @param	string		$uid of the DAM asset
+	 * @return	array		file information
+	 */
+	public function updateAsset($uid, $metaData) {
+
+		//TODO finish work
+
+		$data = array();
+		$data['tx_dam_domain_model_asset'][$uid] = array(
+			'title' => 'New title'
+		);
+
+		$tce = t3lib_div::makeInstance ('t3lib_TCEmain');
+		$tce->start ($data, array());
+		$tce->process_datamap ();
+
+	}
+
 }
 ?>
