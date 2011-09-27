@@ -67,6 +67,7 @@
 
 require_once(PATH_t3lib.'class.t3lib_foldertree.php');
 require_once(PATH_t3lib.'class.t3lib_scbase.php');
+require_once(PATH_txdam . 'lib/class.tx_dam_iterator_dir.php');
 
 
 
@@ -418,8 +419,15 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 */
 	function getFolderTree($files_path, $depth=999, $depthData='')	{
 
-			// This generates the directory tree
-		$dirs = t3lib_div::get_dirs($files_path);
+		/** @var $directoryListObject tx_dam_iterator_dir */
+		$directoryListObject = t3lib_div::makeInstance('tx_dam_iterator_dir');
+		if ($foldersDisplayExcludeByRegex = tx_dam::config_getValue('mod.txdamM1_file.foldersDisplayExcludeByRegex')) {
+			$directoryListObject->excludeByRegex($foldersDisplayExcludeByRegex);
+		}
+		$directoryListObject->read($files_path, 'dir,link');
+		$directoryListObject->sort('dir_name');
+
+		$dirs = $directoryListObject->entries;
 
 		$c=0;
 		if (is_array($dirs))	{
@@ -427,7 +435,6 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			$HTML='';
 			$a=0;
 			$c=count($dirs);
-			natcasesort($dirs);
 
 			foreach($dirs as $key => $val)	{
 				$a++;
@@ -436,9 +443,11 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 				$treeKey = key($this->tree);	// Get the key for this space
 				$LN = ($a==$c)?'blank':'line';
 
-				$val = preg_replace('/^\.\//', '', $val);
-				$title = $val;
-				$path = $files_path.$val.'/';
+				$directoryName = $val['dir_name'];
+				$directoryTitle = $val['dir_title'];
+				$directoryTitle = preg_replace('/^\.\//', '', $directoryTitle);
+				$title = $directoryTitle;
+				$path = $files_path . $directoryName . '/';
 
 				$md5_uid = md5($path);
 				$specUID=hexdec(substr($md5_uid,0,6));

@@ -15,6 +15,7 @@ mod.txdamM1_SHARED.options.tx_dam_list_list_showThumb.value = 0
 
 mod.txdamM1_file.contextMenuOnListItems = 0
 //mod.txdamM1_file.filesDisplayExcludeByRegex = \.png,0\d
+//mod.txdamM1_file.foldersDisplayExcludeByRegex = user_upload
 
 mod.txdamM1_list.guiElements.getSearchBox = 0
 

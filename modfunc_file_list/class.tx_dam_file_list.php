@@ -147,8 +147,11 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		//
 		// fetches folder
 		//
-
+		/** @var $dirListFolder tx_dam_iterator_dir */
 		$dirListFolder = t3lib_div::makeInstance('tx_dam_iterator_dir');
+		if ($foldersDisplayExcludeByRegex = $this->pObj->config_checkValueEnabled('foldersDisplayExcludeByRegex')) {
+			$dirListFolder->excludeByRegex($foldersDisplayExcludeByRegex);
+		}
 		$dirListFolder->read($this->pObj->pathInfo['dir_path_absolute'], 'dir,link');
 		$sortField = str_replace('dir_dir_', 'dir_', 'dir_'.$this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField']);
 		$dirListFolder->sort($sortField, $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
