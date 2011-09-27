@@ -3,7 +3,7 @@
 /* * *************************************************************
  *  Copyright notice
  *
- *  (c) 2011 
+ *  (c) 2011
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -36,7 +36,7 @@ class Tx_Dam_Hooks_TCE {
 
 	/**
 	 * The extension key
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $extKey = 'dam';
@@ -57,6 +57,13 @@ class Tx_Dam_Hooks_TCE {
 	protected $mount;
 
 	/**
+	 * Is a child of t3lib_vfs_Service_Storage_AbstractDriver
+	 *
+	 * @var object
+	 */
+	protected $driver;
+
+	/**
 	 * Initializes the controller before invoking an action method.
 	 *
 	 * @return void
@@ -72,6 +79,7 @@ class Tx_Dam_Hooks_TCE {
 		$this->factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
 		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
 		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
+		$this->driver = $this->mount->getDriver();
 	}
 
 	/**
@@ -94,20 +102,45 @@ class Tx_Dam_Hooks_TCE {
 		if ($table === 'tx_dam_domain_model_asset') {
 			$uploadedFile = array();
 			if (!empty($pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'])) {
-				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
 
+					// Init action
 				$this->initializeAction();
+
+					// check if file must be overwritten
+					// @todo fetch this config from TypoScript or so...
+				if (TRUE) {
+					$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
+					$asset = $assetRepository->findByUid($id);
+
+						// @todo: check why it does not work
+					$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+					$fileObject = $fileRepository->findByUid($asset->getFile());
+
+						// @temporary code fileRepository
+					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('identifier', 'sys_file', 'uid = ' . $asset->getFile());
+					$fileData = $this->driver->getFile($rows[0]['identifier']);
+					$factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
+					$fileObject = $factory->createFileObject($fileData);
+
+					$pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'] = $fileObject->getName();
+				}
+
+				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
 				$this->index($file);
-				
+
+
 				// @todo extract metadata service
+
+					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
+				$fieldArray['file'] = $file->getUid();
 			}
 		}
 	}
 
 	/**
 	 * Index the file into the database
-	 * 
+	 *
 	 * @param string $file the file which has been uploaded
 	 */
 	protected function index($file) {
@@ -118,7 +151,7 @@ class Tx_Dam_Hooks_TCE {
 
 	/**
 	 * Upload the file to the right directory
-	 * 
+	 *
 	 * @param array $uploadedFile uploaded data of the file
 	 */
 	protected function upload($uploadedFile) {
@@ -136,7 +169,7 @@ class Tx_Dam_Hooks_TCE {
 			$origFilename = $uploadedFile['name'];
 			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename, TRUE);
 		}
-		
+
 		return $file;
 	}
 

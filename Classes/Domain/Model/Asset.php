@@ -135,7 +135,9 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	/**
 	 * File
 	 *
-	 * @var Tx_Dam_Domain_Model_File
+	 * @todo should be t3lib_vfs_Domain_Model_File instead of int
+	 * 
+	 * @var int
 	 */
 	protected $file;
 
@@ -173,13 +175,6 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	 * @var string
 	 */
 	protected $locationCountry;
-	
-	/**
-	 * LocationRegion
-	 *
-	 * @var string
-	 */
-	protected $locationRegion;
 	
 	/**
 	 * LocationRegion
@@ -466,19 +461,23 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	/**
 	 * Returns the file
 	 *
-	 * @return Tx_Dam_Domain_Model_File $file
+	 * @todo should be t3lib_vfs_Domain_Model_File $file
+	 * 
+	 * @return int $file
 	 */
-	public function getFal() {
+	public function getFile() {
 		return $this->file;
 	}
 
 	/**
 	 * Sets the file
+	 * 
+	 * @todo t3lib_vfs_Domain_Model_File $file
 	 *
-	 * @param Tx_Dam_Domain_Model_File $file
+	 * @param int $file
 	 * @return void
 	 */
-	public function setFal(Tx_Dam_Domain_Model_File $file) {
+	public function setFile(Tx_Dam_Domain_Model_File $file) {
 		$this->file = $file;
 	}
 
@@ -613,25 +612,6 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	 */
 	public function setLocationCountry($locationCountry) {
 		$this->locationCountry = $locationCountry;
-	}
-	
-	/**
-	 * Returns the locationRegion
-	 *
-	 * @return string $locationRegion
-	 */
-	public function getLocationRegion() {
-		return $this->locationRegion;
-	}
-
-	/**
-	 * Sets the locationRegion
-	 *
-	 * @param string $locationRegion
-	 * @return void
-	 */
-	public function setLocationRegion($locationRegion) {
-		$this->locationRegion = $locationRegion;
 	}
 	
 	/**
