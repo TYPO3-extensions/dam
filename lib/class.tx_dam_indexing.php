@@ -239,13 +239,8 @@ class tx_dam_indexing {
 		if ($this->writeDevLog && !isset($TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['debugData']['pid'])) $TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['debugData']['pid'] = tx_dam_db::getPid();
 		if ($this->writeDevLog) 	t3lib_div::devLog('## Beginning of dam indexing logging.', 'tx_dam_indexing');
 		
-		$this->setup['useInternalMediaTypeList'] = tx_dam::config_checkValueEnabled('setup.indexing.useInternalMediaTypeList', true);
-		$this->setup['useInternalMimeList'] = tx_dam::config_checkValueEnabled('setup.indexing.useInternalMimeList', true);
-		$this->setup['useMimeContentType'] = tx_dam::config_checkValueEnabled('setup.indexing.useMimeContentType', true);
-		$this->setup['useFileCommand'] = tx_dam::config_checkValueEnabled('setup.indexing.useFileCommand', true);
-		
 		$this->defaultSetup = tx_dam::config_getValue('tx_dam.indexing.defaultSetup');
-		
+
 
 		$this->skipFileTypes = t3lib_div::trimExplode(',', tx_dam::config_getValue('setup.indexing.skipFileTypes'), true);
 
@@ -1111,9 +1106,6 @@ class tx_dam_indexing {
 	function getFileMetaInfo($pathname, $meta)	{
 		global $TYPO3_CONF_VARS;
 		
-
-		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
-
 		$conf = array();
 		$conf['wantedCharset'] = $this->getWantedCharset();
 
@@ -1121,18 +1113,8 @@ class tx_dam_indexing {
 
 			$fileType = $meta['fields']['file_type'];
 
-
-			if ($this->setup['useInternalMediaTypeList']) {
-					// get media type from file type
-				$meta['fields']['media_type'] = $TX_DAM['file2mediaCode'][$fileType];
-					//  or from mime type
-				$meta['fields']['media_type'] = $meta['fields']['media_type'] ? $meta['fields']['media_type'] :  tx_dam::convert_mediaType($meta['fields']['file_mime_type']);
-	
-			} else {
-				$meta['fields']['media_type'] = tx_dam::convert_mediaType($meta['fields']['file_mime_type']);
-			}
-			
-			$mediaType = tx_dam::convert_mediaType($meta['fields']['media_type']);
+				// media type is determined in function getFileMimeType() by information from table tx_dam_media_types
+			$mediaType = $meta['fields']['media_type'];
 
 				// find a service for that file type
 			if (!is_object($serviceObj = t3lib_div::makeInstanceService('metaExtract', $fileType))) {
@@ -1277,13 +1259,12 @@ class tx_dam_indexing {
 			// this will be called from tx_dam therefore $pathname can be a fileInfo array
 		$pathname = tx_dam::file_absolutePath($pathname);
 
-		$TX_DAM = $GLOBALS['T3_VAR']['ext']['dam'];
-
 		$mimeType = array();
 		$mimeType['fulltype'] = '';
 		$mimeType['file_mime_type'] = '';
 		$mimeType['file_mime_subtype'] = '';
 		$mimeType['file_type'] = '';
+		$mimeType['media_type'] = '';
 
 		$path_parts = t3lib_div::split_fileref($pathname);
 	
@@ -1291,48 +1272,10 @@ class tx_dam_indexing {
 			// cleanup bakup files extension
 		$mimeType['file_type'] = preg_replace('#\~$#', '', $mimeType['file_type']);
 
-		$this->setup['useInternalMimeList'] = tx_dam::config_checkValueEnabled('setup.indexing.useInternalMimeList', true);
-		$this->setup['useMimeContentType'] = tx_dam::config_checkValueEnabled('setup.indexing.useMimeContentType', true);
-		$this->setup['useFileCommand'] = tx_dam::config_checkValueEnabled('setup.indexing.useFileCommand', true);
-
-			// Get the mimetype info from the DB
+			// Get the mime type and media type info from the DB
 		$file_type = tx_dam_db::getMediaExtension($mimeType['file_type']);
-
-			// try first to get the mime type by extension with own array
-			// I made the experience that it is a bit safer than with 'file'
-		if ($this->setup['useInternalMimeList'] AND $mimeType['file_type'] AND isset($file_type['mime'])) {
-
-			$mt = $file_type['mime'];
-			if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used builtin conversion table', 'tx_dam_indexing');
-
-			// next try
-		} elseif($this->setup['useMimeContentType'] AND function_exists('mime_content_type')) {
-				// available in PHP 4.3.0
-			$mt = mime_content_type($pathname);
-			if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used mime_content_type()', 'tx_dam_indexing');
-		} 
-		
-			// last chance
-		if ($this->setup['useFileCommand'] AND (!$mt OR $mt==='application/octet-stream')) {
-			$osType = TYPO3_OS;
-			if (!($osType === 'WIN')) {
-
-				if($cmd = t3lib_exec::getCommand('file')) {
-					$dummy = array();
-					$ret = false;
-					$mimeTypeTxt = trim (exec($cmd.' --mime '.escapeshellarg($pathname), $dummy, $ret));
-					if (!$ret AND strstr ($mimeTypeTxt,tx_dam::file_basename($pathname).':')) {
-						$a = explode (':', $mimeTypeTxt);
-						$a = explode (';', trim($a[1]));
-						//a[1]: text/plain, English; charset=iso-8859-1
-						$a = explode (',', trim($a[0]));
-						$a = explode (' ', trim($a[0]));
-						$mt = trim($a[0]);
-					}
-				}
-			}
-			if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used t3lib_exec::getCommand(\'file\')', 'tx_dam_indexing');
-		}
+		$mt = $file_type['mime'];
+		if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType(): used builtin conversion table', 'tx_dam_indexing');
 
 		$mtarr = explode ('/', $mt);
 		if (is_array($mtarr) && count($mtarr)==2) {
@@ -1345,6 +1288,10 @@ class tx_dam_indexing {
 		if ($mimeType['file_type'] == '') {
 			$file_type = tx_dam_db::getMediaExtension('', $mimeType['fulltype']);  
 			$mimeType['file_type'] = $file_type['mime'];
+		}
+
+		if ($file_type['type']) {
+			$mimeType['media_type'] = $file_type['type'];
 		}
 
 		if ($this->writeDevLog) 	t3lib_div::devLog('getFileMimeType()', 'tx_dam_indexing', 0, $mimeType);
