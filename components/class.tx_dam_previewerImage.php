@@ -163,9 +163,12 @@ class tx_dam_previewerImage extends tx_dam_previewerProcBase {
 
 
 		} else {
-			$outArr['htmlCode'] = '<div class="previewThumb">'.
-				t3lib_BEfunc::getThumbNail('thumbs.php', $absFile,' align="middle" style="border:solid 1px #ccc;"',160).
-				'</div>';
+			$absFile = t3lib_div::getIndpEnv('TYPO3_SITE_URL') . $row['file_path'] . $row['file_name'];
+
+			$paddingTop = 80 - $row['hpixels'];
+			$outArr['htmlCode'] = '<div class="previewThumb" style="margin-top:5px;height:160px;width:160px;text-align:center;border:solid 1px #ccc;">
+			<img alt="' . htmlspecialchars($row['title']) . '" style="padding-top:' . $paddingTop . 'px;" src="' . $absFile . '" />
+				</div>';
 		}
 
 		return $outArr;
