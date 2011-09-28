@@ -40,13 +40,6 @@ class Tx_Dam_TCEforms_UserField {
 	protected $extKey = 'dam';
 
 	/**
-	 * The Template Engine
-	 *
-	 * @var Tx_Fluid_View_StandaloneView
-	 */
-	protected $view = 'view';
-
-	/**
 	 * @var t3lib_vfs_Domain_Repository_MountRepository
 	 */
 	protected $mountRepository;
@@ -62,6 +55,20 @@ class Tx_Dam_TCEforms_UserField {
 	 * @var object
 	 */
 	protected $driver;
+	
+	/**
+	 * The absolute Icon path
+	 *
+	 * @var string
+	 */
+	protected $thumbnailIconPath;
+	
+	/**
+	 * The public Icon path
+	 *
+	 * @var string
+	 */
+	protected $thumbnailPublicIconPath;
 
 	/**
 	 * Constructor
@@ -70,10 +77,9 @@ class Tx_Dam_TCEforms_UserField {
 
 			// Load preferences
 		$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-
-			// Instantiate Template Engine
-		$this->view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
-
+		$this->thumbnailIconPath = t3lib_extMgm::extPath('dam') . 'Resources/Public/Icons/MimeTypes/';
+		$this->thumbnailIconPublicPath = t3lib_extMgm::extRelPath('dam') . 'Resources/Public/Icons/MimeTypes/';
+		
 			// Instantiate necessary stuff for FAL
 		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
 		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
@@ -95,34 +101,59 @@ class Tx_Dam_TCEforms_UserField {
 	 */
 	public function renderFile ($PA, t3lib_TCEforms $fobj) {
 		
-			// Instantiate a Fluid stand-alone view and load the template file
+			// Instantiate Template Engine
+		/* @var $view Tx_Fluid_View_StandaloneView */
+		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
+		
+			// Get template file and pass it to the view
 		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/File.html';
-		$this->view->setTemplatePathAndFilename($filePath);
+		$view->setTemplatePathAndFilename($filePath);
 
 		$record = $PA['row'];
 		
+		// @debug code 
+		// @todo remove code when Model Asset can have a real $file->getFile()
+		#$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
+		#$asset = $assetRepository->findByUid($record['uid']);
+		
 		if ($record['file'] > 0) {
-			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
-			$file = $fileRepository->findByUid($record['file']);
+			
+				// TRUE means this is an image and a thumbnail can be generated
+			if ($record['asset_type'] == 2) {
+				$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+				$file = $fileRepository->findByUid($record['file']);
 
-				// Fetches the absolute file path
-			$fileAbsolutePath = $this->driver->getAbsolutePath($file);
+					// Fetches the absolute file path
+				$fileAbsolutePath = $this->driver->getAbsolutePath($file);
 
-				// Generates HTML for Thumbnail generation
-			$thumbnail = t3lib_BEfunc::getThumbNail('thumbs.php', $fileAbsolutePath,' align="middle" style="border:solid 1px #ccc;" class="tx-dam-thumbnail" ',160);
+					// Generates HTML for Thumbnail generation
+				$thumbnail = t3lib_BEfunc::getThumbNail('thumbs.php', $fileAbsolutePath,' align="middle" style="border:solid 1px #ccc;" class="tx-dam-thumbnail" ',160);
+			}
+			else {
+				$thumbnailIcon = $this->thumbnailIconPath . $record['mime_type'] . 'png';
+					// Makes sure the thumbnail exists
+				if (file_exists($thumbnailIcon)) {
+					$thumbnailIcon = $this->thumbnailIconPublicPath . $record['mime_type'] . 'png';
+				}
+				else {
+					$thumbnailIcon = $this->thumbnailIconPublicPath . 'unknown.png';
+				}
+				$thumbnail = '<img src="' . $thumbnailIcon. '" alt="icon" />';
+			}
 		}
 		
 			// Assignes values for the View
 		$fileName = $file ? $file->getName() : '';
 		$publicUrl = $file ? $this->driver->getPublicUrl($file) : '';
+		$thumbnail = isset($thumbnail) ? $thumbnail : '';
+		
+		$view->assign('fileName', $fileName);
+		$view->assign('publicUrl', $publicUrl);
+		$view->assign('thumbnail', $thumbnail);
+		$view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
+		$view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
 
-		$this->view->assign('fileName', $fileName);
-		$this->view->assign('publicUrl', $publicUrl);
-		$this->view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
-		$this->view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
-		$this->view->assign('thumbnail', $thumbnail);
-
-		return $this->view->render();
+		return $view->render();
 	}
 
 	/**
@@ -135,14 +166,16 @@ class Tx_Dam_TCEforms_UserField {
 	 */
 	public function renderThumbnail($PA, t3lib_TCEforms $fobj) {
 
-		return 'todo';
-			// Instantiate a Fluid stand-alone view and load the template file
-		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/Thumbnail.html';
+			// Instantiate Template Engine
+		/* @var $view Tx_Fluid_View_StandaloneView */
 		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
+		
+			// Get template file and pass it to the view
+		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/Thumbnail.html';
 		$view->setTemplatePathAndFilename($filePath);
-
+		
+			// Assign template variables
 		$view->assign('uploadMaxFilesize', ini_get('upload_max_filesize'));
-		$view->assign('mimeTypeAllowed', $this->configuration['mime_type_allowed']);
 
 		return $view->render();
 	}

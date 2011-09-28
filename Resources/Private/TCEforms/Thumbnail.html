@@ -1,24 +1,38 @@
-<tr>
-	<td colspan="2" style="padding-left: 10px">
+<tr class="class-main2">
+	<td colspan="2" class="formField-header">
+		<span class="class-main4">
+			<strong>
+				<span class="t3-help-link" href="#" data-table="tx_dam_domain_model_asset" data-field="thumbnail">
+					<abbr class="t3-help-teaser"><f:translate key="thumbnail">Thumbnail</f:translate></abbr>
+				</span>
+			</strong>
+		</span>
+	</td>
+</tr>
+<tr class="class-main1">
+	<td colspan="2" class="formField-field" valign="top">
 		<div style="text-align: left; font-weight: bold; margin: 0">
-			<span>
+			<button onclick="alert('On the todo list... ;) ')">Generate Thumbnail</button>
+			<span style="margin-left: 40px">
 				<f:translate key="max">Max:</f:translate> {uploadMaxFilesize}
 			</span> 
-			<br/>
-			<input type="file" accept="{mimeTypeAllowed}" class="formField tceforms-textfield" name="data[tx_dam_domain_model_asset][_userfuncFile][file]" id="tceforms-textfield-xyz">
+			<input type="file" accept="{mimeTypeAllowed}"
+				   class="formField tceforms-textfield"
+				   name="data[tx_dam_domain_model_asset][_userfuncFile][thumbail]"
+				   id="tceforms-textfield-thumbnail">
 		</div>
 		<div>
-			<a id="" href="/fileadmin/user_upload/resources/1982-camps-pav-simulateur.jpg" target="_blank" class="thumbnailLink">
-				<img src="/typo3temp/ecomedias-180/1982-camps-pav-simulateur.jpg" alt="thumb" class="thumbnail">
-			</a>
-			<div class="file-metainfo">
-				1500 x 1012 K
-			</div>
+			<f:if condition="{thumbnail}">
+				<f:then>
+					<a id="" href="/{publicUrl}" target="_blank">
+						<f:format.html>{thumbnail}</f:format.html>
+					</a>
+				</f:then>
+				<f:else>
+					<f:translate key="tip_file">No thumbnail exists yet. Thumbnail can be generated automatically or imported manually.</f:translate>
+				</f:else>
+			</f:if>
 
-
-			<div style="font-size: 8pt;">
-				<a href="/fileadmin/user_upload/resources/1982-camps-pav-simulateur.jpg" target="_blank">1982-camps-pav-simulateur.jpg</a>
-			</div>
 		</div>
 	</td>
 </tr>
