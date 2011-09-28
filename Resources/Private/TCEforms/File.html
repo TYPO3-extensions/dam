@@ -8,18 +8,19 @@
 			<input type="file" accept="{mimeTypeAllowed}" class="formField tceforms-textfield" name="data[tx_dam_domain_model_asset][_userfuncFile][file]" id="tceforms-textfield-xyz">
 		</div>
 		<div>
+			<f:if condition="{publicUrl}">
+				<a id="" href="/{publicUrl}" target="_blank">
+					<f:format.html>{thumbnail}</f:format.html>
+				</a>
+				<div class="file-metainfo">
+	<!--				1500 x 1012 K-->
+				</div>
 
-			<a id="" href="/{publicUrl}" target="_blank">
-				<f:format.html>{thumbnail}</f:format.html>
-			</a>
-			<div class="file-metainfo">
-<!--				1500 x 1012 K-->
-			</div>
 
-
-			<div style="font-size: 8pt;">
-				<a href="/{publicUrl}" target="_blank">{fileName}</a>
-			</div>
+				<div style="font-size: 8pt;">
+					<a href="/{publicUrl}" target="_blank">{fileName}</a>
+				</div>
+			</f:if>
 		</div>
 	</td>
 </tr>

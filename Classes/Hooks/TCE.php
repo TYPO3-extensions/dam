@@ -108,29 +108,20 @@ class Tx_Dam_Hooks_TCE {
 
 					// check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
-				if (TRUE) {
-					$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
-					$asset = $assetRepository->findByUid($id);
-
-						// @todo: check why it does not work
-					$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
-					$fileObject = $fileRepository->findByUid($asset->getFile());
-
-						// @temporary code fileRepository
-					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('identifier', 'sys_file', 'uid = ' . $asset->getFile());
-					$fileData = $this->driver->getFile($rows[0]['identifier']);
-					$factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
-					$fileObject = $factory->createFileObject($fileData);
-
-					$pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'] = $fileObject->getName();
+					// waiting for some push from Lorenz
+				if (TRUE && is_int($id)) {
+					$previousFileName = $this->getPreviousFileName($id);
+					if ($previousFileName) {
+						$pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'] = $this->getPreviousFileName($id);
+					}
 				}
 
 				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
-				$this->index($file);
-
-
-				// @todo extract metadata service
+				$file = $this->index($file);
+				
+					// @todo extract metadata service
+					// waiting for some push from Lorenz
 
 					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
 				$fieldArray['file'] = $file->getUid();
@@ -139,20 +130,37 @@ class Tx_Dam_Hooks_TCE {
 	}
 
 	/**
+	 * Returns the previous file name of the file
+	 *
+	 * @param string a file name
+	 */
+	protected function getPreviousFileName($uid) {
+		$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
+		$asset = $assetRepository->findByUid($uid);
+
+		if ($asset->getFile()) {
+			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+			$file = $fileRepository->findByUid($asset->getFile());
+		}
+
+		return $file ? $file->getName() : '';
+	}
+
+	/**
 	 * Index the file into the database
 	 *
-	 * @param string $file the file which has been uploaded
+	 * @param t3lib_vfs_Domain_Model_File $file
 	 */
 	protected function index($file) {
 		/** @var t3lib_vfs_Domain_Repository_FileRepository $fileRepository */
 		$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
-		$fileRepository->addToIndex($file);
+		return $fileRepository->addToIndex($file);
 	}
 
 	/**
 	 * Upload the file to the right directory
 	 *
-	 * @param array $uploadedFile uploaded data of the file
+	 * @param t3lib_vfs_Domain_Model_File $file
 	 */
 	protected function upload($uploadedFile) {
 		$path = Tx_Dam_Configuration_Static::$assetDirectory;
