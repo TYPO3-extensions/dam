@@ -556,8 +556,6 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		global $LANG, $TYPO3_CONF_VARS;
 
 
-			// makes sense? Was a hint on php.net
-		ob_end_flush();
 
 			// get session data - which might have left files stored
 		$indexSession = $this->indexSessionFetch();
@@ -655,8 +653,6 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		global $LANG, $TYPO3_CONF_VARS;
 
 
-			// makes sense? Was a hint on php.net
-		ob_end_flush();
 
 			// get session data - which might have left files stored
 		$indexSession = $this->indexSessionFetch();
