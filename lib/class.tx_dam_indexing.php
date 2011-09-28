@@ -1963,18 +1963,22 @@ class tx_dam_indexing {
 	 * @return		bool		Success or failure of operation
 	 */
 	function lock($filename) {
+			// If locking is disabled, return TRUE because there's no locking anyway
+		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'] == 'disable') {
+			return TRUE;
+		}
+
 		try {
 			if (!is_object($this->fileLock)) {
 				$this->fileLock = t3lib_div::makeInstance('t3lib_lock', 'tx_dam_indexing_' . md5($filename),
 					$GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'], 60, 10);
 			}
 
-			$success = false;
+			$success = FALSE;
 			if (is_object($this->fileLock)) {
-					// true = Page could get locked without blocking
-					// false = Page could get locked but process was blocked before
-				$success = $this->fileLock->acquire() || $GLOBALS['TYPO3_CONF_VARS']['SYS']['lockingMode'] == 'disable';
+				$this->fileLock->acquire();
 				if ($this->fileLock->getLockStatus()) {
+					$success = TRUE;
 					if ($this->writeDevLog) 	t3lib_div::devLog('lock(): lock aquired ' . $filename, 'tx_dam_indexing');
 				} else {
 					if ($this->writeDevLog) 	t3lib_div::devLog('lock(): lock failed ' . $filename, 'tx_dam_indexing');
