@@ -31,7 +31,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class tx_dam_pdfservice extends t3lib_svbase {
+class Tx_Dam_PdfService extends t3lib_svbase {
 	protected $prefixId = 'tx_dam_pdfservice';		// Same as class name
 	protected $scriptRelPath = 'Classes/Service/PdfService.php';	// Path to this script relative to the extension dir.
 	protected $extKey = 'dam';	// The extension key.

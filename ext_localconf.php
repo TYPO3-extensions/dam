@@ -28,7 +28,7 @@ $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapC
 
 $PATH_dam = t3lib_extMgm::extPath($_EXTKEY);
 
-t3lib_extMgm::addService($_EXTKEY, 'metaExtract', 'tx_dam_pdfservice', array(
+t3lib_extMgm::addService($_EXTKEY, 'metaExtract', 'Tx_Dam_PdfService', array(
 	'title'       => 'DAM PDF meta data extraction',
 	'description' => 'Uses Zend PDF to extract meta data',
 
@@ -42,7 +42,7 @@ t3lib_extMgm::addService($_EXTKEY, 'metaExtract', 'tx_dam_pdfservice', array(
 	'exec'        => '',
 
 	'classFile'   => $PATH_dam . 'Classes/Service/PdfService.php',
-	'className'   => 'tx_dam_pdfservice',
+	'className'   => 'Tx_Dam_PdfService',
 ));
 
 

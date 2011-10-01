@@ -120,8 +120,10 @@ class Tx_Dam_Hooks_TCE {
 				$file = $this->upload($uploadedFile);
 				$file = $this->index($file);
 				
-					// @todo extract metadata service
-					// waiting for some push from Lorenz
+				$this->indexingController = t3lib_div::makeInstance('Tx_Dam_Controller_IndexingController');
+				$metaDataArray = $this->indexingController->getMetaData($file);
+
+				// $metaDataArray is an array with indexes equivalent to fields in Tx_Dam_Model_Asset
 
 					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
 				$fieldArray['file'] = $file->getUid();

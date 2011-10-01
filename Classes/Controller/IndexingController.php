@@ -45,6 +45,8 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 	}
 
 	public function indexAction() {
+		// this function is only for testing in backend
+
 		$pathName = 'typo3conf/ext/dam/Tests/MimeType/test.pdf';
 
 		echo 'File name for testing: ' . $pathName;
@@ -63,6 +65,29 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 		var_dump($metaData);
 
 
+		//$file->getMount()->getDriver()->getAbsolutePath()
+
+
+	}
+
+	/**
+	 * Get the condensed meta information of a file
+	 *
+	 * @param	string		$file A VFS file object
+	 * @return	array		file information
+	 */
+	public function getMetaData($file) {
+
+		$absolutePath = $file->getMount()->getDriver()->getAbsolutePath();
+
+		$fields = array();
+		$fields['mime_type'] = $this->getFileMimeType($absolutePath);
+		$fields['asset_type'] = $this->getFileAssetType($fields['mime_type']);
+		$extractedMetaData = $this->getFileMetaInfo($absolutePath, $fields['mime_type'], array());
+
+		$fields = array_merge($fields, $extractedMetaData['fields']);
+
+		return $fields;
 
 	}
 
@@ -72,7 +97,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 	 * @param	string		$pathname absolute path to file
 	 * @return	array		file information
 	 */
-	private function getFileMimeType($pathName) {
+	public function getFileMimeType($pathName) {
 
 		$absolutePathName = t3lib_div::getFileAbsFileName($pathName);
 		$fileInfo = new finfo;
@@ -88,7 +113,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 	 * @param	string		$mimeType of a file
 	 * @return	array		uid of asset type
 	 */
-	private function getFileAssetType($mimeType) {
+	public function getFileAssetType($mimeType) {
 
 		// Todo: Move this query to the appropriate place.
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('asset_type', 'tx_dam_domain_model_mimetype', 'mime_type="' . $mimeType . '"');
@@ -107,7 +132,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 	 * @return	array		file meta information
 	 * @todo what about using services in a chain?
 	 */
-	private function getFileMetaInfo($pathName, $mimeType, $metaData) {
+	public function getFileMetaInfo($pathName, $mimeType, $metaData) {
 
 		$absolutePathName = t3lib_div::getFileAbsFileName($pathName);
 
