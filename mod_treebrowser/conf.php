@@ -8,6 +8,6 @@ $MCONF['access'] = '';
 $MCONF['script'] = 'index.php';
 
 $MLANG['default']['tabs_images']['tab'] = 'moduleicon.gif';
-$MLANG['default']['ll_ref'] = 'LLL:EXT:dam/mod_treebrowser/locallang_mod.php';
+$MLANG['default']['ll_ref'] = 'LLL:EXT:dam/mod_treebrowser/locallang_mod.xml';
 
 ?>
