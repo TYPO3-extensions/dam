@@ -133,7 +133,7 @@ class tx_dam_tsfemediatag {
 		
 
 				// Checking if the id-parameter is an alias.
-			if (!t3lib_div::testInt($link_param))	{
+			if (!tx_dam::canBeInterpretedAsInteger($link_param))	{
 				$GLOBALS['TT']->setTSlogMessage("tx_dam_tsfemediatag->typolink(): File id '".$link_param."' is not an integer, so '".$linktxt."' was not linked.",1);
 				return $linktxt;
 			}

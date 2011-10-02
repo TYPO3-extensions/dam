@@ -336,7 +336,7 @@ class tx_dam_list_editsel extends t3lib_extobjbase {
 
 			// Compile the options into a multiple selector box:
 		$lMenu = '
-					<select size="'.t3lib_div::intInRange(count($allFields) + 1, 3, 8).'" multiple="multiple" name="tx_dam_list_list_displayFields[]">'.implode('', $opt).'
+					<select size="'.tx_dam::forceIntegerInRange(count($allFields) + 1, 3, 8).'" multiple="multiple" name="tx_dam_list_list_displayFields[]">'.implode('', $opt).'
 												</select>
 						';
 

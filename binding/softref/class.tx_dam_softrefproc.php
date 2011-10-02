@@ -224,7 +224,7 @@ class tx_dam_softrefproc extends t3lib_softrefproc {
 					// Checking if the id-parameter is integer. Otherwise ignore this tag.
 				$tagCode = t3lib_div::trimExplode(' ', substr($htmlParser->getFirstTag($v),0,-1), 1);
 				$mediaId = $tagCode[1];
-				if (t3lib_div::testInt($mediaId)) {
+				if (tx_dam::canBeInterpretedAsInteger($mediaId)) {
 
 						// Initialize the element entry with info text here:
 					$tokenID = $this->makeTokenID($k);

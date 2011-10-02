@@ -209,7 +209,7 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 	 * @see tx_dam_selection::getWhereClausePart()
 	 */
 	function selection_getQueryPart($queryType, $operator, $cat, $id, $value, &$damObj)      {
-		if (t3lib_div::testInt($id)) {
+		if (tx_dam::canBeInterpretedAsInteger($id)) {
 			$query= $damObj->sl->getFieldMapping('tx_dam', 'media_type').$operator.intval($id);
 		} else {
 			$query= $damObj->sl->getFieldMapping('tx_dam', 'file_type').$operator.$GLOBALS['TYPO3_DB']->fullQuoteStr($id,'tx_dam');

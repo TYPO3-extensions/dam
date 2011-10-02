@@ -250,8 +250,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		// Rendering and output
 		//
 
-		$minitems = t3lib_div::intInRange($config['minitems'], 0);
-		$maxitems = t3lib_div::intInRange($config['maxitems'], 0);
+		$minitems = tx_dam::forceIntegerInRange($config['minitems'], 0);
+		$maxitems = tx_dam::forceIntegerInRange($config['maxitems'], 0);
 		if (!$maxitems)	$maxitems = 100000;
 		$selectedListStyle = ($config['selectedListStyle']) ? ' style="' .$config['selectedListStyle'] .'"' : ' style="width:200px"';
 
@@ -264,7 +264,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		$params = array(
 			'size' => ($disabled ? count($disabled) : $config['size']),
-			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'], 0),
+			'autoSizeMax' => tx_dam::forceIntegerInRange($config['autoSizeMax'], 0),
 			'style' => $selectedListStyle,
 			'dontShowMoveIcons' => ($maxitems<=1),
 			'maxitems' => $maxitems,
@@ -394,8 +394,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		// Rendering and output
 		//
 
-		$minitems = t3lib_div::intInRange($config['minitems'], 0);
-		$maxitems = t3lib_div::intInRange($config['maxitems'], 0);
+		$minitems = tx_dam::forceIntegerInRange($config['minitems'], 0);
+		$maxitems = tx_dam::forceIntegerInRange($config['maxitems'], 0);
 		if (!$maxitems)	$maxitems = 100000;
 
 		$this->tceforms->requiredElements[$PA['itemFormElName']] = array($minitems, $maxitems, 'imgName' => $table.'_'.$row['uid'].'_'.$field);
@@ -407,7 +407,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 		$params = array(
 			'size' => $config['size'],
-			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'], 0),
+			'autoSizeMax' => tx_dam::forceIntegerInRange($config['autoSizeMax'], 0),
 			'style' => ' style="width:200px;"',
 			'dontShowMoveIcons' => ($maxitems<=1),
 			'maxitems' => $maxitems,
@@ -460,8 +460,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 			$disabled = ' disabled="disabled"';
 		}
 
-		$minitems = t3lib_div::intInRange($config['minitems'], 0);
-		$maxitems = t3lib_div::intInRange($config['maxitems'], 0);
+		$minitems = tx_dam::forceIntegerInRange($config['minitems'], 0);
+		$maxitems = tx_dam::forceIntegerInRange($config['maxitems'], 0);
 		if (!$maxitems)	$maxitems = 100000;
 
 		$this->tceforms->requiredElements[$PA['itemFormElName']] = array($minitems, $maxitems, 'imgName' => $table.'_'.$row['uid'].'_'.$field);
@@ -555,7 +555,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 				$params = array(
 					'size' => intval($config['size']),
 					'dontShowMoveIcons' => ($maxitems<=1),
-					'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'], 0),
+					'autoSizeMax' => tx_dam::forceIntegerInRange($config['autoSizeMax'], 0),
 					'maxitems' => $maxitems,
 					'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->tceforms->defaultMultipleSelectorStyle.'"',
 					'info' => $info,
@@ -726,9 +726,9 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 			// Init:
 		$size = intval($config['size']);
-		$maxitems = t3lib_div::intInRange($config['maxitems'],0);
+		$maxitems = tx_dam::forceIntegerInRange($config['maxitems'],0);
 		if (!$maxitems)	$maxitems=100000;
-		$minitems = t3lib_div::intInRange($config['minitems'],0);
+		$minitems = tx_dam::forceIntegerInRange($config['minitems'],0);
 
 		$disabled = '';
 		if($this->tceforms->renderReadonly || $config['readOnly'])  {
@@ -751,7 +751,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$params = array(
 			'size' => $size,
 			'dontShowMoveIcons' => ($maxitems<=1),
-			'autoSizeMax' => t3lib_div::intInRange($config['autoSizeMax'],0),
+			'autoSizeMax' => tx_dam::forceIntegerInRange($config['autoSizeMax'],0),
 			'maxitems' => $maxitems,
 			'style' => isset($config['selectedListStyle']) ? ' style="'.htmlspecialchars($config['selectedListStyle']).'"' : ' style="'.$this->tceforms->defaultMultipleSelectorStyle.'"',
 			'info' => $info,
@@ -1164,7 +1164,7 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		}
 
 			// Create selector box of the options
-		$sSize = $params['autoSizeMax'] ? t3lib_div::intInRange($itemArrayC+1, t3lib_div::intInRange($params['size'], 1), $params['autoSizeMax']) : $params['size'];
+		$sSize = $params['autoSizeMax'] ? tx_dam::forceIntegerInRange($itemArrayC+1, tx_dam::forceIntegerInRange($params['size'], 1), $params['autoSizeMax']) : $params['size'];
 		if (!$selector)	{
 			$selector = '<select size="'.$sSize.'"'.$this->tceforms->insertDefStyle('group').' multiple="multiple" name="'.$fName.'_list" '.$onFocus.$params['style'].$disabled.'>'.implode('', $opt).'</select>';
 		}

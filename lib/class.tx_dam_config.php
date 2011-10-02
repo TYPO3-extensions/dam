@@ -204,7 +204,7 @@ class tx_dam_config {
 	 * @return mixed	Return false if value is empty or 0, otherwise the value itself
 	 */
 	function isEnabled($value) {
-		if (t3lib_div::testInt($value)) {
+		if (tx_dam::canBeInterpretedAsInteger($value)) {
 			return intval($value) ? intval($value) : false;
 		}
 		return empty($value) ? false : $value;

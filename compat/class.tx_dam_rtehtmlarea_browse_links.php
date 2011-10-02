@@ -228,7 +228,7 @@ class tx_dam_rtehtmlarea_browse_links implements t3lib_browseLinksHook {
 			$mediaId = $this->invokingObject->curUrlArray['txdam'];
 			if ($mediaId) {
 					// Checking if the id-parameter is int and get meta data
-				if (t3lib_div::testInt($mediaId)) {
+				if (tx_dam::canBeInterpretedAsInteger($mediaId)) {
 					$meta = tx_dam::meta_getDataByUid($mediaId);
 				}
 					// Generating configured title from meta data

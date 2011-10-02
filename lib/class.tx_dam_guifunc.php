@@ -941,7 +941,7 @@ class tx_dam_guiFunc {
 				$itemValue = sprintf('%'.$format,$itemValue);
 				break;
 			case 'float':
-				$precision = t3lib_div::intInRange($config,1,10,2);
+				$precision = tx_dam::forceIntegerInRange($config,1,10,2);
 				$itemValue = sprintf('%.'.$precision.'f',$itemValue);
 				break;
 			case 'number':

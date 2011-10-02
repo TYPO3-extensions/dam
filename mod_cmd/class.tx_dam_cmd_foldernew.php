@@ -137,7 +137,7 @@ class tx_dam_cmd_foldernew extends t3lib_extobjbase {
 		$content = '';
 		$msg='<input type="hidden" name="redirect" value="'.htmlspecialchars($this->pObj->redirect).'" />';
 
-		$number = t3lib_div::intInRange(t3lib_div::_GP('number'),1,10);
+		$number = tx_dam::forceIntegerInRange(t3lib_div::_GP('number'),1,10);
 
 		$GLOBALS['SOBE']->doc->JScode=$GLOBALS['SOBE']->doc->wrapScriptTags('
 			function reload(a)	{	//

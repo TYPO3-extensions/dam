@@ -71,7 +71,7 @@ class tx_dam_rtetransform_mediatag {
 
 
 				// Checking if the id-parameter is int and get meta data
-				if (t3lib_div::testInt($link_param))	{
+				if (tx_dam::canBeInterpretedAsInteger($link_param))	{
 					$meta = tx_dam::meta_getDataByUid($link_param);
 				}
 				

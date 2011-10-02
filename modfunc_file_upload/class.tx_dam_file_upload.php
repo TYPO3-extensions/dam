@@ -467,7 +467,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 			// number of max upload fields
 		$maxUploads = 15;
-		$uploadFields = t3lib_div::intInRange($uploadFields, 5, $maxUploads);
+		$uploadFields = tx_dam::forceIntegerInRange($uploadFields, 5, $maxUploads);
 
 
 		$content = '';

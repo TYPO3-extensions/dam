@@ -555,8 +555,8 @@ class tx_dam_treelib_tceforms {
 
 		$width = '240px';
 
-		$this->config['autoSizeMax'] = t3lib_div::intInRange($this->config['autoSizeMax'], 0);
-		$height = $this->config['autoSizeMax'] ? t3lib_div::intInRange($itemCountSelectable, t3lib_div::intInRange($this->config['size'], 1), $this->config['autoSizeMax']) : $this->config['size'];
+		$this->config['autoSizeMax'] = tx_dam::forceIntegerInRange($this->config['autoSizeMax'], 0);
+		$height = $this->config['autoSizeMax'] ? tx_dam::forceIntegerInRange($itemCountSelectable, tx_dam::forceIntegerInRange($this->config['size'], 1), $this->config['autoSizeMax']) : $this->config['size'];
 
 			// hardcoded: 16 is the height of the icons
 		$height = ($height*16).'px';

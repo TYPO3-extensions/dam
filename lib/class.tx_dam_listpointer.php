@@ -148,9 +148,9 @@ class tx_dam_listPointer {
 	 */
 	function init ($page, $itemsPerPage, $countTotal=0, $maxPages=100) {
 		$this->page = intval($page);
-		$this->itemsPerPage = t3lib_div::intInRange(intval($itemsPerPage), 1, 1000);
+		$this->itemsPerPage = tx_dam::forceIntegerInRange(intval($itemsPerPage), 1, 1000);
 		$this->countTotal = intval($countTotal);
-		$this->maxPages = t3lib_div::intInRange(intval($maxPages), 1, 100);
+		$this->maxPages = tx_dam::forceIntegerInRange(intval($maxPages), 1, 100);
 
 		$this->calc();
 	}
@@ -199,7 +199,7 @@ class tx_dam_listPointer {
 	function getPagePointer ($offset=0) {
 		$page = $this->page+$offset;
 
-		$page = t3lib_div::intInRange($page, 0, $this->lastPage);
+		$page = tx_dam::forceIntegerInRange($page, 0, $this->lastPage);
 
 		return $page;
 	}
@@ -230,7 +230,7 @@ class tx_dam_listPointer {
 		$this->firstItemNum = $this->page * $this->itemsPerPage;
 		$this->lastItemNum = min($this->firstItemNum + $this->itemsPerPage, max(0, $this->countTotal-1));
 
-		$this->lastPage = t3lib_div::intInRange(ceil($this->countTotal / $this->itemsPerPage) - 1, 0, $this->maxPages);
+		$this->lastPage = tx_dam::forceIntegerInRange(ceil($this->countTotal / $this->itemsPerPage) - 1, 0, $this->maxPages);
 
 		$this->countItems = ($this->lastItemNum+1)-$this->firstItemNum;
 		$this->countItems = min($this->countItems, $this->countTotal);

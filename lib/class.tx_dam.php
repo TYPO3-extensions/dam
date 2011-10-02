@@ -2368,7 +2368,7 @@ class tx_dam {
 					$fileType = tx_dam_db::getMediaExtension($mimeType['file_type']);
                     
 						// See if the icon is a DAM reference
-					if(t3lib_div::testInt($fileType['icon'])) {
+					if(tx_dam::canBeInterpretedAsInteger($fileType['icon'])) {
 						$fileType['icon'] = tx_dam::file_getPathByUid($fileType['icon']);
 					}
 					
@@ -2592,9 +2592,37 @@ class tx_dam {
 		return tx_dam::tools_findFileInPath($fileName, $path, $walkUp, $basePath);
 	}
 
+	/**
+	 * Wrapper for t3lib_div::testInt (TYPO3 4.5)/t3lib_utility_Math::canBeInterpretedAsInteger (TYPO3 4.6+)
+	 *
+	 * @param $var mixed Any input variable to test
+	 * @return boolean Returns TRUE if string is an integer
+	 */
+	public static function canBeInterpretedAsInteger($var) {
 
+		if (version_compare(TYPO3_branch, '4.6', '<')) {
+			return t3lib_div::testInt($var);
+		}
 
+		return t3lib_utility_Math::canBeInterpretedAsInteger($var);
 
+	}
+
+	/**
+	 * Wrapper for t3lib_div::intInRange (TYPO3 4.5)/t3lib_utility_Math::forceIntegerInRange (TYPO3 4.6+)
+	 *
+	 * @param $var mixed Any input variable to test
+	 * @return boolean Returns TRUE if string is an integer
+	 */
+	public static function forceIntegerInRange($theInt, $min, $max = 2000000000, $defaultValue = 0) {
+
+		if (version_compare(TYPO3_branch, '4.6', '<')) {
+			return t3lib_div::intInRange($theInt, $min, $max, $defaultValue);
+		}
+
+		return t3lib_utility_Math::forceIntegerInRange($theInt, $min, $max, $defaultValue);
+
+	}
 
 	/***************************************
 	 *
