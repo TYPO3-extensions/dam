@@ -94,7 +94,7 @@ class tx_dam_extFileFunctions extends ux_t3lib_extFileFunctions	{
 
 		$this->init($mounts, $f_ext);
 
-		$this->init_actionPerms(tx_dam::getFileoperationPermissions());
+		$this->init_actionPerms($GLOBALS['BE_USER']->getFileoperationPermissions());
 	}
 }
 
@@ -140,7 +140,7 @@ class tx_dam_tce_file {
 		# $this->fileProcessor = t3lib_div::makeInstance('t3lib_extFileFunctions');
 		$this->fileProcessor = t3lib_div::makeInstance('tx_dam_extFileFunctions');
 		$this->fileProcessor->init($FILEMOUNTS, $TYPO3_CONF_VARS['BE']['fileExtensions']);
-		$this->fileProcessor->init_actionPerms(tx_dam::getFileoperationPermissions());
+		$this->fileProcessor->init_actionPerms($GLOBALS['BE_USER']->getFileoperationPermissions());
 		$this->fileProcessor->dontCheckForUnique = $this->overwriteExistingFiles ? 1 : 0;
 
 		return $this->error;

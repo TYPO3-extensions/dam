@@ -77,18 +77,16 @@ class ext_update  {
 			$doit = true;
 		}
 
-		if (t3lib_div::compat_version('4.1')) {
-			$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
-			if (!isset($res['sorting_foreign'])) {
+		$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
+		if (!isset($res['sorting_foreign'])) {
+			$doit = true;
+		} else {
+			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(sorting_foreign)', 'tx_dam_mm_ref', 'sorting_foreign>0');
+			if ($rows['0']['count(sorting_foreign)']==0) {
 				$doit = true;
-			} else {
-				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(sorting_foreign)', 'tx_dam_mm_ref', 'sorting_foreign>0');	
-				if ($rows['0']['count(sorting_foreign)']==0) {
-					$doit = true;
-				}
 			}
 		}
-		
+
 		return $doit;
 	}
 
@@ -112,27 +110,25 @@ class ext_update  {
 			$content .= 'Renamed field tt_content.tx_dam_flexform to ce_flexform<br />';
 		}	
 
-		if (t3lib_div::compat_version('4.1')) {
-			$existingTables=$GLOBALS['TYPO3_DB']->admin_get_tables();
-			if(isset($existingTables['tx_dam_mm_ref']))	{
-				$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
-				if (isset($res['sorting_foreign'])) {
-					# for testing only: $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_mm_ref', '', array('sorting_foreign'=>'0'));
-					$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(sorting_foreign)', 'tx_dam_mm_ref', 'sorting_foreign>0');
-					if ($rows['0']['count(sorting_foreign)']==0) {
-						$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref DROP sorting_foreign');
-						unset($res['sorting_foreign']);
-					}
-				}
-				
-				if (!isset($res['sorting_foreign'])) {
-					$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref CHANGE sorting sorting_foreign int(11) unsigned DEFAULT 0 NOT NULL');
-					$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref ADD sorting int(11) unsigned DEFAULT 0 NOT NULL');
-					$content .= 'Renamed field tx_dam_mm_ref.sorting to sorting_foreign<br />';
+		$existingTables=$GLOBALS['TYPO3_DB']->admin_get_tables();
+		if(isset($existingTables['tx_dam_mm_ref']))	{
+			$res = $GLOBALS['TYPO3_DB']->admin_get_fields('tx_dam_mm_ref');
+			if (isset($res['sorting_foreign'])) {
+				# for testing only: $GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam_mm_ref', '', array('sorting_foreign'=>'0'));
+				$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('count(sorting_foreign)', 'tx_dam_mm_ref', 'sorting_foreign>0');
+				if ($rows['0']['count(sorting_foreign)']==0) {
+					$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref DROP sorting_foreign');
+					unset($res['sorting_foreign']);
 				}
 			}
+
+			if (!isset($res['sorting_foreign'])) {
+				$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref CHANGE sorting sorting_foreign int(11) unsigned DEFAULT 0 NOT NULL');
+				$GLOBALS['TYPO3_DB']->admin_query('ALTER TABLE tx_dam_mm_ref ADD sorting int(11) unsigned DEFAULT 0 NOT NULL');
+				$content .= 'Renamed field tx_dam_mm_ref.sorting to sorting_foreign<br />';
+			}
 		}
-		
+
 		return $content;
 	}
 
