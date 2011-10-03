@@ -3,7 +3,7 @@ How indexing is called and how the file is processed by DAM
 What does "Indexing" mean?
 ==========================
 
-IMO Indexing means that an asset record in DAM is automatically filled with as much information as possible.
+IMO Indexing means that an media record in DAM is automatically filled with as much information as possible.
 
 Indexing is called in the following situations:
 

@@ -106,7 +106,7 @@ class Tx_Media_TCEforms_UserField {
 		if ($record['file'] > 0) {
 
 				// TRUE means this is an image and a thumbnail can be generated
-			if ($record['asset_type'] == 2) {
+			if ($record['media_type'] == 2) {
 				$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
 				$file = $fileRepository->findByUid($record['file']);
 

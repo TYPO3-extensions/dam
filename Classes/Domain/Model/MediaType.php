@@ -36,12 +36,12 @@
 class tx_mediaType extends Tx_Extbase_DomainObject_AbstractValueObject {
 
 	/**
-	 * Asset type
+	 * Media type
 	 *
 	 * @var string
 	 * @validate NotEmpty
 	 */
-	protected $assetType;
+	protected $mediaType;
 
 	/**
 	 * __construct
@@ -53,22 +53,22 @@ class tx_mediaType extends Tx_Extbase_DomainObject_AbstractValueObject {
 	}
 
 	/**
-	 * Returns the assetType
+	 * Returns the mediaType
 	 *
-	 * @return string $assetType
+	 * @return string $mediaType
 	 */
-	public function getAssetType() {
-		return $this->assetType;
+	public function getMediaType() {
+		return $this->mediaType;
 	}
 
 	/**
-	 * Sets the assetType
+	 * Sets the mediaType
 	 *
-	 * @param string $assetType
+	 * @param string $mediaType
 	 * @return void
 	 */
-	public function setAssetType($assetType) {
-		$this->assetType = $assetType;
+	public function setMediaType($mediaType) {
+		$this->mediaType = $mediaType;
 	}
 
 }

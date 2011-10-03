@@ -142,11 +142,11 @@ class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
 	protected $file;
 
 	/**
-	 * Asset type
+	 * Media type
 	 *
 	 * @var tx_mediaType
 	 */
-	protected $assetType;
+	protected $mediaType;
 	
 	/**
 	 * Status
@@ -484,22 +484,22 @@ class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
 	}
 
 	/**
-	 * Returns the assetType
+	 * Returns the mediaType
 	 *
-	 * @return tx_mediaType $assetType
+	 * @return tx_mediaType $mediaType
 	 */
-	public function getAssetType() {
-		return $this->assetType;
+	public function getMediaType() {
+		return $this->mediaType;
 	}
 
 	/**
-	 * Sets the assetType
+	 * Sets the mediaType
 	 *
-	 * @param tx_mediaType $assetType
+	 * @param tx_mediaType $mediaType
 	 * @return void
 	 */
-	public function setAssetType(tx_mediaType $assetType) {
-		$this->assetType = $assetType;
+	public function setMediaType(tx_mediaType $mediaType) {
+		$this->mediaType = $mediaType;
 	}
 
 	/**

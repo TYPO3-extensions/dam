@@ -9,7 +9,7 @@
 	<languageKey index="default" type="array">
 			<label index="mime_type.description">MIME type</label>
 			<label index="mime_type_name.description">MIME type name</label>
-			<label index="asset_type.description">Asset type</label>
+			<label index="media_type.description">Media type</label>
 		</languageKey>
 	</data>
 </T3locallang>

@@ -55,9 +55,9 @@ class Tx_Media_Controller_IndexingController extends Tx_Extbase_MVC_Controller_A
 
 		echo '<br>MIME type: ' . $fileMimeType;
 
-		$fileAssetType = $this->getFileAssetType($fileMimeType);
+		$fileMediaType = $this->getFileMediaType($fileMimeType);
 
-		echo '<br>Asset type: ' . $fileAssetType;
+		echo '<br>Media type: ' . $fileMediaType;
 
 		$metaData = $this->getFileMetaInfo($pathName, $fileMimeType);
 
@@ -70,14 +70,14 @@ class Tx_Media_Controller_IndexingController extends Tx_Extbase_MVC_Controller_A
 	/**
 	 * Get the condensed meta information of a file
 	 *
-	 * @param t3lib_vfs_Domain_Model_File $file an Asset
+	 * @param t3lib_vfs_Domain_Model_File $file an Media
 	 * @return array file information
 	 */
 	public function getMetaData(t3lib_vfs_Domain_Model_File $file) {
 
 		$fields = array();
 		$fields['mime_type'] = $this->getFileMimeType($file);
-		$fields['asset_type'] = $this->getFileAssetType($file);
+		$fields['media_type'] = $this->getFileMediaType($file);
 		
 		// @todo fix this! does not work because Zend_Pdf is not found
 		// $extractedMetaData = $this->getFileMetaInfo($absolutePath, $fields['mime_type']);
@@ -91,7 +91,7 @@ class Tx_Media_Controller_IndexingController extends Tx_Extbase_MVC_Controller_A
 	/**
 	 * Get the extension of t3lib_vfs_Domain_Model_File $file
 	 *
-	 * @param t3lib_vfs_Domain_Model_File $file an Asset
+	 * @param t3lib_vfs_Domain_Model_File $file an Media
 	 * @return string the extension
 	 */
 	public function getExtension(t3lib_vfs_Domain_Model_File $file) {
@@ -102,7 +102,7 @@ class Tx_Media_Controller_IndexingController extends Tx_Extbase_MVC_Controller_A
 	/**
 	 * Get the MIME type of a file with PHP function finfo::file
 	 *
-	 * @param t3lib_vfs_Domain_Model_File $file an Asset
+	 * @param t3lib_vfs_Domain_Model_File $file an Media
 	 * @return array file information
 	 */
 	public function getFileMimeType(t3lib_vfs_Domain_Model_File $file) {
@@ -113,18 +113,18 @@ class Tx_Media_Controller_IndexingController extends Tx_Extbase_MVC_Controller_A
 	}
 
 	/**
-	 * Get the uid of the Asset type by a MIME type
+	 * Get the uid of the Media type by a MIME type
 	 *
-	 * @param t3lib_vfs_Domain_Model_File $asset an Asset
+	 * @param t3lib_vfs_Domain_Model_File $media an Media
 	 * @return array file information
 	 */
-	public function getFileAssetType(t3lib_vfs_Domain_Model_File $file) {
+	public function getFileMediaType(t3lib_vfs_Domain_Model_File $file) {
 
 		// Todo: Move this query to the appropriate place.
 		
 		/* @var $GLOBALS['TYPO3_DB'] t3lib_DB */
-		$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('asset_type', 'tx_media_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
-		return $row['asset_type'];
+		$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('media_type', 'tx_media_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
+		return $row['media_type'];
 	}
 
 	/**

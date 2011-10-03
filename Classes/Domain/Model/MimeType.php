@@ -51,11 +51,11 @@ class Tx_Media_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEnt
 	protected $mimeTypeName;
 
 	/**
-	 * Asset type
+	 * Media type
 	 *
 	 * @var tx_mediaType
 	 */
-	protected $assetType;
+	protected $mediaType;
 
 	/**
 	 * __construct
@@ -105,22 +105,22 @@ class Tx_Media_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEnt
 	}
 
 	/**
-	 * Returns the assetType
+	 * Returns the mediaType
 	 *
-	 * @return tx_mediaType $assetType
+	 * @return tx_mediaType $mediaType
 	 */
-	public function getAssetType() {
-		return $this->assetType;
+	public function getMediaType() {
+		return $this->mediaType;
 	}
 
 	/**
-	 * Sets the assetType
+	 * Sets the mediaType
 	 *
-	 * @param tx_mediaType $assetType
+	 * @param tx_mediaType $mediaType
 	 * @return void
 	 */
-	public function setAssetType(tx_mediaType $assetType) {
-		$this->assetType = $assetType;
+	public function setMediaType(tx_mediaType $mediaType) {
+		$this->mediaType = $mediaType;
 	}
 
 }

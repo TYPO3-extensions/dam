@@ -5,7 +5,7 @@ CREATE TABLE tx_media (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
-	asset_type int(11) unsigned DEFAULT '0',
+	media_type int(11) unsigned DEFAULT '0',
 	status varchar(24) DEFAULT '' NOT NULL,
 	title varchar(255) DEFAULT '' NOT NULL,
 	description text NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE tx_media_mediatype (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
-	asset_type varchar(255) DEFAULT '' NOT NULL,
+	media_type varchar(255) DEFAULT '' NOT NULL,
 
 	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
 	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE tx_media_mimetype (
 
 	mime_type varchar(255) DEFAULT '' NOT NULL,
 	mime_type_name varchar(255) DEFAULT '' NOT NULL,
-	asset_type int(11) unsigned DEFAULT '0',
+	media_type int(11) unsigned DEFAULT '0',
 
 	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
 	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,

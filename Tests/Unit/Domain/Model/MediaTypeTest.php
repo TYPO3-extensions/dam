@@ -56,17 +56,17 @@ class tx_mediaTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
 	/**
 	 * @test
 	 */
-	public function getAssetTypeReturnsInitialValueForString() { }
+	public function getMediaTypeReturnsInitialValueForString() { }
 
 	/**
 	 * @test
 	 */
-	public function setAssetTypeForStringSetsAssetType() { 
-		$this->fixture->setAssetType('Conceived at T3CON10');
+	public function setMediaTypeForStringSetsMediaType() { 
+		$this->fixture->setMediaType('Conceived at T3CON10');
 
 		$this->assertSame(
 			'Conceived at T3CON10',
-			$this->fixture->getAssetType()
+			$this->fixture->getMediaType()
 		);
 	}
 	

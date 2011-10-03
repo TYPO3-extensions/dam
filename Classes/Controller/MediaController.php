@@ -31,23 +31,23 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_Controller_AssetController extends Tx_Extbase_MVC_Controller_ActionController {
+class Tx_Media_Controller_MediaController extends Tx_Extbase_MVC_Controller_ActionController {
 
 	/**
-	 * assetRepository
+	 * mediaRepository
 	 *
-	 * @var Tx_Media_Domain_Repository_AssetRepository
+	 * @var Tx_Media_Domain_Repository_MediaRepository
 	 */
-	protected $assetRepository;
+	protected $mediaRepository;
 
 	/**
-	 * injectAssetRepository
+	 * injectMediaRepository
 	 *
-	 * @param Tx_Media_Domain_Repository_AssetRepository $assetRepository
+	 * @param Tx_Media_Domain_Repository_MediaRepository $mediaRepository
 	 * @return void
 	 */
-	public function injectAssetRepository(Tx_Media_Domain_Repository_AssetRepository $assetRepository) {
-		$this->assetRepository = $assetRepository;
+	public function injectMediaRepository(Tx_Media_Domain_Repository_MediaRepository $mediaRepository) {
+		$this->mediaRepository = $mediaRepository;
 	}
 
 	/**
@@ -56,74 +56,74 @@ class Tx_Media_Controller_AssetController extends Tx_Extbase_MVC_Controller_Acti
 	 * @return void
 	 */
 	public function listAction() {
-		$assets = $this->assetRepository->findAll();
-		$this->view->assign('assets', $assets);
+		$medias = $this->mediaRepository->findAll();
+		$this->view->assign('medias', $medias);
 	}
 
 	/**
 	 * action show
 	 *
-	 * @param $asset
+	 * @param $media
 	 * @return void
 	 */
-	public function showAction(tx_media $asset) {
-		$this->view->assign('asset', $asset);
+	public function showAction(tx_media $media) {
+		$this->view->assign('media', $media);
 	}
 
 	/**
 	 * action new
 	 *
-	 * @param $newAsset
-	 * @dontvalidate $newAsset
+	 * @param $newMedia
+	 * @dontvalidate $newMedia
 	 * @return void
 	 */
-	public function newAction(tx_media $newAsset = NULL) {
-		$this->view->assign('newAsset', $newAsset);
+	public function newAction(tx_media $newMedia = NULL) {
+		$this->view->assign('newMedia', $newMedia);
 	}
 
 	/**
 	 * action create
 	 *
-	 * @param $newAsset
+	 * @param $newMedia
 	 * @return void
 	 */
-	public function createAction(tx_media $newAsset) {
-		$this->assetRepository->add($newAsset);
-		$this->flashMessageContainer->add('Your new Asset was created.');
+	public function createAction(tx_media $newMedia) {
+		$this->mediaRepository->add($newMedia);
+		$this->flashMessageContainer->add('Your new Media was created.');
 		$this->redirect('list');
 	}
 
 	/**
 	 * action edit
 	 *
-	 * @param $asset
+	 * @param $media
 	 * @return void
 	 */
-	public function editAction(tx_media $asset) {
-		$this->view->assign('asset', $asset);
+	public function editAction(tx_media $media) {
+		$this->view->assign('media', $media);
 	}
 
 	/**
 	 * action update
 	 *
-	 * @param $asset
+	 * @param $media
 	 * @return void
 	 */
-	public function updateAction(tx_media $asset) {
-		$this->assetRepository->update($asset);
-		$this->flashMessageContainer->add('Your Asset was updated.');
+	public function updateAction(tx_media $media) {
+		$this->mediaRepository->update($media);
+		$this->flashMessageContainer->add('Your Media was updated.');
 		$this->redirect('list');
 	}
 
 	/**
 	 * action delete
 	 *
-	 * @param $asset
+	 * @param $media
 	 * @return void
 	 */
-	public function deleteAction(tx_media $asset) {
-		$this->assetRepository->remove($asset);
-		$this->flashMessageContainer->add('Your Asset was removed.');
+	public function deleteAction(tx_media $media) {
+		$this->mediaRepository->remove($media);
+		$this->flashMessageContainer->add('Your Media was removed.');
 		$this->redirect('list');
 	}
 

@@ -6,11 +6,11 @@ if (!defined ('TYPO3_MODE')) {
 $TCA['tx_media'] = array(
 	'ctrl' => $TCA['tx_media']['ctrl'],
 	'interface' => array(
-		'showRecordFieldList' => 'asset_type, title, description, keywords, creation_date, modification_date, download_name, identifier, creator, source',
+		'showRecordFieldList' => 'media_type, title, description, keywords, creation_date, modification_date, download_name, identifier, creator, source',
 	),
 	'types' => array(
 		
-		'1' => array('showitem' => 'asset_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'1' => array('showitem' => 'media_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
@@ -19,7 +19,7 @@ $TCA['tx_media'] = array(
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'2' => array('showitem' => 'asset_type, file, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'2' => array('showitem' => 'media_type, file, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
@@ -29,7 +29,7 @@ $TCA['tx_media'] = array(
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'3' => array('showitem' => 'asset_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'3' => array('showitem' => 'media_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, duration, unit,
@@ -38,7 +38,7 @@ $TCA['tx_media'] = array(
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'4' => array('showitem' => 'asset_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'4' => array('showitem' => 'media_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
@@ -47,7 +47,7 @@ $TCA['tx_media'] = array(
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 									--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 		
-		'5' => array('showitem' => 'asset_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+		'5' => array('showitem' => 'media_type, file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 									--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
@@ -162,38 +162,38 @@ $TCA['tx_media'] = array(
 				'readOnly' => TRUE,
 			),
 		),
-		'asset_type' => array(
+		'media_type' => array(
 			'exclude' => 0,
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'defaultAsReadonly',
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.asset_type',
+			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.media_type',
 			'config' => array(
 				'type' => 'select',
 				'minitems' => 1,
 				'maxitems' => 1,
 				'items' => array(
 					array(
-						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.asset_type.1',
+						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.media_type.1',
 						1,
 						t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/tx_media_text.png'
 					),
 					array(
-						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.asset_type.2',
+						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.media_type.2',
 						2,
 						t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/tx_media_image.png'
 					),
 					array(
-						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.asset_type.3',
+						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.media_type.3',
 						3,
 						t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/tx_media_audio.png'
 					),
 					array(
-						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.asset_type.4',
+						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.media_type.4',
 						4,
 						t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/tx_media_video.png'
 					),
 					array(
-						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.asset_type.5',
+						'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.media_type.5',
 						5,
 						t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/tx_media_software.png'
 					),

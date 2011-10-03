@@ -303,23 +303,23 @@ class tx_mediaTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
 	/**
 	 * @test
 	 */
-	public function getAssetTypeReturnsInitialValueFortx_mediaType() {
+	public function getMediaTypeReturnsInitialValueFortx_mediaType() {
 		$this->assertEquals(
 			NULL,
-			$this->fixture->getAssetType()
+			$this->fixture->getMediaType()
 		);
 	}
 
 	/**
 	 * @test
 	 */
-	public function setAssetTypeFortx_mediaTypeSetsAssetType() {
+	public function setMediaTypeFortx_mediaTypeSetsMediaType() {
 		$dummyObject = new tx_mediaType();
-		$this->fixture->setAssetType($dummyObject);
+		$this->fixture->setMediaType($dummyObject);
 
 		$this->assertSame(
 			$dummyObject,
-			$this->fixture->getAssetType()
+			$this->fixture->getMediaType()
 		);
 	}
 	

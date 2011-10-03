@@ -6,7 +6,7 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
-			<label index="tx_media">Asset</label>
+			<label index="tx_media">Media</label>
 			<label index="tx_media.status">Status</label>
 			<label index="tx_media.status.1">Ok</label>
 			<label index="tx_media.status.2">Pending</label>
@@ -26,18 +26,18 @@
 			<label index="tx_media.alternative">Alternative</label>
 			<label index="tx_media.caption">Caption</label>
 			<label index="tx_media.file">Fal</label>
-			<label index="tx_media.asset_type">Asset Type</label>
-			<label index="tx_media.asset_type.1">Text</label>
-			<label index="tx_media.asset_type.2">Image</label>
-			<label index="tx_media.asset_type.3">Audio</label>
-			<label index="tx_media.asset_type.4">Video</label>
-			<label index="tx_media.asset_type.5">Software</label>
+			<label index="tx_media.media_type">Media Type</label>
+			<label index="tx_media.media_type.1">Text</label>
+			<label index="tx_media.media_type.2">Image</label>
+			<label index="tx_media.media_type.3">Audio</label>
+			<label index="tx_media.media_type.4">Video</label>
+			<label index="tx_media.media_type.5">Software</label>
 			<label index="tx_media.width">Width</label>
 			<label index="tx_media.height">Height</label>
 			<label index="tx_media.unit">Unit</label>
 			<label index="tx_media.pages">Pages</label>
 			<label index="tx_media.note">Note</label>
-			<label index="tx_media.language">Asset language</label>
+			<label index="tx_media.language">Media language</label>
 			<label index="tx_media.duration">Duration</label>
 			<label index="tx_media.horizontal_resolution">Horizontal resolution</label>
 			<label index="tx_media.vertical_resolution">Vertical resolution</label>
@@ -55,14 +55,14 @@
 			<label index="tx_media_collection.collection_name">Collection Name</label>
 			<label index="tx_media_collection.description">Description</label>
 			<label index="tx_media_collection.visibility">Visibility</label>
-			<label index="tx_media_collection.assets">Assets</label>
+			<label index="tx_media_collection.medias">Medias</label>
 			
 			<label index="tx_media_filter">Filter</label>
 			<label index="tx_media_filter.filter_name">Filter Name</label>
 			<label index="tx_media_filter.description">Description</label>
 			<label index="tx_media_filter.criteria">Criteria</label>
-			<label index="tx_media_mediatype">Asset Type</label>
-			<label index="tx_media_mediatype.asset_type">Asset Type</label>
+			<label index="tx_media_mediatype">Media Type</label>
+			<label index="tx_media_mediatype.media_type">Media Type</label>
 			
 			<label index="tx_media_file">File</label>
 			<label index="tx_media_file.name">Name</label>
@@ -70,7 +70,7 @@
 			<label index="tx_media_mimetype">Mime Type</label>
 			<label index="tx_media_mimetype.mime_type">Mime Type</label>
 			<label index="tx_media_mimetype.mime_type_name">Mime Type Name</label>
-			<label index="tx_media_mimetype.asset_type">Asset Type</label>
+			<label index="tx_media_mimetype.media_type">Media Type</label>
 			
 			<label index="tabs.metrics">Metrics</label>
 			<label index="tabs.language">Language</label>

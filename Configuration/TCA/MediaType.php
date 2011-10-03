@@ -6,10 +6,10 @@ if (!defined ('TYPO3_MODE')) {
 $TCA['tx_media_mediatype'] = array(
 	'ctrl' => $TCA['tx_media_mediatype']['ctrl'],
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, asset_type',
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, media_type',
 	),
 	'types' => array(
-		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, asset_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
+		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, media_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 	),
 	'palettes' => array(
 		'1' => array('showitem' => ''),
@@ -93,9 +93,9 @@ $TCA['tx_media_mediatype'] = array(
 				),
 			),
 		),
-		'asset_type' => array(
+		'media_type' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mediatype.asset_type',
+			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mediatype.media_type',
 			'config' => array(
 				'type' => 'input',
 				'size' => 30,

@@ -29,7 +29,7 @@ if (TYPO3_MODE === 'BE') {
 		'',						// Position
 		array(
 			'Indexing' => 'index',
-		//	'Asset' => 'show, list, new, create, edit, update, delete',
+		//	'Media' => 'show, list, new, create, edit, update, delete',
 		//	'Collection' => 'list, show, new, create, edit, update, delete',
 		//	'Filter' => 'list, show, new, create, edit, update, delete',
 		//	'File' => 'show, list, new, create, edit, update, delete',
@@ -67,7 +67,7 @@ $TCA['tx_media'] = array(
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
-		'type' => 'asset_type',
+		'type' => 'media_type',
 		'dividers2tabs' => TRUE,
 		'versioningWS' => 2,
 		'versioning_followPages' => TRUE,
@@ -91,7 +91,7 @@ t3lib_extMgm::allowTableOnStandardPages('tx_media_mediatype');
 $TCA['tx_media_mediatype'] = array(
 	'ctrl' => array(
 		'title'	=> 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mediatype',
-		'label' => 'asset_type',
+		'label' => 'media_type',
 		'dividers2tabs' => TRUE,
 		'delete' => 'deleted',
 		'enablecolumns' => array(

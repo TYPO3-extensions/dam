@@ -109,10 +109,10 @@ class Tx_Media_Hooks_TCE {
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
 				if (TRUE && is_int($id)) {
-					$assetRepository = t3lib_div::makeInstance('Tx_Media_Domain_Repository_AssetRepository');
-					$asset = $assetRepository->findByUid($id);
+					$mediaRepository = t3lib_div::makeInstance('Tx_Media_Domain_Repository_MediaRepository');
+					$media = $mediaRepository->findByUid($id);
 					
-					$previousFileName = $this->getPreviousFileName($asset);
+					$previousFileName = $this->getPreviousFileName($media);
 					if ($previousFileName) {
 						$pObj->uploadedFileArray['tx_media']['_userfuncFile']['file']['name'] = $previousFileName;
 					}
@@ -127,7 +127,7 @@ class Tx_Media_Hooks_TCE {
 				if (TRUE && is_int($id)) {
 					$indexingController = t3lib_div::makeInstance('Tx_Media_Controller_IndexingController');
 					
-						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Asset
+						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Media
 					$metaDataArray = $indexingController->getMetaData($file);
 					
 						// @todo check rules 
@@ -149,12 +149,12 @@ class Tx_Media_Hooks_TCE {
 	/**
 	 * Returns the previous file name of the file
 	 *
-	 * @param Tx_Media_Model_Asset a $asset
+	 * @param Tx_Media_Model_Media a $media
 	 */
-	protected function getPreviousFileName($asset) {
-		if ($asset->getFile()) {
+	protected function getPreviousFileName($media) {
+		if ($media->getFile()) {
 			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
-			$file = $fileRepository->findByUid($asset->getFile()->getUid());
+			$file = $fileRepository->findByUid($media->getFile()->getUid());
 		}
 
 		return $file ? $file->getName() : '';
@@ -177,7 +177,7 @@ class Tx_Media_Hooks_TCE {
 	 * @param t3lib_vfs_Domain_Model_File $file
 	 */
 	protected function upload($uploadedFile) {
-		$path = Tx_Media_Configuration_Static::$assetDirectory;
+		$path = Tx_Media_Configuration_Static::$mediaDirectory;
 
 		/** @var $uploader t3lib_vfs_Service_UploaderService */
 		$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');

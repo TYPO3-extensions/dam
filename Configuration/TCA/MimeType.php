@@ -6,10 +6,10 @@ if (!defined ('TYPO3_MODE')) {
 $TCA['tx_media_mimetype'] = array(
 	'ctrl' => $TCA['tx_media_mimetype']['ctrl'],
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, mime_type, mime_type_name, asset_type',
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, mime_type, mime_type_name, media_type',
 	),
 	'types' => array(
-		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, mime_type, mime_type_name, asset_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
+		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, mime_type, mime_type_name, media_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 	),
 	'palettes' => array(
 		'1' => array('showitem' => ''),
@@ -111,9 +111,9 @@ $TCA['tx_media_mimetype'] = array(
 				'eval' => 'trim'
 			),
 		),
-		'asset_type' => array(
+		'media_type' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mimetype.asset_type',
+			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mimetype.media_type',
 			'config' => array(
 				'type' => 'select',
 				'foreign_table' => 'tx_media_mediatype',

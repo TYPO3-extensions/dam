@@ -25,7 +25,7 @@
  ***************************************************************/
 
 /**
- * Test case for class Tx_Media_Controller_AssetController.
+ * Test case for class Tx_Media_Controller_MediaController.
  *
  * @version $Id$
  * @copyright Copyright belongs to the respective authors
@@ -37,7 +37,7 @@
  * @author Media development team
  <typo3-project-media@lists.typo3.org>
  */
-class Tx_Media_Controller_AssetControllerTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class Tx_Media_Controller_MediaControllerTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
 	/**
 	 * @var tx_media
 	 */

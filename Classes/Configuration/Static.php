@@ -33,9 +33,9 @@
  */
 class Tx_Media_Configuration_Static {
 
-	public static $assetDirectory = 'AssetStorage/Assets/';
-	public static $thumbnailDirectory = 'AssetStorage/Thumbnails/';
-	public static $deletedDirectory = 'AssetStorage/Deleted/';
+	public static $mediaDirectory = 'MediaStorage/Medias/';
+	public static $thumbnailDirectory = 'MediaStorage/Thumbnails/';
+	public static $deletedDirectory = 'MediaStorage/Deleted/';
 }
 
 ?>

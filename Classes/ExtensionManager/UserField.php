@@ -152,7 +152,7 @@ class Tx_Media_ExtensionManager_UserField {
 		
 		$result = FALSE;
 		
-		$directories[] = Tx_Media_Configuration_Static::$assetDirectory;
+		$directories[] = Tx_Media_Configuration_Static::$mediaDirectory;
 		$directories[] = Tx_Media_Configuration_Static::$thumbnailDirectory;
 		$directories[] = Tx_Media_Configuration_Static::$deletedDirectory;
 		

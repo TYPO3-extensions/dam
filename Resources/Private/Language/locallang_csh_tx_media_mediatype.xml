@@ -7,7 +7,7 @@
 	</meta>
 	<data type="array">
 	<languageKey index="default" type="array">
-			<label index="asset_type.description">Asset type</label>
+			<label index="media_type.description">Media type</label>
 		</languageKey>
 	</data>
 </T3locallang>

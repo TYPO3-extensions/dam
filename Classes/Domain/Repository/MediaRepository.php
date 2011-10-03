@@ -31,15 +31,15 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_Domain_Repository_AssetRepository extends Tx_Extbase_Persistence_Repository {
+class Tx_Media_Domain_Repository_MediaRepository extends Tx_Extbase_Persistence_Repository {
 
 	/**
-	 * Update a Media Management asset with new information
+	 * Update a Media Management media with new information
 	 *
-	 * @param	string		$uid of the Media asset
+	 * @param	string		$uid of the Media media
 	 * @return	array		file information
 	 */
-	public function updateAsset($uid, $metaData) {
+	public function updateMedia($uid, $metaData) {
 
 		//TODO finish work
 
