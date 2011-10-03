@@ -461,20 +461,22 @@ class Tx_Dam_Domain_Model_Asset extends Tx_Extbase_DomainObject_AbstractEntity {
 	/**
 	 * Returns the file
 	 *
-	 * @todo should be t3lib_vfs_Domain_Model_File $file
-	 * 
-	 * @return int $file
+	 * @return t3lib_vfs_Domain_Model_File $file
 	 */
 	public function getFile() {
+		// @todo check why the constructor is not called for this object. 
+		// It looks that extbase is doing some magic...
+		if (is_int($this->file) && $this->file > 0) {
+			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+			$this->file = $fileRepository->findByUid($this->file);
+		}
 		return $this->file;
 	}
 
 	/**
 	 * Sets the file
 	 * 
-	 * @todo t3lib_vfs_Domain_Model_File $file
-	 *
-	 * @param int $file
+	 * @param t3lib_vfs_Domain_Model_File $file
 	 * @return void
 	 */
 	public function setFile(Tx_Dam_Domain_Model_File $file) {

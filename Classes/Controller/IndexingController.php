@@ -59,68 +59,72 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 
 		echo '<br>Asset type: ' . $fileAssetType;
 
-		$metaData = $this->getFileMetaInfo($pathName, $fileMimeType, array());
+		$metaData = $this->getFileMetaInfo($pathName, $fileMimeType);
 
 		echo '<br>Additional meta data: ';
 		var_dump($metaData);
-
-
+		
 		//$file->getMount()->getDriver()->getAbsolutePath()
-
-
 	}
 
 	/**
 	 * Get the condensed meta information of a file
 	 *
-	 * @param	string		$file A VFS file object
-	 * @return	array		file information
+	 * @param t3lib_vfs_Domain_Model_File $file an Asset
+	 * @return array file information
 	 */
-	public function getMetaData($file) {
-
-		$absolutePath = $file->getMount()->getDriver()->getAbsolutePath();
+	public function getMetaData(t3lib_vfs_Domain_Model_File $file) {
 
 		$fields = array();
-		$fields['mime_type'] = $this->getFileMimeType($absolutePath);
-		$fields['asset_type'] = $this->getFileAssetType($fields['mime_type']);
-		$extractedMetaData = $this->getFileMetaInfo($absolutePath, $fields['mime_type'], array());
-
-		$fields = array_merge($fields, $extractedMetaData['fields']);
-
+		$fields['mime_type'] = $this->getFileMimeType($file);
+		$fields['asset_type'] = $this->getFileAssetType($file);
+		
+		// @todo fix this! does not work because Zend_Pdf is not found
+		// $extractedMetaData = $this->getFileMetaInfo($absolutePath, $fields['mime_type']);
+		if (!empty($extractedMetaData)) {
+			$fields = array_merge($fields, $extractedMetaData['fields']);
+		}
+		
 		return $fields;
+	}
 
+	/**
+	 * Get the extension of t3lib_vfs_Domain_Model_File $file
+	 *
+	 * @param t3lib_vfs_Domain_Model_File $file an Asset
+	 * @return string the extension
+	 */
+	public function getExtension(t3lib_vfs_Domain_Model_File $file) {
+		// @todo steal some code from the internet to get the extension name
+		return 'pdf';
 	}
 
 	/**
 	 * Get the MIME type of a file with PHP function finfo::file
 	 *
-	 * @param	string		$pathname absolute path to file
-	 * @return	array		file information
+	 * @param t3lib_vfs_Domain_Model_File $file an Asset
+	 * @return array file information
 	 */
-	public function getFileMimeType($pathName) {
-
-		$absolutePathName = t3lib_div::getFileAbsFileName($pathName);
-		$fileInfo = new finfo;
+	public function getFileMimeType(t3lib_vfs_Domain_Model_File $file) {
+		$absolutePathName = $file->getAbsolutePath();
+		$fileInfo = new finfo();
      	$fileMimeType = $fileInfo->file($absolutePathName, FILEINFO_MIME_TYPE);
-
 		return $fileMimeType;
-
 	}
 
 	/**
 	 * Get the uid of the Asset type by a MIME type
 	 *
-	 * @param	string		$mimeType of a file
-	 * @return	array		uid of asset type
+	 * @param t3lib_vfs_Domain_Model_File $asset an Asset
+	 * @return array file information
 	 */
-	public function getFileAssetType($mimeType) {
+	public function getFileAssetType(t3lib_vfs_Domain_Model_File $file) {
 
 		// Todo: Move this query to the appropriate place.
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery('asset_type', 'tx_dam_domain_model_mimetype', 'mime_type="' . $mimeType . '"');
-		$row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-
+		
+		/* @var $GLOBALS['TYPO3_DB'] t3lib_DB */
+		$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('asset_type', 'tx_dam_domain_model_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
 		return $row['asset_type'];
-
 	}
 
 	/**
@@ -132,7 +136,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 	 * @return	array		file meta information
 	 * @todo what about using services in a chain?
 	 */
-	public function getFileMetaInfo($pathName, $mimeType, $metaData) {
+	public function getFileMetaInfo($pathName, $mimeType, $metaData = array()) {
 
 		$absolutePathName = t3lib_div::getFileAbsFileName($pathName);
 
@@ -150,7 +154,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 			unset($serviceObject);
 		}
 
-		return $metaData;
+		return isset($metaData) ? $metaData : array();
 
 	}
 

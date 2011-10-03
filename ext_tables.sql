@@ -30,6 +30,7 @@ CREATE TABLE tx_dam_domain_model_asset (
 	ranking int(11) unsigned DEFAULT '0',
 	note text NOT NULL,
 	file int(11) unsigned DEFAULT '0',
+	thumbnail int(11) unsigned DEFAULT '0',
 
 	# TEXT + IMAGE + VIDEO
 	# 21 cm, 29.7 cm: A4

@@ -106,25 +106,40 @@ class Tx_Dam_Hooks_TCE {
 					// Init action
 				$this->initializeAction();
 
-					// check if file must be overwritten
+					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
-					// waiting for some push from Lorenz
 				if (TRUE && is_int($id)) {
-					$previousFileName = $this->getPreviousFileName($id);
+					$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
+					$asset = $assetRepository->findByUid($id);
+					
+					$previousFileName = $this->getPreviousFileName($asset);
 					if ($previousFileName) {
-						$pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'] = $this->getPreviousFileName($id);
+						$pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'] = $previousFileName;
 					}
 				}
-
+				
 				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
 				$file = $this->index($file);
 				
-				$this->indexingController = t3lib_div::makeInstance('Tx_Dam_Controller_IndexingController');
-				$metaDataArray = $this->indexingController->getMetaData($file);
-
-				// $metaDataArray is an array with indexes equivalent to fields in Tx_Dam_Model_Asset
-
+					// @todo check if file must be overwritten
+					// @todo fetch this config from TypoScript or so...
+				if (TRUE && is_int($id)) {
+					$indexingController = t3lib_div::makeInstance('Tx_Dam_Controller_IndexingController');
+					
+						// $metaDataArray is an array with indexes equivalent to fields in Tx_Dam_Model_Asset
+					$metaDataArray = $indexingController->getMetaData($file);
+					
+						// @todo check rules 
+					$fieldArray = array_merge($fieldArray, $metaDataArray);
+				}
+				
+				// create a thumbnail if not uploaded
+				$thumbnailService = t3lib_div::makeInstance('Tx_Dam_Service_Thumbnail');
+				$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
+				$thumbnailFile = $this->index($thumbnailFile);
+				$fieldArray['thumbnail'] = $thumbnailFile->getUid();
+				
 					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
 				$fieldArray['file'] = $file->getUid();
 			}
@@ -134,15 +149,12 @@ class Tx_Dam_Hooks_TCE {
 	/**
 	 * Returns the previous file name of the file
 	 *
-	 * @param string a file name
+	 * @param Tx_Dam_Model_Asset a $asset
 	 */
-	protected function getPreviousFileName($uid) {
-		$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
-		$asset = $assetRepository->findByUid($uid);
-
+	protected function getPreviousFileName($asset) {
 		if ($asset->getFile()) {
 			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
-			$file = $fileRepository->findByUid($asset->getFile());
+			$file = $fileRepository->findByUid($asset->getFile()->getUid());
 		}
 
 		return $file ? $file->getName() : '';
