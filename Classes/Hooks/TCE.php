@@ -42,22 +42,22 @@ class Tx_Media_Hooks_TCE {
 	protected $extKey = 'media';
 
 	/**
-	 * @var t3lib_vfs_Factory
+	 * @var t3lib_file_Factory
 	 */
 	protected $factory;
 
 	/**
-	 * @var t3lib_vfs_Domain_Repository_MountRepository
+	 * @var t3lib_file_Domain_Repository_MountRepository
 	 */
 	protected $mountRepository;
 
 	/**
-	 * @var t3lib_vfs_Domain_Model_Mount
+	 * @var t3lib_file_Domain_Model_Mount
 	 */
 	protected $mount;
 
 	/**
-	 * Is a child of t3lib_vfs_Service_Storage_AbstractDriver
+	 * Is a child of t3lib_file_Service_Storage_AbstractDriver
 	 *
 	 * @var object
 	 */
@@ -76,8 +76,8 @@ class Tx_Media_Hooks_TCE {
 		}
 
 			// Instantiate necessary stuff for FAL
-		$this->factory = t3lib_div::makeInstance('t3lib_vfs_Factory');
-		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+		$this->factory = t3lib_div::makeInstance('t3lib_file_Factory');
+		$this->mountRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_MountRepository');
 		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
 		$this->driver = $this->mount->getDriver();
 	}
@@ -125,13 +125,13 @@ class Tx_Media_Hooks_TCE {
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
 				if (TRUE && is_int($id)) {
-					$indexingController = t3lib_div::makeInstance('Tx_Media_Controller_IndexingController');
+					$metadataService = t3lib_div::makeInstance('Tx_Media_Service_Metadata');
 					
 						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Media
-					$metaDataArray = $indexingController->getMetaData($file);
+					$metadata = $metadataService->getMetadata($file);
 					
 						// @todo check rules 
-					$fieldArray = array_merge($fieldArray, $metaDataArray);
+					$fieldArray = array_merge($fieldArray, $metadata);
 				}
 				
 				// create a thumbnail if not uploaded
@@ -153,7 +153,7 @@ class Tx_Media_Hooks_TCE {
 	 */
 	protected function getPreviousFileName($media) {
 		if ($media->getFile()) {
-			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+			$fileRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_FileRepository');
 			$file = $fileRepository->findByUid($media->getFile()->getUid());
 		}
 
@@ -163,24 +163,24 @@ class Tx_Media_Hooks_TCE {
 	/**
 	 * Index the file into the database
 	 *
-	 * @param t3lib_vfs_Domain_Model_File $file
+	 * @param t3lib_file_Domain_Model_File $file
 	 */
 	protected function index($file) {
-		/** @var t3lib_vfs_Domain_Repository_FileRepository $fileRepository */
-		$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+		/** @var t3lib_file_Domain_Repository_FileRepository $fileRepository */
+		$fileRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_FileRepository');
 		return $fileRepository->addToIndex($file);
 	}
 
 	/**
 	 * Upload the file to the right directory
 	 *
-	 * @param t3lib_vfs_Domain_Model_File $file
+	 * @param t3lib_file_Domain_Model_File $file
 	 */
 	protected function upload($uploadedFile) {
 		$path = Tx_Media_Configuration_Static::$mediaDirectory;
 
-		/** @var $uploader t3lib_vfs_Service_UploaderService */
-		$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');
+		/** @var $uploader t3lib_file_Service_UploaderService */
+		$uploader = t3lib_div::makeInstance('t3lib_file_Service_UploaderService');
 
 		if (isset($uploadedFile['name'])) {
 			if ($uploadedFile['error']['file']) {

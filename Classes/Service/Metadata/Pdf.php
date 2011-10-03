@@ -31,9 +31,9 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_PdfService extends t3lib_svbase {
-	protected $prefixId = 'tx_media_pdfservice';		// Same as class name
-	protected $scriptRelPath = 'Classes/Service/PdfService.php';	// Path to this script relative to the extension dir.
+class Tx_Media_Service_Metadata_Pdf extends t3lib_svbase {
+	protected $prefixId = 'tx_media_service_metadata_pdf';		// Same as class name
+	protected $scriptRelPath = 'Classes/Service/Metadata/Pdf.php';	// Path to this script relative to the extension dir.
 	protected $extKey = 'media';	// The extension key.
 
 	/**
@@ -43,9 +43,9 @@ class Tx_Media_PdfService extends t3lib_svbase {
 	 */
 	public function process()	{
 
-		$includePath = t3lib_extMgm::extPath($this->extKey) . 'Classes/Utility/';
+		$includePath = t3lib_extMgm::extPath($this->extKey) . 'Resources/Private/PHP/';
 		set_include_path($includePath);
-		require_once(t3lib_extMgm::extPath($this->extKey) . 'Classes/Utility/Zend/Pdf.php');
+		require_once(t3lib_extMgm::extPath($this->extKey) . 'Resources/Private/PHP/Zend/Pdf.php');
 
 		$this->out = array();
 		$this->out['fields'] = array();
@@ -55,7 +55,7 @@ class Tx_Media_PdfService extends t3lib_svbase {
 			$pdf = Zend_Pdf::load($inputFile);
 
 			if (is_object($pdf)) {
-				//ToDO: Check possible encoding problems, think about security aspects (SQL injection through metadata)
+
 				$this->out['fields']['title'] = $pdf->properties['Title'];
 				$this->out['fields']['creator'] = $pdf->properties['Author'];
 				$this->out['fields']['description'] = $pdf->properties['Subject'];
@@ -119,8 +119,8 @@ class Tx_Media_PdfService extends t3lib_svbase {
 
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Classes/Service/PdfService.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Classes/Service/PdfService.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Classes/Service/Pdf.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Classes/Service/Pdf.php']);
 }
 
 ?>

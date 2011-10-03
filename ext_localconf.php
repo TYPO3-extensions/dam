@@ -3,6 +3,20 @@ if (!defined('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 
+	// Add mapping of Media domain model to tables
+$tableMapping = '
+config.tx_extbase.persistence.classes {
+	Tx_Dam_Domain_Model_Media.mapping.tableName = tx_media
+	Tx_Dam_Domain_Model_Text.mapping.tableName = tx_media
+	Tx_Dam_Domain_Model_Image.mapping.tableName = tx_media
+	Tx_Dam_Domain_Model_Audio.mapping.tableName = tx_media
+	Tx_Dam_Domain_Model_Video.mapping.tableName = tx_media
+	Tx_Dam_Domain_Model_Software.mapping.tableName = tx_media
+}
+';
+t3lib_extMgm::addTypoScript('media', 'setup', $tableMapping);
+
+
 Tx_Extbase_Utility_Extension::configurePlugin(
 	$_EXTKEY,
 	'Frontend',
@@ -41,8 +55,8 @@ t3lib_extMgm::addService($_EXTKEY, 'metaExtract', 'Tx_Media_PdfService', array(
 	'os'          => '',
 	'exec'        => '',
 
-	'classFile'   => $PATH_media . 'Classes/Service/PdfService.php',
-	'className'   => 'Tx_Media_PdfService',
+	'classFile'   => $PATH_media . 'Classes/Service/Metadata/Pdf.php',
+	'className'   => 'Tx_Media_Service_Metadata_Pdf',
 ));
 
 
