@@ -47,18 +47,9 @@ class Tx_Media_Service_Thumbnail {
 	protected $force = FALSE;
 	
 	/**
-	 * The Indexing service
-	 * 
-	 * @var Tx_Media_Controller_IndexingController
-	 */
-	protected $indexingController;
-	
-	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		/* @var $this->indexingController Tx_Media_Controller_IndexingController */
-		$this->indexingController = t3lib_div::makeInstance('Tx_Media_Controller_IndexingController');
 	}
 	
 	/**
@@ -78,8 +69,7 @@ class Tx_Media_Service_Thumbnail {
 			$input = $file->getAbsolutePath();
 
 				// Computes Thumbnail absolute path
-			$extension = $this->indexingController->getExtension($file);
-			$thumbnailName = preg_replace('/' . $extension . '$/is', 'png', $file->getName());
+			$thumbnailName = preg_replace('/' . $file->getFileExtension() . '$/is', 'png', $file->getName());
 			$thumbnailPath = PATH_site . 'typo3temp/' . $thumbnailName;
 
 			if ($GLOBALS['TYPO3_CONF_VARS']['GFX']['im']) {
