@@ -111,7 +111,6 @@ CREATE TABLE tx_media_mimetype (
 	pid int(11) DEFAULT '0' NOT NULL,
 
 	mime_type varchar(255) DEFAULT '' NOT NULL,
-	mime_type_name varchar(255) DEFAULT '' NOT NULL,
 	media_type int(11) unsigned DEFAULT '0',
 
 	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
