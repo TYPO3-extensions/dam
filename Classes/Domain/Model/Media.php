@@ -31,7 +31,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
+class Tx_Media_Domain_Model_Media extends Tx_Extbase_DomainObject_AbstractEntity {
 
 	/**
 	 * Title
@@ -135,9 +135,7 @@ class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
 	/**
 	 * File
 	 *
-	 * @todo should be t3lib_vfs_Domain_Model_File instead of int
-	 * 
-	 * @var int
+	 * @var t3lib_file_Domain_Model_File
 	 */
 	protected $file;
 
@@ -461,13 +459,13 @@ class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
 	/**
 	 * Returns the file
 	 *
-	 * @return t3lib_vfs_Domain_Model_File $file
+	 * @return t3lib_file_Domain_Model_File $file
 	 */
 	public function getFile() {
 		// @todo check why the constructor is not called for this object. 
 		// It looks that extbase is doing some magic...
 		if (is_int($this->file) && $this->file > 0) {
-			$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+			$fileRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_FileRepository');
 			$this->file = $fileRepository->findByUid($this->file);
 		}
 		return $this->file;
@@ -476,7 +474,7 @@ class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
 	/**
 	 * Sets the file
 	 * 
-	 * @param t3lib_vfs_Domain_Model_File $file
+	 * @param t3lib_file_Domain_Model_File $file
 	 * @return void
 	 */
 	public function setFile(Tx_Media_Domain_Model_File $file) {
@@ -489,6 +487,10 @@ class tx_media extends Tx_Extbase_DomainObject_AbstractEntity {
 	 * @return tx_mediaType $mediaType
 	 */
 	public function getMediaType() {
+		if (!(is_int($this->mediaType) && $this->mediaType > 0)) {
+			$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('media_type', 'tx_media_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
+			$this->mediaType = $row['media_type'];
+		}
 		return $this->mediaType;
 	}
 

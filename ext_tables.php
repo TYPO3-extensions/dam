@@ -28,7 +28,6 @@ if (TYPO3_MODE === 'BE') {
 		'media',	// Submodule key
 		'',						// Position
 		array(
-			'Indexing' => 'index',
 		//	'Media' => 'show, list, new, create, edit, update, delete',
 		//	'Collection' => 'list, show, new, create, edit, update, delete',
 		//	'Filter' => 'list, show, new, create, edit, update, delete',

@@ -44,7 +44,7 @@ class Tx_Media_ExtensionManager_UserField {
 	protected $configuration = array();
 	
 	/**
-	 * @var t3lib_vfs_Domain_Repository_MountRepository
+	 * @var t3lib_file_Domain_Repository_MountRepository
 	 */
 	protected $mountRepository;
 
@@ -64,9 +64,9 @@ class Tx_Media_ExtensionManager_UserField {
 			$this->configuration = array_merge($this->configuration, $postData['data']);
 		}
 		
-		/** @var $mount t3lib_vfs_Domain_Model_Mount */
+		/** @var $mount t3lib_file_Domain_Model_Mount */
 		if ($this->configuration['storage'] > 0) {
-			$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+			$this->mountRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_MountRepository');
 			$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
 		}
 	}

@@ -40,12 +40,12 @@ class Tx_Media_TCEforms_UserField {
 	protected $extKey = 'media';
 
 	/**
-	 * @var t3lib_vfs_Domain_Repository_MountRepository
+	 * @var t3lib_file_Domain_Repository_MountRepository
 	 */
 	protected $mountRepository;
 
 	/**
-	 * @var t3lib_vfs_Domain_Model_Mount
+	 * @var t3lib_file_Domain_Model_Mount
 	 */
 	protected $mount;
 
@@ -74,7 +74,7 @@ class Tx_Media_TCEforms_UserField {
 		$this->thumbnailIconPublicPath = t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/MimeTypes/';
 
 			// Instantiate necessary stuff for FAL
-		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
+		$this->mountRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_MountRepository');
 		$this->mount = $this->mountRepository->findByUid($this->configuration['storage']);
 
 			// Load StyleSheet in the Page Renderer
@@ -107,7 +107,7 @@ class Tx_Media_TCEforms_UserField {
 
 				// TRUE means this is an image and a thumbnail can be generated
 			if ($record['media_type'] == 2) {
-				$fileRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_FileRepository');
+				$fileRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_FileRepository');
 				$file = $fileRepository->findByUid($record['file']);
 
 					// Fetches the absolute file path
