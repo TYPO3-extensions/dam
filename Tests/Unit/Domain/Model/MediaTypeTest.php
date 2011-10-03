@@ -3,8 +3,8 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2011 Fabien Udriot <fabien.udriot@typo3.org>
- *  			Lorenz Ulrich <lorenz.ulrich@visol.ch>
+ *  (c) 2011 Media development team
+ <typo3-project-media@lists.typo3.org>, TYPO3 Association
  *  			
  *  All rights reserved
  *
@@ -26,26 +26,26 @@
  ***************************************************************/
 
 /**
- * Test case for class Tx_Dam_Domain_Model_MediaType.
+ * Test case for class tx_mediaType.
  *
  * @version $Id$
  * @copyright Copyright belongs to the respective authors
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  *
  * @package TYPO3
- * @subpackage DAM
+ * @subpackage tx_media
  *
- * @author Fabien Udriot <fabien.udriot@typo3.org>
- * @author Lorenz Ulrich <lorenz.ulrich@visol.ch>
+ * @author Media development team
+ <typo3-project-media@lists.typo3.org>
  */
-class Tx_Dam_Domain_Model_MediaTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class tx_mediaTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
 	/**
-	 * @var Tx_Dam_Domain_Model_MediaType
+	 * @var tx_mediaType
 	 */
 	protected $fixture;
 
 	public function setUp() {
-		$this->fixture = new Tx_Dam_Domain_Model_MediaType();
+		$this->fixture = new tx_mediaType();
 	}
 
 	public function tearDown() {
@@ -56,17 +56,17 @@ class Tx_Dam_Domain_Model_MediaTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCa
 	/**
 	 * @test
 	 */
-	public function getMediaTypeReturnsInitialValueForString() { }
+	public function getAssetTypeReturnsInitialValueForString() { }
 
 	/**
 	 * @test
 	 */
-	public function setMediaTypeForStringSetsMediaType() { 
-		$this->fixture->setMediaType('Conceived at T3CON10');
+	public function setAssetTypeForStringSetsAssetType() { 
+		$this->fixture->setAssetType('Conceived at T3CON10');
 
 		$this->assertSame(
 			'Conceived at T3CON10',
-			$this->fixture->getMediaType()
+			$this->fixture->getAssetType()
 		);
 	}
 	

@@ -26,11 +26,11 @@
 
 /**
  *
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_Service_Thumbnail {
+class Tx_Media_Service_Thumbnail {
 
 	/**
 	 * The size of the Thumbnail
@@ -49,7 +49,7 @@ class Tx_Dam_Service_Thumbnail {
 	/**
 	 * The Indexing service
 	 * 
-	 * @var Tx_Dam_Controller_IndexingController
+	 * @var Tx_Media_Controller_IndexingController
 	 */
 	protected $indexingController;
 	
@@ -57,8 +57,8 @@ class Tx_Dam_Service_Thumbnail {
 	 * Constructor
 	 */
 	public function __construct() {
-		/* @var $this->indexingController Tx_Dam_Controller_IndexingController */
-		$this->indexingController = t3lib_div::makeInstance('Tx_Dam_Controller_IndexingController');
+		/* @var $this->indexingController Tx_Media_Controller_IndexingController */
+		$this->indexingController = t3lib_div::makeInstance('Tx_Media_Controller_IndexingController');
 	}
 	
 	/**
@@ -102,7 +102,7 @@ class Tx_Dam_Service_Thumbnail {
 			//$this->errorGif('Not imagefile!', $ext, basename($input));
 		}
 		
-		$path = Tx_Dam_Configuration_Static::$thumbnailDirectory;
+		$path = Tx_Media_Configuration_Static::$thumbnailDirectory;
 
 		/** @var $uploader t3lib_vfs_Service_UploaderService */
 		$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');

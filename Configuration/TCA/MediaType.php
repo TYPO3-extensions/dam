@@ -3,13 +3,13 @@ if (!defined ('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 
-$TCA['tx_media_mimetype'] = array(
-	'ctrl' => $TCA['tx_media_mimetype']['ctrl'],
+$TCA['tx_media_mediatype'] = array(
+	'ctrl' => $TCA['tx_media_mediatype']['ctrl'],
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, mime_type, mime_type_name, asset_type',
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, asset_type',
 	),
 	'types' => array(
-		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, mime_type, mime_type_name, asset_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
+		'1' => array('showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, asset_type,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 	),
 	'palettes' => array(
 		'1' => array('showitem' => ''),
@@ -37,8 +37,8 @@ $TCA['tx_media_mimetype'] = array(
 				'items' => array(
 					array('', 0),
 				),
-				'foreign_table' => 'tx_media_mimetype',
-				'foreign_table_where' => 'AND tx_media_mimetype.pid=###CURRENT_PID### AND tx_media_mimetype.sys_language_uid IN (-1,0)',
+				'foreign_table' => 'tx_media_mediatype',
+				'foreign_table_where' => 'AND tx_media_mediatype.pid=###CURRENT_PID### AND tx_media_mediatype.sys_language_uid IN (-1,0)',
 			),
 		),
 		'l10n_diffsource' => array(
@@ -93,39 +93,13 @@ $TCA['tx_media_mimetype'] = array(
 				),
 			),
 		),
-		'mime_type' => array(
+		'asset_type' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mimetype.mime_type',
+			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mediatype.asset_type',
 			'config' => array(
 				'type' => 'input',
 				'size' => 30,
 				'eval' => 'trim,required'
-			),
-		),
-		'mime_type_name' => array(
-			'exclude' => 1,
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mimetype.mime_type_name',
-			'config' => array(
-				'type' => 'input',
-				'size' => 30,
-				'eval' => 'trim'
-			),
-		),
-		'asset_type' => array(
-			'exclude' => 0,
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mimetype.asset_type',
-			'config' => array(
-				'type' => 'select',
-				'foreign_table' => 'tx_media_mediatype',
-				'minitems' => 1,
-				'maxitems' => 1,
-				/*'appearance' => array(
-					'collapse' => 0,
-					'levelLinksPosition' => 'top',
-					'showSynchronizationLink' => 1,
-					'showPossibleLocalizationRecords' => 1,
-					'showAllLocalizationLink' => 1
-				),*/
 			),
 		),
 	),

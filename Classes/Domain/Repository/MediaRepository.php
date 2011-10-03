@@ -31,18 +31,27 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_Domain_Repository_VideoRepository extends Tx_Extbase_Persistence_Repository {
-	
+class Tx_Media_Domain_Repository_AssetRepository extends Tx_Extbase_Persistence_Repository {
+
 	/**
-	 * Returns all objects of this repository
+	 * Update a Media Management asset with new information
 	 *
-	 * @return array An array of objects, empty if no objects found
-	 * @api
+	 * @param	string		$uid of the Media asset
+	 * @return	array		file information
 	 */
-	public function findAll() {
-		// @todo add filter onto Video
-		$result = $this->createQuery()->execute();
-		return $result;
+	public function updateAsset($uid, $metaData) {
+
+		//TODO finish work
+
+		$data = array();
+		$data['tx_media'][$uid] = array(
+			'title' => 'New title'
+		);
+
+		$tce = t3lib_div::makeInstance ('t3lib_TCEmain');
+		$tce->start ($data, array());
+		$tce->process_datamap ();
+
 	}
 
 }

@@ -3,7 +3,8 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2011 The DAM development team <typo-project-dam@lists.typo3.org>, TYPO3 Association
+ *  (c) 2011 Media development team
+ <typo3-project-media@lists.typo3.org>, TYPO3 Association
  *  			
  *  All rights reserved
  *
@@ -25,25 +26,26 @@
  ***************************************************************/
 
 /**
- * Test case for class Tx_Dam_Domain_Model_MimeType.
+ * Test case for class Tx_Media_Domain_Model_MimeType.
  *
  * @version $Id$
  * @copyright Copyright belongs to the respective authors
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  *
  * @package TYPO3
- * @subpackage DAM
+ * @subpackage tx_media
  *
- * @author The DAM development team <typo-project-dam@lists.typo3.org>
+ * @author Media development team
+ <typo3-project-media@lists.typo3.org>
  */
-class Tx_Dam_Domain_Model_MimeTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
+class Tx_Media_Domain_Model_MimeTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
 	/**
-	 * @var Tx_Dam_Domain_Model_MimeType
+	 * @var Tx_Media_Domain_Model_MimeType
 	 */
 	protected $fixture;
 
 	public function setUp() {
-		$this->fixture = new Tx_Dam_Domain_Model_MimeType();
+		$this->fixture = new Tx_Media_Domain_Model_MimeType();
 	}
 
 	public function tearDown() {
@@ -88,7 +90,7 @@ class Tx_Dam_Domain_Model_MimeTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCas
 	/**
 	 * @test
 	 */
-	public function getAssetTypeReturnsInitialValueForTx_Dam_Domain_Model_AssetType() { 
+	public function getAssetTypeReturnsInitialValueFortx_mediaType() {
 		$this->assertEquals(
 			NULL,
 			$this->fixture->getAssetType()
@@ -98,8 +100,8 @@ class Tx_Dam_Domain_Model_MimeTypeTest extends Tx_Extbase_Tests_Unit_BaseTestCas
 	/**
 	 * @test
 	 */
-	public function setAssetTypeForTx_Dam_Domain_Model_AssetTypeSetsAssetType() { 
-		$dummyObject = new Tx_Dam_Domain_Model_AssetType();
+	public function setAssetTypeFortx_mediaTypeSetsAssetType() {
+		$dummyObject = new tx_mediaType();
 		$this->fixture->setAssetType($dummyObject);
 
 		$this->assertSame(

@@ -27,11 +27,11 @@
 /**
  *
  *
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_Domain_Model_Software extends Tx_Dam_Domain_Model_Asset {
+class Tx_Media_Domain_Model_Software extends tx_media {
 		
 	/**
 	 * __construct

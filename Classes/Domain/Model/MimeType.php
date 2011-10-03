@@ -29,11 +29,11 @@
 /**
  *
  *
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntity {
+class Tx_Media_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntity {
 
 	/**
 	 * MIME type
@@ -53,7 +53,7 @@ class Tx_Dam_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntit
 	/**
 	 * Asset type
 	 *
-	 * @var Tx_Dam_Domain_Model_AssetType
+	 * @var tx_mediaType
 	 */
 	protected $assetType;
 
@@ -107,7 +107,7 @@ class Tx_Dam_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntit
 	/**
 	 * Returns the assetType
 	 *
-	 * @return Tx_Dam_Domain_Model_AssetType $assetType
+	 * @return tx_mediaType $assetType
 	 */
 	public function getAssetType() {
 		return $this->assetType;
@@ -116,10 +116,10 @@ class Tx_Dam_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntit
 	/**
 	 * Sets the assetType
 	 *
-	 * @param Tx_Dam_Domain_Model_AssetType $assetType
+	 * @param tx_mediaType $assetType
 	 * @return void
 	 */
-	public function setAssetType(Tx_Dam_Domain_Model_AssetType $assetType) {
+	public function setAssetType(tx_mediaType $assetType) {
 		$this->assetType = $assetType;
 	}
 

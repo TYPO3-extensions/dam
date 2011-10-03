@@ -29,11 +29,11 @@
 /**
  *
  *
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_ActionController {
+class Tx_Media_Controller_IndexingController extends Tx_Extbase_MVC_Controller_ActionController {
 
 	/**
 	 * __construct
@@ -47,7 +47,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 	public function indexAction() {
 		// this function is only for testing in backend
 
-		$pathName = 'typo3conf/ext/dam/Tests/MimeType/test.pdf';
+		$pathName = 'typo3conf/ext/media/Tests/MimeType/test.pdf';
 
 		echo 'File name for testing: ' . $pathName;
 
@@ -123,7 +123,7 @@ class Tx_Dam_Controller_IndexingController extends Tx_Extbase_MVC_Controller_Act
 		// Todo: Move this query to the appropriate place.
 		
 		/* @var $GLOBALS['TYPO3_DB'] t3lib_DB */
-		$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('asset_type', 'tx_dam_domain_model_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
+		$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('asset_type', 'tx_media_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
 		return $row['asset_type'];
 	}
 

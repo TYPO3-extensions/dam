@@ -23,21 +23,21 @@
  ***************************************************************/
 
 /**
- * TCEform custom field for DAM
+ * TCEform custom field for Media
  *
  * @author Fabien Udriot <fabien.udriot@ecodev.ch>
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_TCEforms_UserField {
+class Tx_Media_TCEforms_UserField {
 
 	/**
 	 * The extension key
 	 *
 	 * @var string
 	 */
-	protected $extKey = 'dam';
+	protected $extKey = 'media';
 
 	/**
 	 * @var t3lib_vfs_Domain_Repository_MountRepository
@@ -70,8 +70,8 @@ class Tx_Dam_TCEforms_UserField {
 
 			// Load preferences
 		$this->configuration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-		$this->thumbnailIconPath = t3lib_extMgm::extPath('dam') . 'Resources/Public/Icons/MimeTypes/';
-		$this->thumbnailIconPublicPath = t3lib_extMgm::extRelPath('dam') . 'Resources/Public/Icons/MimeTypes/';
+		$this->thumbnailIconPath = t3lib_extMgm::extPath('media') . 'Resources/Public/Icons/MimeTypes/';
+		$this->thumbnailIconPublicPath = t3lib_extMgm::extRelPath('media') . 'Resources/Public/Icons/MimeTypes/';
 
 			// Instantiate necessary stuff for FAL
 		$this->mountRepository = t3lib_div::makeInstance('t3lib_vfs_Domain_Repository_MountRepository');
@@ -79,12 +79,12 @@ class Tx_Dam_TCEforms_UserField {
 
 			// Load StyleSheet in the Page Renderer
 		$this->pageRenderer = $GLOBALS['SOBE']->doc->getPageRenderer();
-		$cssFile = t3lib_extMgm::extRelPath('dam') . 'Resources/Public/StyleSheets/Dam.css';
+		$cssFile = t3lib_extMgm::extRelPath('media') . 'Resources/Public/StyleSheets/Media.css';
 		$this->pageRenderer->addCssFile($cssFile);
 	}
 
 	/**
-	 * This method renders the user-defined thumbnails for DAM purpose
+	 * This method renders the user-defined thumbnails for Media purpose
 	 *
 	 * @param	array			$PA: information related to the field
 	 * @param	t3lib_tceforms	$fobj: reference to calling TCEforms object
@@ -98,7 +98,7 @@ class Tx_Dam_TCEforms_UserField {
 		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
 
 			// Get template file and pass it to the view
-		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/File.html';
+		$filePath = t3lib_extMgm::extPath('media') . 'Resources/Private/TCEforms/File.html';
 		$view->setTemplatePathAndFilename($filePath);
 
 		$record = $PA['row'];
@@ -114,7 +114,7 @@ class Tx_Dam_TCEforms_UserField {
 				$fileAbsolutePath = $this->mount->getDriver()->getAbsolutePath($file);
 
 					// Generates HTML for Thumbnail generation
-				$thumbnail = t3lib_BEfunc::getThumbNail('thumbs.php', $fileAbsolutePath,' align="middle" style="border:solid 1px #ccc;" class="tx-dam-thumbnail" ',160);
+				$thumbnail = t3lib_BEfunc::getThumbNail('thumbs.php', $fileAbsolutePath,' align="middle" style="border:solid 1px #ccc;" class="tx-media-thumbnail" ',160);
 			}
 			else {
 				$thumbnailIcon = $this->thumbnailIconPath . $record['mime_type'] . 'png';
@@ -144,7 +144,7 @@ class Tx_Dam_TCEforms_UserField {
 	}
 
 	/**
-	 * This method renders the user-defined thumbnails for DAM purpose
+	 * This method renders the user-defined thumbnails for Media purpose
 	 *
 	 * @param	array			$PA: information related to the field
 	 * @param	t3lib_tceforms	$fobj: reference to calling TCEforms object
@@ -158,7 +158,7 @@ class Tx_Dam_TCEforms_UserField {
 		$view = t3lib_div::makeInstance('Tx_Fluid_View_StandaloneView');
 
 			// Get template file and pass it to the view
-		$filePath = t3lib_extMgm::extPath('dam') . 'Resources/Private/TCEforms/Thumbnail.html';
+		$filePath = t3lib_extMgm::extPath('media') . 'Resources/Private/TCEforms/Thumbnail.html';
 		$view->setTemplatePathAndFilename($filePath);
 
 		$record = $PA['row'];
@@ -175,8 +175,8 @@ class Tx_Dam_TCEforms_UserField {
 
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/Resources/Private/PHP/TCEforms/class.tx_dam_tceforms.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/Resources/Private/PHP/TCEforms/class.tx_dam_tceforms.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Resources/Private/PHP/TCEforms/class.tx_media_tceforms.php']) {
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Resources/Private/PHP/TCEforms/class.tx_media_tceforms.php']);
 }
 
 ?>

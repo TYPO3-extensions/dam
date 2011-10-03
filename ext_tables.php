@@ -6,7 +6,7 @@ if (!defined('TYPO3_MODE')) {
 Tx_Extbase_Utility_Extension::registerPlugin(
 	$_EXTKEY,
 	'Frontend',
-	'DAM Frontend'
+	'Media Frontend'
 );
 
 //$pluginSignature = str_replace('_','',$_EXTKEY) . '_' . frontend;
@@ -25,7 +25,7 @@ if (TYPO3_MODE === 'BE') {
 	Tx_Extbase_Utility_Extension::registerModule(
 		$_EXTKEY,
 		'tools',	 // Make module a submodule of 'tools'
-		'dam',	// Submodule key
+		'media',	// Submodule key
 		'',						// Position
 		array(
 			'Indexing' => 'index',
@@ -37,7 +37,7 @@ if (TYPO3_MODE === 'BE') {
 		array(
 			'access' => 'user,group',
 			'icon'   => 'EXT:' . $_EXTKEY . '/ext_icon.gif',
-			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_dam.xml',
+			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_media.xml',
 		)
 	);
 
@@ -48,21 +48,21 @@ if (TYPO3_MODE === 'BE') {
 		$moduleLoader->addStandardTree(Tx_Vidi_Service_ModuleLoader::TREE_FILES);
 		$moduleLoader->setAllowedDataTypes(array('__FILES'));
 		$moduleLoader->setMainModule('file');
-		$moduleLoader->setModuleLanguageFile('LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_dam.xml');
+		$moduleLoader->setModuleLanguageFile('LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang_media.xml');
 		$moduleLoader->setIcon('EXT:' . $_EXTKEY . '/ext_icon.gif');
 		$moduleLoader->register();
 	}
 }
 
 
-t3lib_extMgm::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'DAM');
+t3lib_extMgm::addStaticFile($_EXTKEY, 'Configuration/TypoScript', 'Media Management');
 
 
-t3lib_extMgm::addLLrefForTCAdescr('tx_dam_domain_model_asset', 'EXT:dam/Resources/Private/Language/locallang_csh_tx_dam_domain_model_asset.xml');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_domain_model_asset');
-$TCA['tx_dam_domain_model_asset'] = array(
+t3lib_extMgm::addLLrefForTCAdescr('tx_media', 'EXT:media/Resources/Private/Language/locallang_csh_tx_media.xml');
+t3lib_extMgm::allowTableOnStandardPages('tx_media');
+$TCA['tx_media'] = array(
 	'ctrl' => array(
-		'title'	=> 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_asset',
+		'title'	=> 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -81,102 +81,32 @@ $TCA['tx_dam_domain_model_asset'] = array(
 			'starttime' => 'starttime',
 			'endtime' => 'endtime',
 		),
-		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/Asset.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_dam_domain_model_asset.gif'
+		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/Media.php',
+		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_media.gif'
 	),
 );
 
-t3lib_extMgm::addLLrefForTCAdescr('tx_dam_domain_model_collection', 'EXT:dam/Resources/Private/Language/locallang_csh_tx_dam_domain_model_collection.xml');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_domain_model_collection');
-$TCA['tx_dam_domain_model_collection'] = array(
+t3lib_extMgm::addLLrefForTCAdescr('tx_media_mediatype', 'EXT:media/Resources/Private/Language/locallang_csh_tx_media_mediatype.xml');
+t3lib_extMgm::allowTableOnStandardPages('tx_media_mediatype');
+$TCA['tx_media_mediatype'] = array(
 	'ctrl' => array(
-		'title'	=> 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_collection',
-		'label' => 'collection_name',
-		'tstamp' => 'tstamp',
-		'crdate' => 'crdate',
-		'cruser_id' => 'cruser_id',
-		'dividers2tabs' => TRUE,
-		'delete' => 'deleted',
-		'enablecolumns' => array(
-			'disabled' => 'hidden',
-			'starttime' => 'starttime',
-			'endtime' => 'endtime',
-		),
-		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/Collection.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_dam_domain_model_collection.gif'
-	),
-);
-
-t3lib_extMgm::addLLrefForTCAdescr('tx_dam_domain_model_filter', 'EXT:dam/Resources/Private/Language/locallang_csh_tx_dam_domain_model_filter.xml');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_domain_model_filter');
-$TCA['tx_dam_domain_model_filter'] = array(
-	'ctrl' => array(
-		'title'	=> 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_filter',
-		'label' => 'filter_name',
-		'tstamp' => 'tstamp',
-		'crdate' => 'crdate',
-		'cruser_id' => 'cruser_id',
-		'dividers2tabs' => TRUE,
-		'delete' => 'deleted',
-		'enablecolumns' => array(
-			'disabled' => 'hidden',
-			'starttime' => 'starttime',
-			'endtime' => 'endtime',
-		),
-		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/Filter.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_dam_domain_model_filter.gif'
-	),
-);
-
-t3lib_extMgm::addLLrefForTCAdescr('tx_dam_domain_model_assettype', 'EXT:dam/Resources/Private/Language/locallang_csh_tx_dam_domain_model_assettype.xml');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_domain_model_assettype');
-$TCA['tx_dam_domain_model_assettype'] = array(
-	'ctrl' => array(
-		'title'	=> 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_assettype',
+		'title'	=> 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mediatype',
 		'label' => 'asset_type',
 		'dividers2tabs' => TRUE,
 		'delete' => 'deleted',
 		'enablecolumns' => array(
 			'disabled' => 'hidden',
 		),
-		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/AssetType.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_dam_domain_model_assettype.gif'
+		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/MediaType.php',
+		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_media_mediatype.gif'
 	),
 );
 
-/* tx_dam_domain_model_file is only a dummy for sys_file, mapped by Typoscript */
-/*t3lib_extMgm::addLLrefForTCAdescr('tx_dam_domain_model_file', 'EXT:dam/Resources/Private/Language/locallang_csh_tx_dam_domain_model_file.xml');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_domain_model_file');
-$TCA['tx_dam_domain_model_file'] = array(
+t3lib_extMgm::addLLrefForTCAdescr('tx_media_mimetype', 'EXT:media/Resources/Private/Language/locallang_csh_tx_media_mimetype.xml');
+t3lib_extMgm::allowTableOnStandardPages('tx_media_mimetype');
+$TCA['tx_media_mimetype'] = array(
 	'ctrl' => array(
-		'title'	=> 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_file',
-		'label' => 'name',
-		'tstamp' => 'tstamp',
-		'crdate' => 'crdate',
-		'cruser_id' => 'cruser_id',
-		'dividers2tabs' => TRUE,
-		'versioningWS' => 2,
-		'versioning_followPages' => TRUE,
-		'origUid' => 't3_origuid',
-		'languageField' => 'sys_language_uid',
-		'transOrigPointerField' => 'l10n_parent',
-		'transOrigDiffSourceField' => 'l10n_diffsource',
-		'delete' => 'deleted',
-		'enablecolumns' => array(
-			'disabled' => 'hidden',
-			'starttime' => 'starttime',
-			'endtime' => 'endtime',
-		),
-		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/File.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_dam_domain_model_file.gif'
-	),
-);*/
-
-t3lib_extMgm::addLLrefForTCAdescr('tx_dam_domain_model_mimetype', 'EXT:dam/Resources/Private/Language/locallang_csh_tx_dam_domain_model_mimetype.xml');
-t3lib_extMgm::allowTableOnStandardPages('tx_dam_domain_model_mimetype');
-$TCA['tx_dam_domain_model_mimetype'] = array(
-	'ctrl' => array(
-		'title'	=> 'LLL:EXT:dam/Resources/Private/Language/locallang_db.xml:tx_dam_domain_model_mimetype',
+		'title'	=> 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media_mimetype',
 		'label' => 'mime_type',
 		'dividers2tabs' => TRUE,
 		'delete' => 'deleted',
@@ -184,7 +114,7 @@ $TCA['tx_dam_domain_model_mimetype'] = array(
 			'disabled' => 'hidden',
 		),
 		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'Configuration/TCA/MimeType.php',
-		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_dam_domain_model_mimetype.gif'
+		'iconfile' => t3lib_extMgm::extRelPath($_EXTKEY) . 'Resources/Public/Icons/tx_media_mimetype.gif'
 	),
 );
 

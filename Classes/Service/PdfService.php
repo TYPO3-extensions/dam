@@ -27,14 +27,14 @@
 /**
  *
  *
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_PdfService extends t3lib_svbase {
-	protected $prefixId = 'tx_dam_pdfservice';		// Same as class name
+class Tx_Media_PdfService extends t3lib_svbase {
+	protected $prefixId = 'tx_media_pdfservice';		// Same as class name
 	protected $scriptRelPath = 'Classes/Service/PdfService.php';	// Path to this script relative to the extension dir.
-	protected $extKey = 'dam';	// The extension key.
+	protected $extKey = 'media';	// The extension key.
 
 	/**
 	 * Performs the service processing
@@ -119,8 +119,8 @@ class Tx_Dam_PdfService extends t3lib_svbase {
 
 
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/Classes/Service/PdfService.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/dam/Classes/Service/PdfService.php']);
+if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Classes/Service/PdfService.php'])	{
+	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/media/Classes/Service/PdfService.php']);
 }
 
 ?>

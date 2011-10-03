@@ -3,13 +3,14 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2011 
+ *  (c) 2011 Media development team <typo3-project-media@lists.typo3.org>, TYPO3 Association
+ *  			
  *  All rights reserved
  *
  *  This script is part of the TYPO3 project. The TYPO3 project is
  *  free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
+ *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
  *  The GNU General Public License can be found at
@@ -23,26 +24,38 @@
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-
 /**
+ * Test case for class Tx_Media_Controller_AssetController.
  *
+ * @version $Id$
+ * @copyright Copyright belongs to the respective authors
+ * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 3 or later
  *
- * @package media
- * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
+ * @package TYPO3
+ * @subpackage tx_media
  *
+ * @author Media development team
+ <typo3-project-media@lists.typo3.org>
  */
-class Tx_Media_Domain_Repository_VideoRepository extends Tx_Extbase_Persistence_Repository {
-	
+class Tx_Media_Controller_AssetControllerTest extends Tx_Extbase_Tests_Unit_BaseTestCase {
 	/**
-	 * Returns all objects of this repository
-	 *
-	 * @return array An array of objects, empty if no objects found
-	 * @api
+	 * @var tx_media
 	 */
-	public function findAll() {
-		// @todo add filter onto Video
-		$result = $this->createQuery()->execute();
-		return $result;
+	protected $fixture;
+
+	public function setUp() {
+		$this->fixture = new tx_media();
+	}
+
+	public function tearDown() {
+		unset($this->fixture);
+	}
+
+	/**
+	 * @test
+	 */
+	public function dummyMethod() {
+		$this->markTestIncomplete();
 	}
 
 }

@@ -32,14 +32,14 @@
  * @license     http://www.gnu.org/copyleft/gpl.html
  * @version $Id: class.tx_speciality_tcehook.php 535 2010-10-12 10:19:30Z fudriot $
  */
-class Tx_Dam_Hooks_TCE {
+class Tx_Media_Hooks_TCE {
 
 	/**
 	 * The extension key
 	 *
 	 * @var string
 	 */
-	protected $extKey = 'dam';
+	protected $extKey = 'media';
 
 	/**
 	 * @var t3lib_vfs_Factory
@@ -89,7 +89,7 @@ class Tx_Dam_Hooks_TCE {
 //	}
 
 	/**
-	 * status TXDAM_status_file_changed will be reset when record was edited
+	 * status TXMedia Management_status_file_changed will be reset when record was edited
 	 *
 	 * @param	string		action status: new/update is relevant for us
 	 * @param	string		db table
@@ -99,9 +99,9 @@ class Tx_Dam_Hooks_TCE {
 	 * @return	void
 	 */
 	public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $pObj) {
-		if ($table === 'tx_dam_domain_model_asset') {
+		if ($table === 'tx_media') {
 			$uploadedFile = array();
-			if (!empty($pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'])) {
+			if (!empty($pObj->uploadedFileArray['tx_media']['_userfuncFile']['file']['name'])) {
 
 					// Init action
 				$this->initializeAction();
@@ -109,25 +109,25 @@ class Tx_Dam_Hooks_TCE {
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
 				if (TRUE && is_int($id)) {
-					$assetRepository = t3lib_div::makeInstance('Tx_Dam_Domain_Repository_AssetRepository');
+					$assetRepository = t3lib_div::makeInstance('Tx_Media_Domain_Repository_AssetRepository');
 					$asset = $assetRepository->findByUid($id);
 					
 					$previousFileName = $this->getPreviousFileName($asset);
 					if ($previousFileName) {
-						$pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file']['name'] = $previousFileName;
+						$pObj->uploadedFileArray['tx_media']['_userfuncFile']['file']['name'] = $previousFileName;
 					}
 				}
 				
-				$uploadedFile = $pObj->uploadedFileArray['tx_dam_domain_model_asset']['_userfuncFile']['file'];
+				$uploadedFile = $pObj->uploadedFileArray['tx_media']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
 				$file = $this->index($file);
 				
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
 				if (TRUE && is_int($id)) {
-					$indexingController = t3lib_div::makeInstance('Tx_Dam_Controller_IndexingController');
+					$indexingController = t3lib_div::makeInstance('Tx_Media_Controller_IndexingController');
 					
-						// $metaDataArray is an array with indexes equivalent to fields in Tx_Dam_Model_Asset
+						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Asset
 					$metaDataArray = $indexingController->getMetaData($file);
 					
 						// @todo check rules 
@@ -135,7 +135,7 @@ class Tx_Dam_Hooks_TCE {
 				}
 				
 				// create a thumbnail if not uploaded
-				$thumbnailService = t3lib_div::makeInstance('Tx_Dam_Service_Thumbnail');
+				$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
 				$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
 				$thumbnailFile = $this->index($thumbnailFile);
 				$fieldArray['thumbnail'] = $thumbnailFile->getUid();
@@ -149,7 +149,7 @@ class Tx_Dam_Hooks_TCE {
 	/**
 	 * Returns the previous file name of the file
 	 *
-	 * @param Tx_Dam_Model_Asset a $asset
+	 * @param Tx_Media_Model_Asset a $asset
 	 */
 	protected function getPreviousFileName($asset) {
 		if ($asset->getFile()) {
@@ -177,7 +177,7 @@ class Tx_Dam_Hooks_TCE {
 	 * @param t3lib_vfs_Domain_Model_File $file
 	 */
 	protected function upload($uploadedFile) {
-		$path = Tx_Dam_Configuration_Static::$assetDirectory;
+		$path = Tx_Media_Configuration_Static::$assetDirectory;
 
 		/** @var $uploader t3lib_vfs_Service_UploaderService */
 		$uploader = t3lib_div::makeInstance('t3lib_vfs_Service_UploaderService');

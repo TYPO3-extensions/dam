@@ -1,30 +1,30 @@
-plugin.tx_dam {
+plugin.tx_media {
 	view {
-		templateRootPath = {$plugin.tx_dam.view.templateRootPath}
-		partialRootPath = {$plugin.tx_dam.view.partialRootPath}
-		layoutRootPath = {$plugin.tx_dam.view.layoutRootPath}
+		templateRootPath = {$plugin.tx_media.view.templateRootPath}
+		partialRootPath = {$plugin.tx_media.view.partialRootPath}
+		layoutRootPath = {$plugin.tx_media.view.layoutRootPath}
 	}
 	persistence {
-		storagePid = {$plugin.tx_dam.persistence.storagePid}
+		storagePid = {$plugin.tx_media.persistence.storagePid}
 	}
 }
 
-plugin.tx_dam._CSS_DEFAULT_STYLE (
+plugin.tx_media._CSS_DEFAULT_STYLE (
 	input.f3-form-error {
 		background-color:#FF9F9F;
 		border: 1px #FF0000 solid;
 	}
 
-	.tx-dam table {
+	.tx-media table {
 		border-collapse:separate;
 		border-spacing:10px;
 	}
 
-	.tx-dam table th {
+	.tx-media table th {
 		font-weight:bold;
 	}
 
-	.tx-dam table td {
+	.tx-media table td {
 		vertical-align:top;
 	}
 )
@@ -32,13 +32,13 @@ plugin.tx_dam._CSS_DEFAULT_STYLE (
 
 
  # Module configuration
-module.tx_dam {
+module.tx_media {
 	persistence {
-		storagePid = {$module.tx_dam.persistence.storagePid}
+		storagePid = {$module.tx_media.persistence.storagePid}
 	}
 	view {
-		templateRootPath = {$module.tx_dam.view.templateRootPath}
-		partialRootPath = {$module.tx_dam.view.partialRootPath}
-		layoutRootPath = {$module.tx_dam.view.layoutRootPath}
+		templateRootPath = {$module.tx_media.view.templateRootPath}
+		partialRootPath = {$module.tx_media.view.partialRootPath}
+		layoutRootPath = {$module.tx_media.view.layoutRootPath}
 	}
 }

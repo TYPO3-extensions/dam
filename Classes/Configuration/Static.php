@@ -27,11 +27,11 @@
 /**
  *
  *
- * @package dam
+ * @package media
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Dam_Configuration_Static {
+class Tx_Media_Configuration_Static {
 
 	public static $assetDirectory = 'AssetStorage/Assets/';
 	public static $thumbnailDirectory = 'AssetStorage/Thumbnails/';

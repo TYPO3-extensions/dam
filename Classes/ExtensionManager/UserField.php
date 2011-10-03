@@ -27,14 +27,14 @@
 /**
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  */
-class Tx_Dam_ExtensionManager_UserField {
+class Tx_Media_ExtensionManager_UserField {
 
 	/**
 	 * The extension key
 	 * 
 	 * @var string
 	 */
-	protected $extKey = 'dam';
+	protected $extKey = 'media';
 
 	/**
 	 * The Configuration Array
@@ -87,10 +87,10 @@ class Tx_Dam_ExtensionManager_UserField {
 			<div style="">
 				<div class="typo3-message message-warning">
 					<div class="message-header">'
-						. $GLOBALS['LANG']->sL('LLL:EXT:dam/Resources/Private/Language/locallang_dam.xml:updater_header') .
+						. $GLOBALS['LANG']->sL('LLL:EXT:media/Resources/Private/Language/locallang_media.xml:updater_header') .
 					'</div>
 					<div class="message-body">
-						' . $GLOBALS['LANG']->sL('LLL:EXT:dam/Resources/Private/Language/locallang_dam.xml:updater_message') . '
+						' . $GLOBALS['LANG']->sL('LLL:EXT:media/Resources/Private/Language/locallang_media.xml:updater_message') . '
 					</div>
 				</div>
 			</div>
@@ -102,7 +102,7 @@ class Tx_Dam_ExtensionManager_UserField {
 			$actionOut = '';
 			$actions = array();
 			
-				// Create default directory for DAM
+				// Create default directory for Media
 			if ($this->createDefaultDirectory()) {
 				$absoluteBasePath = $this->mount->getDriver()->getAbsoluteBasePath();
 				$actions[] = 'Created new default directory within "' . $absoluteBasePath . '"';
@@ -118,10 +118,10 @@ class Tx_Dam_ExtensionManager_UserField {
 			<div style="">
 				<div class="typo3-message message-ok">
 					<div class="message-header">'
-						. $GLOBALS['LANG']->sL('LLL:EXT:dam/Resources/Private/Language/locallang_dam.xml:ok_header') .
+						. $GLOBALS['LANG']->sL('LLL:EXT:media/Resources/Private/Language/locallang_media.xml:ok_header') .
 					'</div>
 					<div class="message-body">
-						' . $GLOBALS['LANG']->sL('LLL:EXT:dam/Resources/Private/Language/locallang_dam.xml:ok_message') . '
+						' . $GLOBALS['LANG']->sL('LLL:EXT:media/Resources/Private/Language/locallang_media.xml:ok_message') . '
 					</div>
 					<div class="message-body">
 						' . $actionOut . '
@@ -152,9 +152,9 @@ class Tx_Dam_ExtensionManager_UserField {
 		
 		$result = FALSE;
 		
-		$directories[] = Tx_Dam_Configuration_Static::$assetDirectory;
-		$directories[] = Tx_Dam_Configuration_Static::$thumbnailDirectory;
-		$directories[] = Tx_Dam_Configuration_Static::$deletedDirectory;
+		$directories[] = Tx_Media_Configuration_Static::$assetDirectory;
+		$directories[] = Tx_Media_Configuration_Static::$thumbnailDirectory;
+		$directories[] = Tx_Media_Configuration_Static::$deletedDirectory;
 		
 		$absoluteBasePath = $this->mount->getDriver()->getAbsoluteBasePath();
 		foreach ($directories as $directory) {
@@ -184,7 +184,7 @@ class Tx_Dam_ExtensionManager_UserField {
 		$records = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_file_storage', 'deleted = 0');
 		
 		if (empty($records)) {
-			$output = $GLOBALS['LANG']->sL('LLL:EXT:dam/Resources/Private/Language/locallang_dam.xml:em_error_missing_storage');
+			$output = $GLOBALS['LANG']->sL('LLL:EXT:media/Resources/Private/Language/locallang_media.xml:em_error_missing_storage');
 		}
 		else {
 			$options = '';
