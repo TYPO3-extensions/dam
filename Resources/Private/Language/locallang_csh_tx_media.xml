@@ -10,8 +10,6 @@
 			<label index="title.description">Title</label>
 			<label index="description.description">Description</label>
 			<label index="keywords.description">Keywords</label>
-			<label index="mime_type.description">MIME type</label>
-			<label index="extension.description">File extension</label>
 			<label index="creation_date.description">File creation date</label>
 			<label index="modification_date.description">File modification date</label>
 			<label index="creator_tool.description">Creator tool</label>
@@ -22,7 +20,6 @@
 			<label index="alternative.description">Alternative title</label>
 			<label index="caption.description">Caption</label>
 			<label index="file.description">File</label>
-			<label index="media_type.description">Media type</label>
 		</languageKey>
 	</data>
 </T3locallang>

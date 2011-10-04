@@ -1,17 +1,12 @@
 #
 # Table structure for table 'tx_media'
 #
-CREATE TABLE tx_media (
-	uid int(11) NOT NULL auto_increment,
-	pid int(11) DEFAULT '0' NOT NULL,
+CREATE TABLE sys_file (
 
-	media_type int(11) unsigned DEFAULT '0',
 	status varchar(24) DEFAULT '' NOT NULL,
 	title varchar(255) DEFAULT '' NOT NULL,
 	description text NOT NULL,
 	keywords text NOT NULL,
-	mime_type varchar(255) DEFAULT '' NOT NULL,
-	extension varchar(255) DEFAULT '' NOT NULL,
 	creation_date int(11) DEFAULT '0' NOT NULL,
 	modification_date int(11) DEFAULT '0' NOT NULL,
 	creator_tool varchar(255) DEFAULT '' NOT NULL,
@@ -65,57 +60,5 @@ CREATE TABLE tx_media (
 	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
 	starttime int(11) unsigned DEFAULT '0' NOT NULL,
 	endtime int(11) unsigned DEFAULT '0' NOT NULL,
-
-	t3ver_oid int(11) DEFAULT '0' NOT NULL,
-	t3ver_id int(11) DEFAULT '0' NOT NULL,
-	t3ver_wsid int(11) DEFAULT '0' NOT NULL,
-	t3ver_label varchar(255) DEFAULT '' NOT NULL,
-	t3ver_state tinyint(4) DEFAULT '0' NOT NULL,
-	t3ver_stage int(11) DEFAULT '0' NOT NULL,
-	t3ver_count int(11) DEFAULT '0' NOT NULL,
-	t3ver_tstamp int(11) DEFAULT '0' NOT NULL,
-	t3ver_move_id int(11) DEFAULT '0' NOT NULL,
-	t3_origuid int(11) DEFAULT '0' NOT NULL,
-
-	sys_language_uid int(11) DEFAULT '0' NOT NULL,
-	l10n_parent int(11) DEFAULT '0' NOT NULL,
-	l10n_diffsource mediumblob,
-
-	PRIMARY KEY (uid),
-	KEY parent (pid),
-	KEY t3ver_oid (t3ver_oid,t3ver_wsid),
-	KEY language (l10n_parent,sys_language_uid)
 );
 
-#
-# Table structure for table 'tx_media_mediatype'
-#
-CREATE TABLE tx_media_mediatype (
-	uid int(11) NOT NULL auto_increment,
-	pid int(11) DEFAULT '0' NOT NULL,
-
-	media_type varchar(255) DEFAULT '' NOT NULL,
-
-	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
-	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
-
-	PRIMARY KEY (uid),
-	KEY parent (pid)
-);
-
-#
-# Table structure for table 'tx_media_mimetype'
-#
-CREATE TABLE tx_media_mimetype (
-	uid int(11) NOT NULL auto_increment,
-	pid int(11) DEFAULT '0' NOT NULL,
-
-	mime_type varchar(255) DEFAULT '' NOT NULL,
-	media_type int(11) unsigned DEFAULT '0',
-
-	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
-	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
-
-	PRIMARY KEY (uid),
-	KEY parent (pid)
-);

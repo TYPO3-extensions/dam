@@ -26,12 +26,6 @@
 			<label index="tx_media.alternative">Alternative</label>
 			<label index="tx_media.caption">Caption</label>
 			<label index="tx_media.file">Fal</label>
-			<label index="tx_media.media_type">Media Type</label>
-			<label index="tx_media.media_type.1">Text</label>
-			<label index="tx_media.media_type.2">Image</label>
-			<label index="tx_media.media_type.3">Audio</label>
-			<label index="tx_media.media_type.4">Video</label>
-			<label index="tx_media.media_type.5">Software</label>
 			<label index="tx_media.width">Width</label>
 			<label index="tx_media.height">Height</label>
 			<label index="tx_media.unit">Unit</label>
@@ -61,16 +55,9 @@
 			<label index="tx_media_filter.filter_name">Filter Name</label>
 			<label index="tx_media_filter.description">Description</label>
 			<label index="tx_media_filter.criteria">Criteria</label>
-			<label index="tx_media_mediatype">Media Type</label>
-			<label index="tx_media_mediatype.media_type">Media Type</label>
 			
 			<label index="tx_media_file">File</label>
 			<label index="tx_media_file.name">Name</label>
-			
-			<label index="tx_media_mimetype">Mime Type</label>
-			<label index="tx_media_mimetype.mime_type">Mime Type</label>
-			<label index="tx_media_mimetype.mime_type_name">Mime Type Name</label>
-			<label index="tx_media_mimetype.media_type">Media Type</label>
 			
 			<label index="tabs.metrics">Metrics</label>
 			<label index="tabs.language">Language</label>

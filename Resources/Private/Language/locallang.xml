@@ -10,8 +10,6 @@
 			<label index="tx_media.title">Title</label>
 			<label index="tx_media.description">Description</label>
 			<label index="tx_media.keywords">Keywords</label>
-			<label index="tx_media.mime_type">MIME type</label>
-			<label index="tx_media.extension">File extension</label>
 			<label index="tx_media.creation_date">File creation date</label>
 			<label index="tx_media.modification_date">File modification date</label>
 			<label index="tx_media.creator_tool">Creator tool</label>
@@ -22,7 +20,6 @@
 			<label index="tx_media.alternative">Alternative title</label>
 			<label index="tx_media.caption">Caption</label>
 			<label index="tx_media.file">File</label>
-			<label index="tx_media.media_type">Media type</label>
 			<label index="tx_media_collection">Collection</label>
 			<label index="tx_media_collection.collection_name">Collection name</label>
 			<label index="tx_media_collection.description">Description</label>
@@ -32,14 +29,11 @@
 			<label index="tx_media_filter.filter_name">Filter name</label>
 			<label index="tx_media_filter.description">Description</label>
 			<label index="tx_media_filter.criteria">Filter criteria</label>
-			<label index="tx_media_mediatype">Media type</label>
-			<label index="tx_media_mediatype.media_type">Media type</label>
 			<label index="tx_media_file">Dummy for sys_file</label>
 			<label index="tx_media_file.name">Name</label>
 			<label index="tx_media_mimetype">MimeType</label>
 			<label index="tx_media_mimetype.mime_type">MIME type</label>
 			<label index="tx_media_mimetype.mime_type_name">MIME type name</label>
-			<label index="tx_media_mimetype.media_type">Media type</label>
 		</languageKey>
 	</data>
 </T3locallang>
