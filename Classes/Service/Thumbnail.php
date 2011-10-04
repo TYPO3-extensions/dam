@@ -66,10 +66,10 @@ class Tx_Media_Service_Thumbnail {
 		if ($this->isThumbnailPossible($file)) {
 
 				// Check file extension:
-			$input = $file->getAbsolutePath();
+			$input = $file->getForLocalProcessing($writable = FALSE);
 
 				// Computes Thumbnail absolute path
-			$thumbnailName = preg_replace('/' . $file->getFileExtension() . '$/is', 'png', $file->getName());
+			$thumbnailName = preg_replace('/' . $file->getExtension() . '$/is', 'png', $file->getName());
 			$thumbnailPath = PATH_site . 'typo3temp/' . $thumbnailName;
 
 			if ($GLOBALS['TYPO3_CONF_VARS']['GFX']['im']) {
@@ -131,10 +131,8 @@ class Tx_Media_Service_Thumbnail {
 		// @todo get mimeType base on Service extraction
 		$thumbnailPossible = FALSE;
 		
-		$extension = $this->indexingController->getExtension($file);
-
 		// font rendering is buggy so it's deactivated here   # if ($file_type === 'ttf' ||
-		if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $extension)) {
+		if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $file->getExtension())) {
 			$thumbnailPossible = TRUE;
 		}
 		return $thumbnailPossible;
