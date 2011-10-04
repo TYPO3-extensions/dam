@@ -111,39 +111,50 @@ class Tx_Media_Hooks_TCE {
 				if (TRUE && is_int($id)) {
 					$mediaRepository = t3lib_div::makeInstance('Tx_Media_Domain_Repository_MediaRepository');
 					$media = $mediaRepository->findByUid($id);
-					
+
 					$previousFileName = $this->getPreviousFileName($media);
 					if ($previousFileName) {
 						$pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'] = $previousFileName;
 					}
 				}
-				
+
 				$uploadedFile = $pObj->uploadedFileArray['sys_file']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
 				$file = $this->index($file);
-				
+
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
-				if (TRUE && is_int($id)) {
-//					$metadataService = t3lib_div::makeInstance('Tx_Media_Service_Metadata');
-//					
-//						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Media
-//					$metadata = $metadataService->getMetadata($file);
-//					
-//						// @todo check rules 
-//					$fieldArray = array_merge($fieldArray, $metadata);
+				if (TRUE) {
+					$metadataService = t3lib_div::makeInstance('Tx_Media_Service_Metadata');
+
+						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Media
+					$metadata = $metadataService->getMetadata($file);
+
+						// @todo check permission rules
+					$fieldArray = array_merge($fieldArray, $metadata);
 				}
-				
-				// create a thumbnail if not uploaded
-				$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
-				$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
-				$thumbnailFile = $this->index($thumbnailFile);
-				$fieldArray['thumbnail'] = $thumbnailFile->getUid();
-				
+
+					// create a thumbnail for the first time
+				if ($this->isNewRecord($id)) {
+					$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
+					$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
+					$thumbnailFile = $this->index($thumbnailFile);
+					$fieldArray['thumbnail'] = $thumbnailFile->getUid();
+				}
+
 					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
 				#$fieldArray['file'] = $file->getUid();
 			}
 		}
+	}
+
+	/**
+	 * Defines whether it is a new media being inserted
+	 *
+	 * @return boolean
+	 */
+	protected function isNewRecord($id) {
+		return ! is_int($id);
 	}
 
 	/**
