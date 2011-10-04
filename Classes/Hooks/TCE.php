@@ -99,9 +99,9 @@ class Tx_Media_Hooks_TCE {
 	 * @return	void
 	 */
 	public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $pObj) {
-		if ($table === 'tx_media') {
+		if ($table === 'sys_file') {
 			$uploadedFile = array();
-			if (!empty($pObj->uploadedFileArray['tx_media']['_userfuncFile']['file']['name'])) {
+			if (!empty($pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'])) {
 
 					// Init action
 				$this->initializeAction();
@@ -114,13 +114,16 @@ class Tx_Media_Hooks_TCE {
 					
 					$previousFileName = $this->getPreviousFileName($media);
 					if ($previousFileName) {
-						$pObj->uploadedFileArray['tx_media']['_userfuncFile']['file']['name'] = $previousFileName;
+						$pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'] = $previousFileName;
 					}
 				}
 				
-				$uploadedFile = $pObj->uploadedFileArray['tx_media']['_userfuncFile']['file'];
+				$uploadedFile = $pObj->uploadedFileArray['sys_file']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
 				$file = $this->index($file);
+				t3lib_utility_Debug::debug($file->getMimeType(), '123');
+				t3lib_utility_Debug::debug($file, '$file');
+				exit();
 				
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
@@ -189,7 +192,7 @@ class Tx_Media_Hooks_TCE {
 
 			$tempfileName = $uploadedFile['tmp_name'];
 			$origFilename = $uploadedFile['name'];
-			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename, TRUE);
+			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename, $overwrite = TRUE);
 		}
 
 		return $file;

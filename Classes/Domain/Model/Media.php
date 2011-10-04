@@ -31,7 +31,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_Domain_Model_Media extends Tx_Extbase_DomainObject_AbstractEntity {
+class Tx_Media_Domain_Model_Media extends t3lib_file_Domain_Model_File {
 
 	/**
 	 * Title
@@ -479,29 +479,6 @@ class Tx_Media_Domain_Model_Media extends Tx_Extbase_DomainObject_AbstractEntity
 	 */
 	public function setFile(Tx_Media_Domain_Model_File $file) {
 		$this->file = $file;
-	}
-
-	/**
-	 * Returns the mediaType
-	 *
-	 * @return tx_mediaType $mediaType
-	 */
-	public function getMediaType() {
-		if (!(is_int($this->mediaType) && $this->mediaType > 0)) {
-			$row = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow('media_type', 'tx_media_mimetype', 'mime_type_name = "' . $this->getFileMimeType($file) . '"');
-			$this->mediaType = $row['media_type'];
-		}
-		return $this->mediaType;
-	}
-
-	/**
-	 * Sets the mediaType
-	 *
-	 * @param tx_mediaType $mediaType
-	 * @return void
-	 */
-	public function setMediaType(tx_mediaType $mediaType) {
-		$this->mediaType = $mediaType;
 	}
 
 	/**

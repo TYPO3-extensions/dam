@@ -31,7 +31,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_Domain_Model_Software {
+class Tx_Media_Domain_Model_Software extends Tx_Media_Domain_Model_Media {
 		
 	/**
 	 * __construct
