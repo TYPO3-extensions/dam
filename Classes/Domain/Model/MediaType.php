@@ -33,7 +33,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class tx_mediaType extends Tx_Extbase_DomainObject_AbstractValueObject {
+class Tx_Dam_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractValueObject {
 
 	/**
 	 * Media type

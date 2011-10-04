@@ -33,7 +33,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
  *
  */
-class Tx_Media_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntity {
+class Tx_Dam_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEntity {
 
 	/**
 	 * MIME type
@@ -42,13 +42,6 @@ class Tx_Media_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEnt
 	 * @validate NotEmpty
 	 */
 	protected $mimeType;
-
-	/**
-	 * MIME type name
-	 *
-	 * @var string
-	 */
-	protected $mimeTypeName;
 
 	/**
 	 * Media type
@@ -83,25 +76,6 @@ class Tx_Media_Domain_Model_MimeType extends Tx_Extbase_DomainObject_AbstractEnt
 	 */
 	public function setMimeType($mimeType) {
 		$this->mimeType = $mimeType;
-	}
-
-	/**
-	 * Returns the mimeTypeName
-	 *
-	 * @return string $mimeTypeName
-	 */
-	public function getMimeTypeName() {
-		return $this->mimeTypeName;
-	}
-
-	/**
-	 * Sets the mimeTypeName
-	 *
-	 * @param string $mimeTypeName
-	 * @return void
-	 */
-	public function setMimeTypeName($mimeTypeName) {
-		$this->mimeTypeName = $mimeTypeName;
 	}
 
 	/**
