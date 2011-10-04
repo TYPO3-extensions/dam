@@ -25,7 +25,6 @@
 			<label index="tx_media.source">Source</label>
 			<label index="tx_media.alternative">Alternative</label>
 			<label index="tx_media.caption">Caption</label>
-			<label index="tx_media.file">Fal</label>
 			<label index="tx_media.width">Width</label>
 			<label index="tx_media.height">Height</label>
 			<label index="tx_media.unit">Unit</label>

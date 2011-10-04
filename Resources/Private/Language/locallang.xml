@@ -19,7 +19,6 @@
 			<label index="tx_media.source">Source</label>
 			<label index="tx_media.alternative">Alternative title</label>
 			<label index="tx_media.caption">Caption</label>
-			<label index="tx_media.file">File</label>
 			<label index="tx_media_collection">Collection</label>
 			<label index="tx_media_collection.collection_name">Collection name</label>
 			<label index="tx_media_collection.description">Description</label>

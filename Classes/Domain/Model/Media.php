@@ -133,13 +133,6 @@ class Tx_Media_Domain_Model_Media extends t3lib_file_Domain_Model_File {
 	protected $caption;
 
 	/**
-	 * File
-	 *
-	 * @var t3lib_file_Domain_Model_File
-	 */
-	protected $file;
-
-	/**
 	 * Media type
 	 *
 	 * @var tx_mediaType
@@ -454,31 +447,6 @@ class Tx_Media_Domain_Model_Media extends t3lib_file_Domain_Model_File {
 	 */
 	public function setSource($source) {
 		$this->source = $source;
-	}
-
-	/**
-	 * Returns the file
-	 *
-	 * @return t3lib_file_Domain_Model_File $file
-	 */
-	public function getFile() {
-		// @todo check why the constructor is not called for this object. 
-		// It looks that extbase is doing some magic...
-		if (is_int($this->file) && $this->file > 0) {
-			$fileRepository = t3lib_div::makeInstance('t3lib_file_Domain_Repository_FileRepository');
-			$this->file = $fileRepository->findByUid($this->file);
-		}
-		return $this->file;
-	}
-
-	/**
-	 * Sets the file
-	 * 
-	 * @param t3lib_file_Domain_Model_File $file
-	 * @return void
-	 */
-	public function setFile(Tx_Media_Domain_Model_File $file) {
-		$this->file = $file;
 	}
 
 	/**

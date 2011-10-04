@@ -121,9 +121,6 @@ class Tx_Media_Hooks_TCE {
 				$uploadedFile = $pObj->uploadedFileArray['sys_file']['_userfuncFile']['file'];
 				$file = $this->upload($uploadedFile);
 				$file = $this->index($file);
-				t3lib_utility_Debug::debug($file->getMimeType(), '123');
-				t3lib_utility_Debug::debug($file, '$file');
-				exit();
 				
 					// @todo check if file must be overwritten
 					// @todo fetch this config from TypoScript or so...
@@ -138,13 +135,13 @@ class Tx_Media_Hooks_TCE {
 				}
 				
 				// create a thumbnail if not uploaded
-//				$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
-//				$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
-//				$thumbnailFile = $this->index($thumbnailFile);
-//				$fieldArray['thumbnail'] = $thumbnailFile->getUid();
+				$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
+				$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
+				$thumbnailFile = $this->index($thumbnailFile);
+				$fieldArray['thumbnail'] = $thumbnailFile->getUid();
 				
 					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
-				$fieldArray['file'] = $file->getUid();
+				#$fieldArray['file'] = $file->getUid();
 			}
 		}
 	}
