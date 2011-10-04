@@ -40,24 +40,4 @@ Tx_Extbase_Utility_Extension::configurePlugin(
 	// register special TCE tx_media processing
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = 'EXT:media/Classes/Hooks/TCE.php:&Tx_Media_Hooks_TCE';
 
-$PATH_media = t3lib_extMgm::extPath($_EXTKEY);
-
-t3lib_extMgm::addService($_EXTKEY, 'metaExtract', 'Tx_Media_PdfService', array(
-	'title'       => 'PDF meta data extraction',
-	'description' => 'Uses Zend PDF to extract meta data',
-
-	'subtype'     => 'application/pdf',
-
-	'available'   => TRUE,
-	'priority'    => 70,
-	'quality'     => 50,
-
-	'os'          => '',
-	'exec'        => '',
-
-	'classFile'   => $PATH_media . 'Classes/Service/Metadata/Pdf.php',
-	'className'   => 'Tx_Media_Service_Metadata_Pdf',
-));
-
-
 ?>
