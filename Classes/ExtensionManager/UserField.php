@@ -98,22 +98,17 @@ class Tx_Media_ExtensionManager_UserField {
 
 		}
 		else {
-			
-			$actionOut = '';
-			$actions = array();
-			
-				// Create default directory for Media
-			if ($this->createDefaultDirectory()) {
-				$absoluteBasePath = $this->mount->getDriver()->getAbsoluteBasePath();
-				$actions[] = 'Created new default directory within "' . $absoluteBasePath . '"';
-			}
-			
-				// Report to the BE User
-			if (!empty($actions)) {
-				$actionOut = '<span style="text-decoratoin: underline; font-weight: bold;">Action(s) executed:</span>';
-				$actionOut .= '<ul><li>' . implode('<li></li>', $actions) . ' </li></ul>';
-			}
-			
+
+			// @todo remove code if not used before release 1.0
+//			$actionOut = '';
+//			$actions = array();
+//			
+//				// Report to the BE User
+//			if (!empty($actions)) {
+//				$actionOut = '<span style="text-decoratoin: underline; font-weight: bold;">Action(s) executed:</span>';
+//				$actionOut .= '<ul><li>' . implode('<li></li>', $actions) . ' </li></ul>';
+//			}
+//			
 			$out .= '
 			<div style="">
 				<div class="typo3-message message-ok">
@@ -122,9 +117,6 @@ class Tx_Media_ExtensionManager_UserField {
 					'</div>
 					<div class="message-body">
 						' . $GLOBALS['LANG']->sL('LLL:EXT:media/Resources/Private/Language/locallang_media.xml:ok_message') . '
-					</div>
-					<div class="message-body">
-						' . $actionOut . '
 					</div>
 				</div>
 			</div>
@@ -142,36 +134,6 @@ class Tx_Media_ExtensionManager_UserField {
 	protected function needsUpdate() {
 		return empty($this->configuration);
 	}
-	
-	/**
-	 * Check if the directory exists and creates one if not the case.
-	 *
-	 * @return boolean
-	 */
-	protected function createDefaultDirectory() {
-		
-		$result = FALSE;
-		
-		$directories[] = Tx_Media_Configuration_Static::$mediaDirectory;
-		$directories[] = Tx_Media_Configuration_Static::$thumbnailDirectory;
-		$directories[] = Tx_Media_Configuration_Static::$deletedDirectory;
-		
-		$absoluteBasePath = $this->mount->getDriver()->getAbsoluteBasePath();
-		foreach ($directories as $directory) {
-			if (! is_dir($absoluteBasePath . $directory)) {
-				try {
-					$this->mount->getDriver()->createCollection($directory);
-					$result = TRUE;
-								}
-				catch(Exception $e) {
-					throw new Exception('Exception 1316752944: not able to create a directory at ' . $directory, 1316752944);
-				}
-			}
-		}
-		
-		return $result;
-	}
-	
 	
 	/**
 	 * Render the storage list Field

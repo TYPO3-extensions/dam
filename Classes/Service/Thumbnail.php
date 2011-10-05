@@ -92,11 +92,9 @@ class Tx_Media_Service_Thumbnail {
 			//$this->errorGif('Not imagefile!', $ext, basename($input));
 		}
 		
-		$path = Tx_Media_Configuration_Static::$thumbnailDirectory;
-
 		/** @var $uploader t3lib_file_Service_UploaderService */
 		$uploader = t3lib_div::makeInstance('t3lib_file_Service_UploaderService');
-		$thumbnailFile = $uploader->addUploadedFile($thumbnailPath, $mount, $path, $thumbnailName, TRUE);
+		$thumbnailFile = $uploader->addUploadedFile($thumbnailPath, $mount, '/', $thumbnailName, TRUE);
 				
 		return $thumbnailFile;
 	}
