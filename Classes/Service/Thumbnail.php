@@ -129,7 +129,7 @@ class Tx_Media_Service_Thumbnail {
 		// @todo get mimeType base on Service extraction
 		$thumbnailPossible = FALSE;
 		
-		// font rendering is buggy so it's deactivated here   # if ($file_type === 'ttf' ||
+		// font rendering is buggy so it's deactivated here   # if ($type === 'ttf' ||
 		if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], $file->getExtension())) {
 			$thumbnailPossible = TRUE;
 		}

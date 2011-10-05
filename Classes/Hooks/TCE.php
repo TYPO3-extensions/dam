@@ -127,7 +127,7 @@ class Tx_Media_Hooks_TCE {
 			$fieldArray['name'] = $file->getName();
 			$fieldArray['size'] = $file->getSize();
 			$fieldArray['identifier'] = $file->getIdentifier();
-			$fieldArray['file_type'] = $file->getType();
+			$fieldArray['type'] = $file->getType();
 			$fieldArray['mime_type'] = $file->getMimeType();
 			$fieldArray['sha1'] = $file->getSha1();
 			

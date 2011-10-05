@@ -8,7 +8,7 @@ t3lib_div::loadTCA('sys_file');
 $TCA['sys_file']['types'] = array(
 	'0' => array('showitem' => 'mount, file'),
 
-	'1' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+	'1' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
@@ -17,7 +17,7 @@ $TCA['sys_file']['types'] = array(
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 								--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 
-	'2' => array('showitem' => 'file, l10n_parent, title, description, alternative, caption, keywords, identifier,
+	'2' => array('showitem' => 'file, l10n_parent, title, description, alternative, caption, keywords,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, color_space, --palette--;;10;;, --palette--;;14;;,
@@ -27,7 +27,7 @@ $TCA['sys_file']['types'] = array(
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 								--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 
-	'3' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+	'3' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, duration, unit,
@@ -36,7 +36,7 @@ $TCA['sys_file']['types'] = array(
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 								--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 
-	'4' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+	'4' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
@@ -45,7 +45,7 @@ $TCA['sys_file']['types'] = array(
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.file, download_name,
 								--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'),
 
-	'5' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords, identifier,
+	'5' => array('showitem' => 'file, thumbnail, l10n_parent, title, description, alternative, caption, keywords,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.visibility, hidden, status, ranking,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.language, sys_language_uid, l10n_diffsource, language,
 								--div--;LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tabs.metrics, --palette--;;10;;, --palette--;;14;;,
@@ -181,17 +181,6 @@ $columns = array(
 			'l10n_mode' => 'exclude',
 			'l10n_display' => 'defaultAsReadonly',
 			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.download_name',
-			'config' => array(
-				'type' => 'input',
-				'size' => 30,
-				'eval' => 'trim'
-			),
-		),
-		'identifier' => array(
-			'exclude' => 1,
-			'l10n_mode' => 'exclude',
-			'l10n_display' => 'defaultAsReadonly',
-			'label' => 'LLL:EXT:media/Resources/Private/Language/locallang_db.xml:tx_media.identifier',
 			'config' => array(
 				'type' => 'input',
 				'size' => 30,
@@ -408,7 +397,6 @@ $columns = array(
 				'items' => array(
 					array('', ''),
 					array('RGB', 'RGB'),
-// This is not a colorspace but a color profile					array('sRGB', 'sRGB'),
 					array('CMYK', 'CMYK'),
 					array('CMY', 'CMY'),
 					array('YUV', 'YUV'),

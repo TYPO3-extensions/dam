@@ -1,11 +1,11 @@
 #
-# Table structure for table 'sys_file_filetype'
+# Table structure for table 'sys_file_type'
 #
-CREATE TABLE sys_file_filetype (
+CREATE TABLE sys_file_type (
 	uid int(11) NOT NULL auto_increment,
 	pid int(11) DEFAULT '0' NOT NULL,
 
-	file_type varchar(255) DEFAULT '' NOT NULL,
+	type varchar(255) DEFAULT '' NOT NULL,
 
 	deleted tinyint(4) unsigned DEFAULT '0' NOT NULL,
 	hidden tinyint(4) unsigned DEFAULT '0' NOT NULL,
@@ -14,11 +14,11 @@ CREATE TABLE sys_file_filetype (
 	KEY parent (pid)
 );
 
-INSERT INTO sys_file_filetype VALUES ('1', '0', 'Text', '0', '0');
-INSERT INTO sys_file_filetype VALUES ('2', '0', 'Image', '0', '0');
-INSERT INTO sys_file_filetype VALUES ('3', '0', 'Audio', '0', '0');
-INSERT INTO sys_file_filetype VALUES ('4', '0', 'Video', '0', '0');
-INSERT INTO sys_file_filetype VALUES ('5', '0', 'Software', '0', '0');
+INSERT INTO sys_file_type VALUES ('1', '0', 'Text', '0', '0');
+INSERT INTO sys_file_type VALUES ('2', '0', 'Image', '0', '0');
+INSERT INTO sys_file_type VALUES ('3', '0', 'Audio', '0', '0');
+INSERT INTO sys_file_type VALUES ('4', '0', 'Video', '0', '0');
+INSERT INTO sys_file_type VALUES ('5', '0', 'Software', '0', '0');
 
 #
 # Table structure for table 'sys_file_mimetype'
