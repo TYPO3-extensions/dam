@@ -99,62 +99,58 @@ class Tx_Media_Hooks_TCE {
 	 * @return	void
 	 */
 	public function processDatamap_postProcessFieldArray($status, $table, $id, &$fieldArray, $pObj) {
-		if ($table === 'sys_file') {
+			// TRUE means a file has been uploaded
+		if ($table === 'sys_file' && !empty($pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'])) {
 			$uploadedFile = array();
-			if (!empty($pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'])) {
+			
+				// Init action
+			$this->initializeAction();
 
-					// Init action
-				$this->initializeAction();
+				// @todo check if file must be overwritten
+				// @todo fetch this config from TypoScript or so...
+			if (TRUE && $status == 'update') {
+				$mediaRepository = t3lib_div::makeInstance('Tx_Media_Domain_Repository_MediaRepository');
+				$media = $mediaRepository->findByUid($id);
 
-					// @todo check if file must be overwritten
-					// @todo fetch this config from TypoScript or so...
-				if (TRUE && is_int($id)) {
-					$mediaRepository = t3lib_div::makeInstance('Tx_Media_Domain_Repository_MediaRepository');
-					$media = $mediaRepository->findByUid($id);
-
-					$previousFileName = $this->getPreviousFileName($media);
-					if ($previousFileName) {
-						$pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'] = $previousFileName;
-					}
+				$previousFileName = $this->getPreviousFileName($media);
+				if ($previousFileName) {
+					$pObj->uploadedFileArray['sys_file']['_userfuncFile']['file']['name'] = $previousFileName;
 				}
+			}
 
-				$uploadedFile = $pObj->uploadedFileArray['sys_file']['_userfuncFile']['file'];
-				$file = $this->upload($uploadedFile);
-				$file = $this->index($file);
+			
+			$uploadedFile = $pObj->uploadedFileArray['sys_file']['_userfuncFile']['file'];
+			$file = $this->upload($uploadedFile);
+			
+				// Update the record with data coming from the file
+				//@todo decide if that iis fine so or code should be optimized?
+			$fieldArray['name'] = $file->getName();
+			$fieldArray['size'] = $file->getSize();
+			$fieldArray['identifier'] = $file->getIdentifier();
+			$fieldArray['file_type'] = $file->getType();
+			$fieldArray['mime_type'] = $file->getMimeType();
+			$fieldArray['sha1'] = $file->getSha1();
+			
+				// @todo check if file must be overwritten
+				// @todo fetch this config from TypoScript or so...
+			if (TRUE) {
+				$metadataService = t3lib_div::makeInstance('Tx_Media_Service_Metadata');
 
-					// @todo check if file must be overwritten
-					// @todo fetch this config from TypoScript or so...
-				if (TRUE) {
-					$metadataService = t3lib_div::makeInstance('Tx_Media_Service_Metadata');
+					// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Media
+				$metadata = $metadataService->getMetadata($file);
 
-						// $metaDataArray is an array with indexes equivalent to fields in Tx_Media_Model_Media
-					$metadata = $metadataService->getMetadata($file);
+					// @todo check permission rules
+				$fieldArray = array_merge($fieldArray, $metadata);
+			}
 
-						// @todo check permission rules
-					$fieldArray = array_merge($fieldArray, $metadata);
-				}
-
-					// create a thumbnail for the first time
-				if ($this->isNewRecord($id)) {
-					$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
-					$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
-					$thumbnailFile = $this->index($thumbnailFile);
-					$fieldArray['thumbnail'] = $thumbnailFile->getUid();
-				}
-
-					// Reset the file uid in case the relation would have changed -> new file created  instead of overwriting.
-				#$fieldArray['file'] = $file->getUid();
+				// create a thumbnail for the first time
+			if ($status == 'new') {
+				$thumbnailService = t3lib_div::makeInstance('Tx_Media_Service_Thumbnail');
+				$thumbnailFile = $thumbnailService->createThumbnailFile($file, $this->mount);
+				$thumbnailFile = $this->index($thumbnailFile);
+				$fieldArray['thumbnail'] = $thumbnailFile->getUid();
 			}
 		}
-	}
-
-	/**
-	 * Defines whether it is a new media being inserted
-	 *
-	 * @return boolean
-	 */
-	protected function isNewRecord($id) {
-		return ! is_int($id);
 	}
 
 	/**
@@ -188,8 +184,6 @@ class Tx_Media_Hooks_TCE {
 	 * @param t3lib_file_Domain_Model_File $file
 	 */
 	protected function upload($uploadedFile) {
-		$path = Tx_Media_Configuration_Static::$mediaDirectory;
-
 		/** @var $uploader t3lib_file_Service_UploaderService */
 		$uploader = t3lib_div::makeInstance('t3lib_file_Service_UploaderService');
 
@@ -200,7 +194,7 @@ class Tx_Media_Hooks_TCE {
 
 			$tempfileName = $uploadedFile['tmp_name'];
 			$origFilename = $uploadedFile['name'];
-			$file = $uploader->addUploadedFile($tempfileName, $this->mount, $path, $origFilename, $overwrite = TRUE);
+			$file = $uploader->addUploadedFile($tempfileName, $this->mount, '/', $origFilename, $overwrite = TRUE);
 		}
 
 		return $file;
@@ -210,7 +204,6 @@ class Tx_Media_Hooks_TCE {
 	 * Track uploads/* files
 	 */
 //	function processDatamap_afterDatabaseOperations($status, $table, $id, &$fieldArray, $tce) {
-//
 //	}
 }
 
