@@ -52,8 +52,6 @@
  * 1116:     function array2table($array_in)
  * 1150:     function dbFileIcons($fName, $mode, $allowed, $itemArray, $selector='', $params=array(), $onFocus='', $userEBParam='')
  *
- *              SECTION: Misc helper functions
- * 1335:     function isMMForeignActive()
  *
  * TOTAL FUNCTIONS: 12
  * (This index is automatically created/updated by the script "update-class-index")
@@ -451,12 +449,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		global $TYPO3_CONF_VARS;
 
 		$this->tceforms = &$PA['pObj'];
-
-
-		if(!(($msg = $this->isMMForeignActive())===true)) {
-			return $this->tceforms->getSingleField_typeNone_render(array('rows'=>1), $msg);
-		}
-
 
 		$table = $PA['table'];
 		$field = $PA['field'];
@@ -1274,56 +1266,6 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 		$str .= '<input type="hidden" name="'.$fName.'" value="'.htmlspecialchars(implode(',', $uidList)).'" />';
 
 		return $str;
-	}
-
-
-
-
-
-	/************************************************************
-	 *
-	 * Misc helper functions
-	 *
-	 ************************************************************/
-
-
-
-
-	/**
-	 * Checks if bidirectional MM Relations are active.
-	 * see extension mmforeign
-	 *
-	 * @return	mixed	Return true or error message
-	 */
-	function isMMForeignActive()	{
-		global $TYPO3_CONF_VARS;
-
-		$error = 0;
-
-
-		if(t3lib_div::int_from_ver(TYPO3_version) >= t3lib_div::int_from_ver('4.1')) {
-			return true;
-		}
-
-			// is mmforeign loaded?
-		if (!t3lib_extMgm::isLoaded('mmforeign')) {
-			return 'Warning: DAM References are disabled! Install extension "mmforeign".';
-		}
-
-			// this forces us to think all is fine
-		if($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['mmref']) {
-			return true;
-		}
-
-			// XCLASS overwritten?
-		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_tcemain.php']))) {
-			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_tcemain.php'];
-		}
-		if (!(preg_match('#(/ext/mmforeign/)#', $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php']))) {
-			return 'Warning: DAM References are disabled by other extension! (overridden XCLASS):'."\n".$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['t3lib/class.t3lib_transferdata.php'];
-		}
-
-		return true;
 	}
 
 }

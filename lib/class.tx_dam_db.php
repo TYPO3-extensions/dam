@@ -782,12 +782,7 @@ class tx_dam_db {
 		}
 
 		if(!$orderBy) {
-			if ($MM_table=='tx_dam_mm_ref' AND t3lib_div::int_from_ver(TYPO3_branch)>=t3lib_div::int_from_ver('4.1')) {
-				// TODO .sorting_foreign: very much hardcoded - how to change that? MM tables don't have TCA ...
-				$orderBy = $MM_table.'.sorting_foreign';
-			} else {
-				$orderBy = $MM_table.'.sorting';
-			}
+			$orderBy = $MM_table . '.sorting_foreign';
 		}
 
 		while ($key = array_search('', $where)) {

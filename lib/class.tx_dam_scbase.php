@@ -822,55 +822,6 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	}
 
 	/**
-	 * Returns a results browser. This means a bar of page numbers plus a "previous" and "next" link.
-	 * Using $this->selection->pointer->page as pointer to the page to display
-	 *
-	 * @param	string		$tableParams Attributes for the table tag which is wrapped around the table cells containing the browse links
-	 * @param	boolean		$alwaysPrev If set show always previous/forward browse links no matter if last or first page is active
-	 * @return	string		Output HTML, wrapped in <div>-tags with a class attribute
-	 * @deprecated version - 06.04.2006
-	 */
-	function list_browseresults($tableParams='cellspacing="5"', $alwaysPrev=true)	{
-
-		$links = array();
-			// Make browse-table/links:
-		if ($alwaysPrev >= 0)	{
-			if ($this->selection->pointer->page > 0)	{
-				$links[] = '<td class="browsebox-Cell" nowrap="nowrap"><p>'.
-				'<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->page-1)))).'">'.htmlspecialchars('<').'</a>'.
-				'</p></td>';
-			}
-			elseif ($alwaysPrev)	{
-				$links[] = '<td class="" nowrap="nowrap"><p>'.htmlspecialchars('<').'</p></td>';
-			}
-		}
-
-		for($a=0; $a <= $this->selection->pointer->lastPage; $a++)	{
-			$links[] = '<td '.($this->selection->pointer->page == $a ? 'class="browsebox-SCell"' : 'class="browsebox-Cell"').' nowrap="nowrap"><p>'.
-				'<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>((string)$a)))).'">'.htmlspecialchars($a+1).'</a>'.
-				'</p></td>';
-		}
-
-		if ($this->selection->pointer->page < $this->selection->pointer->lastPage)	{
-			$links[] = '<td class="browsebox-Cell" nowrap="nowrap"><p>'.
-				'<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]' => $this->selection->pointer->page+1))).'">'.htmlspecialchars('>').'</a>'.
-				'</p></td>';
-		}
-		elseif ($alwaysPrev)	{
-				$links[] = '<td class="" nowrap="nowrap"><p>'.htmlspecialchars('>').'</p></td>';
-		}
-
-		$sTables = '<div class="browsebox">'.
-		'<'.trim('table '.$tableParams).'>
-			<tr>'.implode('', $links).'</tr>
-		</table></div>';
-
-
-		return $sTables;
-	}
-
-
-	/**
 	 * Creates the search box
 	 *
 	 * @param	string		Mode. Currently only 'simple' is supported
