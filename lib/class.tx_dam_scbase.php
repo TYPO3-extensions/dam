@@ -756,12 +756,19 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$links = array();
 
+			// Initialize parameters for prev/next links
+		$getParameters = array();
+			// If there is a search string, add it to the link parameters
+		if (!empty($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0])) {
+			$getParameters['SLCMD[SEARCH][txdamStrSearch][0]'] = $this->selection->sl->sel['SEARCH']['txdamStrSearch'][0];
+		}
+
 		if ($alwaysPrev)	{
 			$class = 'browsebox-Cell';
 			$href = '';
 			if ($this->selection->pointer->page > 0)	{
-				$class = 'browsebox-CellA';
-				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->firstPage)));
+				$getParameters['SET[tx_dam_resultPointer]'] = $this->selection->pointer->firstPage;
+				$href = t3lib_div::linkThisScript($getParameters);
 			}
 			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('|<'), ' title="'.$LANG->getLL('browse_first',true).'"').'</p></td>';
 		}
@@ -771,7 +778,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$href = '';
 			if ($this->selection->pointer->page > 0)	{
 				$class = 'browsebox-CellA';
-				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->getPagePointer(-1))));
+				$getParameters['SET[tx_dam_resultPointer]'] = $this->selection->pointer->getPagePointer(-1);
+				$href = t3lib_div::linkThisScript($getParameters);
 			}
 			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('<'), ' title="'.$LANG->getLL('browse_previous',true).'"').'</p></td>';
 		}
@@ -784,7 +792,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 							'</option>';
 		}
 		if (count($options))	{
-			$onChange = 'jumpToUrl(\''.t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>((string)$a))).'&SET[tx_dam_resultPointer]=\'+this.options[this.selectedIndex].value,this);';
+			$getParameters['SET[tx_dam_resultPointer]'] = (string)$a;
+			$onChange = 'jumpToUrl(\'' . t3lib_div::linkThisScript($getParameters) . '&SET[tx_dam_resultPointer]=\'+this.options[this.selectedIndex].value,this);';
 			$links[] = '<td class="browsebox-Select" nowrap="nowrap"><p><select name="_tx_dam_resultPointer" onchange="'.htmlspecialchars($onChange).'">
 					'.implode('
 					',$options).'
@@ -797,7 +806,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$href = '';
 			if ($this->selection->pointer->page < $this->selection->pointer->lastPage)	{
 				$class = 'browsebox-CellA';
-				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->getPagePointer(1))));
+				$getParameters['SET[tx_dam_resultPointer]'] = $this->selection->pointer->getPagePointer(1);
+				$href = t3lib_div::linkThisScript($getParameters);
 			}
 			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('>'), ' title="'.$LANG->getLL('browse_next',true).'"').'</p></td>';
 		}
@@ -807,7 +817,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$href = '';
 			if ($this->selection->pointer->page < $this->selection->pointer->lastPage)	{
 				$class = 'browsebox-CellA';
-				$href = t3lib_div::linkThisScript(array('SET[tx_dam_resultPointer]'=>($this->selection->pointer->lastPage)));
+				$getParameters['SET[tx_dam_resultPointer]'] = $this->selection->pointer->lastPage;
+				$href = t3lib_div::linkThisScript($getParameters);
 			}
 			$links[] = '<td class="'.$class.'" nowrap="nowrap"><p>'.$this->wrapLink($href, htmlspecialchars('>|'), ' title="'.$LANG->getLL('browse_last',true).'"').'</p></td>';
 		}

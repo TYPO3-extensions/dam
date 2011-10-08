@@ -1088,20 +1088,31 @@ class tx_dam_listbase {
 	function fwd_rwd_HTML($type)	{
 		$content = '';
 
+			// Initialize array for link parameters for forward/backward buttons
+		$getParameters = array();
+			// If there is a search string, add a link parameter
+		$searchStringArray = t3lib_div::_GP('SLCMD');
+		$searchString = $searchStringArray['SEARCH']['txdamStrSearch'][0];
+		if (!empty($searchString)) {
+			$getParameters['SLCMD[SEARCH][txdamStrSearch][0]'] = $searchString;
+		}
+
 		switch($type)	{
 			case 'fwd':
-				$href = t3lib_div::linkThisScript(array($this->pointer->pagePointerParamName => $this->pointer->getPagePointer(1)));
+				$getParameters[$this->pointer->pagePointerParamName] = $this->pointer->getPagePointer(1);
+				$href = t3lib_div::linkThisScript($getParameters);
 				$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/pildown.gif', 'width="14" height="14"').' alt="" />';
 				$content = '&nbsp;<a href="'.htmlspecialchars($href).'">'.
 						$icon.
-						'</a> <i>['.($this->pointer->lastItemNum+1).' - '.min($this->pointer->lastItemNum + 1 + $this->pointer->itemsPerPage, $this->pointer->countTotal).']</i>';
+						'</a> <i>['.($this->pointer->lastItemNum+1).' - '.min($this->pointer->lastItemNum + $this->pointer->itemsPerPage, $this->pointer->countTotal).']</i>';
 			break;
 			case 'rwd':
-				$href = t3lib_div::linkThisScript(array($this->pointer->pagePointerParamName => $this->pointer->getPagePointer(-1)));
+				$getParameters[$this->pointer->pagePointerParamName] = $this->pointer->getPagePointer(-1);
+				$href = t3lib_div::linkThisScript($getParameters);
 				$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/pilup.gif', 'width="14" height="14"').' alt="" />';
 				$content = '&nbsp;<a href="'.htmlspecialchars($href).'">'.
 						$icon.
-						'</a> <i>['.max(1, $this->pointer->firstItemNum - $this->pointer->itemsPerPage).' - '.($this->pointer->firstItemNum - 1).']</i>';
+						'</a> <i>['.max(1, $this->pointer->firstItemNum + 1 - $this->pointer->itemsPerPage).' - '.($this->pointer->firstItemNum).']</i>';
 			break;
 		}
 		return $content;
