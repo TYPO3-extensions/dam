@@ -214,14 +214,14 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$this->defaultPid = tx_dam_db::getPid();
 		$this->id = $this->defaultPid;
-		
+
 			// from parent::init();
 		$this->CMD = t3lib_div::_GP('CMD');
 		$this->perms_clause = $GLOBALS['BE_USER']->getPagePermsClause(1);
 		$this->menuConfig();
-		$this->handleExternalFunctionValue();	
-		
-		
+		$this->handleExternalFunctionValue();
+
+
 
 			// include the default language file
 		$GLOBALS['LANG']->includeLLFile('EXT:dam/lib/locallang.xml');
@@ -292,7 +292,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		if (tx_dam::config_getValue('setup.devel')) {
 			$this->debugContent['MOD_SETTINGS'] = '<h4>MOD_SETTINGS</h4>'.t3lib_div::view_array($this->MOD_SETTINGS);
 		}
-		
+
 			// BE Info output
 		if (tx_dam::config_getValue('setup.devel') AND t3lib_extMgm::isLoaded('cc_beinfo')) {
 			require_once(t3lib_extMgm::extPath('cc_beinfo').'class.tx_ccbeinfo.php');
@@ -315,7 +315,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	function checkExtObj()	{
 		parent::checkExtObj();
-	
+
 		foreach ($this->MOD_MENU as $key => $value) {
 			$override = $this->config_checkValueEnabled('options.'.$key.'.value', '_magic_MOD_MENU_');
 			if (!is_array($value) AND $override !== '_magic_MOD_MENU_') {
@@ -357,13 +357,13 @@ class tx_dam_SCbase extends t3lib_SCbase {
 						100 => '100',
 						200 => '200',
 					),
-					
+
 				'tx_dam_list_langSelector' => '',
 				'tx_dam_list_langOverlay' => array (
 						'exclusive' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:langCurrentExclusive'),
 						'andUntranslated' => $LANG->sL('LLL:EXT:dam/lib/locallang.xml:langCurrentAndDefault'),
 					),
-					
+
 			)
 		);
 		parent::menuConfig();
@@ -419,7 +419,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->pathInfo = $pathInfo;
 			$this->pathAccess = false;
 		}
-		
+
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
 
 		if (tx_dam::config_getValue('setup.devel')) {
@@ -466,7 +466,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			var script_ended = 0;
 			var changed = 0;';
 
-			// we first want to check if jumpTourl was set already, 
+			// we first want to check if jumpTourl was set already,
 			// and check this twice (in case rtehtmlarea decides to use
 			// JScodeArray as well later on, we don't want to react again)
 			// the second check is done in javascript to not define jumpToUrl
@@ -886,9 +886,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 					<!--
 						Search box:
 					-->
-					<table border="0" cellpadding="2" cellspacing="0" class="bgColor4">
+					<table border="0" cellpadding="2" cellspacing="0">
 						<tr>
-							<td> '.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.enterSearchString',1).' <input type="text" name="SLCMD[SEARCH][txdamStrSearch][0]" value="'.htmlspecialchars($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth(10).' /></td>
+							<td><label for="SLCMD[SEARCH][txdamStrSearch][0]">'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.enterSearchString',1).'</label><input type="text" id="SLCMD[SEARCH][txdamStrSearch][0]" name="SLCMD[SEARCH][txdamStrSearch][0]" value="'.htmlspecialchars($this->selection->sl->sel['SEARCH']['txdamStrSearch'][0]).'"'.$GLOBALS['TBE_TEMPLATE']->formWidth(10).' /></td>
 							<td><input type="submit" name="search" value="'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.search',1).'" /></td>
 						</tr>
 					</table>
@@ -933,11 +933,11 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 * @return	void
 	 */
 	function addOption($type, $paramName, $description, $items=array()) {
-		
+
 		$this->develAvailableOptions[$paramName] = $description;
-	
+
 		if (!$this->config_checkValueEnabled('options.'.$paramName, true)) return;
-		
+
 		$id = 'l'.uniqid('tx_dam_scbase');
 		$idAttr = ' id="'.$id.'"';
 		$descriptionLabel = htmlspecialchars($description);
@@ -996,8 +996,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		if (in_array('box', $showElements)) {
 			$rows = array();
 			$lastHeader = '';
-			$headBbgColor = is_object($GLOBALS['SOBE']->doc) ? $GLOBALS['SOBE']->doc->bgColor6 : $this->doc->bgColor6;
-			$headBbgColor = ' bgColor="'.$headBbgColor.'"';
+			$headBbgColor = ' bgColor="#dadada"';
 			foreach (array('SELECT','OR','AND','NOT','SEARCH') as $queryType) {
 				if(is_array($this->selection->sl->sel[$queryType])) {
 
@@ -1260,8 +1259,8 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 			$this->markers['REFRESH'] .= $elements['refresh'];
 			$this->markers['LEVEL_UP'] .= $elements['up'];
-			$this->markers['FOLDER_INFO'] .= $elements['path']; 
-			$this->markers['PAGE_ICON'] .= $elements['icon']; 
+			$this->markers['FOLDER_INFO'] .= $elements['path'];
+			$this->markers['PAGE_ICON'] .= $elements['icon'];
 		}
 		return '';
 	}
@@ -1342,15 +1341,15 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	function getLanguages($id, $mode=TYPO3_MODE)	{
 		global $LANG;
-		
+
 		static $cache = array();
-		
+
 		$mode = $mode ? $mode : 'NONE';
-		
+
 		if (is_array($cache[$mode])) {
 			return $cache[$mode];
 		}
-		
+
 		$modSharedTSconfig = t3lib_BEfunc::getModTSconfig($id, 'mod.SHARED');
 
 		$languages = array(
@@ -1367,7 +1366,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		if ($mode === 'BE' AND $GLOBALS['BE_USER']->isAdmin()) {
 			$exQ = '';
 		}
-		
+
 		if ($id)	{
 			$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
 							'sys_language.*',
@@ -1398,9 +1397,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 				}
 			}
 		}
-		
+
 		$cache[$mode] = $languages;
-		
+
 		return $languages;
 	}
 
@@ -1415,12 +1414,12 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 	/**
 	 * Check a config value if its enabled
-	 * 
+	 *
 	 * The typical module path will be used to search for a value
-	 * 
+	 *
 	 * mod.txdamM1_file
 	 * mod.txdamM1_file.menu.function.tx_dam_file_upload
-	 * 
+	 *
 	 * Anything except '' and 0 is true
 	 * If the the option is not set the default value will be returned
 	 *
@@ -1443,7 +1442,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$path = 'mod.txdamM1_SHARED.'.$configPath;
 			return tx_dam::config_checkValueEnabled($path, $default);
 		}
-	
+
 		return $enabled;
 	}
 
@@ -1472,7 +1471,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$content = '';
 		$content.= '<div class="buttonToggleDisplayWrap">
-						<div class="buttonToggleDisplay"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;" style="white-space:nowrap;">
+						<div class="buttonToggleDisplay t3-row-header"><a href="#" onclick="toggleDisplay(\''.$id.'\', event);return false;" style="white-space:nowrap;">
 						<img id="'.$id.'_toggle" '.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/button_right.gif', 'width="11" height="10"').' alt="" />
 						'.$title.'</a></div>';
 
@@ -1743,7 +1742,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			// Create icon for record
 		if ($refTable === 'tx_dam') {
 			$elementIcon = tx_dam_guiFunc::icon_getFileTypeImgTag($row, 'class="c-recicon" align="top"');
-			
+
 		} else {
 
 			$iconAltText = t3lib_BEfunc::getRecordIconAltText($row, $refTable);
@@ -1807,7 +1806,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	function getTabMenu($mainParams, $elementName, $currentValue, $menuItems, $script='', $addparams='')	{
 		// read page TSconfig
 		$useTabs = tx_dam::config_checkValueEnabled('mod.txdamM1_SHARED.useTabs');
-		
+
 		if ($useTabs && is_array($menuItems))	{
 			if (!is_array($mainParams)) {
 				$mainParams = array('id' => $mainParams);

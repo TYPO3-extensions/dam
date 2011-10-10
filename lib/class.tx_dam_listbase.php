@@ -254,7 +254,7 @@ class tx_dam_listbase {
 	 	'table' => ' border="0" cellpadding="0" cellspacing="0" style="width:100%" class="typo3-dblist"',
 		'headerTD' => ' nowrap="nowrap" class="c-headLine"',
 		'itemTD' => ' class="typo3-dblist-item"',
-		'multiActionTD' => ' width="1%" valign="top" align="left" nowrap="nowrap"',
+		'multiActionTD' => ' width="1%" nowrap="nowrap"',
 		'multiActionBarTD' => ' nowrap="nowrap" class="c-actionBar"',
 		'actionTD' => ' width="1%" valign="top" align="left" nowrap="nowrap"',
 		'iconTD' => ' width="1%" valign="top" align="left" nowrap="nowrap"',
@@ -269,9 +269,9 @@ class tx_dam_listbase {
 	 	'table' => '',
 		'headerTD' => 'border-bottom:1px solid #888;',
 		'itemTD' => '',
-		'multiActionTD' => 'padding: 3px 0px 0px 5px;',
+		'multiActionTD' => '',
 		'multiActionBarTD' => '',
-		'actionTD' => 'padding: 3px 0px 0px 5px;',
+		'actionTD' => '',
 		'iconTD' => 'padding-left:5px;',
 		'dataTD' => 'padding-left:5px;',
 
@@ -603,6 +603,7 @@ class tx_dam_listbase {
 				'multiAction' => $multiAction,
 				'tdAttribute' => $this->elementAttr['headerTD'],
 				'tdStyle' => $this->elementStyle['headerTD'],
+				'trAttribute' => 'class="t3-row-header"'
 			), 'top');
 	}
 
@@ -637,17 +638,7 @@ class tx_dam_listbase {
 						if ($this->showAction)	$itemAction = $this->getItemAction ($item);
 						if ($this->showIcon)	$itemIcon = $this->getItemIcon ($item);
 						$itemColumns = $this->getItemColumns ($item);
-
-						# $trStyle = '';
-						$trStyle = ' background-color:'.$this->colorTREven.';';
-						if ($this->showAlternateBgColors) {
-							if ($allItemCount % 2) {
-								$trStyle = ' background-color:'.$this->colorTREven.';';
-							}
-							else {
-								$trStyle = ' background-color:'.$this->colorTROdd.';';
-							}
-						}
+						$trStyle = '';
 
 							// this is the last line which should have a line afterwards
 						if (($allItemCount > $this->pointer->lastItemNum) OR ($pageItemCounter >= $this->pointer->itemsPerPage)) {
@@ -662,7 +653,7 @@ class tx_dam_listbase {
 								'tdAttribute' => $this->elementAttr['itemTD'],
 								'tdStyle' => $this->elementStyle['itemTD'].$tdStyleAppend,
 								'trStyle' => $trStyle,
-								'trHover' => true,
+								'trAttribute' => 'class="db_list_normal"',
 							));
 					}
 					$list->next();
@@ -860,7 +851,6 @@ class tx_dam_listbase {
 	 * 	'tdAttribute' => '',
 	 * 	'tdStyle' => '',
 	 * 	'trStyle' => '',
-	 * 	'trHover' => '',
 	 * 	);
 	 *
 	 * param	string		$action Could be a checkbox or button as action for this element. Leave blank if not needed. (global enable/disable with $this->showAction)
@@ -869,7 +859,6 @@ class tx_dam_listbase {
 	 * param	string		$tdAttribute is inserted in the <td>-tags.
 	 * param	string		$tdStyle is inserted in the <td>-tags as additional css style.
 	 * param	string		$trStyle is inserted in the <tr>-tag as additional css style. Might inlcude 'background-color' which will be detected for use as default color when tr-hover is enabled.
-	 * param	boolean		$trHover If set hover color is enabled for the row;
 	 *
 	 * @param	array		$setupSetup array
 	 * @param	string		$position If position is 'top' the line will be inserted on top of the table
@@ -881,7 +870,7 @@ class tx_dam_listbase {
 		$tdAttribute = '';
 		$tdStyle = '';
 		$trStyle = '';
-		$trHover = false;
+		$trAttribute = '';
 		extract ($setup, EXTR_IF_EXISTS);
 
 
@@ -931,18 +920,17 @@ class tx_dam_listbase {
 	function addRowRenderTR($setup, $td, $position='')	{
 
 		$trStyle = '';
-		$trHover = false;
+		$trAttribute = '';
 		extract ($setup, EXTR_IF_EXISTS);
 
 			// make hover for TR
 		$match = array();
 		preg_match('/background-color[ ]*:[ ]*(#[0-9a-f]+)/', $trStyle, $match);
-		$trHover = $trHover ? (' onmouseover="this.style.backgroundColor = \''.$this->colorTRHover.'\';" onmouseout="this.style.backgroundColor = \''.$match[1].'\';"') : '';
 		$trStyle = $trStyle ? ' style="'.$trStyle.'"' : '';
 
 		$out='
 		<!-- Element, begin: -->
-		<tr'.$trStyle.$trHover.'>'.implode('', $td).'</tr>';
+		<tr ' . $trAttribute . $trStyle . '>'.implode('', $td).'</tr>';
 
 		if ($position === 'top') {
 			array_unshift($this->tableRows, $out);

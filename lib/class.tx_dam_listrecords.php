@@ -278,18 +278,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 					}
 				}
 
-
-
-
-				$trStyle = ' background-color:'.$this->colorTREven.';';
-				if ($this->showAlternateBgColors) {
-					if ($this->allItemCount % 2) {
-						$trStyle = ' background-color:'.$this->colorTREven.';';
-					}
-					else {
-						$trStyle = ' background-color:'.$this->colorTROdd.';';
-					}
-				}
+				$trStyle = '';
 
 					// this is the last line which should have a line afterwards
 				if($itemCurrentCount==$itemCount) {
@@ -306,7 +295,7 @@ class tx_dam_listrecords extends tx_dam_listbase {
 						'tdAttribute' => $this->elementAttr['itemTD'],
 						'tdStyle' => $this->elementStyle['itemTD'].$tdStyleAppend,
 						'trStyle' => $trStyle,
-						'trHover' => true,
+						'trAttribute' => 'class="db_list_normal"',
 					));
 
 				$this->allItemCount++;

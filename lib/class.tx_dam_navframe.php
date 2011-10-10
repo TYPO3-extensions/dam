@@ -108,7 +108,7 @@ class tx_dam_navframe {
 				} else {
 					parent.list_frame.document.location.href=theUrl;
 				}
-				'.($this->doHighlight?'hilight_row("row"+top.fsMod.recentIds["txdamM1"],highLightID);':'').'
+				'.($this->doHighlight?'highlight_row("row"+top.fsMod.recentIds["txdamM1"],highLightID);':'').'
 				'.(!$GLOBALS['CLIENT']['FORMSTYLE'] ? '' : 'if (linkObj) {linkObj.blur();}').'
 				return false;
 			}
@@ -126,19 +126,19 @@ class tx_dam_navframe {
 			}
 
 				// Highlighting rows in the page tree:
-			function hilight_row(frameSetModule,highLightID) {	//
+			function highlight_row(frameSetModule,highLightID) {	//
 
 					// Remove old:
 				theObj = document.getElementById(top.fsMod.navFrameHighlightedID[frameSetModule]);
 				if (theObj)	{
-					theObj.style.backgroundColor="";
+					theObj.className = "";
 				}
 
 					// Set new:
 				top.fsMod.navFrameHighlightedID[frameSetModule] = highLightID;
 				theObj = document.getElementById(highLightID);
 				if (theObj)	{
-					theObj.style.backgroundColor="'.t3lib_div::modifyHTMLColorAll($this->doc->bgColor,-20).'";
+					theObj.className = "navFrameHL";
 				}
 			}
 		');
@@ -178,7 +178,7 @@ class tx_dam_navframe {
 
 			// Adding highlight - JavaScript
 		if ($this->doHighlight)	$this->content .=$this->doc->wrapScriptTags('
-			hilight_row("",top.fsMod.navFrameHighlightedID["web"]);
+			highlight_row("",top.fsMod.navFrameHighlightedID["web"]);
 		');
 	}
 

@@ -159,6 +159,20 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 
 	}
 
+	/**
+	 * Wrapping $title in a-tags.
+	 *
+	 * @param	string		Title string
+	 * @param	string		Item record
+	 * @param	integer		Bank pointer (which mount point number)
+	 * @return	string
+	 */
+	function wrapTitle($title,$row,$bank=0)	{
+
+		$aOnClick = 'return jumpTo(\''.$this->getJumpToParam($row).'\',this,\''.$this->domIdPrefix.$this->getId($row).'_'.$bank.'\');';
+		return '<a href="#" onclick="'.htmlspecialchars($aOnClick).'">'.$title.'</a> ';
+
+	}
 
 	/**
 	 * Returns the title for the input record. If blank, a "no title" labele (localized) will be returned.
