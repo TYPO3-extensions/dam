@@ -299,7 +299,7 @@ class tx_dam_allowdeny {
 			break;
 			case 'userFunc':
 // todo: test userFunc
-				$values = split('\(|\)',$matchList);
+				$values = preg_split('/\(|\)/',$matchList);
 				$funcName=trim($values[0]);
 				$funcValue = t3lib_div::trimExplode(',',$values[1]);
 				if (function_exists($funcName) && call_user_func($funcName, $funcValue[0]))	{
