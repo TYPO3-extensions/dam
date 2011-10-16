@@ -2661,6 +2661,10 @@ class tx_dam {
 	 * @see tx_dam_db
 	 */
 	function register_fileTrigger ($idName, $class, $position='') {
+			// Initialize configuration if not set
+		if (!is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileTriggerClasses'])) {
+			$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileTriggerClasses'] = array();
+		}
 		tx_dam::_addItem($idName, $class, $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileTriggerClasses'], $position);
 	}
 
