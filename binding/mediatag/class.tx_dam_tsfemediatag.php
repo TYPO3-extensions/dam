@@ -221,6 +221,20 @@ class tx_dam_tsfemediatag {
 				$res = '<a href="'.htmlspecialchars($finalTagParts['url']).'"'.($title?' title="'.$title.'"':'').$finalTagParts['targetParams'].($linkClass?' class="'.$linkClass.'"':'').$finalTagParts['aTagParams'].'>';
 			}
 
+                // Hook: Call post processing function for link rendering:
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['mediatag']['typoLink_PostProc'])
+                && is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['mediatag']['typoLink_PostProc'])) {
+
+                $_params = array(
+                    'conf' => &$conf,
+                    'linktxt' => &$linktxt,
+                    'finalTag' => &$res,
+                    'finalTagParts' => &$finalTagParts
+                );
+                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['mediatag']['typoLink_PostProc'] as $_funcRef) {
+                    t3lib_div::callUserFunction($_funcRef, $_params, $this);
+                }
+            }
 
 				// If flag "returnLastTypoLinkUrl" set, then just return the latest URL made:
 			if ($conf['returnLast'])	{
