@@ -181,7 +181,7 @@ class tx_dam_listreferences extends tx_dam_listbase {
 					$rootline = t3lib_BEfunc::BEgetRootLine($pageRow['uid']);
 					$pageOnClick = t3lib_BEfunc::viewOnClick($pageRow['uid'], $GLOBALS['BACK_PATH'], $rootline);
 					$iconAltText = t3lib_BEfunc::getRecordIconAltText($pageRow, 'pages');
-					$icon = t3lib_iconWorks::getIconImage('pages', $pageRow, $GLOBALS['BACK_PATH'], 'title="'.$iconAltText.'" align="top"');
+					$icon = t3lib_iconWorks::getSpriteIconForRecord('pages', $pageRow, array('title' => $iconAltText));
 					if ($this->showRootline) {
 						$title = t3lib_BEfunc::getRecordPath($pageRow['uid'], '1=1', 0);
 						$title = t3lib_div::fixed_lgd_cs($title, -($GLOBALS['BE_USER']->uc['titleLen']));
