@@ -665,6 +665,9 @@ form.formNoPadding { padding: 0 !important; }
 							$onClick = 'if (document.getElementById(\'rtehtmlarea-dam-browse-links-useDAMColumn\') && document.getElementById(\'rtehtmlarea-dam-browse-links-useDAMColumn\').checked) { document.getElementById(\'rtehtmlarea-browse-links-anchor_title\').value = ' . $damTitle . '; }' . $onClick;
 						}
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
+					} elseif ($mode === 'wizard' && $act === 'media') { // Set a link to a DAM record in format 'media:[uid]'
+						$onClick = 'link_damRecord(' . $fI['uid'] . ');';
+						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 					} elseif (!$dragdropImage) {
 						$onClick = 'return insertElement('.$onClick_params.');';
 						$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';

@@ -39,5 +39,8 @@ t3lib_extMgm::addPageTSConfig('<INCLUDE_TYPOSCRIPT: source="FILE:EXT:' . $_EXTKE
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php']['transformation']['txdam_media'] = 'EXT:dam/binding/mediatag/class.tx_dam_rtetransform_mediatag.php:&tx_dam_rtetransform_mediatag';
 $TYPO3_CONF_VARS['SC_OPTIONS']['t3lib/class.t3lib_parsehtml_proc.php']['transformation']['ts_links'] = 'EXT:dam/binding/mediatag/class.tx_dam_rtetransform_ahref.php:&tx_dam_rtetransform_ahref';
 
+	// link handler for media:[uid]
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_content.php']['typolinkLinkHandler']['media'] = 'EXT:dam/binding/mediatag/class.tx_dam_medialinkhandler.php:&tx_dam_medialinkhandler';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['typo3/class.browse_links.php']['browseLinksHook'][]='EXT:dam/binding/mediatag/class.tx_dam_browselinkshooks.php:tx_dam_browselinkshooks';
 
 ?>
