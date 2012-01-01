@@ -276,7 +276,7 @@ class tx_dam_listfiles extends tx_dam_listbase {
 			$multiActionID = $item[$item['__type'].'_path_absolute'].$item['file_name'];
 			$multiActionSelected = in_array($multiActionID, $this->recs);
 
-			$multiAction = '<input type="checkbox" name="'.$this->paramName['recs'].'['.$this->table.'][]" value="'.htmlspecialchars($multiActionID).'"'.($multiActionSelected?' checked="checked"':'').' />';
+			$multiAction = '<input class="smallCheckboxes" type="checkbox" name="'.$this->paramName['recs'].'['.$this->table.'][]" value="'.htmlspecialchars($multiActionID).'"'.($multiActionSelected?' checked="checked"':'').' />';
 		}
 		
 		return $multiAction;

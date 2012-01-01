@@ -418,7 +418,7 @@ class tx_dam_selStorage {
 				Store control
 			-->
 			<table border="0" cellpadding="3" cellspacing="0" width="100%">
-				<tr class="bgColor4">
+				<tr>
 				'.$codeTD.'
 				</tr>
 			</table>

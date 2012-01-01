@@ -185,8 +185,7 @@ class tx_dam_batchProcess {
 
 		$code = $this->getPresetForm($rec, $fixedFields, $LANG->getLL('tx_dam_batchProcess.appendDesc',0)); // don't hsc because of <b> tags
 
-		$cnBgColor = t3lib_div::modifyHTMLcolor($GLOBALS['SOBE']->doc->bgColor3,-5,-5,-5);
-		$content.= $GLOBALS['SOBE']->doc->section('','<table border="0" cellpadding="4" width="100%"><tr><td bgcolor="'.$cnBgColor.'">'.
+		$content.= $GLOBALS['SOBE']->doc->section('','<table border="0" cellpadding="4" width="100%"><tr><td>'.
 						$code.
 						'</td></tr></table>',0,1);
 
@@ -246,7 +245,7 @@ class tx_dam_batchProcess {
 		$form->tx_dam_fixedFields = $fixedFields;
 
 			// add message for checkboxes
-		$content.= '<tr bgcolor="'.$GLOBALS['SOBE']->doc->bgColor4.'">
+		$content.= '<tr style="background-color: #ebebeb;">
 				<td nowrap="nowrap" valign="middle">'.
 				'<span class="presetForm">'.
 				'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/pil2down.gif', 'width="12" height="7"').' vspace="2" alt="" />'.

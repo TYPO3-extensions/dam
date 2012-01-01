@@ -487,7 +487,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 						<!--
 							Field selector for extended table view:
 						-->
-						<table border="0" cellpadding="0" cellspacing="0" class="bgColor4" id="typo3-dblist-fieldSelect">
+						<table border="0" cellpadding="0" cellspacing="0" id="typo3-dblist-fieldSelect">
 							<tr>
 								<td>'.$lMenu.'</td>
 								<td><input type="submit" name="search" value="&gt;&gt;"></td>

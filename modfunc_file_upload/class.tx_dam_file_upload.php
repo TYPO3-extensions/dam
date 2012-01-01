@@ -222,6 +222,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 			if(response == "0" && isstarted == 1)
 			{
 				tmessage.innerHTML = "'.$LANG->getLL('tx_dam_file_upload.uploadFinished',1).'";
+				tmessage.className = "typo3-message message-ok";
 				isdone = 1;
 			}else{
 				if(response != "")
@@ -390,7 +391,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 				// for display of uploading progress
 			$content .= '
-				<div id="uploadstatus" class="bgColor-20" style="display:none; margin:2em 0 2em 0; padding:0.5em; text-align:center; border-top:1px solid #666; border-bottom:1px solid #666">...</div>';
+				<div id="uploadstatus" class="typo3-message message-notice" style="display: none">...</div>';
 
 
 				// "uploadmagic" is set as GET var to detect failed uploads with lost POST data
@@ -401,7 +402,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 			//
 			// Upload failed because of braindead PHP upload handling which gives no error for too big files.
-			// Even the POST data is not existend. Search for "uploadmagic" in code.
+			// Even the POST data is not existed. Search for "uploadmagic" in code.
 			//
 
 			if ($this->wasUploadForm) {
@@ -643,17 +644,19 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		
 			// init table layout
 		$tableLayout = array(
-			'table' => array('<table border="0" cellpadding="1" cellspacing="1" id="typo3-filelist">', '</table>'),
+			'table' => array('<table style="border-spacing: 0;" class="typo3-dblist">', '</table>'),
 			'defRow' => array(
-				'tr' => array('<tr>','</tr>'),
-				'defCol' => array('<td valign="middle" class="bgColor4">','</td>'),
-				'990' => array('<td valign="middle" class="bgColor4">','</td>'),
-				'996' => array('<td valign="middle" class="bgColor5">','</td>'),
+				'tr' => array('<tr class="db_list_normal">','</tr>'),
+				'defCol' => array('<td>','</td>'),
+				'990' => array('<td>','</td>'),
+				'996' => array('<td>','</td>'),
+				'6' => array('<td style="vertical-align: middle;">','</td>'),
+				'0' => array('<td style="vertical-align: middle;">','</td>'),
 			),
 			'0' => array(
-				'tr' => array('<tr class="c-headLine">','</tr>'),
-				'defCol' => array('<td valign="middle" class="c-headLine">','</td>'),
-				'2' => array('<td valign="middle" class="c-headLine" style="width:165px;">','</td>'),
+				'tr' => array('<tr class="t3-row-header">','</tr>'),
+				'defCol' => array('<td>','</td>'),
+				'2' => array('<td style="width:165px;">','</td>'),
 			),
 		);
 
@@ -668,7 +671,6 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		$table[$tr][$td++] = $LANG->getLL('c_fileext');
 		$table[$tr][$td++] = $LANG->getLL('c_tstamp');
 		$table[$tr][$td++] = $LANG->getLL('c_size');
-		# $table[$tr][$td++] = $LANG->getLL('c_rw');
 		$table[$tr][$td++] = '&nbsp;';
 		if (is_object($this->ebObj) && !$this->rteMode) {
 			$table[$tr][$td++] = '&nbsp;';
@@ -687,8 +689,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 				// Add row to table
 			$td=0;
 			if ($row['uid']) {
-				#$table[$tr][$td++] = $this->pObj->doc->icons(-1); // Ok;
-				$table[$tr][$td++] = $this->enableBatchProcessing ? '<input type="checkbox" name="process_recs[]" value="'.$row['uid'].'" />': '';
+				$table[$tr][$td++] = $this->enableBatchProcessing ? '<input class="smallCheckboxes" type="checkbox" name="process_recs[]" value="'.$row['uid'].'" />': '';
 				$table[$tr][$td++] = $fileIcon;
 
 					// if upload is called from RTE, allow direct linking by a click on file name

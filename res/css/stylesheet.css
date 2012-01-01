@@ -16,22 +16,22 @@ body#ext-dam-mod-edit-index-php {
 
 	/* From class.tx_dam_treelib_browser */
 /* Trees */
+/* styles with .typo3-dam-docbody-tree prepended will only affect the tree, not the TCEforms */
 TABLE.typo3-browsetree A { text-decoration: none;  }
 TABLE.typo3-browsetree TR TD { white-space: nowrap; vertical-align: middle; }
 TABLE.typo3-browsetree TR TD IMG { vertical-align: middle; }
 TABLE.typo3-browsetree TR TD IMG.c-recIcon { margin-right: 1px;}
-TABLE.typo3-browsetree { margin-bottom: 10px; width: 90%; }
+TABLE.typo3-browsetree { margin-bottom: 10px; width: 100%; }
 
-TABLE.typo3-browsetree TR TD.typo3-browsetree-control {
-	padding: 0px;
-}
-TABLE.typo3-browsetree TR TD.typo3-browsetree-control a {
-	padding: 0px 3px 0px 3px;
-	background-color: #e3dfdb;
-}
-TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover {
-	background-color: #cfcbc7;
-}
+TABLE.typo3-browsetree TR TD.typo3-browsetree-control { padding: 0 0 0 2px; }
+TABLE.typo3-browsetree TR TD.typo3-browsetree-control a { padding: 1px 3px 0px 3px;	background-color: #f2f2f2; }
+TABLE.typo3-browsetree TR TD.typo3-browsetree-control > a:hover { background-color: #dadada; }
+
+.typo3-dam-docbody-tree table.typo3-browsetree tr td { border: 1px solid #ebebeb; }
+table.typo3-browsetree tr td.typo3-browsetree-control {	border: 0; }
+.typo3-dam-docbody-tree table.typo3-browsetree tr:hover td { border: 1px solid #d7d7d7; background-color: #f2f2f2; }
+.typo3-dam-docbody-tree table.typo3-browsetree tr:hover td.typo3-browsetree-control { border: 0; background-color: #ebebeb; }
+table.typo3-browsetree tr td.navFrameHL { background-color: #F8F8F8; background-repeat: repeat-x; border: 1px solid #d7d7d7; }
 
 #ext-dam-mod-treebrowser-index-php { background-color:#fff; }
 #ext-treelib-browser { background-color:#fff; }
@@ -43,27 +43,21 @@ IMG.c-recicon { vertical-align: middle; margin-right:0.1em; padding:0px 1px 2px 
 div.typo3-DBctrl { padding:2px; }
 div.typo3-DBctrl img { margin-left: 1px; margin-right: 1px; float: left; }
 div.typo3-DBctrl a { float: left; }
-TABLE.typo3-dblist TR TD.c-headLine { background-color: #e0e0e0; }
-td.c-actionBar { background-color: #e0e0e0; }
+td.c-actionBar { background-color: #f0f0f0; }
 td.c-actionBar div { margin: 2px 0px 2px 0px;  vertical-align: middle; font-size:0.99em; line-height:2em;}
-td.c-actionBar select { background-color: #ccc; height:2em; font-size:0.99em;}
-td.c-actionBar input { background-color: #ccc; height:2em; font-size:0.99em;}
-.typo3-dblist TD { padding-top: 1px; }
-.typo3-dblist TD.item, .typo3-dblist TD.typo3-dblist-item { border-bottom: 1px dotted #e1e1e1; }
 
 .typo3-foldernavbar { margin: 12px 0px 2px 5px; }
 .typo3-topactions { margin: 7px 0px 10px 0px; }
-.typo3-filelist TD { padding: 1px 3px 0 3px; }
-.typo3-filelist TD.typo3-filelist-item { border-bottom: 1px dotted #e1e1e1; }
-.typo3-filelist TD.c-headLine { background-color: #ccc; font-weight: bold; height: 16px; }
 
-.buttonToggleDisplayWrap { display:block; margin: 1em 0 1em 0; }
-.buttonToggleDisplay { background-color: #e1e1e1; border: 1px solid #888; padding: 0px 2px 0px 0px; /*width:30%;*/ }
-.buttonToggleDisplay:hover { background-color: #cdcdcd; }
+.buttonToggleDisplayWrap { display:block; margin: 1em 0 1em 0; background-color: #efeff4; border:1px solid #a2aab8; border-top:1px solid #a2aab8; }
 .buttonToggleDisplay a { text-decoration: none; display: block; }
 .buttonToggleDisplay img { vertical-align: middle; margin-bottom:2px;}
+#typo3-browse-links-php { color: red !important; }
 
-.guiElementBox { background-color: #E6E9EB; border: 1px solid #aaa; padding: 2px; }
+.guiElementBox { padding: 2px; }
+table#typo3-dblist-fieldSelect { margin: 0; }
+#searchbox .guiElementBox label { margin-left: 2px; margin-right: 5px; line-height: 19px; }
+#searchbox .guiElementBox input[type="text"]  { height: 19px; margin-right: 5px; }
 
 span.spacer05em { position:relative; margin-left:0.5em; }
 span.spacer1em  { position:relative; margin-left:1em;}
@@ -75,24 +69,41 @@ span.spacer1em  { position:relative; margin-left:1em;}
 .button:hover { background-color: #cdcdcd; }
 .bgColorBtn { background-color: #e1e1e1; }
 
-.browsebox {  }
-.browsebox TD, .browsebox TD P { line-height:1em; padding:0; font-size:0.8em; }
-.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA { border: 1px solid #aaa; width:1.6em; text-align:center; background-color:#e1e1e1; padding: 1px 0.7em 1px 0.7em; }
-.browsebox TD.browsebox-CellA:hover { background-color: #cdcdcd; }
+.browsebox TD, .browsebox TD P { font-size:0.9em; line-height:1em; }
+.browsebox TD { height:2em; font-size:0.9em; }
 .browsebox TD.browsebox-Select { }
-.browsebox TD.browsebox-Select SELECT { padding:0; font-size:0.8em; width:100%; font-weight:normal; border: 1px solid #aaa; background-color:#e1e1e1; }
+.browsebox TD.browsebox-Select SELECT { padding:0; font-size:1em; width:100%; height:2em; font-weight:normal; border: 1px solid #aaa; }
 .browsebox TD P { font-weight:bold; color:#888; }
 .browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }
-
-.browsebox {  }
-.browsebox TD, .browsebox TD P { padding:0; font-size:0.9em; line-height:1em; }
-.browsebox TD { padding:0; height:2em; font-size:0.9em; }
-.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA { border: 1px solid #aaa; width:1.6em; text-align:center; background-color:#e1e1e1; padding: 1px 0.7em 1px 0.7em; }
-.browsebox TD.browsebox-CellA:hover { background-color: #cdcdcd; }
-.browsebox TD.browsebox-Select { }
-.browsebox TD.browsebox-Select SELECT { padding:0; font-size:1em; width:100%; height:2em; font-weight:normal; border: 1px solid #aaa; background-color:#e1e1e1; }
-.browsebox TD P { font-weight:bold; color:#888; }
-.browsebox TD.browsebox-CellA P A { font-weight:bold; color:#000; text-decoration:none; display:block; width:auto; }
+.browsebox TD.browsebox-Cell, .browsebox TD.browsebox-CellA {
+	background-color: #f6f6f6;
+	background-image: url('/typo3/sysext/t3skin/images/backgrounds/button.png');
+	background-image: linear-gradient(center top, #f6f6f6 10%, #d5d5d5 90%);
+	background-image: -moz-linear-gradient(center top, #f6f6f6 10%, #d5d5d5 90%);
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.1, #f6f6f6), color-stop(0.9, #d5d5d5));
+	background-position: bottom;
+	background-repeat: repeat-x;
+	border: 1px solid #7c7c7c;
+	border-radius: 1px;
+	-moz-border-radius: 1px;
+	color: #434343;
+	cursor: pointer;
+	text-align: center;
+	width: 2.5em;
+}
+.browsebox TD.browsebox-Cell { cursor: default; }
+.browsebox TD.browsebox-CellA:hover {
+	background-color: #c8c8c8;
+	background-image: url('/typo3/sysext/t3skin/images/backgrounds/button-hover.png');
+	background-image: linear-gradient(center top, #f6f6f6 10%, #c8c8c8 90%);
+	background-image: -moz-linear-gradient(center top, #f6f6f6 10%, #bdbcbc 90%);
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0.1, #f6f6f6), color-stop(0.9, #c8c8c8));
+	background-position: bottom;
+	background-repeat: repeat-x;
+	border: 1px solid #737f91;
+	color: #1e1e1e;
+	cursor: pointer;
+}
 
 #c-override, #c-upload, #c-submit { margin: 0.3em 0 1em 0; }
 #c-upload input { margin: 0 0 0.3em 0; }
@@ -118,15 +129,12 @@ div.msgbox { display:block; width:auto; border: 1px solid #888; }
 div.msgboxContent { display:block; width:auto; padding:1.5em;  }
 div.msgboxButtons { display:block; text-align:right; padding:1.5em;  }
 
-/*div.infobar { display:table; width:100%; height:3em; background-color:#e6e9eb; border-bottom: 1px solid #888; }*/
 div.infobar div.infobar-content { display:table-cell; width:100%; vertical-align:middle; padding: 2px 5px 2px 5px; }
 div.infobar div.infobar-content td { vertical-align:middle; }
 
 	/* From class.tx_dam_cmd_foldernew */
 #c-select { margin: 1.5em 0 0.8em 0; }
 #c-createFolders div { margin-bottom:0.8em; }
-
-
 
 	/* Custom, or from inline elements */
 div#debugContent { background-color:#eee; border:1px solid #888; padding:5px; }
@@ -145,10 +153,5 @@ div#itemsFooter { background-color:#eee; border:1px solid #888; padding:5px; }
 span#titleWrap { color:grey;vertical-align:top; }
 div#languageSwitch { margin:0 0.5em 0.4em auto; text-align:right; }
 div#typo3-inner-docbody { padding:10px 10pt 10px 10px; }
-div#typo3-docbody { background-color: #EBEBEB; }
-
-	/* From class.tx_dam_tools_mimetypes */
-th { font-size: 10px; color: #ffffff; font-weight: bold; background-color: #a2aab8; text-align: left; }
-
-
-
+div.typo3-dam-docbody-tree { background-color: #ebebeb; }
+div.typo3-dam-docbody-main { background-color: #f8f8f8; }

@@ -229,11 +229,11 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 				if (count($lines)==0) {
 					$treeLine = '';
 				} elseif (count($lines) < $recCount) {
-					$LN = 'join';
-					$treeLine = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/'.$LN.'.gif','width="18" height="16"').' alt="" />';
+					$lineClass = 'damtree-elbow-join';
+					$treeLine = '<img class="' . $lineClass . '"' . t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/blank.gif','width="18" height="18"').' alt="" />';
 				} else {
-					$LN = 'joinbottom';
-					$treeLine = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/'.$LN.'.gif','width="18" height="16"').' alt="" />';
+					$lineClass = 'damtree-elbow-joinbottom';
+					$treeLine = '<img class="' . $lineClass . '"' . t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/blank.gif','width="18" height="18"').' alt="" />';
 				}
 
 

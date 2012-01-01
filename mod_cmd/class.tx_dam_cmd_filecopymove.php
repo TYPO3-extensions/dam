@@ -406,21 +406,23 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 
 			// init table layout
 		$tableLayout = array(
-			'table' => array('<table cellpadding="2" cellspacing="1" border="0" width="100%">','</table>'),
+			'table' => array('<table class="typo3-dblist" style="width: 100%; border-spacing: 0;">','</table>'),
 			'0' => array(
-				'defCol' => array('<th nowrap="nowrap" class="bgColor5">','</th>'),
-				'0' => array('<th width="1%" class="bgColor5">','</th>'),
-				'1' => array('<th width="1%" class="bgColor5">','</th>'),
-				'3' => array('<th width="1%" class="bgColor5">','</th>'),
-				'4' => array('<th width="1%" class="bgColor5">','</th>'),
-				'5' => array('<th width="1%" class="bgColor5">','</th>'),
+				'tr' => array('<tr class="t3-row-header">','</tr>'),
+				'defCol' => array('<th nowrap="nowrap">','</th>'),
+				'0' => array('<th width="1%">','</th>'),
+				'1' => array('<th width="1%">','</th>'),
+				'3' => array('<th width="1%">','</th>'),
+				'4' => array('<th width="1%">','</th>'),
+				'5' => array('<th width="1%">','</th>'),
 			),
 			'defRow' => array(
-				'defCol' => array('<td nowrap="nowrap" class="bgColor4">','</td>'), 
-				'2' => array('<td class="bgColor4">','</td>'),
-				'3' => array('<td style="text-align:center" class="bgColor4">','</td>'),
-				'4' => array('<td style="padding:0 5px 0 5px" class="bgColor4">','</td>'),
-				'5' => array('<td style="text-align:center" class="bgColor4">','</td>'),
+				'tr' => array('<tr class="db_list_normal">','</tr>'),
+				'defCol' => array('<td nowrap="nowrap">','</td>'),
+				'2' => array('<td>','</td>'),
+				'3' => array('<td style="text-align:center">','</td>'),
+				'4' => array('<td style="padding:6px 5px 0px 5px">','</td>'),
+				'5' => array('<td style="text-align:center">','</td>'),
 			),
 		);
 
@@ -430,10 +432,10 @@ class tx_dam_cmd_filecopy extends t3lib_extobjbase {
 
 		$cTable[$tr][$td++] = '&nbsp;';
 		$cTable[$tr][$td++] = '&nbsp;';
-		$cTable[$tr][$td++] = $LANG->sL($TCA['tx_dam']['columns']['title']['label'],1);
+		$cTable[$tr][$td++] = $LANG->sL('LLL:EXT:lang/locallang_general.xml:LGL.title',1);
 		$cTable[$tr][$td++] = '&nbsp;';
 		$cTable[$tr][$td++] = '&nbsp;';
-		$cTable[$tr][$td++] = $LANG->sL($TCA['tx_dam']['columns']['file_path']['label'],1);
+		$cTable[$tr][$td++] = $LANG->sL('LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_path',1);
 
 		$tr++;
 
