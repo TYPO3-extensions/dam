@@ -619,6 +619,8 @@ class tx_dam_db {
 		$meta['tstamp'] = time();
 		if (isset($deleted)) {
 			$meta['deleted'] = $deleted;
+				// set language overlays deleted if its parent is deleted
+			$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_dam', 'l18n_parent=' . $uid, array('deleted' => 1));
 		}
 		$meta['file_status'] = $status;
 		if ($fileInfo) {

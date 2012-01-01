@@ -547,8 +547,8 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 
 	/**
-	 * Do the file indexing
-	 * Read files from a directory index them and output a result table
+	 * Check file index
+	 * Checks all files of all DAM records for existence and updates status
 	 *
 	 * @return	string		HTML content
 	 */
@@ -561,6 +561,8 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		$indexSession = $this->indexSessionFetch();
 
 		$where = array();
+			// exclude language overlays because they don't have a path and file name
+		$where['sys_language_uid'] = 'sys_language_uid=0';
 		if ($age = intval($this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.age'])) {
 			$where['tstamp'] = 'tstamp<'.(time()-$age);
 		}
