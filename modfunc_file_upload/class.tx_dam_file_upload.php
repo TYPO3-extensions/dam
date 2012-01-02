@@ -512,10 +512,10 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 
 
-		if ($upload_max_filesize = tx_dam_extFileFunctions::getMaxUploadSize()) {
+		if ($upload_max_filesize = t3lib_div::getMaxUploadFileSize()) {
 			$code .= '
 				<input type="hidden" name="MAX_FILE_SIZE" value="'.$upload_max_filesize.'" />
-				<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeHint',1), t3lib_div::formatSize($upload_max_filesize)).'</p>
+				<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeHint',1), t3lib_div::formatSize($upload_max_filesize * 1024)).'</p>
 			';
 		}
 
@@ -583,7 +583,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 		} else {
 
 			$content .= $this->pObj->doc->spacer(10);
-			$content .= $this->pObj->doc->section($LANG->getLL('tx_dam_file_upload.uploadNothing'), '<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeExceeded',1), t3lib_div::formatSize(tx_dam_extFileFunctions::getMaxUploadSize())).'</p>');
+			$content .= $this->pObj->doc->section($LANG->getLL('tx_dam_file_upload.uploadNothing'), '<p class="typo3-dimmed">'.sprintf($LANG->getLL('tx_dam_file_upload.maxSizeExceeded',1), t3lib_div::formatSize(t3lib_div::getMaxUploadFileSize() * 1024)).'</p>');
 		}
 
 

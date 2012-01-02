@@ -350,7 +350,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		}
 
 			// check if the file size exceed permissions
-		$maxBytes = $this->getMaxUploadSize();
+		$maxBytes = t3lib_div::getMaxUploadFileSize() * 1024;
 		if (!($theFileSize<($maxBytes)))	{
 			$this->writelog(1,1,104,'The uploaded file exceeds the size-limit of %s (%s Bytes).',array(t3lib_div::formatSize($maxBytes), $maxBytes), 'upload', $id);
 			return;
@@ -940,43 +940,6 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
 
 // TODO function func_unzip($cmds)	{
-
-
-	/**
-	 * Return max upload file size
-	 *
-	 * @return integer Maximum file size for uploads in bytes
-	 */
-	function getMaxUploadSize() {
-		$upload_max_filesize = ini_get('upload_max_filesize');
-		$match = array();
-		if (preg_match('#(M|MB)$#i', $upload_max_filesize, $match)) {
-			$upload_max_filesize = intval($upload_max_filesize)*1048576;
-		} elseif (preg_match('#(k|kB)$#i', $upload_max_filesize, $match)) {
-			$upload_max_filesize = intval($upload_max_filesize)*1024;
-		}
-
-		$post_max_size = ini_get('post_max_size');
-		$match = array();
-		if (preg_match('#(M|MB)$#i', $post_max_size, $match)) {
-			$post_max_size = intval($post_max_size)*1048576;
-		} elseif (preg_match('#(k|kB)$#i', $post_max_size, $match)) {
-			$post_max_size = intval($post_max_size)*1024;
-		}
-
-		$upload_max_filesize = min($post_max_size, $upload_max_filesize);
-
-		$maxFileSize = intval($this->maxUploadFileSize)*1024;
-		$maxFileSize = $maxFileSize ? $maxFileSize : intval($GLOBALS['TYPO3_CONF_VARS']['BE']['maxFileSize'])*1024;
-
-		if (min($maxFileSize, $upload_max_filesize)==0) {
-			$upload_max_filesize = max($maxFileSize, $upload_max_filesize);
-		} else {
-			$upload_max_filesize = min($maxFileSize, $upload_max_filesize);
-		}
-		return $upload_max_filesize;
-	}
-	
 
 	/**
 	 * Logging actions
