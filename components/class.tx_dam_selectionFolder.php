@@ -66,6 +66,7 @@
 
 
 require_once(PATH_t3lib.'class.t3lib_foldertree.php');
+require_once(PATH_t3lib.'class.t3lib_scbase.php');
 
 
 
@@ -529,7 +530,14 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			$query.= ' NOT';
 		}
 		$likeStr = $GLOBALS['TYPO3_DB']->escapeStrForLike(tx_dam::path_makeRelative($id), 'tx_dam');
-		$query.= ' LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
+
+		$serviceBase = t3lib_div::makeInstance('tx_dam_SCbase');
+		$listFilesFromSubfolders = $serviceBase->config_checkValueEnabled('listFilesFromSubfolders', 1);
+		if ($listFilesFromSubfolders === 1) {
+			$query .= ' LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr.'%', 'tx_dam');
+		} else {
+			$query .= ' LIKE BINARY '.$GLOBALS['TYPO3_DB']->fullQuoteStr($likeStr, 'tx_dam');
+		}
 
 		return array($queryType,$query);
 	}

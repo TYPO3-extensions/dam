@@ -20,6 +20,9 @@ mod.txdamM1_list.guiElements.getSearchBox = 0
 
 mod.txdamM1_file.menu.function.tx_dam_file_upload = 0
 
+# Files from subfolders won't be displayed in Element browser and List / List
+# mod.txdamM1_SHARED.listFilesFromSubfolders = 0
+
 tx_dam.selections.txdamCat.sublevelDepth = 1
 
 
