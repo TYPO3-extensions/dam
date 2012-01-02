@@ -199,8 +199,8 @@ class tx_dam_file_list extends t3lib_extobjbase {
 					}
 				}
 			} else {
-				
-				$uidList = t3lib_div::trimExplode(',', $processAction['onItems'], true);
+
+				$uidList = t3lib_div::trimExplode('###ITEMSEPARATOR###', $processAction['onItems'], true);
 			}
 
 			if ($uidList) {

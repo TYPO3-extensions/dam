@@ -468,7 +468,7 @@ class tx_dam_listbase {
 			if (t3lib_div::_GP($this->paramName['multi_action_target']) === 'all') {
 				 $processAction['onItems'] = '_all';
 			} else {
-				 $processAction['onItems'] = implode(',', $this->recs);
+				 $processAction['onItems'] = implode('###ITEMSEPARATOR###', $this->recs);
 			}
 			return $processAction;
 		}
