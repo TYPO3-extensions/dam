@@ -977,39 +977,39 @@ class tx_dam_db {
 		if (!isset($whereClauses['deleted']) && !isset($whereClauses['enableFields'])) {
 			$where['enableFields'] = tx_dam_db::enableFields($local_table);
 				// soft references table has no TCA
-			$where['deleted'] = $softRef_table.'.deleted=0';
+			$where['deleted'] = $softRef_table . '.deleted=0';
 			if ($foreign_table) {
-				$where['enableFields'] .= ' AND '.tx_dam_db::enableFields($foreign_table);
+				$where['enableFields'] .= ' AND ' . tx_dam_db::enableFields($foreign_table);
 			}
 		}
-		$where['ref'] = $local_table.'.uid='.$softRef_table.'.ref_uid';
+		$where['ref'] = $local_table . '.uid=' . $softRef_table . '.ref_uid';
 		$where['ref'] .= $foreign_table ? ' AND ' . $foreign_table . '.uid=' . $softRef_table . '.recuid' : '';
 		$where['refTable'] = $softRef_table . '.ref_table=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('tx_dam', $softRef_table);
 		$where = array_merge($where, $whereClauses);
 
 		if ($foreign_table) {
-			$where[] = $softRef_table.'.tablename='.$GLOBALS['TYPO3_DB']->fullQuoteStr($foreign_table, $softRef_table);
+			$where[] = $softRef_table . '.tablename=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($foreign_table, $softRef_table);
 		}
 		if ($foreign_uid = $GLOBALS['TYPO3_DB']->cleanIntList($foreign_uid)) {
-			$where[] = $softRef_table.'.recuid IN ('.$foreign_uid.')';
+			$where[] = $softRef_table . '.recuid IN (' . $foreign_uid . ')';
 		}
 		if ($local_uid = $GLOBALS['TYPO3_DB']->cleanIntList($local_uid)) {
-			$where[] = $softRef_table.'.ref_uid IN ('.$local_uid.')';
+			$where[] = $softRef_table . '.ref_uid IN (' . $local_uid . ')';
 		}
-		$where[] = 'NOT ' . $softRef_table.'.softref_key=' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $softRef_table);
+		$where[] = $softRef_table . '.softref_key<>' . $GLOBALS['TYPO3_DB']->fullQuoteStr('', $softRef_table);
 		if ($softRef_ident) {
 			if (!is_array($softRef_ident)) {
 				$softRef_ident = array('softref_key' => $softRef_ident);
 			}
 			foreach ($softRef_ident as $field => $value) {
 				if ($value) {
-					$where[] = $softRef_table.'.'.$field.'='.$GLOBALS['TYPO3_DB']->fullQuoteStr($value, $softRef_table);
+					$where[] = $softRef_table . '.' . $field . '=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($value, $softRef_table);
 				}
 			}
 		}
 
 		if(!$orderBy) {
-			$orderBy = $softRef_table.'.sorting';
+			$orderBy = $softRef_table . '.sorting';
 		}
 
 		while ($key = array_search('', $where)) {
@@ -1019,7 +1019,7 @@ class tx_dam_db {
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			$fields,
-			$local_table . ',' .$softRef_table . ($foreign_table ? ','. $foreign_table : ''),
+			$local_table . ',' . $softRef_table . ($foreign_table ? ',' . $foreign_table : ''),
 			$where,
 			$groupBy,
 			$orderBy,
