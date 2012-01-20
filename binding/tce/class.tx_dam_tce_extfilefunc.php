@@ -127,6 +127,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 
 					// Traverse all action data. More than one file might be affected at the same time.
 				if (is_array($actionData))	{
+					$result[$action] = array();
 					foreach($actionData as $id => $cmdArr)	{
 
 							// Clear file stats
@@ -135,31 +136,31 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 							// Branch out based on command:
 						switch ($action)	{
 							case 'delete':
-								$this->func_delete($cmdArr, $id);
+								$result[$action][] = $this->func_delete($cmdArr, $id);
 							break;
 							case 'copy':
-								$this->func_copy($cmdArr, $id);
+								$result[$action][] = $this->func_copy($cmdArr, $id);
 							break;
 							case 'move':
-								$this->func_move($cmdArr, $id);
+								$result[$action][] = $this->func_move($cmdArr, $id);
 							break;
 							case 'rename':
-								$this->func_rename($cmdArr, $id);
+								$result[$action][] = $this->func_rename($cmdArr, $id);
 							break;
 							case 'newfolder':
-								$this->func_newfolder($cmdArr, $id);
+								$result[$action][] = $this->func_newfolder($cmdArr, $id);
 							break;
 							case 'newfile':
-								$this->func_newfile($cmdArr, $id);
+								$result[$action][] = $this->func_newfile($cmdArr, $id);
 							break;
 							case 'editfile':
-								$this->func_edit($cmdArr, $id);
+								$result[$action][] = $this->func_edit($cmdArr, $id);
 							break;
 							case 'upload':
-								$this->func_upload($cmdArr, $id);
+								$result[$action][] = $this->func_upload($cmdArr, $id);
 							break;
 							case 'unzip':
-								$this->func_unzip($cmdArr, $id);
+								$result[$action][] = $this->func_unzip($cmdArr, $id);
 							break;
 						}
 
@@ -179,7 +180,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 			}
 		}
 
-
+	return $result;
 
 	}
 
