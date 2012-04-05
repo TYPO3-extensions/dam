@@ -1383,7 +1383,34 @@ class tx_dam_indexing {
 	function getImageDimensions($pathname, $metaInfo=array()) {
 		$meta = array();
 
-		if ($GLOBALS['TYPO3_CONF_VARS']['GFX']['im'])	{
+			// we try to extract information by built-in PHP function because this is faster than using ImageMagick
+		$size = getimagesize($pathname);
+		if (is_array($size)) {
+			$meta['fields']['hpixels'] = $size[0];
+			$meta['fields']['vpixels'] = $size[1];
+			$meta['fields']['color_space'] = $this->getColorSpace($size['channels']);
+
+			if (!isset($metaInfo['fields']['hres']) || !tx_dam::canBeInterpretedAsInteger($metaInfo['fields']['hres'])) {
+				if (function_exists('exif_read_data')) {
+					$exif = exif_read_data($pathname, 0, TRUE);
+					if (is_array($exif['IFD0'])) {
+							// resolution is a fraction in EXIF data
+						$xResolutionParts = explode('/', $exif['IFD0']['XResolution']);
+						$meta['fields']['hres'] = intval($xResolutionParts[0] / $xResolutionParts[1]);
+
+						$yResolutionParts = explode('/', $exif['IFD0']['YResolution']);
+						$meta['fields']['vres'] = intval($yResolutionParts[0] / $yResolutionParts[1]);
+
+					}
+				} else {
+						// we assume the resolution is 72dpi
+					$meta['fields']['hres'] = 72;
+					$meta['fields']['vres'] = 72;
+				}
+			}
+
+		}
+		elseif ($GLOBALS['TYPO3_CONF_VARS']['GFX']['im'])	{
 			$frame = $GLOBALS['TYPO3_CONF_VARS']['GFX']['im_noFramePrepended']?'':'[0]';
 			$format = 'magic:%m \npage_size:%P \npage_geometry:%g \nsize:%wx%h \nx-resolution:%x \ny-resolution:%y \nimage_depth:%z \nquantum_depth:%q \ncolorspace:%r \nbounding_box:%@';
 			$cmd = t3lib_div::imageMagickCommand('identify', '-format '.escapeshellarg($format).' '.escapeshellarg($pathname).$frame);
@@ -1439,19 +1466,6 @@ class tx_dam_indexing {
 			}
 		}
 
-		if(!$meta['fields']['hpixels'] AND function_exists('getimagesize')) {
-			$size = @getImageSize($pathname);
-			$meta['fields']['hpixels'] = $size[0];
-			$meta['fields']['vpixels'] = $size[1];
-			$meta['fields']['hres'] = 72;
-			$meta['fields']['vres'] = 72;
-			if ($metaInfo['fields']['file_type'] === 'gif') {
-				$meta['fields']['color_space'] = 'indx';
-			} else {
-				$meta['fields']['color_space'] = 'RGB';
-			}
-		}
-
 		if (!$meta['fields']['height_unit'] AND $meta['fields']['hres'] AND $meta['fields']['vres']) {
 			$meta['fields']['height_unit'] = 'mm';
 			$meta['fields']['width'] = intval(round($meta['fields']['hpixels']/$meta['fields']['hres']*25.4));
@@ -1463,6 +1477,24 @@ class tx_dam_indexing {
 		return $meta;
 	}
 
+	/**
+	 * Return the color_space for the channels value from exif_read_data()
+	 *
+	 * @param	integer		channels information
+	 * @return	string		color space string for use in DAM database
+	 */
+	protected function getColorSpace($value) {
+
+		$colorSpaceToName = array(
+			'0' => 'grey',
+			'2' => 'RGB',
+			'3' => 'RGB',
+			'4' => 'CMYK',
+			'6' => 'RGB',
+		);
+
+		return $colorSpaceToName[$value];
+	}
 
 	/**
 	 * Gets default record.
