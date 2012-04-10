@@ -155,3 +155,24 @@ div#languageSwitch { margin:0 0.5em 0.4em auto; text-align:right; }
 div#typo3-inner-docbody { padding:10px 10pt 10px 10px; }
 div.typo3-dam-docbody-tree { background-color: #ebebeb; }
 div.typo3-dam-docbody-main { background-color: #f8f8f8; }
+
+	/* For extension dam_index */
+div.dam-index-steps {
+    background-color: #EAF7FF;
+    color: #4C73A1;
+    margin-bottom: 4px;
+    padding: 12px 12px 12px 12px;
+	border: 1px solid #C5DBE6;
+	display: inline-block;
+	font-size:22px;
+	font-weight:bold;
+	line-height: 24px;
+}
+div.dam-index-steps-clearer { height: 1px; clear: both; }
+
+div.dam-index-steps-numbers { float: left; }
+.dam-index-steps .dam-index-step { margin-left: 5px; margin-right: 5px; color: #dadada; }
+.dam-index-steps .dam-index-step-active { color: #4C73A1; }
+.dam-index-steps-button-placeholder, .dam-index-steps-button-wrapper-left { min-width: 100px; float: left; }
+.dam-index-steps-button-wrapper-right { min-width: 100px; float: left; }
+.dam-index-steps-button-wrapper-right input { float: right; }

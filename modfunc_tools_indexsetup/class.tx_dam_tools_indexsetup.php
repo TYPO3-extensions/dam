@@ -158,14 +158,16 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 				$stepsBar = $this->getStepsBar($step,$lastStep, '' ,'', '', $LANG->getLL('tx_dam_tools_indexsetup.finish'));
 				$content.= $this->pObj->doc->section($header,$stepsBar,0,1);
 
-				$content.= '<strong>Set Options:</strong><table border="0" cellspacing="0" cellpadding="4" width="100%">'.$this->index->getIndexingOptionsInfo().'</table>';
+				$content .= $this->pObj->doc->sectionHeader($LANG->getLL('tx_dam_tools_indexsetup.set_options'), 0);
+				$content.= '<table border="0" cellspacing="0" cellpadding="4" width="100%">'.$this->index->getIndexingOptionsInfo().'</table>';
 
 				$content.= $this->pObj->doc->spacer(10);
 
 				$rec = array_merge($this->index->dataPreset,$this->index->dataPostset);
 
 				$fixedFields = array_keys($this->index->dataPostset);
-				$content.= '<strong>Meta data preset:</strong><br /><table border="0" cellpadding="4" width="100%"><tr><td bgcolor="'.$this->pObj->doc->bgColor3dim.'">'.
+				$content .= $this->pObj->doc->sectionHeader($LANG->getLL('tx_dam_tools_indexsetup.meta_data_preset'), 0);
+				$content.= '<table border="0" cellpadding="4" width="100%"><tr><td>'.
 								$this->showPresetData($rec, $fixedFields).
 								'</td></tr></table>';
 
@@ -245,7 +247,6 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 			case 'indexSave':
 				$content.= $this->pObj->getPathInfoHeaderBar($this->pObj->pathInfo, FALSE, $this->cmdIcons);
 				$content.= $this->pObj->doc->spacer(10);
-				$content.= '<div style="width:100%;text-align:right;">'.$this->pObj->btn_back().'</div>';
 
 				if (t3lib_div::_GP('setuptype') === 'folder') {
 					$path = tx_dam::path_makeAbsolute($this->pObj->path);
@@ -265,14 +266,32 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 
 				if ($handle = fopen($filename, 'wb')) {
 					if (fwrite($handle, $setup)) {
-						 $content.= 'Setup written to file<br />'.htmlspecialchars($filename);
+						$message = t3lib_div::makeInstance(
+							't3lib_FlashMessage',
+							'Setup written to file:<br />' . htmlspecialchars($filename),
+							'',
+							t3lib_FlashMessage::OK
+						);
+						$content .= $message->render();
 					} else {
-						 $content.= 'Can\'t write to file '.htmlspecialchars($filename);
+						$message = t3lib_div::makeInstance(
+							't3lib_FlashMessage',
+							'Can\'t write to file ' . htmlspecialchars($filename),
+							'',
+							t3lib_FlashMessage::ERROR
+						);
+						$content .= $message->render();
 					}
 					fclose($handle);
 					t3lib_div::fixPermissions($filename);
 				} else {
-					 $content.= 'Can\'t open file '.htmlspecialchars($filename);
+						$message = t3lib_div::makeInstance(
+							't3lib_FlashMessage',
+							'Can\'t open file ' . htmlspecialchars($filename),
+							'',
+							t3lib_FlashMessage::ERROR
+						);
+						$content .= $message->render();
 				}
 			break;
 

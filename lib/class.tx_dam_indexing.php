@@ -1700,8 +1700,8 @@ class tx_dam_indexing {
 			if($varname!='info') {
 
 				$tdone='<td>&nbsp;</td>';
-				$out .= '<td bgcolor="'.$GLOBALS['SOBE']->doc->bgColor4.'" width="1%"><input type="hidden" name="data'.$varname.'[enabled]" value="0" />'.
-					'<input type="checkbox" name="data'.$varname.'[enabled]"'.($enabled?' checked="checked"':'').' value="1" />'.
+				$out .= '<td width="1%"><input type="hidden" name="data'.$varname.'[enabled]" value="0" />'.
+					'<input style="margin-right: 5px;" type="checkbox" name="data'.$varname.'[enabled]"'.($enabled?' checked="checked"':'').' value="1" />'.
 					'</td>';
 			}
 
@@ -1715,10 +1715,10 @@ class tx_dam_indexing {
 
 			if($options) {
 				$out .= '
-				<tr>'.$tdone.'<td bgcolor="'.$GLOBALS['SOBE']->doc->bgColor3.'" style="border-bottom:2px '.$GLOBALS['SOBE']->doc->bgColor5.' solid;">'.$options.'</td></tr>';
+				<tr>'.$tdone.'<td style="border-bottom:2px '.$GLOBALS['SOBE']->doc->bgColor5.' solid;">'.$options.'</td></tr>';
 			}
 
-			$out .= '<tr height="5" bgcolor="'.$GLOBALS['SOBE']->doc->bgColor.'">'.$tdone.'<td></td></tr>';
+			$out .= '<tr height="5">'.$tdone.'<td></td></tr>';
 		}
 		return $out;
 	}

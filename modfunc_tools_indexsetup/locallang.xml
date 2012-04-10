@@ -17,6 +17,8 @@
 			<label index="tx_dam_tools_indexsetup.title">Indexing Setup</label>
 			<label index="tx_dam_tools_indexsetup.func_defindex">Define index setup</label>
 			<label index="tx_dam_tools_indexsetup.func_cron_info">Cron job index setup overview</label>
+			<label index="tx_dam_tools_indexsetup.meta_data_preset">Meta data preset:</label>
+			<label index="tx_dam_tools_indexsetup.set_options">Set Options:</label>
 			<label index="tx_dam_tools_indexsetup.finish">Finish</label>
 			<label index="tx_dam_tools_indexsetup.start_point">Indexing start point</label>
 			<label index="tx_dam_tools_indexsetup.desc">With this wizard you can define and save a setup for the auto indexing feature or the stand-alone indexing script usable for cron jobs.</label>
