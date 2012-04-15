@@ -116,7 +116,7 @@ $GLOBALS['T3_VAR']['ext']['dam']['TCA']['mountpoints_config'] = array (
 
 	// for tx_dam allowed only
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config'] = $GLOBALS['T3_VAR']['ext']['dam']['TCA']['category_config'];
-$GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['size'] = 6;
+$GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['size'] = 10;
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['maxitems'] = 25;
 $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config']['MM'] = 'tx_dam_mm_cat';
 

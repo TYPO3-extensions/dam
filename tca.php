@@ -886,7 +886,7 @@ $TCA['tx_dam'] = array(
 	),
 
 	'palettes' => array(
-		'1' => array('showitem' => 'hidden,starttime, endtime,', 'canNotCollapse' => '1'),
+		'1' => array('showitem' => 'hidden,starttime, endtime', 'canNotCollapse' => '1'),
 		'2' => array('showitem' => 'fe_group'),
 
 		'3' => array('showitem' => 'loc_desc', 'canNotCollapse' => '1'),
@@ -908,31 +908,29 @@ $tx_dam_header = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_overview,
 
 
 #$tx_dam_descr = 'title;;;;3-3-3,       l18n_parent,sys_language_uid,              keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr_abstract = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr_txt = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, language, pages, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
-$tx_dam_descr_img = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.loc_pheader;5;;, --palette--;;3;;, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
+$tx_dam_descr = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;0-0-0, ';
+$tx_dam_descr_abstract = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;0-0-0, ';
+$tx_dam_descr_txt = 'title;;;;3-3-3, keywords, description, abstract;;;;3-3-3, language, pages, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;0-0-0, ';
+$tx_dam_descr_img = 'title;;;;3-3-3, keywords, description, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.loc_pheader;5;;0-0-0, --palette--;;3;;, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.date_pheader;13;;, ';
 
-$tx_dam_metrics_img = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_metrics, color_space;;;;4-4-4, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics;4, --palette--;;10;;, --palette--;;14;;, ';
-$tx_dam_metrics_txt = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_metrics, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics;10;;4-4-4, ';
+$tx_dam_metrics_img = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_metrics, color_space;;;;0-0-0, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics;4, --palette--;;10;;, --palette--;;14;;, ';
+$tx_dam_metrics_txt = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_metrics, --palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.metrics;10;;0-0-0, ';
 
-$tx_dam_file = '--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_pheader;6;;3-3-3, --palette--;;7;;, --palette--;;8;;, --palette--;;12;;, file_orig_location;;;;, file_orig_loc_desc, ';
+$tx_dam_file = '--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.file_pheader;6;;0-0-0, --palette--;;7;;, --palette--;;8;;, --palette--;;12;;, file_orig_location;;;;, file_orig_loc_desc, ';
 
 $tx_dam_copyright = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_copyright, creator;;;;3-3-3, publisher, copyright, ident, ';
-$tx_dam_category = 'category;;;;4-4-4, ';
+$tx_dam_category = 'category;;;;0-0-0, ';
 
 #$tx_dam_frontend = '--palette--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.frontend_pheader;1;;1-1-1, caption, alt_text, file_dl_name, ';
 $tx_dam_frontend = 'caption;;;;1-1-1, alt_text, file_dl_name, ';
 
 $tx_dam_usage = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_usage, instructions;;;;3-3-3, file_usage, ';
 
-$tx_dam_feaccess = '--palette--;LLL:EXT:lang/locallang_general.php:LGL.fe_group;1;;1-1-1, fe_group, ';
+$tx_dam_feaccess = '--div--;LLL:EXT:cms/locallang_tca.xml:pages.tabs.access;1;;1-1-1, --palette--;;1;;, fe_group';
 
-$tx_dam_footer = $tx_dam_category.$tx_dam_feaccess;
+$tx_dam_common = $tx_dam_frontend.$tx_dam_file.$tx_dam_category.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage;
 
-$tx_dam_common = $tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage;
-
-$tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_extraMeta, meta,';
+$tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_extraMeta, meta, ';
 
 $tx_dam_extra = '';
 
@@ -943,31 +941,31 @@ if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['debug']) {
 
 $TCA['tx_dam']['types'] = array(
 	/* undefined */
-	'0' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'0' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* text */
-	'1' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_extra),
+	'1' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_common.$tx_dam_frontend.$tx_dam_file.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_feaccess.$tx_dam_extra),
 	/* image */
-	'2' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_frontend.$tx_dam_file.$tx_dam_footer.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_extra),
+	'2' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_common.$tx_dam_frontend.$tx_dam_file.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_feaccess.$tx_dam_extra),
 	/* audio */
-	'3' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'3' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* video */
-	'4' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'4' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* interactive */
-	'5' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'5' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* service */
-	'6' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'6' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* font */
-	'7' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'7' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* model */
-	'8' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'8' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* dataset */
-	'9' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'9' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* collection */
-	'10' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'10' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* software */
-	'11' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'11' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 	/* application */
-	'12' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_extra),
+	'12' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
 );
 
 
