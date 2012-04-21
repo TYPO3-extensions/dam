@@ -251,7 +251,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 				$this->iconPath = preg_replace('#^'.preg_quote($GLOBALS['BACK_PATH']).'#', '',$this->iconPath);
 				$this->iconPath_cleaned = true;
 			}
-			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.$this->iconName,'width="18" height="16"').' alt="" />';
+			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.$this->iconName,'width="16" height="16"').' alt="" />';
 			$icon = $this->wrapIcon($icon,$row);
 		} else {
 			$icon = parent::getIcon($row);
@@ -270,7 +270,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 		global $BACK_PATH;
 
 		if($this->rootIcon) {
-			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->rootIcon, 'width="18" height="16"').' alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->rootIcon, 'width="16" height="16"').' alt="" />';
 			$icon = $this->wrapIcon($icon,$row);
 		} else {
 			$icon =  parent::getRootIcon($row);
@@ -465,7 +465,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 	 */
 	function selection_getItemIcon($id, $value)	{
 		if($icon =	$this->getDefaultIcon()) {
-			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $icon, 'width="18" height="16"').' class="typo3-icon" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $icon, 'width="16" height="16"').' class="typo3-icon" alt="" />';
 		}
 		return $icon;
 	}
@@ -622,7 +622,7 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			}
 				// Create arrow-bullet for file listing (if folder path is linkable):
 			$aOnClick = 'return jumpToUrl(\''.$this->thisScript.'?act='.$GLOBALS['SOBE']->act.'&mode='.$GLOBALS['SOBE']->mode.'&bparams='.$GLOBALS['SOBE']->bparams.$this->getJumpToParam($v['row']).'\');';
-			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/ol/arrowbullet.gif','width="18" height="16"').' alt="" /></a>' : '';
+			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/ol/arrowbullet.gif','width="16" height="16"').' alt="" /></a>' : '';
 
 				// Put table row with folder together:
 			$out.='
@@ -787,7 +787,7 @@ class tx_dam_selProcBase {
 	 */
 	function selection_getItemIcon($id, $value)	{
 		if($icon =	$this->getDefaultIcon()) {
-			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$icon, 'width="18" height="16"').' class="typo3-icon" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$icon, 'width="16" height="16"').' class="typo3-icon" alt="" />';
 		}
 		return $icon;
 	}

@@ -118,7 +118,7 @@ class tx_dam_treelib_ebtreeview extends t3lib_treeView {
 
 #			$title = $ATag_alt.$title.'</a>';
 
-			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/plusbullet2.gif','width="18" height="16"').' title="'.$GLOBALS['LANG']->getLL('addToList',1).'" alt="" />';
+			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/plusbullet2.gif','width="16" height="16"').' title="'.$GLOBALS['LANG']->getLL('addToList',1).'" alt="" />';
 			$title = $ATag_alt.$title.'&nbsp;'.$ATag.$icon.'</a>';
 
 
@@ -178,7 +178,7 @@ class tx_dam_treelib_ebtreeview extends t3lib_treeView {
 
 			$aOnClick = 'return jumpToUrl(\''.$this->thisScript.'?act='.$GLOBALS['SOBE']->browser->act.'&mode='.$GLOBALS['SOBE']->browser->mode.'&bparams='.$GLOBALS['SOBE']->browser->bparams.$this->getJumpToParam($v['row']).'\');';
 			$cEbullet = $this->ext_isLinkable($v['row']) ?
-						'<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/ol/arrowbullet.gif','width="18" height="16"').' alt="" /></a>' :
+						'<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/ol/arrowbullet.gif','width="16" height="16"').' alt="" /></a>' :
 						'';
 			$out.='
 				<tr class="'.$bgColorClass.'">

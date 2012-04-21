@@ -144,7 +144,7 @@ class localFolderTree extends t3lib_folderTree {
 
 				// Create arrow-bullet for file listing (if folder path is linkable):
 			$aOnClick = 'return jumpToUrl(\''.$this->thisScript.'?command=targetFolder:'.$this->itemKey.':'.rawurlencode($v['row']['path']).'\');';
-			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/arrowbullet.gif','width="18" height="16"').' alt="" /></a>' : '';
+			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/arrowbullet.gif','width="16" height="16"').' alt="" /></a>' : '';
 
 				// Put table row with folder together:
 			$out.='

@@ -90,9 +90,9 @@ class tx_dam_selectionIndexRun extends tx_dam_selBrowseTree {
 		$this->title = $LANG->sL('LLL:EXT:dam/lib/locallang.xml:indexRun');
 		$this->treeName = 'txdamIndexRun';
 		$this->domIdPrefix = $this->treeName;
-		$this->iconName = 'indexruntype.gif';
+		$this->iconName = 'indexruntype.png';
 		$this->iconPath = PATH_txdam_rel.'i/';
-		$this->rootIcon = PATH_txdam_rel.'i/indexrunfolder.gif';
+		$this->rootIcon = PATH_txdam_rel.'i/indexrunfolder.png';
 
 		$this->table='tx_dam_log_index';
 		$this->parentField='';

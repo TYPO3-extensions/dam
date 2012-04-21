@@ -1095,7 +1095,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 						if(!((string)$categoryTitle == '')) {
 							$params = array('SLCMD['.$queryType.']['.$selectionRuleName.']['.(string)$id.']' => $deselectValue);
-							$actionIcon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_remove.gif', 'width="11" height="10"').' title="'.$LANG->getLL('remove',1).'" alt="" />';
+							$actionIcon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_remove.gif', 'width="16" height="16"').' title="'.$LANG->getLL('remove',1).'" alt="" />';
 							$actionIcon = '<a href="'.htmlspecialchars($this->linkThisScriptSel($params)).'">'.$actionIcon.'</a>';
 
 							$rows[] = '<td width="1%"'.$rowBbgColor.'>'.$actionIcon.'</td><td nowrap="nowrap"'.$rowBbgColor.'>'.$categoryTitle.'</td><td width="70%"'.$rowBbgColor.'>'.$itemIcon.htmlspecialchars(t3lib_div::fixed_lgd_cs($itemTitle, $BE_USER->uc['titleLen'])).'</td>';
@@ -1259,12 +1259,12 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 				// folder up button
 			if ($browsable AND in_array('up', $allowedIcons) AND $pathInfo['mount_id'] AND strcmp($pathInfo['mount_path'], $pathInfo['dir_path_absolute']))	{
-				$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/folder_up.gif', 'width="18" height="16"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.upOneLevel',1).'" class="absmiddle" alt="" />';
+				$icon = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/folder_up.gif', 'width="16" height="16"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.upOneLevel',1).'" class="absmiddle" alt="" />';
 				$elements['up'] = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript(array('SET[tx_dam_folder]' => dirname($pathInfo['dir_path_absolute'])))).'">'.$icon.'</a>';
 			}
 
 			$iconFolder = tx_dam::icon_getFolder($pathInfo);
-			$elements['icon'] = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, $iconFolder, 'width="18" height="16"').' alt="" />';
+			$elements['icon'] = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, $iconFolder, 'width="16" height="16"').' alt="" />';
 
 			$elements['path'] = tx_dam_guiFunc::getPathBreadcrumbMenu($pathInfo, $browsable, $maxLength=35);
 
@@ -1555,7 +1555,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$params['returnUrl'] = PATH_txdam_rel.'close.html';
 		$onClick = 'vHWin=window.open(\''.t3lib_div::linkThisUrl($BACK_PATH.'alt_doc.php', $params).'\',\''.md5(t3lib_div::getIndpEnv('TYPO3_REQUEST_SCRIPT')).'\',\''.($BE_USER->uc['edit_wideDocument']?'width=670,height=550':'width=600,height=550').',status=0,menubar=0,scrollbars=1,resizable=1\');vHWin.focus();return false;';
 		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-					'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/edit_popup.gif', 'width="16" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.openInNewWindow',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+					'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/edit_popup.gif', 'width="16" height="16"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.openInNewWindow',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
 					'</a>';
 
 		return $content;
@@ -1573,7 +1573,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $LANG, $BACK_PATH;
 
 		$params = array('SLCMD[NOT][txdamRecords]['.$uid.']' => '1');
-		$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('deselect').'" class="absmiddle" '.$addAttrib.' alt="" />';
+		$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="16" height="16"').' title="'.$LANG->getLL('deselect').'" class="absmiddle" '.$addAttrib.' alt="" />';
 		$content = '<a href="'.htmlspecialchars(t3lib_div::linkThisScript($params)).'">'.$icon.'</a>';
 
 		return $content;
@@ -1616,8 +1616,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		global $LANG, $BACK_PATH;
 
 		$onClick = 'top.launchView(\''.$table.'\','.$uid.',\''.$BACK_PATH.'\');return false;';
-		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'" title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'">'.
+						// TODO add $addAttrib
+					t3lib_iconWorks::getSpriteIcon('actions-document-info') .
 					'</a>';
 
 		return $content;
@@ -1636,8 +1637,9 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$filepath = tx_dam::file_absolutePath($fileInfo);
 		$onClick = 'top.launchView(\''.$filepath.'\',\'\',\''.$BACK_PATH.'\');return false;';
-		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-					'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'" class="absmiddle" '.$addAttrib.' alt="" />'.
+		$content = '<a href="#" onclick="'.htmlspecialchars($onClick).'" title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1).'">'.
+						// TODO add $addAttrib
+					t3lib_iconWorks::getSpriteIcon('actions-document-info') .
 					'</a>';
 
 		return $content;
@@ -1657,7 +1659,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$onClick = 'top.launchView(\''.$filepath.'\',\'\',\''.$BACK_PATH.'\');return false;';
 		$aTagAttribute = ' onclick="'.htmlspecialchars($onClick).'"';
 		$label = $LANG->sL('LLL:EXT:lang/locallang_core.xml:cm.info',1);
-		$iconImgTag = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/zoom2.gif', 'width="12" height="12"').' alt="" />';
+		$iconImgTag = t3lib_iconWorks::getSpriteIcon('actions-document-info');
 		$hoverText = $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.xml:showInfo',1);
 		$content = tx_dam_SCbase::button ($iconImgTag, $label, $hoverText, $url='#', $aTagAttribute);
 		return $content;

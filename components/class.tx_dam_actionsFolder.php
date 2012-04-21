@@ -117,7 +117,7 @@ class tx_dam_action_newFolder extends tx_dam_actionbase {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/new_webfolder.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="17" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -256,11 +256,11 @@ class tx_dam_action_renameFolder extends tx_dam_actionbase {
 	function getIcon ($addAttribute='') {
 
 		if ($this->disabled) {
-			$iconFile = PATH_txdam_rel.'i/rename_file_i.gif';
+			$iconFile = PATH_txdam_rel.'i/rename_file_i.png';
 		} else {
-			$iconFile = PATH_txdam_rel.'i/rename_file.gif';
+			$iconFile = PATH_txdam_rel.'i/rename_file.png';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="13" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -341,11 +341,11 @@ class tx_dam_action_deleteFolder extends tx_dam_action_renameFolder {
 	function getIcon ($addAttribute='') {
 
 		if ($this->disabled) {
-			$iconFile = 'gfx/delete_record_i.gif';
+			$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], 'gfx/delete_record_i.gif', 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 		} else {
-			$iconFile = 'gfx/delete_record.gif';
+				// TODO add $addAttribute
+			$icon = t3lib_iconWorks::getSpriteIcon('actions-edit-delete');
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}

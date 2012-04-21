@@ -386,7 +386,7 @@ class tx_dam_guiFunc {
 		if (is_array($pathInfo))	{
 
 			$iconFolder = tx_dam::icon_getFolder($pathInfo);
-			$elements['icon'] = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, $iconFolder, 'width="18" height="16"').' alt="" />';
+			$elements['icon'] = '<img'.t3lib_iconWorks::skinImg($BACK_PATH, $iconFolder, 'width="16" height="16"').' alt="" />';
 
 			$elements['path'] = tx_dam_guiFunc::getPathBreadcrumbMenu($pathInfo, false, $maxLength);
 

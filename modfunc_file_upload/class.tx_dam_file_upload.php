@@ -731,7 +731,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 						
 						$addAllJS .= 'insertElement('.$onClick_params.'); ';
 						
-						$table[$tr][$td++] = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
+						$table[$tr][$td++] = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="16" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
 					} elseif ($this->rteMode) {
 						continue;
 					} else {
@@ -769,7 +769,7 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 				$titleAttrib = ' title="'.$label.'"';
 				$onClick = $addAllJS.'return true;';
 				$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
-				$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' alt="" />';
+				$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="16" height="16"').' alt="" />';
 		
 				$addAllButton = '<div style="margin:1em 0 1em 1em;"><span class="button"'.$titleAttrib.'>'.$ATag_add.$addIcon.$label.'</a></span></div>';
 				$code = $code.$addAllButton;

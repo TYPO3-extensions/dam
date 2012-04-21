@@ -2416,7 +2416,7 @@ class tx_dam {
 				}
 
 				if (!$iconfile) {
-					$iconfile = PATH_txdam.'i/18/'.'mtype_undefined.gif';
+					$iconfile = PATH_txdam . 'i/18/mtype_undefined.png';
 					$cacheKey = '__undefined';
 				}
 			}

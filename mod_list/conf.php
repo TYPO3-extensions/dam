@@ -7,7 +7,7 @@ $MCONF['access']='group,user';
 
 $MCONF['script']='index.php';
 
-$MLANG['default']['tabs_images']['tab'] = 'moduleicon.gif';
+$MLANG['default']['tabs_images']['tab'] = 'moduleicon.png';
 $MLANG['default']['ll_ref']='LLL:EXT:dam/mod_list/locallang_mod.xml';
 
 ?>

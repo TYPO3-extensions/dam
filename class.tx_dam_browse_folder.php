@@ -263,7 +263,7 @@ class tx_dam_browse_folder extends browse_links {
 
 			$titleLen=intval($GLOBALS['BE_USER']->uc['titleLen']);
 
-			$folderIcon='<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/_icon_webfolders.gif','width="18" height="16"');
+			$folderIcon='<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/i/_icon_webfolders.gif','width="16" height="16"');
 
 // todo: use modes?
 #			 $fileadminDir = PATH_site.$GLOBALS['TYPO3_CONF_VARS']['BE']['fileadminDir'];
@@ -289,10 +289,10 @@ class tx_dam_browse_folder extends browse_links {
 					$treeLine = '';
 				} elseif (count($lines) < $fcount) {
 					$LN = 'join';
-					$treeLine = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/'.$LN.'.gif','width="18" height="16"').' alt="" />';
+					$treeLine = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/'.$LN.'.gif','width="16" height="16"').' alt="" />';
 				} else {
 					$LN = 'joinbottom';
-					$treeLine = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/'.$LN.'.gif','width="18" height="16"').' alt="" />';
+					$treeLine = '<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/'.$LN.'.gif','width="16" height="16"').' alt="" />';
 				}
 
 
@@ -316,7 +316,7 @@ class tx_dam_browse_folder extends browse_links {
 				$lines[]='
 					<tr class="bgColor4">
 						<td nowrap="nowrap">'.$treeLine.$filenameAndIcon.'&nbsp;</td>
-						<td>'.$ATag.'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/plusbullet2.gif','width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" />'.$ATag_e.'</td>
+						<td>'.$ATag.'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/plusbullet2.gif','width="16" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" />'.$ATag_e.'</td>
 					</tr>';
 
 			}

@@ -126,7 +126,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 		$this->domIdPrefix=$this->treeName;
 		$this->MOUNTS = $GLOBALS['FILEMOUNTS'];
 		$this->iconPath = PATH_txdam_rel.'i/18/';
-		$this->iconName = 'folder_web_ro.gif';
+		$this->iconName = 'folder_web_ro.png';
 		$this->rootIcon = PATH_txdam_rel.'i/18/folder_mount.gif';
 		$this->ext_IconMode = '1'; // no context menu on icons
 	}
@@ -373,7 +373,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 
 				// Set PM icon:
 			$cmd=$this->bank.'_'.($isOpen?'0_':'1_').$specUID.'_'.$this->treeName;
-			$icon='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/'.($isOpen?'minus':'plus').'only.gif','width="18" height="16"').' alt="" />';
+			$icon='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/'.($isOpen?'minus':'plus').'only.gif','width="16" height="16"').' alt="" />';
 			$firstHtml= $this->PM_ATagWrap($icon,$cmd);
 
 			$pathInfo = array(
@@ -397,7 +397,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 				// If the mount is expanded, go down:
 			if ($isOpen)	{
 					// Set depth:
-				$depthD='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/blank.gif','width="18" height="16"').' alt="" />';
+				$depthD='<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/blank.gif','width="16" height="16"').' alt="" />';
 				$this->getFolderTree($val['path'],999,$depthD);
 			}
 
@@ -452,7 +452,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 					$nextCount=$this->getFolderTree(
 						$path,
 						$depth-1,
-						$this->makeHTML ? $depthData.'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/'.$LN.'.gif','width="18" height="16"').' alt="" />' : ''
+						$this->makeHTML ? $depthData.'<img'.t3lib_iconWorks::skinImg($this->backPath,'gfx/ol/'.$LN.'.gif','width="16" height="16"').' alt="" />' : ''
 					);
 					$exp=1;		// Set "did expand" flag
 				} else {
@@ -505,7 +505,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	 */
 	function selection_getItemIcon($id, $value)	{
 		if($icon = $this->getDefaultIcon()) {
-			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$icon, 'width="18" height="16"').' class="typo3-icon" alt="" />';
+			$icon =	'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$icon, 'width="16" height="16"').' class="typo3-icon" alt="" />';
 		}
 		return $icon;
 	}
@@ -621,7 +621,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			}
 				// Create arrow-bullet for file listing (if folder path is linkable):
 			$aOnClick = 'return jumpToUrl(\''.$this->thisScript.'?act='.$GLOBALS['SOBE']->act.'&mode='.$GLOBALS['SOBE']->mode.'&bparams='.$GLOBALS['SOBE']->bparams.$this->getJumpToParam($v['row']).'\');';
-			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/ol/arrowbullet.gif','width="18" height="16"').' alt="" /></a>' : '';
+			$cEbullet = $this->ext_isLinkable($v['row']) ? '<a href="#" onclick="'.htmlspecialchars($aOnClick).'"><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/ol/arrowbullet.gif','width="16" height="16"').' alt="" /></a>' : '';
 
 				// Put table row with folder together:
 			$out.='

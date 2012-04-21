@@ -349,11 +349,11 @@ class tx_dam_listrecords extends tx_dam_listbase {
 
 			if($GLOBALS['SOBE']->selection->sl->sel['NOT']['txdamRecords'][$item['uid']]) {
 				$params = 'SLCMD[NOT][txdamRecords]['.$item['uid'].']=0';
-				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_reselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('reselect').'" alt="" />';
+				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_reselect.gif', 'width="16" height="16"').' title="'.$LANG->getLL('reselect').'" alt="" />';
 				$itemAction = '<a href="index.php?'.$params.'">'.$actionIcon.'</a>';
 			} else {
 				$params='SLCMD[NOT][txdamRecords]['.$item['uid'].']=1';
-				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="11" height="10"').' title="'.$LANG->getLL('deselect').'" alt="" />';
+				$actionIcon = '<img '.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],PATH_txdam_rel.'i/button_deselect.gif', 'width="16" height="16"').' title="'.$LANG->getLL('deselect').'" alt="" />';
 				$itemAction = '<a href="index.php?'.$params.'">'.$actionIcon.'</a>';
 			}
 		}

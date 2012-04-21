@@ -88,7 +88,7 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 		$this->title = $LANG->sL('LLL:EXT:dam/lib/locallang.xml:mediaTypes');
 		$this->treeName = 'txdamMedia';
 		$this->domIdPrefix = $this->treeName;
-		$this->iconName = 'mediatype.gif';
+		$this->iconName = 'mediatype.png';
 		$this->iconPath = PATH_txdam_rel.'i/';
 		$this->rootIcon = PATH_txdam_rel.'i/mediafolder.gif';
 
@@ -159,9 +159,9 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 	 */
 	function getIcon($row) {
 		if($row['parent_id']){
-			$icon = '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $this->iconPath . $this->iconName, 'width="18" height="16"') . ' class="typo3-icon" alt="" />';
+			$icon = '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $this->iconPath . $this->iconName, 'width="16" height="16"') . ' class="typo3-icon" alt="" />';
 		} else {
-			$icon = '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $this->iconPath . '18/mtype_' . tx_dam::convert_mediaType($row['type']) . '.gif', 'width="18" height="16"') . ' class="typo3-icon" alt="" />';
+			$icon = '<img' . t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], $this->iconPath . '18/mtype_' . tx_dam::convert_mediaType($row['type']) . '.png', 'width="16" height="16"') . ' class="typo3-icon" alt="" />';
 		}
 
 		return $this->wrapIcon($icon,$row);
@@ -202,7 +202,7 @@ class tx_dam_selectionMeTypes extends tx_dam_selBrowseTree {
 			$id = $row['type'];
 		}
 		if(intval($id)){
-			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.'18/mtype_'.tx_dam::convert_mediaType($id).'.gif','width="18" height="16"').' class="typo3-icon" alt="" />';
+			$icon = '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],$this->iconPath.'18/mtype_'.tx_dam::convert_mediaType($id).'.png','width="16" height="16"').' class="typo3-icon" alt="" />';
 		}
 
 		return $icon;

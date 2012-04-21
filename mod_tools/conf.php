@@ -11,7 +11,7 @@ $MCONF['script']='index.php';
 $MCONF['navFrameScript']='tx_dam_navframe.php';
 $MCONF['navFrameScriptParam']='&folderOnly=1';
 
-$MLANG['default']['tabs_images']['tab'] = 'moduleicon.gif';
+$MLANG['default']['tabs_images']['tab'] = 'moduleicon.png';
 $MLANG['default']['ll_ref']='LLL:EXT:dam/mod_tools/locallang_mod.xml';
 
 

@@ -807,7 +807,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 			break;
 		}
 		if ($icon)	{
-			return '<img'.t3lib_iconWorks::skinImg($BACK_PATH,$icon,'width="18" height="16"').' class="absmiddle" title="'.htmlspecialchars($title).'" alt="" />';
+			return '<img'.t3lib_iconWorks::skinImg($BACK_PATH,$icon,'width="16" height="16"').' class="absmiddle" title="'.htmlspecialchars($title).'" alt="" />';
 		}
 	}
 
