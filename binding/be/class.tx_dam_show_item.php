@@ -103,7 +103,6 @@ class tx_dam_show_item {
 		$pObj->doc->backPath = $GLOBALS['BACK_PATH'];
 		$pObj->doc->divClass = 'typo3-mediumDoc';
 		$pObj->doc->styleSheetFile2 = t3lib_extMgm::extRelPath('dam') . 'res/css/stylesheet.css';
-		$pObj->doc->JScode = $pObj->doc->getDynTabMenuJScode();
 
 		$pObj->doc->JScodeArray['changeWindowSize'] = '
 		function _resizeWindow() {
