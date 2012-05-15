@@ -279,9 +279,9 @@ class tx_dam_guiRenderList {
 
 		if ($type === 'items_footer' AND is_array($GLOBALS['SOBE']->debugContent) AND tx_dam::config_getValue('setup.devel')) {
 						
-			$content = '<div class="itemsFooter">'.'<h4>GUI Elements</h4>'.t3lib_div::view_array($GLOBALS['SOBE']->develAvailableGuiItems).'</div>';
-			$content .= '<div class="itemsFooter">'.'<h4>Options</h4>'.t3lib_div::view_array($GLOBALS['SOBE']->develAvailableOptions).'</div>';
-			$content .= '<div class="itemsFooter">'.'<h4>Registered actions (all)</h4>'.t3lib_div::view_array(array_keys($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['actionClasses'])).'</div>';
+			$content = '<div class="itemsFooter">' . '<h4>GUI Elements</h4>' . t3lib_utility_Debug::viewArray($GLOBALS['SOBE']->develAvailableGuiItems) . '</div>';
+			$content .= '<div class="itemsFooter">' . '<h4>Options</h4>' . t3lib_utility_Debug::viewArray($GLOBALS['SOBE']->develAvailableOptions) . '</div>';
+			$content .= '<div class="itemsFooter">' . '<h4>Registered actions (all)</h4>' . t3lib_utility_Debug::viewArray(array_keys($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['actionClasses'])) . '</div>';
 			
 			$out.= $GLOBALS['SOBE']->buttonToggleDisplay('devel', 'Module Info', $content);
 			

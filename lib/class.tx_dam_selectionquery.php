@@ -298,7 +298,7 @@ class tx_dam_selectionQuery {
 		if (tx_dam::config_getValue('setup.devel')) {
 				if ($this->error OR !$count OR $countTotal==0) {
 					if ($this->error) $this->SOBE->debugContent['queryArr'] = '<h4>ERROR</h4>'.$this->error;
-					$this->SOBE->debugContent['queryArr'] = '<h4>$queryArr</h4>'.t3lib_div::view_array($queryArr);
+					$this->SOBE->debugContent['queryArr'] = '<h4>$queryArr</h4>' . t3lib_utility_Debug::viewArray($queryArr);
 					$query = $GLOBALS['TYPO3_DB']->SELECTquery(
 								$queryArr['SELECT'],
 								$queryArr['FROM'],
@@ -309,7 +309,7 @@ class tx_dam_selectionQuery {
 							);
 					$this->SOBE->debugContent['query'] = '<h4>$query</h4>'.($query);
 				}
-			$this->SOBE->debugContent['Pointer'] = '<h4>Pointer</h4>'.t3lib_div::view_array($this->pointer->getDebugArray());
+			$this->SOBE->debugContent['Pointer'] = '<h4>Pointer</h4>' . t3lib_utility_Debug::viewArray($this->pointer->getDebugArray());
 		}
 		return $this->res;
 	}

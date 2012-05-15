@@ -290,7 +290,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 			// debug output
 		if (tx_dam::config_getValue('setup.devel')) {
-			$this->debugContent['MOD_SETTINGS'] = '<h4>MOD_SETTINGS</h4>'.t3lib_div::view_array($this->MOD_SETTINGS);
+			$this->debugContent['MOD_SETTINGS'] = '<h4>MOD_SETTINGS</h4>' . t3lib_utility_Debug::viewArray($this->MOD_SETTINGS);
 		}
 
 			// BE Info output
@@ -423,7 +423,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
 
 		if (tx_dam::config_getValue('setup.devel')) {
-			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>'.t3lib_div::view_array($this->pathInfo);
+			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>' . t3lib_utility_Debug::viewArray($this->pathInfo);
 		}
 	}
 

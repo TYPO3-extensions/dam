@@ -133,7 +133,7 @@ class tx_dam_browse_folder extends browse_links {
 				'addParams' => $this->addParams,
 			);
 
-			$content.=  t3lib_div::view_array($debugArr);
+			$content.=  t3lib_utility_Debug::viewArray($debugArr);
 
 		}
 

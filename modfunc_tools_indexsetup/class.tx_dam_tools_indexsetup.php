@@ -236,7 +236,7 @@ class tx_dam_tools_indexsetup extends tx_damindex_index {
 
 
 
-				$content.= $this->pObj->doc->section('Set Options',t3lib_div::view_array($setup),0,1);
+				$content.= $this->pObj->doc->section('Set Options', t3lib_utility_Debug::viewArray($setup),0,1);
 
 
 				$content.= '<br /><textarea style="width:100%" rows="15">'.htmlspecialchars(str_replace('{', "{\n",$this->index->serializeSetup($extraSetup))).'</textarea>';

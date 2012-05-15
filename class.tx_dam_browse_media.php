@@ -269,7 +269,7 @@ class tx_dam_browse_media extends browse_links {
 				'PM' => t3lib_div::_GPmerged('PM'),
 			);
 
-			$this->damSC->debugContent['browse_links'] = '<h4>EB SETTINGS</h4>'.t3lib_div::view_array($debugArr);
+			$this->damSC->debugContent['browse_links'] = '<h4>EB SETTINGS</h4>' . t3lib_utility_Debug::viewArray($debugArr);
 
 			$dbgContent = '<div class="debugContent">'.implode('', $this->damSC->debugContent).'</div>';
 			$content.= $this->damSC->buttonToggleDisplay('debug', 'Debug output', $dbgContent);
