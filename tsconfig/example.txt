@@ -43,8 +43,14 @@ tx_dam.indexing {
 	auto = 0
 	autoMaxInteractive = 5
 	
-	replaceFile.reindexingMode = 2
 	editFile.reindexingMode = 1
+
+	replaceFile.reindexingMode = 2
+	# keep file name of original file on replacing
+	#replaceFile.keepFileName = 1
+	# keep metadata fields on replacing
+    #replaceFile.keepMetaFields = title, caption, description
+	
 }
 
 tx_dam.indexing.defaultSetup (

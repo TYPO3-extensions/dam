@@ -1381,6 +1381,7 @@ class tx_dam {
 		global $TYPO3_CONF_VARS;
 
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
+		/** @var $index tx_dam_indexing */
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
 		$index->setRunType('man');
@@ -1772,10 +1773,10 @@ class tx_dam {
 	function process_replaceFile($meta, $upload_data, $getFullErrorLogEntry=FALSE) {
 		global $TYPO3_CONF_VARS;
 		
-
 		$error = false;
 
 		require_once(PATH_txdam.'lib/class.tx_dam_tce_file.php');
+		/** @var $TCEfile tx_dam_tce_file */
 		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
 		$TCEfile->init();
 			// allow overwrite
@@ -1805,13 +1806,6 @@ class tx_dam {
 
 					// new file name - so we need to update some stuff
 				if ($new_filename !== $meta['file_name']) {
-						// rename meta data fields
-					$fields_values = array();
-					$fields_values['file_name'] = $new_filename;
-					$fields_values['file_dl_name'] = $new_filename;
-					$fields_values['uid'] = $meta['uid'];
-					tx_dam_db::insertUpdateData($fields_values);
-
 						// delete the old file
 					$oldFile = tx_dam::file_absolutePath($meta);
 					@unlink($oldFile);
@@ -1821,14 +1815,57 @@ class tx_dam {
 							$error = array('msg' => $error);
 						}
 					}
+
+					$keepFileName = tx_dam::config_checkValueEnabled('setup.indexing.replaceFile.keepFileName', 0);
+					if ($keepFileName) {
+							// old file name should be kept, i.e. the new filename is renamed to the old filename
+						@rename($newFile, $oldFile);
+					} else {
+							// rename meta data fields if the file name should not be kept
+						$fields_values = array();
+						$fields_values['file_name'] = $new_filename;
+						$fields_values['file_dl_name'] = $new_filename;
+						$fields_values['uid'] = $meta['uid'];
+						tx_dam_db::insertUpdateData($fields_values);
+					}
+
+
 				}
 
-					// reindex the file
-				$setup = array(
-						'recursive' => false,
-						'doReindexing' => tx_dam::config_checkValueEnabled('setup.indexing.replaceFile.reindexingMode', 2), // reindexPreserve - preserve old data if new is empty
-					);
-				tx_dam::index_process ($newFile, $setup);
+					// setup for re-indexing the file
+				$setup = array();
+
+					// list of meta data fields that should be copied from old file's meta data
+				$keepMetaFields = tx_dam::config_getValue('setup.indexing.replaceFile.keepMetaFields');
+
+					// list of fields that can be updated during indexing
+				$allowedMetaFields = $GLOBALS['TCA']['tx_dam']['txdamInterface']['index_fieldList'];
+				if (is_string($allowedMetaFields)) {
+					$allowedMetaFieldArray = t3lib_div::trimExplode(',', $allowedMetaFields);
+
+					if (is_string($keepMetaFields)) {
+						$oldMetaData = tx_dam::meta_getDataByUid($meta['uid'], '*');
+						$keepMetaFieldArray = t3lib_div::trimExplode(',', $keepMetaFields);
+						foreach ($keepMetaFieldArray as $keepMetaField) {
+								// only keep meta data if field is in index_fieldList
+							if (in_array($keepMetaField, $allowedMetaFieldArray)) {
+								$setup['dataPostset'][$keepMetaField] = $oldMetaData[$keepMetaField];
+							}
+						}
+					}
+
+				} else {
+					$error = 'Meta data of replaced file ' . $meta['file_name'] . ' could not be preserved for security reasons. Make sure that
+						$GLOBALS[\'TCA\'][\'tx_dam\'][\'txdamInterface\'][\'index_fieldList\'] is set.';
+					if ($getFullErrorLogEntry) {
+						$error = array('msg' => $error);
+					}
+				}
+
+				$setup['recursive'] = FALSE;
+				$setup['doReindexing'] = tx_dam::config_checkValueEnabled('setup.indexing.replaceFile.reindexingMode', 2); // reindexPreserve - preserve old data if new is empty
+
+				tx_dam::index_process($newFile, $setup);
 
 			}
 		} else {
