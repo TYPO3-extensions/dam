@@ -162,9 +162,14 @@ class tx_dam_cmd_filerename extends t3lib_extobjbase {
 
 
 		if($this->meta['uid']) {
-			$msg[] = $this->pObj->getFormInputField('title', $this->meta['title'], 30);
+			if ($this->userHasAccessToField('title')) {
+				$msg[] = $this->pObj->getFormInputField('title', $this->meta['title'], 30);
+			}
+				// file_name is no exclude field, so no check necessary
 			$msg[] = $this->pObj->getFormInputField('file_name', $this->meta['file_name'], 30);
-			$msg[] = $this->pObj->getFormInputField('file_dl_name', $this->meta['file_dl_name'], 30);
+			if ($this->userHasAccessToField('file_dl_name')) {
+				$msg[] = $this->pObj->getFormInputField('file_dl_name', $this->meta['file_dl_name'], 30);
+			}
 		} else {
 			$msg[] = $this->pObj->getFormInputField('file_name', $this->meta['file_name'], 30);
 		}
@@ -179,10 +184,26 @@ class tx_dam_cmd_filerename extends t3lib_extobjbase {
 		$this->pObj->docHeaderButtons['SAVE'] = '<input class="c-inputButton" name="_savedok"' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/savedok.gif') . ' title="' . $LANG->sL('LLL:EXT:lang/locallang_core.xml:file_rename.php.submit',1) . '" height="16" type="image" width="16">';
 		$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
 
-		$content .= $GLOBALS['SOBE']->getMessageBox ($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
+		$content .= $GLOBALS['SOBE']->getMessageBox($GLOBALS['SOBE']->pageTitle, $msg, $buttons, 1);
 
 		return $content;
 	}
+
+	/**
+	 * Check if the user has access to a field
+	 *
+	 * @return	boolean
+	 */
+	protected function userHasAccessToField($fieldName)	{
+		$userHasAccess = FALSE;
+		$allowedFields = tx_dam_db::getFieldListForUser('tx_dam');
+		if (in_array($fieldName, $allowedFields)) {
+			$userHasAccess = TRUE;
+		}
+		return $userHasAccess;
+	}
+
+
 }
 
 
