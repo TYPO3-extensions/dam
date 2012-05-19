@@ -360,6 +360,24 @@ class tx_dam_file_upload extends t3lib_extobjbase {
 
 
 
+		} elseif (!$this->pObj->pathInfo['dir_writable']) {
+			// Directory is not writable: throw a warning and don't display the upload form
+			$flashMessage = t3lib_div::makeInstance(
+				't3lib_FlashMessage',
+				$LANG->getLL('tx_dam_file_upload.directoryNotWritable', 1),
+				$LANG->getLL('tx_dam_file_upload.title'),
+				t3lib_FlashMessage::WARNING
+			);
+			$content .= $flashMessage->render();
+		} elseif (!tx_dam::access_checkFileOperation('uploadFile')) {
+			// User has no upload fileoperation permission: throw a warning and don't display the upload form
+			$flashMessage = t3lib_div::makeInstance(
+				't3lib_FlashMessage',
+				$LANG->getLL('tx_dam_file_upload.noUploadPermission', 1),
+				$LANG->getLL('tx_dam_file_upload.title'),
+				t3lib_FlashMessage::WARNING
+			);
+			$content .= $flashMessage->render();
 		} else {
 
 

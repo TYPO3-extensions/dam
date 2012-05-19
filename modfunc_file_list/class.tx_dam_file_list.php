@@ -395,10 +395,12 @@ $filelist->clipBoard = $this->pObj->MOD_SETTINGS['clipBoard'];
 			$this->pObj->markers['FOLDER'] = $actions[0];
 			
 			if (array_key_exists('tx_dam_file_upload', $this->pObj->MOD_MENU['function'])) {
-				if ($GLOBALS['BE_USER']->uc['enableFlashUploader']) {
+				if ($GLOBALS['BE_USER']->uc['enableFlashUploader'] && tx_dam::access_checkFileOperation('uploadFile')) {
 					$this->pObj->markers['UPLOAD'] = '<a href="#" id="button-upload"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/upload.gif') . ' title="'.$GLOBALS['LANG']->sL('LLL:EXT:dam/modfunc_file_upload/locallang.xml:tx_dam_file_upload.title',1).'" alt="" height="16" width="16"></a>';
-				} else {
+				} elseif (tx_dam::access_checkFileOperation('uploadFile')) {
 					$this->pObj->markers['UPLOAD'] = '<a href="#" onclick="jumpToUrl(\'index.php?&amp;id=1&amp;SET[function]=tx_dam_file_upload\',this); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/upload.gif') . ' title="'.$GLOBALS['LANG']->sL('LLL:EXT:dam/modfunc_file_upload/locallang.xml:tx_dam_file_upload.title',1).'" alt="" height="16" width="16"></a>';
+				} else {
+					$this->pObj->markers['UPLOAD'] = '';
 				}
 			}
 			$this->pObj->markers['NEW'] = $actions[1];
