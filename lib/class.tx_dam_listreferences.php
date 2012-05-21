@@ -182,9 +182,10 @@ class tx_dam_listreferences extends tx_dam_listbase {
 					$pageOnClick = t3lib_BEfunc::viewOnClick($pageRow['uid'], $GLOBALS['BACK_PATH'], $rootline);
 					$iconAltText = t3lib_BEfunc::getRecordIconAltText($pageRow, 'pages');
 					$icon = t3lib_iconWorks::getSpriteIconForRecord('pages', $pageRow, array('title' => $iconAltText));
+					$pagePath = t3lib_BEfunc::getRecordPath($pageRow['uid'], '1=1', 0);
+					$pagePath = t3lib_div::fixed_lgd_cs($pagePath, -($GLOBALS['BE_USER']->uc['titleLen']));
 					if ($this->showRootline) {
-						$title = t3lib_BEfunc::getRecordPath($pageRow['uid'], '1=1', 0);
-						$title = t3lib_div::fixed_lgd_cs($title, -($GLOBALS['BE_USER']->uc['titleLen']));
+						$title = $pagePath;
 					} else {
 						$title = t3lib_BEfunc::getRecordTitle('pages', $pageRow, TRUE);
 					}
@@ -192,7 +193,7 @@ class tx_dam_listreferences extends tx_dam_listbase {
 						if ($this->enableContextMenus) {
 							$columns[$field] = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon($icon, 'pages', $pageRow['uid'], 1, '', '+view,edit,info').$title;
 						} else {
-							$columns[$field] = '<a href="#" onclick="'.htmlspecialchars($pageOnClick).'">'.$icon.$title.'</a>';
+							$columns[$field] = '<a href="#" title="'. $pagePath . '" onclick="'.htmlspecialchars($pageOnClick).'">'.$icon.$title.'</a>';
 						}
 					} else {
 						if ($this->enableContextMenus) {

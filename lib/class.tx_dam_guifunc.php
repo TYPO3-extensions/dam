@@ -344,11 +344,13 @@ class tx_dam_guiFunc {
 		$content = '';
 		require_once(PATH_txdam.'lib/class.tx_dam_listreferences.php');
 		require_once (PATH_txdam.'lib/class.tx_dam_iterator_references.php');
+		/** @var $referenceList tx_dam_listreferences */
 		$referenceList = t3lib_div::makeInstance('tx_dam_listreferences');
 		$referenceList->displayColumns = t3lib_div::trimExplode(',', $displayColumns, 1);
 		$referenceList->init();
 		$referenceList->enableSorting = false;
 			// Build the references object
+		/** @var $references tx_dam_iterator_references */
 		$references = t3lib_div::makeInstance('tx_dam_iterator_references');
 		$references->processEntries($rows, $referenceList->displayColumns);
 		$references->sort('page');
@@ -357,6 +359,7 @@ class tx_dam_guiFunc {
 			$referenceList->addData($references, 'references');
 				// Make up a pointer
 			require_once(PATH_txdam.'lib/class.tx_dam_listpointer.php');
+			/** @var $pointer tx_dam_listPointer */
 			$pointer = t3lib_div::makeInstance('tx_dam_listPointer');
 			$pointer->init(0, 40, 1);
 			$referenceList->setPointer($pointer);
