@@ -126,6 +126,9 @@ class tx_dam_cmd_filereplace extends t3lib_extobjbase {
 				$error = tx_dam::process_replaceFile($this->meta, $this->pObj->data);
 
 				if ($error) {
+					$this->pObj->docHeaderButtons['SAVE'] = '';
+					$this->pObj->docHeaderButtons['CLOSE'] = '<a href="#" onclick="jumpBack(); return false;"><img' . t3lib_iconWorks::skinImg($this->pObj->doc->backPath, 'gfx/closedok.gif') . ' class="c-inputButton" title="'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.cancel',1).'" alt="" height="16" width="16"></a>';
+					$this->pObj->markers['FOLDER_INFO'] = '';
 					$content .= $GLOBALS['SOBE']->getMessageBox ($LANG->getLL('error'), htmlspecialchars($error), $this->pObj->buttonBack(0), 2);
 
 				} else {
