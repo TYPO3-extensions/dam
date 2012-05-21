@@ -668,8 +668,8 @@ form.formNoPadding { padding: 0 !important; }
 					} elseif (!$dragdropImage) {
 						$onClick = 'return insertElement('.$onClick_params.');';
 						$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
-						$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
-						
+						$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="16" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" /></a>';
+
 						$onClick = 'return insertElement('.$onClick_params.', \'\', 1);';
 						$ATag_insert = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
 						
@@ -680,8 +680,8 @@ form.formNoPadding { padding: 0 !important; }
 					// Create link to showing details about the file in a window:
 				if ($fI['__exists']) {
 					$infoOnClick = 'launchView(\'' . t3lib_div::rawUrlEncodeFP($fI['file_name_absolute']) . '\', \'\'); return false;';
-					$ATag_info = '<a href="#" onclick="' . htmlspecialchars($infoOnClick) . '">';
-					$info = $ATag_info.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->getLL('info',1).'" alt="" /> '.$LANG->getLL('info',1).'</a>';
+					$ATag_info = '<a href="#" onclick="' . htmlspecialchars($infoOnClick) . '" title="'.$LANG->getLL('info',1).'">';
+					$info = $ATag_info . t3lib_iconWorks::getSpriteIcon('actions-document-info') . $LANG->getLL('info',1).'</a>';
 					$info = '<span class="button">'.$info.'</span>';
 				} else {
 					$info = '&nbsp;';
@@ -786,8 +786,8 @@ form.formNoPadding { padding: 0 !important; }
 			$titleAttrib = ' title="'.$label.'"';
 			$onClick = $addAllJS.'return true;';
 			$ATag_add = '<a href="#" onclick="'.htmlspecialchars($onClick).'"'.$titleAttrib.'>';
-			$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="18" height="16"').' alt="" />';
-	
+			$addIcon = $ATag_add.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/plusbullet2.gif', 'width="16" height="16"').' alt="" />';
+
 			$addAllButton = '<div class="addAllButton"><span class="button"'.$titleAttrib.'>'.$ATag_add.$addIcon.$label.'</a></span></div>';
 			$out = $out.$addAllButton;
 		}

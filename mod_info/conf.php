@@ -9,6 +9,6 @@ $MCONF['name']='txdamM1_info';
 $MCONF['access']='user,group';
 $MCONF['script']='index.php';
 
-$MLANG['default']['tabs_images']['tab'] = 'moduleicon.gif';
+$MLANG['default']['tabs_images']['tab'] = 'moduleicon.png';
 $MLANG['default']['ll_ref']='LLL:EXT:dam/mod_info/locallang_mod.xml';
 ?>

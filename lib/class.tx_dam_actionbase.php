@@ -310,7 +310,7 @@ class tx_dam_actionBase {
 	 * @param	boolean		$disabled Will render a item a disabled. Eg. a greyed icon without link.
 	 * @return	string
 	 */
-	function render ($type, $disabled=false) {
+	function render($type, $disabled=false) {
 		$this->type = $type;
 		$this->disabled = $disabled;
 

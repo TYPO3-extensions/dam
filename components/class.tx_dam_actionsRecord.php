@@ -289,8 +289,8 @@ class tx_dam_action_editRec extends tx_dam_action_recordBase {
 			$valid = (($this->itemInfo['__type'] === 'record') AND $this->itemInfo['__table']);
 			if ($valid AND $this->editPermsNeeded) {
 			 	$languageField = $TCA[$this->itemInfo['__table']]['ctrl']['languageField'];
-			 	$valid = ($this->env['permsEdit'] 
-			 			AND !$TCA[$this->itemInfo['__table']]['ctrl']['readOnly']	 	
+			 	$valid = ($this->env['permsEdit']
+			 			AND !$TCA[$this->itemInfo['__table']]['ctrl']['readOnly']
 			 	 		AND (!isset($this->itemInfo[$languageField]) OR $GLOBALS['BE_USER']->checkLanguageAccess($this->itemInfo[$languageField])));
 			}
 		}
@@ -441,7 +441,7 @@ class tx_dam_action_localizeRec extends tx_dam_action_editRec {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/localize'. (!$TCA[$this->itemInfo['__table']]['ctrl']['readOnly'] ? '' : '_d').'.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="18" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -522,7 +522,7 @@ class tx_dam_action_editRecPopup extends tx_dam_action_editRec {
 		} else {
 			$iconFile = PATH_txdam_rel.'i/edit_popup'. (!$TCA[$this->itemInfo['__table']]['ctrl']['readOnly'] ? '' : '_d').'.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="16" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -646,11 +646,11 @@ class tx_dam_action_viewFileRec extends tx_dam_actionbase {
 	 */
 	function getIcon ($addAttribute='') {
 		if ($this->disabled) {
-			$iconFile = 'gfx/zoom_i.gif';
+			$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], 'clear.gif', 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 		} else {
-			$iconFile = 'gfx/zoom.gif';
+			$icon = t3lib_iconWorks::getSpriteIcon('actions-document-view');
 		}
-		$icon =	'<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+
 		return $icon;
 	}
 
@@ -724,14 +724,8 @@ class tx_dam_action_infoRec extends tx_dam_action_recordBase {
 	 * @return	string
 	 */
 	function getIcon ($addAttribute='') {
-		global $TCA;
-
-		if ($this->disabled) {
-			$iconFile = 'gfx/zoom2_i.gif';
-		} else {
-			$iconFile = 'gfx/zoom2.gif';
-		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+			// TODO add $addAttributes
+		$icon = t3lib_iconWorks::getSpriteIcon('actions-document-info');
 
 		return $icon;
 	}
@@ -972,10 +966,10 @@ class tx_dam_action_hideRec extends tx_dam_action_recordBase {
 
 		if ($this->disabled) {
 			$iconFile = 'gfx/button_'.$prefix.'hide_i.gif';
+			$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="11" height="10"').$this->_cleanAttribute($addAttribute).' alt="" />';
 		} else {
-			$iconFile = 'gfx/button_'.$prefix.'hide.gif';
+			$icon = t3lib_iconWorks::getSpriteIcon('actions-edit-'.$prefix.'hide');
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="11" height="10"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}
@@ -1079,15 +1073,12 @@ class tx_dam_action_deleteRec extends tx_dam_action_recordBase {
 	 * @return	string
 	 */
 	function getIcon ($addAttribute='') {
-		global $TCA;
-
 		if ($this->disabled) {
-			$iconFile = 'gfx/delete_record_i.gif';
+			$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], 'gfx/delete_record_i.gif', 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 		} else {
-			$iconFile = 'gfx/delete_record.gif';
+				// TODO add $addAttribute
+			$icon = t3lib_iconWorks::getSpriteIcon('actions-edit-delete');
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
-
 		return $icon;
 	}
 
@@ -1436,12 +1427,11 @@ class tx_dam_action_editFileRec extends tx_dam_actionbase {
 	function getIcon ($addAttribute='') {
 
 		if ($this->disabled) {
-			// edit_file_i.gif does not work - icon processing is broken, default.gif will be returned
-			$iconFile = PATH_txdam_rel.'i/edit_file_i_.gif';
+			$iconFile = 'clear.gif';
 		} else {
 			$iconFile = PATH_txdam_rel.'i/edit_file.gif';
 		}
-		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="12" height="12"').$this->_cleanAttribute($addAttribute).' alt="" />';
+		$icon = '<img'.t3lib_iconWorks::skinImg($this->env['backPath'], $iconFile, 'width="16" height="16"').$this->_cleanAttribute($addAttribute).' alt="" />';
 
 		return $icon;
 	}

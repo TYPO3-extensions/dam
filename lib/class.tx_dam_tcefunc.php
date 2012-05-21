@@ -622,8 +622,8 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 					#$Ahref = $GLOBALS['BACK_PATH'].'show_item.php?table='.rawurlencode($absFilePath).'&returnUrl='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'));
 					$onClick = 'top.launchView(\'tx_dam\', \''.$row['uid'].'\');';
 					$onClick = 'top.launchView(\''.$absFilePath.'\');';
-					$ATag_info = '<a href="#" onclick="'.htmlspecialchars($onClick).'">';
-					$info = $ATag_info.'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/zoom2.gif', 'width="12" height="12"').' title="'.$LANG->getLL('info',1).'" alt="" /> '.$LANG->getLL('info',1).'</a>';
+					$ATag_info = '<a href="#" onclick="'.htmlspecialchars($onClick).'" title="'.$LANG->getLL('info',1).'">';
+					$info = $ATag_info . t3lib_iconWorks::getSpriteIcon('actions-document-info') . $LANG->getLL('info',1).'</a>';
 
 				} else {
 					$info = '&nbsp;';

@@ -87,9 +87,9 @@ class tx_dam_selectionStatus extends tx_dam_selBrowseTree {
 		$this->treeName = 'txdamStatus';
 		$this->domIdPrefix = $this->treeName;
 
-		$this->iconName = 'statustype.gif';
+		$this->iconName = 'statustype.png';
 		$this->iconPath = PATH_txdam_rel.'i/';
-		$this->rootIcon = PATH_txdam_rel.'i/statusfolder.gif';
+		$this->rootIcon = PATH_txdam_rel.'i/statusfolder.png';
 	}
 
 

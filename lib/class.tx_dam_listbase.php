@@ -596,7 +596,9 @@ class tx_dam_listbase {
 			}
 		}
 		if ($this->showMultiActions) {
-			$multiAction = '<a href="#" onclick="tx_dam_listbase_setCheckboxes(\''.$this->paramName['form'].'\'); return false;"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/clip_select.gif','width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:clip_markRecords',1).'" alt="" /></a>';
+			$multiAction = '<a href="#" onclick="tx_dam_listbase_setCheckboxes(\''.$this->paramName['form'].'\'); return false;">
+				' . t3lib_iconWorks::getSpriteIcon('actions-document-select', array('title' => $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:clip_markRecords', 1))) . '
+			</a>';
 		}
 		$this->addRow(array(
 				'data' => $columns,
@@ -718,7 +720,9 @@ class tx_dam_listbase {
 			);
 
 				// add checkbox toggle icon
-			$setup['multiAction'] = '<a href="#" onclick="tx_dam_listbase_setCheckboxes(\''.$this->paramName['form'].'\'); return false;"><img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/clip_select.gif','width="12" height="12"').' title="'.$LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:clip_markRecords',1).'" alt="" /></a>';
+			$setup['multiAction'] = '<a href="#" onclick="tx_dam_listbase_setCheckboxes(\''.$this->paramName['form'].'\'); return false;">
+				' . t3lib_iconWorks::getSpriteIcon('actions-document-select', array('title' => $LANG->sL('LLL:EXT:lang/locallang_mod_web_list.php:clip_markRecords', 1))) . '
+			</a>';
 			$this->addRowSpecialColumns($setup, $td);
 
 				// compile row content
@@ -827,7 +831,7 @@ class tx_dam_listbase {
 	 * @return	string
 	 */
 	function getItemIcon ($item) {
-		return '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/i/default_gray1.gif', 'width="18" height="16"').' alt="" />';
+		return '<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/i/default_gray1.gif', 'width="16" height="16"').' alt="" />';
 	}
 
 
@@ -1394,11 +1398,11 @@ return;
 						'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_pasteafter.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_paste',1).'" alt="" /></a>';
 				}
 				if ($this->clipObj->current!='normal' AND $this->pointer->countTotal)	{
-					$cells[] = $this->clipboard_linkHeaderIcon('<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_copy.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_selectMarked',1).'" alt="" />', $table, 'setCB');
-					$cells[] = $this->clipboard_linkHeaderIcon('<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/garbage.gif', 'width="11" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_deleteMarked',1).'" alt="" />', $table, 'delete', $GLOBALS['LANG']->getLL('clip_deleteMarkedWarning'));
+					$cells[] = $this->clipboard_linkHeaderIcon(t3lib_iconWorks::getSpriteIcon('actions-document-select', array('title' => $LANG->sL('clip_selectMarked', 1))), $table, 'setCB');
+					$cells[] = $this->clipboard_linkHeaderIcon(t3lib_iconWorks::getSpriteIcon('actions-edit-delete', array('title' => $GLOBALS['LANG']->getLL('clip_deleteMarked', 1))), $table, 'delete', $GLOBALS['LANG']->getLL('clip_deleteMarkedWarning'));
 					$onClick = 'checkOffCB(\''.implode(',', $this->CBnames).'\'); return false;';
 					$cells[]='<a href="#" onclick="'.htmlspecialchars($onClick).'">'.
-							'<img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'], 'gfx/clip_select.gif', 'width="12" height="12"').' title="'.$GLOBALS['LANG']->getLL('clip_markRecords',1).'" alt="" />'.
+							t3lib_iconWorks::getSpriteIcon('actions-document-select', array('title' => $LANG->sL('clip_markRecords', 1))) .
 							'</a>';
 				}
 

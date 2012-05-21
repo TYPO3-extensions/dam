@@ -230,10 +230,10 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 					$treeLine = '';
 				} elseif (count($lines) < $recCount) {
 					$lineClass = 'damtree-elbow-join';
-					$treeLine = '<img class="' . $lineClass . '"' . t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/blank.gif','width="18" height="18"').' alt="" />';
+					$treeLine = '<img class="' . $lineClass . '"' . t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/blank.gif','width="16" height="16"').' alt="" />';
 				} else {
 					$lineClass = 'damtree-elbow-joinbottom';
-					$treeLine = '<img class="' . $lineClass . '"' . t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/blank.gif','width="18" height="18"').' alt="" />';
+					$treeLine = '<img class="' . $lineClass . '"' . t3lib_iconWorks::skinImg($BACK_PATH,'gfx/ol/blank.gif','width="16" height="16"').' alt="" />';
 				}
 
 
@@ -253,7 +253,7 @@ class tx_dam_treelib_elementbrowser extends browse_links {
 				$lines[]='
 					<tr class="bgColor4">
 						<td nowrap="nowrap">'.$treeLine.$IconAndTitle.'&nbsp;</td>
-						<td>'.$ATag.'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/plusbullet2.gif','width="18" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" />'.$ATag_e.'</td>
+						<td>'.$ATag.'<img'.t3lib_iconWorks::skinImg($BACK_PATH,'gfx/plusbullet2.gif','width="16" height="16"').' title="'.$LANG->getLL('addToList',1).'" alt="" />'.$ATag_e.'</td>
 					</tr>';
 
 			}
