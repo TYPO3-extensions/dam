@@ -182,7 +182,8 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			return $this->tceformsSelect_wrapTitle($title,$row);
 
 		} elseif($row['uid'] OR ($row['uid'] == '0' AND $this->linkRootCat)) {
-			return parent::wrapTitle($title,$row);
+			$aOnClick = 'return jumpTo(\'' . $this->getJumpToParam($row) . '\',this,\'' . $this->domIdPrefix . $this->getId($row) . '_' . $bank.'\');';
+			return '<a href="#" onclick="' . htmlspecialchars($aOnClick) . '">' . $title . '</a>';
 		}
 		return $title;
 	}
@@ -567,7 +568,6 @@ class tx_dam_selBrowseTree extends t3lib_treeView {
 			return $title;
 		}
 	}
-
 
 	/**
 	 * Wrap the plus/minus icon in a link
