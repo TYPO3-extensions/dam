@@ -611,9 +611,15 @@ $config['maxitems'] = ($config['maxitems']==2) ? 1 : $config['maxitems'];
 
 					// add clickmenu
 				if ($fileExists && !$disabled) {
-#							$fileIcon = $this->tceforms->getClickMenu($fileIcon, $absFilePath);
-					$iconTag = $this->tceforms->getClickMenu($iconTag, 'tx_dam', $row['uid']);
-				}
+					$iconTag = $GLOBALS['SOBE']->doc->wrapClickMenuOnIcon(
+						$iconTag,
+						'tx_dam',
+						$row['uid'],
+						1,
+						'',
+						'+tx_dam_action_editRec,tx_dam_action_editRecPopup,tx_dam_action_viewFileRec,tx_dam_action_renameFileRec,tx_dam_action_replaceFileRec'
+					);
+			}
 
 				$title = $row['title'] ? t3lib_div::fixed_lgd_cs($row['title'], $this->tceforms->titleLen) : t3lib_BEfunc::getNoRecordTitle();
 
