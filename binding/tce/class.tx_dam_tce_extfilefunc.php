@@ -312,12 +312,15 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 	 * @return	string		Returns the new filename upon success
 	 */
 	function func_upload($cmds, $id=false)	{
+
 		if ($id===false) $id=$cmds['data'];
 
 		if (!$this->isInit) return FALSE;
 
-		if (!$_FILES['upload_'.$id]['name'])	{
-			return;
+			// Check if a file was uploaded with the POST request
+		if (!$_FILES['upload_' . $id]['name']) {
+			$this->writelog(1, 2, 108, 'No file was uploaded!', '', 'upload', $id);
+			return FALSE;
 		}
 
 			// filename of the uploaded file
