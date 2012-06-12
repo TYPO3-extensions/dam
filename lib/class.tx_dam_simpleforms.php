@@ -550,12 +550,14 @@ class tx_dam_simpleForms extends t3lib_TCEforms {
 	 * @return	mixed		The TSconfig values (probably in an array)
 	 * @see t3lib_BEfunc::getTCEFORM_TSconfig()
 	 */
-	function setTSconfig($table,$row,$field='')	{
-
+	function setTSconfig($table, $row, $field='')	{
 		$mainKey = $table.':'.$row['uid'];
 		if (!isset($this->cachedTSconfig[$mainKey]))	{
-# this tries to read the record again, which fails when using pseudo records
-#			$this->cachedTSconfig[$mainKey] = t3lib_BEfunc::getTCEFORM_TSconfig($table,$row);
+			$tsConfig = t3lib_BEfunc::getPagesTSconfig(tx_dam_db::getPid());
+			$tsConfig = $tsConfig['TCEFORM.']['tx_dam.'];
+			if ($field)	{
+				return $tsConfig[$field . '.'];
+			}
 		}
 		if ($field)	{
 			return $this->cachedTSconfig[$mainKey][$field];
