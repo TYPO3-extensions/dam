@@ -151,9 +151,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 	 */
 	var $defaultPid;
 
-	/**
-	 * storage object
-	 */
+	/** @var $store t3lib_modSettings storage object */
 	var $store;
 
 	/**
@@ -420,7 +418,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			$this->pathAccess = false;
 		}
 
-		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'ses');
+		$this->MOD_SETTINGS = t3lib_BEfunc::getModuleData($this->MOD_MENU, array('tx_dam_folder' => $this->path), $this->MCONF['name'], 'perm');
 
 		if (tx_dam::config_getValue('setup.devel')) {
 			$this->debugContent['pathInfo']= '<h4>pathInfo</h4>' . t3lib_utility_Debug::viewArray($this->pathInfo);
