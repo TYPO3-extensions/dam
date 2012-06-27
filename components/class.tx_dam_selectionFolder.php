@@ -327,7 +327,7 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 	}
 
 	/**
-	 * Returns the defailt icon file
+	 * Returns the default icon file
 	 *
 	 * @return	string
 	 */

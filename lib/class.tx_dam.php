@@ -2446,7 +2446,6 @@ class tx_dam {
 	 */
 	function icon_getFolder($pathInfo, $absolutePath=false, $mode=TYPO3_MODE)	{
 
-
 		if ($pathInfo['mount_path'] === $pathInfo['dir_path_absolute']) {
 			switch($pathInfo['mount_type'])	{
 				case 'user':
@@ -2464,8 +2463,8 @@ class tx_dam {
 			}
 		}
 		else {
-			if($pathInfo['__protected']) {
-				$iconfile = 'folder_'.$pathInfo['web_sys'].'_protected.gif';
+			if ($pathInfo['__protected']) {
+				$iconfile = 'folder_' . $pathInfo['web_sys'] . '_protected.png';
 			}
 			elseif ($pathInfo['dir_name'] === '_temp_')	{
 				$iconfile = 'folder_temp.gif';
@@ -2477,21 +2476,21 @@ class tx_dam {
 			elseif ($pathInfo['mount_id'] === '_temp_')	{
 				$iconfile = 'folder_mount.gif';
 			} else {
-				$iconfile = 'folder_'.($pathInfo['web_sys']?$pathInfo['web_sys']:'web').(($pathInfo['dir_writable'] && !$pathInfo['dir_readonly'])?'':'_ro').'.gif';
+				$iconfile = 'folder_' . ($pathInfo['web_sys'] ? $pathInfo['web_sys'] : 'web') . (($pathInfo['dir_writable'] && !$pathInfo['dir_readonly']) ? '' : '_ro') . '.png';
 			}
 		}
 
-		foreach ( $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
+		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons) {
 			if (@is_file($pathIcons.$iconfile)) {
-				$iconfile = $pathIcons.$iconfile;
+				$iconfile = $pathIcons . $iconfile;
 				break;
 			}
 		}
 		
 		if (!$absolutePath) {
-			$iconfile = preg_replace('#^'.preg_quote(PATH_site).'#', '', $iconfile);
+			$iconfile = preg_replace('#^' . preg_quote(PATH_site) . '#', '', $iconfile);
 	 		if (TYPO3_MODE === 'BE') {
-				$iconfile = '../'.$iconfile;
+				$iconfile = '../' . $iconfile;
 			}
 		}
 		
