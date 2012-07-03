@@ -1096,9 +1096,11 @@ class tx_dam_listbase {
 		$getParameters = array();
 			// If there is a search string, add a link parameter
 		$searchStringArray = t3lib_div::_GP('SLCMD');
-		$searchString = $searchStringArray['SEARCH']['txdamStrSearch'][0];
-		if (!empty($searchString)) {
-			$getParameters['SLCMD[SEARCH][txdamStrSearch][0]'] = $searchString;
+		if (!empty($searchStringArray)) {
+			$searchString = $searchStringArray['SEARCH']['txdamStrSearch'][0];
+			if (!empty($searchString)) {
+				$getParameters['SLCMD[SEARCH][txdamStrSearch][0]'] = $searchString;
+			}
 		}
 
 		switch($type)	{
