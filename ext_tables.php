@@ -491,7 +491,6 @@ $TCA['tx_dam_selection'] = array(
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
 		'type' => 'type',
-		'versioning' => '0',
 		'sortby' => 'sorting',
 		'delete' => 'deleted',
 		'enablecolumns' => array(
@@ -512,7 +511,6 @@ $TCA['tx_dam_media_types'] = array(
 	'ctrl' => array(
 		'title' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_media_types',
 		'label' => 'ext',
-		'versioning' => '0',
 		'rootLevel'	=> '1',
 		'dynamicConfigFile' => PATH_txdam.'tca.php',
 		'iconfile' => PATH_txdam_rel.'i/mimetype.png',
@@ -523,5 +521,13 @@ $TCA['tx_dam_media_types'] = array(
 );
 
 
+
+	// disable workspaces if it's disabled in extension configuration
+if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['disableVersioning']) {
+
+	unset($TCA['tx_dam']['ctrl']['versioningWS']);
+	unset($TCA['tx_dam_cat']['ctrl']['versioningWS']);
+
+}
 
 ?>

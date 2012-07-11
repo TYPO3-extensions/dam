@@ -8,5 +8,7 @@ hideMediaFolder = 0
 mediatag = 1
   # cat=basic/enable; type=boolean; label=htmlArea RTE integration: If set and if the htmlArea RTE extension is installed, the DAM media browser will be used by the Insert image and insert file link dialog.
 htmlAreaBrowser = 1
+  # cat=basic/enable; type=boolean; label=Disable versioning: If set, versioning for the DAM tables is disabled. This is recommended for new installations because DAM has a lot of issues with versioning/workspaces.
+disableVersioning = 0
   # cat=basic/enable; type=boolean; label= Developer/Debug Functions: This activates special functions for development and debugging. This should stay deactivated for normal usage!
 devel = 0
