@@ -797,7 +797,6 @@ $TCA['tx_dam'] = array(
 		'category' => array (
 			'label' => 'LLL:EXT:dam/locallang_db.php:tx_dam_item.category',
 			'l10n_mode' => 'exclude',
-			'l10n_display' => 'defaultAsReadonly',
 			'config' => $GLOBALS['T3_VAR']['ext']['dam']['TCA']['categories_mm_config'],
 		),
 
@@ -1312,7 +1311,7 @@ $TCA['tx_dam_media_types'] = array(
 				'size' => '30',
 				'eval' => 'required',
 			)
-		),		
+		),
 		'type' => array(
 			'exclude' => '1',
 			'label' => 'LLL:EXT:dam/locallang_db.xml:tx_dam_item.media_type',
@@ -1354,7 +1353,7 @@ $TCA['tx_dam_media_types'] = array(
 				'minitems'		=> '0',
 				'autoSizeMax'	=> '1',
 			)
-		),						
+		),
 	),
 	'types' => array(
 		'0' => array('showitem' => 'ext, mime, type, icon')
