@@ -1802,12 +1802,15 @@ class tx_dam {
 
 				$newFile = $log['cmd']['upload'][$id]['target_file'];
 				$newFile = tx_dam::file_absolutePath($newFile);
+				$newFileTypes = tx_dam::file_getType($newFile);
+				$newFileType = $newFileTypes['file_type'];
 				$new_filename = tx_dam::file_basename($newFile);
 
 					// new file name - so we need to update some stuff
 				if ($new_filename !== $meta['file_name']) {
 						// delete the old file
 					$oldFile = tx_dam::file_absolutePath($meta);
+					$oldFileType = $meta['file_type'];
 					@unlink($oldFile);
 					if (@is_file($oldFile)) {
 						$error = 'File '.$meta['file_name'].' could not be deleted.';
@@ -1817,8 +1820,9 @@ class tx_dam {
 					}
 
 					$keepFileName = tx_dam::config_checkValueEnabled('setup.indexing.replaceFile.keepFileName', 0);
-					if ($keepFileName) {
+					if ($keepFileName && ($oldFileType === $newFileType)) {
 							// old file name should be kept, i.e. the new filename is renamed to the old filename
+							// doesn't apply when file type of new and old file doesn't match
 						@rename($newFile, $oldFile);
 					} else {
 							// rename meta data fields if the file name should not be kept
