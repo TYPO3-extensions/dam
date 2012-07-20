@@ -271,7 +271,7 @@ class tx_dam_SCbase extends t3lib_SCbase {
 		$this->selection = t3lib_div::makeInstance('tx_dam_selectionQuery');
 
 
-		$maxPages = $this->config_checkValueEnabled('browserMaxPages', 20);
+		$maxPages = $this->config_checkValueEnabled('browserMaxPages', 999);
 		$this->MOD_SETTINGS['tx_dam_resultPointer'] = $this->selection->initPointer($this->MOD_SETTINGS['tx_dam_resultPointer'], $this->MOD_SETTINGS['tx_dam_resultsPerPage'], $maxPages);
 
 		$this->selection->initSelection($this /*$GLOBALS['SOBE']*/,
