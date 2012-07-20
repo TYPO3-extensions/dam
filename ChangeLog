@@ -1,3 +1,142 @@
+2012-07-20 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * Release of DAM 1.3.0
+    * [FEATURE] #M18598 Set browserMaxPages to 999
+    * [BUGFIX] #M18566 Regression: No file uploaded notice with empty file inputs
+	* [BUGFIX] #M18595 keepFileName does not respect change of file extension
+	* [TASK] #M18542 Update documentation for DAM 1.3
+	* [FEATURE] #M11909 DAM references for Media CE (Thanks Fraonçois Suter)
+
+2012-07-20 Francois Suter <francois@typo3.org>
+
+    * [BUGFIX] #M18414 Wrong categories upon translation
+
+2012-07-12 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [FEATURE] #M13455 Options for replace: Keep original file name and existing meta data
+
+2012-07-11 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [TASK] #M18405 Optional disabling of workspaces for DAM records
+
+2012-07-03 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [FEATURE] #M14504 Hide folders by regex
+    * [BUGFIX] #M12952 Regression: Fatal error in Media > List
+
+2012-06-27 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M18495 Icon for read-only folder missing
+
+2012-06-25 Lorenz <lorenz.ulrich@visol.ch>
+
+    * [FEATURE] #M18573 Store module settings in user configuration
+
+2012-06-12 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [FEATURE] #M15126 Replace and rename action for DAM file reference
+    * [BUGFIX] #M10302 Upload must be impossible when no permission to write to filesystem
+    * [FEATURE] #M14893 Media tab on header and image links
+    * [BUGFIX] #M13337 tx_dam_simpleforms does not respect TCEFORM configuration (Thanks Georg Ringer)
+    * [FEATURE] #M10233 Usage information items should display page path
+
+2012-06-08 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M11331 Files with comma in filename break batch-edit mode
+    * [BUGFIX] #M15809 File replaced with empty file input deletes file
+    * [TASK] #M6919 Cleanup TCA of tx_dam
+    * [TASK] #M10815 Replace getMaxUploadSize in tx_dam_tce_extfilefunc
+    * [BUGFIX] #M18402 All translated deleted when checking the index
+    * [BUGFIX] #M18214 File rename dialog does not consider user access rights
+
+2012-05-28 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [TASK] #M18539 Remove calls to deprecated/removed functions
+    * [TASK] #M18457 tx_dam_indexing::getImageDimensions() is too costly (Thanks Dmitry Dulepov)
+
+2012-05-22 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [TASK] #M18538 Adjust styling of dam_index to TYPO3 4.5+
+
+2012-05-21 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M18544 Regression: Selections don't work properly anymore
+    * [BUGFIX] #M18526 Fatal error when clicking on info icon in Media > File
+    * [BUGFIX] #M18212 Fileupload from context menu fails (with flash uploader)
+    * [BUGFIX] #M12952 Search string in list lost when using pagination
+    * [BUGFIX] #M18238 No result when processing a file command
+	* [TASK] #M18294 Adjust DAM look to TYPO3 4.5+
+    * [FEATURE] #M13231 Configuration to hide files from subfolders in EB and List
+
+2012-05-21 Martin Holtz <typo3@martinholtz.de>
+
+    * [BUGFIX] #M18413 file_usage does not display softreferences (DAM usage in RTE content)
+
+2012-05-21 Ingo Renner <ingo@typo3.org>
+
+    * [TASK] #M18495 Update icons to fit t3skin
+
+2012-05-21 Bjoern Pedersen <bjoern.pedersen@frm2.tum.de>
+
+    * [BUG] #M16419 Indexing fails when TYPO3 lockingMode is set to "semaphore"
+
+2012-05-21 Jochen Rieger <j.rieger@connecta.ag>
+
+    * [FEATURE] #M18320 Add hook in tx_dam_tsfemediatag
+
+2011-12-24 Dan Osipov <dan@osipov.org>
+
+    * Release of DAM 1.2.4
+
+2011-10-24 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [TASK] #M18323 Remove Tools>Services information
+    * [BUGFIX] #M18318 Missing icon in file delete dialogue
+
+2011-10-16 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M15765 PHP warning from array_merge()
+
+2011-10-10 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [TASK] #M18295 Adjust DAM to not use methods deprecated in TYPO3 4.6
+
+2011-10-02 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [CLEANUP] #18296 Remove code for unsupported TYPO3 versions
+    * [BUGFIX] #M18183 Convert locallang_mod.php from mod_treebrowser to XML
+
+2011-09-29 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M8647 Thumbs in asset edit: Do not scale up small images
+
+2011-09-28 Bjoern Pedersen <bjoern.pedersen@frm2.tum.de>
+
+    * [BUG] #M10546 ob_end_flush called at wrong places
+
+2011-09-27 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M18090 Media type detection not working properly
+    * [BUGFIX] #M17522 Use of deprecated function 'split()'
+    * [BUGFIX] #M18289 Table tx_dam should not have a savedocnew button
+
+2011-09-04 Dan Osipov <dan@osipov.org>
+
+    * Release of DAM 1.2.3
+
+2011-07-26 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M14927 tca_media_field.php refers to mmforeign
+    * [BUGFIX] #M11971 Wrong character encoding in index processing window
+
+2011-07-25 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * [BUGFIX] #M18052 Calling tx_dam::meta_putData($uid, $meta, $mode) ends with fatal error
+
+2011-04-05 Dan Osipov
+
+    * Tagging release of 1.2.2
+
 2011-03-05  Dan Osipov <dosipov@phillyburbs.com>
 	* Fix #15478: Remove exclude = 1 for required fields of tx_dam table (Thanks Lorenz Ulrich)
 
