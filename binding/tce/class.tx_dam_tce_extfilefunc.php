@@ -318,8 +318,9 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 		if (!$this->isInit) return FALSE;
 
 			// Check if a file was uploaded with the POST request
+			// if no file was uploaded, we don't log it here because it is normal DAM behaviour to display more
+			// upload fields than the user might need
 		if (!$_FILES['upload_' . $id]['name']) {
-			$this->writelog(1, 2, 108, 'No file was uploaded!', '', 'upload', $id);
 			return FALSE;
 		}
 

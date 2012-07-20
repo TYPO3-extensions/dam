@@ -1782,13 +1782,14 @@ class tx_dam {
 			// allow overwrite
 		$TCEfile->fileProcessor->dontCheckForUnique = true;
 
-
 // FIXME overwrite only original file not others
 // dontCheckForUnique=true allow overwriting any file
 // dontCheckForUnique have to be false and the file have to be replaced afterwards?
 
+			// check if file is replaced with a file (and not with nothing)
+		$isFileReplacedWithFile = ($_FILES['upload_' . $meta['uid']]['name']) ? TRUE: FALSE;
 
-		if($id = $meta['uid'] AND is_array($upload_data['upload'][$id])) {
+		if ($id = $meta['uid'] AND is_array($upload_data['upload'][$id]) AND $isFileReplacedWithFile) {
 
 				// Processing uploads
 			$TCEfile->setCmdmap($upload_data);
@@ -1872,6 +1873,9 @@ class tx_dam {
 				tx_dam::index_process($newFile, $setup);
 
 			}
+		} elseif ($isFileReplacedWithFile === FALSE) {
+				// attempting to replace a file with nothing
+			$error = $GLOBALS['LANG']->getLL('fileNotReplacedWithFile');
 		} else {
 			$error = true;
 		}

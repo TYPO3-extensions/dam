@@ -180,6 +180,7 @@
 			<label index="media_types_new">New Media Type</label>
 			<label index="mimetypes">Media Types</label>
 			<label index="deleteWarning">Are you sure you want to delete this media type?</label>
+			<label index="fileNotReplacedWithFile">No file was uploaded. File can not be replaced.</label>
 		</languageKey>
 	</data>
 </T3locallang>
