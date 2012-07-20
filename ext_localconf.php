@@ -117,8 +117,6 @@ if (t3lib_extMgm::isLoaded('linkvalidator')) {
 	require_once(PATH_txdam.'binding/linkvalidator/ext_localconf.php');
 }
 
-	// FE stuff
-
 $pluginContent = t3lib_div::getUrl(PATH_txdam.'pi/setup.txt');
 t3lib_extMgm::addTypoScript('dam', 'setup','
 # Setting dam plugin TypoScript
