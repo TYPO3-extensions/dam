@@ -927,7 +927,7 @@ $tx_dam_usage = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_usage, ins
 
 $tx_dam_feaccess = '--div--;LLL:EXT:cms/locallang_tca.xml:pages.tabs.access;1;;1-1-1, --palette--;;1;;, fe_group';
 
-$tx_dam_common = $tx_dam_frontend.$tx_dam_file.$tx_dam_category.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage;
+$tx_dam_common = $tx_dam_frontend . $tx_dam_file . $tx_dam_category . $tx_dam_copyright . $tx_dam_usage;
 
 $tx_dam_meta = '--div--;LLL:EXT:dam/locallang_db.xml:tx_dam_item.div_extraMeta, meta, ';
 
@@ -940,31 +940,31 @@ if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['debug']) {
 
 $TCA['tx_dam']['types'] = array(
 	/* undefined */
-	'0' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'0' =>  array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* text */
-	'1' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_txt.$tx_dam_common.$tx_dam_frontend.$tx_dam_file.$tx_dam_metrics_txt.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_feaccess.$tx_dam_extra),
+	'1' =>  array('showitem' => $tx_dam_header . $tx_dam_descr_txt . $tx_dam_common . $tx_dam_metrics_txt . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* image */
-	'2' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_img.$tx_dam_common.$tx_dam_frontend.$tx_dam_file.$tx_dam_metrics_img.$tx_dam_copyright.$tx_dam_meta.$tx_dam_usage.$tx_dam_feaccess.$tx_dam_extra),
+	'2' =>  array('showitem' => $tx_dam_header . $tx_dam_descr_img . $tx_dam_common . $tx_dam_metrics_img . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* audio */
-	'3' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'3' =>  array('showitem' => $tx_dam_header . $tx_dam_descr. $tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* video */
-	'4' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'4' =>  array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* interactive */
-	'5' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'5' =>  array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* service */
-	'6' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'6' =>  array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* font */
-	'7' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'7' =>  array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* model */
-	'8' =>  array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'8' =>  array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* dataset */
-	'9' =>  array('showitem' => $tx_dam_header.$tx_dam_descr_abstract.$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'9' =>  array('showitem' => $tx_dam_header . $tx_dam_descr_abstract . $tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* collection */
-	'10' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'10' => array('showitem' => $tx_dam_header . $tx_dam_descr . $tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* software */
-	'11' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'11' => array('showitem' => $tx_dam_header . $tx_dam_descr . $tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 	/* application */
-	'12' => array('showitem' => $tx_dam_header.$tx_dam_descr.		$tx_dam_common.$tx_dam_meta.$tx_dam_feaccess.$tx_dam_extra),
+	'12' => array('showitem' => $tx_dam_header . $tx_dam_descr.	$tx_dam_common . $tx_dam_meta . $tx_dam_feaccess . $tx_dam_extra),
 );
 
 
