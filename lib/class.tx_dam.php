@@ -1323,8 +1323,8 @@ class tx_dam {
 
 
 			// disable auto indexing by setup
-		if(!tx_dam::config_getValue('setup.indexing.auto')) {
-			return false;
+		if (!tx_dam::config_checkValueEnabled('setup.indexing.auto', TRUE)) {
+			return FALSE;
 		}
 
 		$filename = tx_dam::file_absolutePath($filename);
