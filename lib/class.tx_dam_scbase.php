@@ -1792,7 +1792,15 @@ class tx_dam_SCbase extends t3lib_SCbase {
 
 		$addParams = $this->addParams ? $this->addParams:array();
 		$formAction = t3lib_div::linkThisScript($addParams);
-		return '<form action="'.htmlspecialchars($formAction).'" method="post" name="'.$name.'" id="'.$name.'" autocomplete="off" enctype="'.$TYPO3_CONF_VARS['SYS']['form_enctype'].'">';
+
+		$formToken = t3lib_formprotection_Factory::get()
+			->generateToken('tceAction');
+
+		return '<form action="' . htmlspecialchars($formAction)
+			. '" method="post" name="' . $name . '" id="'
+			. $name . '" autocomplete="off" enctype="'
+			. $TYPO3_CONF_VARS['SYS']['form_enctype'] . '">'
+			. '<input type="hidden" name="formToken" value="' . $formToken . '" />';
 	}
 
 

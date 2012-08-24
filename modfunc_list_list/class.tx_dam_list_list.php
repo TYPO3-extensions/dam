@@ -272,8 +272,11 @@ class tx_dam_list_list extends t3lib_extobjbase {
 							}
 							$url = $GLOBALS['SOBE']->doc->issueCommand($params, -1);
 
-
-							$url = $BACK_PATH.'tce_db.php?&redirect='.rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI')).'&vC='.$BE_USER->veriCode().'&prErr=1&uPT=1'.$params;
+							$url = $BACK_PATH . 'tce_db.php?&redirect='
+								. rawurlencode(t3lib_div::getIndpEnv('REQUEST_URI'))
+								. '&formToken=' . t3lib_div::_GP('formToken')
+								. '&vC=' . $BE_USER->veriCode()
+								. '&prErr=1&uPT=1' . $params;
 
 							header('Location: '.$url);
 							exit;
