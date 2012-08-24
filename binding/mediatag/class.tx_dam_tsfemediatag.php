@@ -81,16 +81,17 @@ class tx_dam_tsfemediatag {
 	 *
 	 * @param	string		The string (text) to link
 	 * @param	array		TypoScript configuration (see link below)
+	 * @param	object		A content object
 	 * @return	string		A link-wrapped string.
 	 * @see stdWrap(), tslib_pibase::pi_linkTP()
 	 * @link http://typo3.org/doc.0.html?&tx_extrepmgm_pi1[extUid]=270&tx_extrepmgm_pi1[tocEl]=321&cHash=59bd727a5e
 	 */
-	function typoLink($linktxt, $conf, &$cObj)	{
+	function typoLink($linktxt, $conf, $cObj = NULL)	{
 		$finalTagParts = array();
 
-		// If called from media link handler, use the reference of the passed cObj
-		if(!is_object($this->cObj)) {
-				$this->cObj = &$cObj;
+			// If called from media link handler, use the reference of the passed cObj
+		if (!is_object($this->cObj)) {
+				$this->cObj = $cObj;
 		}
 
 		$link_param = trim($this->cObj->stdWrap($conf['parameter'],$conf['parameter.']));
