@@ -1059,7 +1059,7 @@ class tx_dam_db {
 			// References in sys_refindex table
 		$softRef_table = 'sys_refindex';
 		$fields = $softRef_table . '.tablename AS tablenames, ' . $softRef_table . '.recuid AS uid_foreign, ' . $softRef_table . '.ref_uid AS uid_local, ' . $softRef_table . '.field, ' . $softRef_table . '.softref_key';
-		$res = tx_dam_db::softRefIndexQuery($local_table, $uidList, $foreign_table, '', $softRef_ident, $softRef_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
+		$res = tx_dam_db::softRefIndexQuery($local_table, $uidList, $foreign_table, '', '', $softRef_table, $fields, $whereClauses, $groupBy, $orderBy, $limit);
 		if ($res) {
 			while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 				$rows[] = $row;
