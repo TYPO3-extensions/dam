@@ -255,7 +255,7 @@ class tx_dam_list_list extends t3lib_extobjbase {
 					$itemList = implode(',', $uidList);
 				} else {
 					$itemList = $processAction['onItems'];
-					$uidList = t3lib_div::trimExplode('###ITEMSEPARATOR###', $itemList, true);
+					$uidList = t3lib_div::trimExplode(',', $itemList, true);
 				}
 
 				if ($uidList) {

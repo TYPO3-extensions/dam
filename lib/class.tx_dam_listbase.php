@@ -460,6 +460,10 @@ class tx_dam_listbase {
 	 * @return mixed FALSE if nor action should be performed or an array with information about the action
 	 */
 	function getMultiActionCommand() {
+
+			// we need different settings depending on the view (file or list)
+		$modFunction = $GLOBALS['SOBE']->MOD_SETTINGS['function'];
+
 		if (t3lib_div::_GP($this->paramName['multi_action_submit']) AND $action=t3lib_div::_GP($this->paramName['multi_action'])) {
 			$processAction = array();
 
@@ -467,8 +471,10 @@ class tx_dam_listbase {
 
 			if (t3lib_div::_GP($this->paramName['multi_action_target']) === 'all') {
 				 $processAction['onItems'] = '_all';
+			} elseif ($modFunction === 'tx_dam_file_list') {
+				$processAction['onItems'] = implode('###ITEMSEPARATOR###', $this->recs);
 			} else {
-				 $processAction['onItems'] = implode('###ITEMSEPARATOR###', $this->recs);
+				$processAction['onItems'] = implode(',', $this->recs);
 			}
 			return $processAction;
 		}
