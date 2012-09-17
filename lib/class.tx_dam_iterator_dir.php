@@ -369,7 +369,7 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 			$path = tx_dam::path_makeAbsolute($path);
 
 			if (is_object($d = @dir($path))) {
-				while($entry = $d->read()) {
+				while (($entry = $d->read()) !== FALSE) {
 					$filepath = $path.$entry;
 
 						// check for allow file types: eg. file, dir, link

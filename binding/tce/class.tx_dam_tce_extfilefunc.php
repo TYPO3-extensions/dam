@@ -423,7 +423,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 				'target_folder' => $theFolder,
 				);
 				
-		if ($theFolder)	{
+		if ($theFolder !== '')	{
 			if ($this->checkFileNameLen($theFolder))	{
 				$theTarget = $this->is_directory($cmds['target']);	// Check the target dir
 				if ($theTarget)	{
