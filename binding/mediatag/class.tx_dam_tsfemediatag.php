@@ -107,7 +107,7 @@ class tx_dam_tsfemediatag {
 			$linkClass = trim($link_paramA[2]);		// Link class
 			if ($linkClass=='-')	$linkClass = '';	// The '-' character means 'no class'. Necessary in order to specify a title as fourth parameter without setting the target or class!
 			$forceTarget = trim($link_paramA[1]);	// Target value
-			$forceTitle = trim($link_paramA[3]);	// Title value
+			$rteTitle = trim($link_paramA[3]);	// Title value from RTE
 			if ($forceTarget=='-')	$forceTarget = '';	// The '-' character means 'no target'. Necessary in order to specify a class as third parameter without setting the target!
 				// Check, if the target is coded as a JS open window link:
 			$JSwindowParts = array();
@@ -173,8 +173,12 @@ class tx_dam_tsfemediatag {
 
 
 				// Title tag
+				// set the RTE title as dataWrap so we can define a fallback (dataWrap.ifEmpty, this is a default) or override it (dataWrap.override)
+			$conf['title.']['dataWrap'] = $rteTitle;
 			$title = $conf['title'];
-			if ($conf['title.'])	{$title=$this->cObj->stdWrap($title, $conf['title.']);}
+			if ($conf['title.']) {
+				$title = $this->cObj->stdWrap($title, $conf['title.']);
+			}
 
 				// Setting title if blank value to link:
 			if ($linktxt=='') $linktxt = $media->getContent('title');
@@ -207,8 +211,6 @@ class tx_dam_tsfemediatag {
 			$finalTagParts['aTagParams'] = $this->cObj->getATagParams($conf);
 			$finalTagParts['TYPE'] = 'file';
 
-			if ($forceTitle)	{$title=$forceTitle;}
-
 			if ($JSwindowParams)	{
 
 					// Create TARGET-attribute only if the right doctype is used
@@ -221,8 +223,7 @@ class tx_dam_tsfemediatag {
 				$onClick="vHWin=window.open('".$GLOBALS['TSFE']->baseUrlWrap($finalTagParts['url'])."','FEopenLink','".$JSwindowParams."');vHWin.focus();return false;";
 				$res = '<a href="'.htmlspecialchars($finalTagParts['url']).'"'. $target .' onclick="'.htmlspecialchars($onClick).'"'.($title?' title="'.$title.'"':'').($linkClass?' class="'.$linkClass.'"':'').$finalTagParts['aTagParams'].'>';
 			} else {
-
-				$res = '<a href="'.htmlspecialchars($finalTagParts['url']).'"'.($title?' title="'.$title.'"':'').$finalTagParts['targetParams'].($linkClass?' class="'.$linkClass.'"':'').$finalTagParts['aTagParams'].'>';
+				$res = '<a href="' . htmlspecialchars($finalTagParts['url']) . '"' . ($title ? ' title="' . $title . '"' : '') . $finalTagParts['targetParams'] . ($linkClass ? ' class="' . $linkClass . '"' : '') . $finalTagParts['aTagParams'] . '>';
 			}
 
                 // Hook: Call post processing function for link rendering:
