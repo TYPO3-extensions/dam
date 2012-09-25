@@ -607,26 +607,21 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 
 		$out='';
 		$c=0;
-		$cmpItem = '';
-		$cmpPath = '';
+		$currentPath = '';
 
-		$selection = $GLOBALS['SOBE']->browser->damSC->selection->sl->sel;
-		if (is_array($selection['SELECT'][$this->treeName])) {
-			$cmpItem = key($selection['SELECT'][$this->treeName]);
-			$cmpPath = tx_dam::path_makeAbsolute($cmpItem);
+		$elementBrowserSettings = $GLOBALS['BE_USER']->uc['moduleData']['txdam_elbrowser'];
+		if (isset($elementBrowserSettings['tx_dam_folder']) && !empty($elementBrowserSettings['tx_dam_folder'])) {
+			$currentPath = tx_dam::path_makeAbsolute($elementBrowserSettings['tx_dam_folder']);
 		}
 
 			// Traverse rows for the tree and print them into table rows:
-		foreach($treeArr as $k => $v)	{
+		foreach ($treeArr as $k => $v)	{
 			$c++;
-			$bgColorClass=($c+1)%2 ? 'bgColor' : 'bgColor-10';
-
-				// Creating blinking arrow, if applicable:
-			if ($cmpPath && ($GLOBALS['SOBE']->act === 'file' || $GLOBALS['SOBE']->act === 'upload') && $cmpPath==$v['row']['path']) {
-				$arrCol='<td><img'.t3lib_iconWorks::skinImg($GLOBALS['BACK_PATH'],'gfx/blinkarrow_right.gif','width="5" height="9"').' class="c-blinkArrowR" alt="" /></td>';
-				$bgColorClass='bgColor4';
-			} else {
-				$arrCol='<td></td>';
+			$bgColorClass= ($c+1) % 2 ? 'folder-odd' : 'folder-even';
+				// names of all element browser tabs that need the current folder highlighted
+			$allowedTabs = array('media_magic', 'media_upload', 'media_plain', 'media', 'file', 'upload');
+			if ($currentPath && in_array($GLOBALS['SOBE']->act, $allowedTabs) && $currentPath === $v['row']['path']) {
+				$bgColorClass = 'navFrameHL';
 			}
 				// Create arrow-bullet for file listing (if folder path is linkable):
 			$aOnClick = 'return jumpToUrl(\''.$this->thisScript.'?act='.$GLOBALS['SOBE']->act.'&mode='.$GLOBALS['SOBE']->mode.'&bparams='.$GLOBALS['SOBE']->bparams.$this->getJumpToParam($v['row']).'\');';
@@ -636,7 +631,6 @@ class tx_dam_selectionFolder extends t3lib_folderTree  {
 			$out.='
 				<tr class="'.$bgColorClass.'">
 					<td nowrap="nowrap">'.$v['HTML'].$this->wrapTitle(t3lib_div::fixed_lgd_cs($v['row']['title'], $BE_USER->uc['titleLen']), $v['row']).'</td>
-					'.$arrCol.'
 					<td width="1%">'.$cEbullet.'</td>
 				</tr>';
 		}
