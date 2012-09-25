@@ -1344,7 +1344,10 @@ class tx_dam_indexing {
 	function getWantedCharset() {
 		global $TYPO3_CONF_VARS;
 
-		$wantedCharset = $TYPO3_CONF_VARS['BE']['forceCharset'] ? $TYPO3_CONF_VARS['BE']['forceCharset'] : 'iso-8859-1';
+		$wantedCharset = isset($TYPO3_CONF_VARS['BE']['forceCharset'])
+			? $TYPO3_CONF_VARS['BE']['forceCharset']
+			: (is_object($GLOBALS['LANG']) ? $GLOBALS['LANG']->charSet : 'utf-8');
+
 		return $wantedCharset;
 	}
 
