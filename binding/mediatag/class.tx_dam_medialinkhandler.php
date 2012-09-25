@@ -63,13 +63,12 @@ class tx_dam_medialinkhandler {
 			// build the typolink when the requested record and the necessary configuration are available
 		if (is_array($recordRow) && !empty($recordRow)) // record available
 		{
-			$conf = array();
+			unset($conf['parameter']);
+			unset($conf['parameter.']);
 			$conf['parameter'] = $linkHandlerValue . $aTagParams;
-
 			$mediaTag = t3lib_div::makeInstance('tx_dam_tsfemediatag');
 			$typolinkHref = $mediaTag->typoLink($linktxt, $conf, $pObj);
 			$generatedLink = $typolinkHref;
-
 		} else {
 			$generatedLink = $linktxt;
 		}
