@@ -81,8 +81,8 @@ class tx_dam_rtetransform_mediatag {
 					if (!$tagCode[4]) {
 						require_once(PATH_txdam.'lib/class.tx_dam_guifunc.php');
 						$displayItems = '';
-						if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['plugins']['TYPO3Link']['additionalAttributes'], 'usedamcolumn') && $pObj->thisConfig['buttons.']['link.']['media.']['properties.']['title.']['useDAMColumn']) {
-							$displayItems = $pObj->thisConfig['buttons.']['link.']['media.']['properties.']['title.']['useDAMColumn.']['displayItems'] ? $pObj->thisConfig['buttons.']['link.']['media.']['properties.']['title.']['useDAMColumn.']['displayItems'] : '';
+						if (t3lib_div::inList($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['rtehtmlarea']['plugins']['TYPO3Link']['additionalAttributes'], 'usedamcolumn') && $pObj->tsConfig['buttons.']['link.']['media.']['properties.']['title.']['useDAMColumn']) {
+							$displayItems = $pObj->tsConfig['buttons.']['link.']['media.']['properties.']['title.']['useDAMColumn.']['displayItems'] ? $pObj->tsConfig['buttons.']['link.']['media.']['properties.']['title.']['useDAMColumn.']['displayItems'] : '';
 							$useDAMColumn = TRUE;
 						}
 						$tagCode[4] = tx_dam_guiFunc::meta_compileHoverText($meta, $displayItems, ', ');
