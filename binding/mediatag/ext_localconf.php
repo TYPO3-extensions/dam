@@ -14,7 +14,7 @@ t3lib_extMgm::addTypoScript($_EXTKEY,'setup','
 				typolink.extTarget = {$styles.content.links.extTarget}
 				typolink.target = {$styles.content.links.target}
 				typolink.title { 
-					dataWrap = { field : txdam_file_name } ({ field : txdam_file_size })
+					dataWrap.ifEmpty = { field : txdam_file_name } ({ field : txdam_file_size })
 					htmlspecialchars = 1
 				}
 				parseFunc.constants =1
