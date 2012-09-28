@@ -450,14 +450,13 @@ class tx_dam_iterator_dir extends tx_dam_iterator_base {
 			}
 		}
 			// Sort if required
-		if ($sortBy)	{
-			if ($sortReverse)	{
-				arsort($this->sorting);
-			} else {
-				asort($this->sorting);
-			}
-		}
+		if ($sortBy) {
+			$sorting = ($sortReverse ? SORT_DESC : SORT_ASC);
+			array_multisort($this->sorting, $sorting, $this->entries);
+        }
+
 		$this->rewind();
+
 	}
 
 
