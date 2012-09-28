@@ -153,7 +153,10 @@ class tx_dam_file_list extends t3lib_extobjbase {
 			$dirListFolder->excludeByRegex($foldersDisplayExcludeByRegex);
 		}
 		$dirListFolder->read($this->pObj->pathInfo['dir_path_absolute'], 'dir,link');
-		$sortField = str_replace('dir_dir_', 'dir_', 'dir_'.$this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField']);
+		$sortField = str_replace('dir_dir_', 'dir_', 'dir_' . $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField']);
+		if (!$sortField || $sortField === 'dir_' || $sortField === 'dir_-') {
+			$sortField = 'dir_name';
+		}
 		$dirListFolder->sort($sortField, $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
 
 
@@ -177,6 +180,9 @@ class tx_dam_file_list extends t3lib_extobjbase {
 		
 		$dirListFiles->read($this->pObj->pathInfo['dir_path_absolute'], 'file');
 		$sortField = str_replace('file_file_', 'file_', 'file_'.$this->pObj->MOD_SETTINGS['tx_dam_file_list_sortField']);
+		if (!$sortField || $sortField === 'file_' || $sortField === 'file_-') {
+			$sortField = 'file_name';
+		}
 		$dirListFiles->sort($sortField, $this->pObj->MOD_SETTINGS['tx_dam_file_list_sortRev']);
 
 		$this->pObj->selection->pointer->setTotalCount($dirListFolder->count()+$dirListFiles->count());
