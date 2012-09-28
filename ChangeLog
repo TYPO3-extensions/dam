@@ -1,3 +1,30 @@
+2012-09-28 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+    * Release of DAM 1.3.1
+    * [BUGFIX] #M18608 Media > File has no default sorting (Thanks Andreas Kiessling)
+    * [BUGFIX] #M18603 Directory tree is not sorted alphabetically anymore (Thanks Andreas Kiessling)
+
+2012-09-25 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+
+	* [!][BUGFIX] #M18641 Link title attribute from RTE cannot be overridden
+	* [BUGFIX] #M18607 Current folder in element browser must be highlighted
+	* [BUGFIX] #M18432 TSconfig for generating custom title attribute is not respected (Thanks Ralf Merz)
+	* [BUGFIX] #M18639 [BUGFIX] Remove dependency on ['BE']['forceCharset']
+	* [BUGFIX] #M18617 Media link handler doesn't respect Typolink configuration
+
+2012-09-17 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+    * [BUGFIX] #M12038 Folder named 0 not shown, not creatable (Thanks Christian Weiske)
+
+2012-08-24 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+    * [BUGFIX] #M18622 Batch edit broken in Media > List
+    * [BUGFIX] #M18627 formToken missing for batch edit features (Thanks Rico Sonntag)
+	* [BUGFIX] #M18626 File list: Auto indexing does not work (Thanks Christian Weiske)
+	* [BUGFIX] #M18601 tx_dam_tsfemediatag: call to typoLink() with missing 3rd parameter (Thanks Christian Weiske)
+	* [BUGFIX] #M18614 Undefined variable $softRef_ident in tx_dam_db::getMediaUsageReferences (Thanks André Haehnel)
+
+2012-07-23 Lorenz Ulrich <lorenz.ulrich@visol.ch>
+    * [BUGFIX] #M18600 DAM TCEFORM fields displayed multiple times
+
 2012-07-20 Lorenz Ulrich <lorenz.ulrich@visol.ch>
 
     * Release of DAM 1.3.0
