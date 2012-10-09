@@ -239,7 +239,7 @@ class tx_dam_indexing {
 		if ($this->writeDevLog && !isset($TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['debugData']['pid'])) $TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['debugData']['pid'] = tx_dam_db::getPid();
 		if ($this->writeDevLog) 	t3lib_div::devLog('## Beginning of dam indexing logging.', 'tx_dam_indexing');
 		
-		$this->defaultSetup = tx_dam::config_getValue('tx_dam.indexing.defaultSetup');
+		$this->defaultSetup = tx_dam::config_getValue('setup.indexing.defaultSetup');
 
 
 		$this->skipFileTypes = t3lib_div::trimExplode(',', tx_dam::config_getValue('setup.indexing.skipFileTypes'), true);
