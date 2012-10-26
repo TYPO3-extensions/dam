@@ -216,11 +216,16 @@ class tx_dam_listfiles extends tx_dam_listbase {
 					$columns[$field] = date($GLOBALS['TYPO3_CONF_VARS']['SYS']['ddmmyy'], $item[$type.'_mtime']);
 				break;
 				case 'title':
+					if ($this->showfullTitle) {
+						$title = $this->cropTitle($item[$type . '_title'], $field);
+					} else {
+						$title = t3lib_BEfunc::getRecordTitlePrep($item[$type . '_title']);
+					}
 					if ($type === 'file') {
-						$columns[$field] = $this->linkWrapFile($this->cropTitle($item[$type.'_title'], $field), $item);
+						$columns[$field] = $this->linkWrapFile($title, $item);
 					}
 					else {
-						$columns[$field] = $this->linkWrapDir($this->cropTitle($item[$type.'_title'], $field), $item[$type.'_path_absolute']);
+						$columns[$field] = $this->linkWrapDir($title, $item[$type . '_path_absolute']);
 					}
 				break;
 				case '_CLIPBOARD_':
