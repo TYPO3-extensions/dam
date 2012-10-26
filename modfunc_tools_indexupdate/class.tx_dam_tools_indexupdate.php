@@ -99,6 +99,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				'604800' => $LANG->getLL('tx_dam_tools_indexupdate.age_week'),
 				'2419200' => $LANG->getLL('tx_dam_tools_indexupdate.age_month'),
 			),
+			'tx_dam_tools_indexupdate.hideStatusOk' => '',
 			'tx_dam_tools_indexupdate.deleteMissing' => '',
 			'tx_dam_tools_indexupdate.func' => array(
 				'index' => $LANG->getLL('tx_dam_tools_indexupdate.index_check'),
@@ -239,6 +240,14 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 				$ageMenu = preg_replace('#onchange="[^"]*"#', '', $ageMenu);
 				$code.= '<p>'.$LANG->getLL('tx_dam_tools_indexupdate.age').': '.$ageMenu.'<br /><span class="typo3-dimmed">'.$LANG->getLL('tx_dam_tools_indexupdate.age_descr').'</span></p>';
 				$code.= '<p><br /></p>';
+
+				$code .= '<p>';
+				$code .= '<input type="hidden" name="SET[tx_dam_tools_indexupdate.hideStatusOk]" value="0">';
+				$code .= '<input type="checkbox" ' . ($this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.hideStatusOk'] ? 'checked="checked"' : '').' name="SET[tx_dam_tools_indexupdate.hideStatusOk]" id="SET.tx_dam_tools_indexupdate.hideStatusOk" value="1"> ' .
+					'<label for="SET.tx_dam_tools_indexupdate.hideStatusOk">' . $LANG->getLL('tx_dam_tools_indexupdate.hideStatusOk',1) . '</label>';
+				$code .= '<br /><span class="typo3-dimmed">' . $LANG->getLL('tx_dam_tools_indexupdate.hideStatusOk_description') . '</span></p>';
+				$code .= '</p>';
+				$code .= '<p><br /></p>';
 
 				$code.= '<p>';
 				$code.= '<input type="hidden" name="SET[tx_dam_tools_indexupdate.deleteMissing]" value="0">';
@@ -596,6 +605,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 					$status = tx_dam::meta_updateStatus ($meta, $this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.deleteMissing']);
 
 					$ctable = array();
+					$fileHasStatusOK = FALSE;
 					switch ($status) {
 						case TXDAM_status_file_changed:
 								$ctable[] = $this->infoIcon(2);
@@ -606,14 +616,23 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 						default:
 								$ctable[] = $this->infoIcon(-1);
+								$fileHasStatusOK = TRUE;
 							break;
 					}
 					$ctable[] = tx_dam::icon_getFileTypeImgTag($meta,'align="top"').'&nbsp;'.htmlspecialchars(t3lib_div::fixed_lgd_cs($meta['file_name'],30));
 					$ctable[] = htmlspecialchars(t3lib_div::fixed_lgd_cs($meta['file_path'],-30));
 
-					$this->indexing_addTableRow($ctable);
+					if (!($this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.hideStatusOk'] && $fileHasStatusOK)) {
+						$this->indexing_addTableRow($ctable);
+						$indexSession['displayedRowsCount']++;
+					}
+
 					$msg = $LANG->getLL('tx_dam_tools_indexupdate.updatedMessage',1);
 					$code = sprintf($msg, $indexSession['currentCount'], $indexSession['totalFilesCount']);
+
+					if ($indexSession['displayedRowsCount'] == 0) {
+						$code .= $LANG->getLL('tx_dam_tools_indexupdate.success', 1);
+					}
 					$this->indexing_setMessage($code);
 				}
 

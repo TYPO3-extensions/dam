@@ -37,6 +37,8 @@
 			<label index="tx_dam_tools_indexupdate.lost_records_check_again">Check again</label>
 			<label index="tx_dam_tools_indexupdate.age">Age</label>
 			<label index="tx_dam_tools_indexupdate.age_descr">Checks index entries last change was before selected age.</label>
+			<label index="tx_dam_tools_indexupdate.hideStatusOk">Hide files that are OK</label>
+			<label index="tx_dam_tools_indexupdate.hideStatusOk_description">Only files with an error or a warning will be displayed on the result page.</label>
 			<label index="tx_dam_tools_indexupdate.deleteMissing">Mark entries with missing files as deleted</label>
 			<label index="tx_dam_tools_indexupdate.deleteMissing_descr">This will mark an index entry as deleted if the corresponding file is missing. The entry will not be deleted physically and can be reused later if the file will be found.</label>
 			<label index="tx_dam_tools_indexupdate.age_all">now</label>
@@ -48,6 +50,8 @@
 			<label index="tx_dam_tools_indexupdate.finished">finished</label>
 			<label index="tx_dam_tools_indexupdate.no_files">No matching index entries found.</label>
 			<label index="tx_dam_tools_indexupdate.count_elements">%s elements currently in index.</label>
+			<label index="tx_dam_tools_indexupdate.success"> ... all files are OK!</label>
+
 			<label index="tx_dam_tools_indexupdate.update">Update</label>
 		</languageKey>
 	</data>
