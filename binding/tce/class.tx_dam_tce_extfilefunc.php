@@ -197,6 +197,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 	 * Deleting files and folders (action=4)
 	 *
 	 * @param	array		$cmds['data'] is the the file/folder to delete
+	 * @param	integer		Database record ID
 	 * @return	boolean		Returns true upon success
 	 */
 	function func_delete($cmds, $id)	{
@@ -228,7 +229,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 			$newCmds['data']=$theFile;
 			$newCmds['target']=$recyclerPath;
 			$newCmds['altName']=1;
-			$theDestFile = $this->func_move($newCmds);
+			$theDestFile = $this->func_move($newCmds, $id);
 			$this->writelog(4,0,4,'Item "%s" moved to recycler at "%s"',array($theFile,$recyclerPath), 'delete', $id);
 
 
@@ -701,6 +702,7 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 	 * Moving files and folders (action=3)
 	 *
 	 * @param	array		$cmds['data'] is the file/folder to move. $cmds['target'] is the path where to move to. $cmds['altName'] (boolean): If set, another filename is found in case the target already exists
+	 * @param	integer		Database record ID
 	 * @return	string		Returns the new filename upon success
 	 */
 	function func_move($cmds, $id)	{
