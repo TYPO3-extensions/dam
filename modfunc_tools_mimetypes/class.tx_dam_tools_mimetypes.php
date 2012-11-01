@@ -65,7 +65,7 @@ class tx_dam_tools_mimetypes extends t3lib_extobjbase {
 		global $LANG, $BACK_PATH, $BE_USER;
 
 			// Load template
-		$content = t3lib_parsehtml::getSubpart(t3lib_div::getURL($BACK_PATH . t3lib_extMgm::extRelPath('dam') . 'modfunc_tools_mimetypes/template.html'), '###MOD_TEMPLATE###');
+		$content = t3lib_parsehtml::getSubpart(t3lib_div::getURL(t3lib_extMgm::extPath('dam', 'modfunc_tools_mimetypes/template.html')), '###MOD_TEMPLATE###');
 		$rowTemplate[1] = t3lib_parsehtml::getSubpart($content, '###ROW_1###');
 		$rowTemplate[2] = t3lib_parsehtml::getSubpart($content, '###ROW_2###');
 
