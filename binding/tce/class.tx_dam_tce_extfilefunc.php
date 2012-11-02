@@ -963,7 +963,14 @@ class ux_t3lib_extFileFunctions extends t3lib_extFileFunctions	{
 	function writeLog($action,$error,$details_nr,$details,$data, $actionName='', $id='')	{
 		$type = 2;	// Type value for tce_file.php
 		if (is_object($GLOBALS['BE_USER']))	{
-			$GLOBALS['BE_USER']->writelog($type,$action,$error,$details_nr,$details,$data);
+			$beUserData = $data;
+			$pathSiteLength = strlen(PATH_site);
+			foreach ($beUserData as $key => $value) {
+				if (strncmp($value, PATH_site, $pathSiteLength) == 0) {
+					$beUserData[$key] = substr($value, $pathSiteLength);
+				}
+			}
+			$GLOBALS['BE_USER']->writelog($type, $action, $error, $details_nr, $details, $beUserData);
 		}
 
 		if ($this->writeDevLog) 	t3lib_div::devLog($actionName.'/'.$action.'/'.$details_nr.' - '.vsprintf($details, $data), 'tx_dam_tce_file', $error);
