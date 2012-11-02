@@ -247,10 +247,10 @@ class tx_dam_selectionCategory extends tx_dam_selBrowseTree {
 		$catUidList = $this->uniqueList(intval($id), $this->getSubRecordsIdList(intval($id), $depth, 'tx_dam_cat'));
 
 		if ($operator != '!=') {
-			if ($queryType == 'OR') {
+			if ($queryType == 'OR' || $queryType == 'SELECT') {
 				$query = '(FIND_IN_SET('.implode(',GROUP_CONCAT(tx_dam_cat.uid)) OR FIND_IN_SET(',$catUidList).',GROUP_CONCAT(tx_dam_cat.uid)))';
 			}
-			if ($queryType == 'AND' || $queryType == 'SELECT') {
+			if ($queryType == 'AND') {
 				$query = '(FIND_IN_SET(' . $id . ',GROUP_CONCAT(tx_dam_cat.uid)))';
 			}
 		} else {
