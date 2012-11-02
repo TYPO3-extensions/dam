@@ -1321,8 +1321,12 @@ class tx_dam {
 	function index_autoProcess($filename, $reindex=false) {
 		global $TYPO3_CONF_VARS;
 
+		// Don't auto index in frontend mode
+		if (TYPO3_MODE == 'FE') {
+			return FALSE;
+		}
 
-			// disable auto indexing by setup
+			// Don't auto index if it's disabled in TSconfig
 		if (!tx_dam::config_checkValueEnabled('setup.indexing.auto', TRUE)) {
 			return FALSE;
 		}
