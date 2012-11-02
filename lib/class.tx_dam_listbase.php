@@ -1159,7 +1159,7 @@ class tx_dam_listbase {
 	/**
 	 * Wraps the directory-titles
 	 *
-	 * @param	string		$title String to be wrapped in links
+	 * @param	string		$title String to be wrapped in links, HTML allowed
 	 * @param	string		$path Path
 	 * @return	string		HTML
 	 */
@@ -1184,7 +1184,7 @@ class tx_dam_listbase {
 	/**
 	 * Wraps filenames in links which opens them in a window IF they are in web-path.
 	 *
-	 * @param	string		$title String to be wrapped in link
+	 * @param	string		$title String to be wrapped in link, HTML allowed
 	 * @param	string		$pathInfo
 	 * @return	string		A tag
 	 */
