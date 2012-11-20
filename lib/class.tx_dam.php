@@ -1876,6 +1876,28 @@ class tx_dam {
 
 				tx_dam::index_process($newFile, $setup);
 
+				// Clear cache for all pages having a relation to the replaced DAM record
+				$fileReferences = tx_dam_db::getMediaUsageReferences($meta['uid']);
+				if (is_array($fileReferences)) {
+					$affectedContentUids = array();
+					foreach ($fileReferences as $fileReference) {
+						if ($fileReference['tablenames'] == 'tt_content') {
+							$affectedContentUids[] = (int) $fileReference['uid_foreign'];
+						}
+					}
+					/** @var $databaseHandle t3lib_DB */
+					$databaseHandle = $GLOBALS['TYPO3_DB'];
+					if (!empty($affectedContentUids)) {
+						$affectedPages = $databaseHandle->exec_SELECTquery('pid', 'tt_content', 'uid IN (' . implode(',', $affectedContentUids) . ')');
+						/** @var $tce t3lib_TCEmain */
+						$tce = t3lib_div::makeInstance('t3lib_TCEmain');
+						$tce->start(array(), array());
+						while ($affectedPage = $databaseHandle->sql_fetch_assoc($affectedPages)) {
+							$tce->clear_cache('pages', $affectedPage['pid']);
+						}
+					}
+				}
+
 			}
 		} elseif ($isFileReplacedWithFile === FALSE) {
 				// attempting to replace a file with nothing
