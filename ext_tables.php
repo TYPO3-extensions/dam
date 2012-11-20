@@ -528,6 +528,10 @@ if ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['setup']['disableVersioning'])
 	unset($TCA['tx_dam']['ctrl']['versioningWS']);
 	unset($TCA['tx_dam_cat']['ctrl']['versioningWS']);
 
+	// Enable editing of live version, e.g. index uploaded files when in draft workspace
+	$TCA['tx_dam']['ctrl']['versioningWS_alwaysAllowLiveEdit'] = TRUE;
+	$TCA['tx_dam_cat']['ctrl']['versioningWS_alwaysAllowLiveEdit'] = TRUE;
+
 }
 
 ?>
