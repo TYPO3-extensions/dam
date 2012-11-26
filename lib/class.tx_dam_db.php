@@ -323,6 +323,7 @@ class tx_dam_db {
 
 		require_once (PATH_t3lib.'class.t3lib_tcemain.php');
 
+		/** @var $tce t3lib_TCEmain */
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$tce->stripslashes_values = 0;
 
@@ -340,13 +341,39 @@ class tx_dam_db {
 
 			// still data to change?
 		if ($meta) {
-			$meta = tx_dam_db::setMetaDefaultFields ($meta);
+			$meta = tx_dam_db::setMetaDefaultFields($meta);
 
-			if (is_object($GLOBALS['BE_USER'])) {
+			if ($id == 'NEW' && is_object($GLOBALS['BE_USER'])) {
+
+				/* Get TCAdefaults from Page TS */
+				$pageTS = t3lib_beFunc::getPagesTSconfig(self::getPid());
+				$defaultPageTsValues = array();
+				if (isset($pageTS['TCAdefaults.'])) {
+					$TCAPageTSOverride = $pageTS['TCAdefaults.'];
+					if (is_array($TCAPageTSOverride['tx_dam' . '.'])) {
+						foreach ($TCAPageTSOverride['tx_dam' . '.'] as $field => $value) {
+							if (isset($GLOBALS['TCA']['tx_dam']['columns'][$field])) {
+								$defaultPageTsValues[$field] = $value;
+							}
+						}
+					}
+				}
+
+				/* Get TCAdefaults from User TS */
 				$TCAdefaultOverride = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
 				if (is_array($TCAdefaultOverride))	{
 					$tce->setDefaultsFromUserTS($TCAdefaultOverride);
+					$defaultUserTsValues = $tce->newFieldArray('tx_dam');
 				}
+
+				/* Page TS is more specific than User TS, therefore it takes precedence */
+				$defaultValues = array_merge($defaultUserTsValues, $defaultPageTsValues);
+
+				/*
+					Merge metadata and default values
+					We don't use array_merge here because it would not overwrite empty values in the metadata with	the default values
+				*/
+				$meta = t3lib_div::array_merge_recursive_overrule($defaultValues, $meta, FALSE, FALSE);
 			}
 
 			$data['tx_dam'][$id] = $meta;
@@ -1067,7 +1094,7 @@ class tx_dam_db {
 		}
 			// References in tx_dam_file_tracking table
 		$rows = array_merge($rows, tx_dam_db::getMediaUsageUploads($uidList, '', ''));
-		
+
 		return $rows;
 	}
 
@@ -1284,14 +1311,14 @@ class tx_dam_db {
 		return $infoFields;
 	}
 
-	
+
 	/**
-	 * Get the extension record from the DB. 
+	 * Get the extension record from the DB.
 	 *
 	 * @param	string		$ext: Extension, for which to fetch the record. Optional
 	 * @param	boolean		$mimeType: Mime Type, for which to fetch the record. Optional, but must be provided if the extension is blank.
 	 * @return	array		File type record.
-	 */	
+	 */
 	function getMediaExtension($ext='', $mimeType='') {
 		// Check we have enough information to proceed
 		if ($ext == '' && $mimeType == '') {
@@ -1303,8 +1330,8 @@ class tx_dam_db {
 		if ($mimeType != '') {
 			$where[] = "mime=" . $GLOBALS['TYPO3_DB']->fullQuoteStr($mimeType, 'tx_dam_media_types');
 		}
-		
-		// Query the DB 
+
+		// Query the DB
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 												'*',
 												'tx_dam_media_types',
@@ -1314,7 +1341,7 @@ class tx_dam_db {
 			$GLOBALS['TYPO3_DB']->sql_free_result($res);
 			return $row;
 		}
-	}	
+	}
 
 
 
