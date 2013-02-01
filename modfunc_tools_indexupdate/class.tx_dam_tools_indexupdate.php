@@ -565,6 +565,8 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		global $LANG, $TYPO3_CONF_VARS;
 
 
+		$markMissingDeleted
+			= (bool) $this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.deleteMissing'];
 
 			// get session data - which might have left files stored
 		$indexSession = $this->indexSessionFetch();
@@ -588,8 +590,15 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		}
 
 		$files_at_a_time = 200;
+		$startFile = $indexSession['currentCount'] - $indexSession['deleted'];
 
-		$rows = tx_dam_db::getDataWhere('', $where, '', '', intval($indexSession['currentCount']).','.$files_at_a_time);
+		$rows = tx_dam_db::getDataWhere(
+			'',
+			$where,
+			'',
+			'uid',
+			$startFile . ',' . $files_at_a_time
+		);
 
 		if ($rows) {
 
@@ -602,7 +611,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 
 				if(is_array($meta)) {
 
-					$status = tx_dam::meta_updateStatus ($meta, $this->pObj->MOD_SETTINGS['tx_dam_tools_indexupdate.deleteMissing']);
+					$status = tx_dam::meta_updateStatus($meta, $markMissingDeleted);
 
 					$ctable = array();
 					$fileHasStatusOK = FALSE;
@@ -611,6 +620,9 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 								$ctable[] = $this->infoIcon(2);
 							break;
 						case TXDAM_status_file_missing:
+								if ($markMissingDeleted) {
+									$indexSession['deleted']++;
+								}
 								$ctable[] = $this->infoIcon(3);
 							break;
 
@@ -1017,6 +1029,7 @@ class tx_dam_tools_indexupdate extends t3lib_extobjbase {
 		$indexSession['ID'] = uniqid('tx_dam_tools_indexupdate');
 		$indexSession['indexRun'] = time();
 		$indexSession['currentCount'] = 0;
+		$indexSession['deleted'] = 0;
 		$indexSession['totalFilesCount'] = $totalFilesCount;
 		$indexSession['data'] = $data;
 		$this->indexSessionWrite($indexSession);
