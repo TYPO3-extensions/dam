@@ -447,6 +447,7 @@ class tx_dam {
 		}
 
 			// use TYPO3 cleanFileName function
+		/** @var $basicFileFuncObj t3lib_basicFileFunctions */
 		$basicFileFuncObj = t3lib_div::makeInstance('t3lib_basicFileFunctions');
 		$filename = $basicFileFuncObj->cleanFileName($filename);
 		
@@ -1783,12 +1784,14 @@ class tx_dam {
 		/** @var $TCEfile tx_dam_tce_file */
 		$TCEfile = t3lib_div::makeInstance('tx_dam_tce_file');
 		$TCEfile->init();
-			// allow overwrite
-		$TCEfile->fileProcessor->dontCheckForUnique = true;
 
-// FIXME overwrite only original file not others
-// dontCheckForUnique=true allow overwriting any file
-// dontCheckForUnique have to be false and the file have to be replaced afterwards?
+		// The existing file can only be overwritten if the new file has an identical name (and therefore belongs
+		// to the record. Otherwise an existing file of another record could be overwritten on replacing.
+		if ($meta['file_name'] === tx_dam::file_makeCleanName($_FILES['upload_' . $meta['uid']]['name'])) {
+			$TCEfile->fileProcessor->dontCheckForUnique = TRUE;
+		} else {
+			$TCEfile->fileProcessor->dontCheckForUnique = FALSE;
+		}
 
 			// check if file is replaced with a file (and not with nothing)
 		$isFileReplacedWithFile = ($_FILES['upload_' . $meta['uid']]['name']) ? TRUE: FALSE;

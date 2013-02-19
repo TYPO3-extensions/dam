@@ -119,6 +119,7 @@ class tx_dam_tce_file {
 	var $overwriteExistingFiles;	// If existing files should be overridden.
 
 		// Internal, dynamic:
+	/** @var $fileProcessor tx_dam_extFileFunctions */
 	var $fileProcessor;				// File processor object: tx_dam_extFileFunctions
 
 	var $error = FALSE;
@@ -161,7 +162,7 @@ class tx_dam_tce_file {
 	/**
 	 * Initializing file processing commands
 	 *
-	 * @param	array		The $file array with the commands to execute. See "TYPO3 Core API" document
+	 * @param	array		$fileCmds The $file array with the commands to execute. See "TYPO3 Core API" document
 	 * @return	void
 	 */
 	function setCmdmap($fileCmds)	{
