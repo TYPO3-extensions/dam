@@ -89,7 +89,7 @@ require_once(PATH_site.'typo3/class.browse_links.php');
  */
 class tx_dam_browse_media extends browse_links {
 
-
+	/** @var $damSC tx_dam_SCbase */
 	var $damSC = null;
 
 
@@ -128,9 +128,6 @@ class tx_dam_browse_media extends browse_links {
 	 * @return void
 	 */
 	function initDAM () {
-
-			// load the clickmenu
-		$this->doc->getContextMenuCode();
 
 		if (!is_object($this->damSC)) {
 			$GLOBALS['LANG']->includeLLFile('EXT:dam/modfunc_file_upload/locallang.xml');

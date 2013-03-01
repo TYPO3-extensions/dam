@@ -464,12 +464,11 @@ class tx_dam_SCbase extends t3lib_SCbase {
 			var script_ended = 0;
 			var changed = 0;';
 
-			// we first want to check if jumpTourl was set already,
-			// and check this twice (in case rtehtmlarea decides to use
-			// JScodeArray as well later on, we don't want to react again)
-			// the second check is done in javascript to not define jumpToUrl
-			// twice (= overriding the initial function)
-		if (!isset($this->doc->JScodeArray['jumpToUrl'])) {
+		// we set the function jumpToUrl if we are not in an element browser context (because
+		// in the element browser this function is set by browse_links.php
+		// to avoid overriding another original method with the same name, we then check by
+		// JavaScript if the function is already set and set it only if it isn't
+		if ($this->MCONF['name'] !== 'txdam_elbrowser') {
 			$this->doc->JScodeArray['jumpToUrl'] = '
 				if (!(typeof jumpToUrl == "function")) {
 					function jumpToUrl(URL) {

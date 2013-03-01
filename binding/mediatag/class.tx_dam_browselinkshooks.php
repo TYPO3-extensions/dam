@@ -42,16 +42,16 @@ class tx_dam_browselinkshooks implements t3lib_browseLinksHook {
 	protected $mode;
 	protected $act;
 	protected $bparams;
-		// DAM browser object
+	/** @var tx_dam_browse_media DAM browser object */
 	protected $browserRenderObj;
-		// Link title derived from the DAM database
+	// Link title derived from the DAM database
 	protected $damTitle = '';
 
 	/**
 	 * initializes the hook object
 	 *
-	 * @param	browse_links	parent browse_links object
-	 * @param	array		additional parameters
+	 * @param	browse_links	$parentObject parent browse_links object
+	 * @param	array		$additionalParameters additional parameters
 	 * @return	void
 	 */
 	public function init($parentObject, $additionalParameters) {
@@ -62,6 +62,7 @@ class tx_dam_browselinkshooks implements t3lib_browseLinksHook {
 		$this->bparams =& $this->invokingObject->bparams;
 		$this->invokingObject->anchorTypes[] = 'media';
 		$GLOBALS['LANG']->includeLLFile('EXT:dam/compat/locallang.xml');
+		//t3lib_utility_Debug::debug($this->invokingObject->act);
 	}
 
 	/**
@@ -69,7 +70,7 @@ class tx_dam_browselinkshooks implements t3lib_browseLinksHook {
 	 * Replaces the 'file' item with the 'media' item
 	 * Adds DAM upload tab
 	 *
-	 * @param	array	currently allowed items
+	 * @param	array	$currentlyAllowedItems currently allowed items
 	 * @return	array	currently allowed items plus added items
 	 */
 	public function addAllowedItems($currentlyAllowedItems) {
@@ -88,7 +89,7 @@ class tx_dam_browselinkshooks implements t3lib_browseLinksHook {
 	 * Modifies the menu definition and returns it
 	 * Adds definition of the 'media' menu item
 	 *
-	 * @param	array	menu definition
+	 * @param	array	$menuDefinition menu definition
 	 * @return	array	modified menu definition
 	 */
 	public function modifyMenuDefinition($menuDefinition) {
@@ -104,7 +105,7 @@ class tx_dam_browselinkshooks implements t3lib_browseLinksHook {
 	 * Returns a new tab for the browse links wizard
 	 * Returns the 'media' tab to the RTE link browser
 	 *
-	 * @param	string		current link selector action
+	 * @param	string		$linkSelectorAction current link selector action
 	 * @return	string		a tab for the selected link action
 	 */
 	public function getTab($linkSelectorAction) {
