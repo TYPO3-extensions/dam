@@ -240,7 +240,7 @@ class tx_dam_tce_file {
 		require_once(PATH_txdam.'lib/class.tx_dam_indexing.php');
 		$index = t3lib_div::makeInstance('tx_dam_indexing');
 		$index->init();
-		//$index->setDefaultSetup(tx_dam::path_makeAbsolute($this->pObj->path));
+		$index->setDefaultSetup(tx_dam::path_makeAbsolute($this->pObj->path));
 		$index->enableReindexing(2);
 		$index->initEnabledRules();
 

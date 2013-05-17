@@ -39,7 +39,9 @@ if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['tsconfig']==='default')	{
 
 
 	// set some config values from extension setup
-tx_dam::config_setValue('setup.devel', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']);
+if ($TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']) {
+	tx_dam::config_setValue('setup.devel', $TYPO3_CONF_VARS['EXTCONF']['dam']['setup']['devel']);
+}
 
 	// register default icons
 tx_dam::register_fileIconPath(PATH_txdam.'i/18/', 'FE');

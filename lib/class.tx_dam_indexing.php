@@ -170,6 +170,12 @@ class tx_dam_indexing {
 	 */
 	var $dataAppend = array();
 // TODO $dataAppend
+
+	/**
+	 * Default setup
+	 */
+	var $defaultSetup;
+
 	/**
 	 * Pid of the sysfolder where the DAM records should be written
 	 */

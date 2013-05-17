@@ -117,6 +117,7 @@ class tx_dam_config {
 
 		if(!is_array($config)) {
 			tx_dam_config::init();
+			$config = $GLOBALS['T3_VAR']['ext']['dam']['config'];
 		}
 
 		if ($configPath) {
