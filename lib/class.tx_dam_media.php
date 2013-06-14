@@ -498,7 +498,7 @@ class tx_dam_media {
 	 */
 	function getInfo ($field) {
 		if ($this->fileInfo == NULL) {
-			$media->fetchFileinfo();
+			$this->fetchFileinfo();
 		}
 		return $this->fileInfo[$field];
 	}
