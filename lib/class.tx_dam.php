@@ -2440,7 +2440,28 @@ class tx_dam {
 				foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['dam']['fileIconPaths_'.$mode] as $pathIcons ) {
 						// Check defined icons
 					$fileType = tx_dam_db::getMediaExtension($mimeType['file_type']);
-                    
+
+					if (is_array($fileType) === FALSE && $this->mediaTypeSetupCheck !== TRUE) {
+						// Skip this check after one run
+						$this->mediaTypeSetupCheck = TRUE;
+
+						// If the uploaded file type is not known, check if the table has been imported correctly.
+						$numRows = $GLOBALS['TYPO3_DB']->exec_SELECTcountRows(
+							'*', 'tx_dam_media_types'
+						);
+						if ($numRows < 3) {
+							// We have less than 3 records but there should be at least 300 in this table.
+							// Tell the user that something is wrong here.
+							$message = t3lib_div::makeInstance(
+								't3lib_FlashMessage',
+								'The static data for table "tx_dam_media_types" has not been imported correctly. Please import it in the Extension Manager.',
+								'',
+								t3lib_FlashMessage::ERROR
+							);
+							t3lib_FlashMessageQueue::addMessage($message);
+						}
+					}
+
 						// See if the icon is a DAM reference
 					if(tx_dam::canBeInterpretedAsInteger($fileType['icon'])) {
 						$fileType['icon'] = tx_dam::file_getPathByUid($fileType['icon']);
