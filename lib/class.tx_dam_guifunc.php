@@ -188,6 +188,11 @@ class tx_dam_guiFunc {
 	function convert_mediaType($type) {
 		global $LANG;
 
+		if ($type === NULL) {
+			// Fallback to "undefined"
+			$type = 0;
+		}
+
 		if(!strcmp($type,intval($type)) AND is_object($LANG)) {
 			$type = tx_dam_guifunc::getLabelFromItemlist('tx_dam', 'media_type', $type);
 			$type = $LANG->sL($type);
