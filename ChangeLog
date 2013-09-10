@@ -1,3 +1,7 @@
+From DAM 1.3.2 upwards, the ChangeLog is no longer maintained. Please refer to
+  https://git.typo3.org/TYPO3v4/Extensions/dam.git/log
+for the detailed ChangeLog.
+
 2012-09-28 Lorenz Ulrich <lorenz.ulrich@visol.ch>
 
     * Release of DAM 1.3.1
