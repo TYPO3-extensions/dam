@@ -360,6 +360,7 @@ class tx_dam_db {
 				}
 
 				/* Get TCAdefaults from User TS */
+				$defaultUserTsValues = array();
 				$TCAdefaultOverride = $GLOBALS['BE_USER']->getTSConfigProp('TCAdefaults');
 				if (is_array($TCAdefaultOverride))	{
 					$tce->setDefaultsFromUserTS($TCAdefaultOverride);
