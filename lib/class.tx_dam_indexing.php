@@ -1219,6 +1219,7 @@ class tx_dam_indexing {
 			unset($serviceObj);
 		}
 
+		$language = strtoupper($language);
 		if ($this->writeDevLog) 	t3lib_div::devLog('getMetaLanguage(): '.$language, 'tx_dam_indexing');
 
 		return $language;
