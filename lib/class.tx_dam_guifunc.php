@@ -366,9 +366,13 @@ class tx_dam_guiFunc {
 			require_once(PATH_txdam.'lib/class.tx_dam_listpointer.php');
 			/** @var $pointer tx_dam_listPointer */
 			$pointer = t3lib_div::makeInstance('tx_dam_listPointer');
-			$pointer->init(0, 40, 1);
+			$settings = t3lib_div::_GET('SET');
+			$page = 0;
+			if (isset($settings['tx_dam_resultPointer'])) {
+				$page = (int) $settings['tx_dam_resultPointer'];
+			}
+			$pointer->init($page, 40, $references->count());
 			$referenceList->setPointer($pointer);
-			$referenceList->pointer->setTotalCount($references->count());
 			$content .= $referenceList->getListTable();
 		}
 		return $content;
