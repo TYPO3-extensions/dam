@@ -326,6 +326,7 @@ class tx_dam_db {
 		/** @var $tce t3lib_TCEmain */
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$tce->stripslashes_values = 0;
+		$tce->dontProcessTransformations = TRUE;
 
 		$data = array();
 		$cmd = array();
