@@ -1125,7 +1125,11 @@ class tx_dam_indexing {
 				// find a service for that file type
 			if (!is_object($serviceObj = t3lib_div::makeInstanceService('metaExtract', $fileType))) {
 					// find a global service for that media type
-				$serviceObj = t3lib_div::makeInstanceService('metaExtract', $mediaType.':*');
+				if ($mediaType === '') {
+					$mediaType = 0;
+				}
+				$mediaTypeName = $GLOBALS['T3_VAR']['ext']['dam']['code2media'][$mediaType];
+				$serviceObj = t3lib_div::makeInstanceService('metaExtract', $mediaTypeName.':*');
 			}
 			if (is_object($serviceObj)) {
 				$serviceObj->setInputFile($pathname, $fileType);
